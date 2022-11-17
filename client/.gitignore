@@ -1,0 +1,6 @@
+/dist
+/build.sh
+/deploy.sh
+script.env
+accumulate.env
+node_modules
