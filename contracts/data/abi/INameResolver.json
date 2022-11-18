@@ -1,0 +1,4 @@
+[
+  "event NameChanged(bytes32 indexed,string)",
+  "function name(bytes32) view returns (string)"
+]

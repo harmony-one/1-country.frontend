@@ -1,0 +1,9 @@
+[
+  "event ControllerChanged(address indexed,bool)",
+  "event OwnershipTransferred(address indexed,address indexed)",
+  "function controllers(address) view returns (bool)",
+  "function owner() view returns (address)",
+  "function renounceOwnership()",
+  "function setController(address,bool)",
+  "function transferOwnership(address)"
+]
