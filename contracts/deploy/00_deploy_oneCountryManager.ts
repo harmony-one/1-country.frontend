@@ -9,13 +9,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployer } = await getNamedAccounts()
 
+  const token = '1.Country'
+  const symbol = '1CTY'
   const baseRentalPrice = 100
   const rentalPeriod = 90
   const priceMultiplier = 2
 
   await deploy('OneCountryManager', {
     from: deployer,
-    args: [baseRentalPrice, rentalPeriod, priceMultiplier],
+    args: [token, symbol, baseRentalPrice, rentalPeriod, priceMultiplier],
     log: true,
     autoMine: true // speed up deployment on local network (ganache, hardhat), no effect on live networks
   })
