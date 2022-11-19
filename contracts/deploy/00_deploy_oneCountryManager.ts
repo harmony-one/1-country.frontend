@@ -10,7 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts()
 
   const baseRentalPrice = 100
-  const rentalPeriod = 30
+  const rentalPeriod = 90
   const priceMultiplier = 2
 
   await deploy('OneCountryManager', {

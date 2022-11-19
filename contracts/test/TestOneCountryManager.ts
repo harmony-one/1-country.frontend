@@ -2,7 +2,7 @@
 import { ethers } from 'hardhat'
 
 const baseRentalPrice = 100
-const rentalPeriod = 30
+const rentalPeriod = 90
 const priceMultiplier = 2
 
 describe('OneCountryManager', function () {
