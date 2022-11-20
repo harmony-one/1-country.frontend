@@ -20,7 +20,6 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  */
 contract OneCountryManager is ERC721, Pausable, Ownable {
     using Address for address;
-
     uint256 public baseRentalPrice;
     uint256 public rentalPeriod;
     uint32 public priceMultiplier;
@@ -95,12 +94,9 @@ contract OneCountryManager is ERC721, Pausable, Ownable {
     // Functions for Users and DApps
     // -----------------
 
-    function getNameRecord(bytes32 name)
-        public
-        view
-        whenNotPaused
-        returns (NameRecord memory, uint256)
-    {
+    function getNameRecord(
+        bytes32 name
+    ) public view whenNotPaused returns (NameRecord memory, uint256) {
         uint256 nameAquisitionPrice = baseRentalPrice;
         NameRecord memory nameRecord = nameRecords[name];
         uint256 nameRecordExpires = nameRecord.updated + rentalPeriod;
@@ -117,12 +113,10 @@ contract OneCountryManager is ERC721, Pausable, Ownable {
         return (nameRecord, nameAquisitionPrice);
     }
 
-    function rentName(bytes memory name, string memory url)
-        public
-        payable
-        whenNotPaused
-        returns (bool)
-    {
+    function rentName(
+        bytes memory name,
+        string memory url
+    ) public payable whenNotPaused returns (bool) {
         bytes32 nameHash = keccak256(name);
         NameRecord memory nameRecord;
         uint256 nameAquisitionPrice;
@@ -152,12 +146,10 @@ contract OneCountryManager is ERC721, Pausable, Ownable {
         return true;
     }
 
-    function updateURL(bytes memory name, string memory url)
-        public
-        payable
-        whenNotPaused
-        returns (bool)
-    {
+    function updateURL(
+        bytes memory name,
+        string memory url
+    ) public payable whenNotPaused returns (bool) {
         require(
             (nameRecords[keccak256(name)].renter) == msg.sender,
             "OneCountryManager: only current renter can updateURL"

@@ -1,5 +1,5 @@
 {
-    "name": "1country-contracts",
+    "name": "1-country-contracts",
     "version": "0.0.0",
     "description": "Contracts for .1.country",
     "license": "MIT",
@@ -40,6 +40,7 @@
         "eslint-config-prettier": "^8.5.0",
         "eslint-config-standard": "^17.0.0",
         "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-n": "^15.5.1",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-prettier": "^4.2.1",
         "eslint-plugin-promise": "^6.1.1",
