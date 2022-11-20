@@ -1,6 +1,6 @@
 {
     "name": "1-country-contracts",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "Contracts for .1.country",
     "license": "MIT",
     "files": [
@@ -26,7 +26,6 @@
         "@nomiclabs/hardhat-etherscan": "^3.0.3",
         "@nomiclabs/hardhat-waffle": "^2.0.3",
         "@openzeppelin/hardhat-upgrades": "^1.17.0",
-        "@primitivefi/hardhat-dodoc": "^0.2.3",
         "@typechain/ethers-v5": "^10.1.1",
         "@typechain/hardhat": "^6.1.4",
         "@types/chai": "^4.3.1",
@@ -48,6 +47,7 @@
         "ethers": "^5.6.7",
         "hardhat": "^2.12.2",
         "hardhat-abi-exporter": "^2.9.0",
+        "hardhat-contract-sizer": "^2.6.1",
         "hardhat-deploy": "^0.11.10",
         "hardhat-gas-reporter": "^1.0.8",
         "hardhat-spdx-license-identifier": "^2.0.3",

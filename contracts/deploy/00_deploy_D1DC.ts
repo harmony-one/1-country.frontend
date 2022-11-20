@@ -1,7 +1,5 @@
-/* eslint-disable node/no-unpublished-import */
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
-import { parseEther } from 'ethers/lib/utils'
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre
@@ -9,18 +7,19 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployer } = await getNamedAccounts()
 
-  const token = '1.Country'
-  const symbol = '1CTY'
+  const name = '.1.country'
+  const symbol = 'D1DC'
   const baseRentalPrice = 100
-  const rentalPeriod = 90
+  const rentalPeriod = 90 * 3600 * 24
   const priceMultiplier = 2
 
-  await deploy('OneCountryManager', {
+  const d1dc = await deploy('D1DC', {
     from: deployer,
-    args: [token, symbol, baseRentalPrice, rentalPeriod, priceMultiplier],
+    args: [name, symbol, baseRentalPrice, rentalPeriod, priceMultiplier],
     log: true,
     autoMine: true // speed up deployment on local network (ganache, hardhat), no effect on live networks
   })
+  console.log('D1DC address:', d1dc.address)
 }
 export default func
-func.tags = ['OneCountryManager']
+func.tags = ['D1DC']

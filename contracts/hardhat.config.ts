@@ -7,29 +7,19 @@ import '@typechain/hardhat'
 import 'hardhat-gas-reporter'
 import 'hardhat-deploy'
 import 'solidity-coverage'
-import '@primitivefi/hardhat-dodoc'
 import 'hardhat-abi-exporter'
 import '@atixlabs/hardhat-time-n-mine'
 import 'hardhat-spdx-license-identifier'
 import '@openzeppelin/hardhat-upgrades'
-import { resolve } from 'path'
-
+import 'hardhat-contract-sizer'
 dotenv.config()
 
-const HARMONY_PRIVATE_KEY = process.env.PRIVATE_KEY
-
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
 task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners()
-
   for (const account of accounts) {
     console.log(account.address)
   }
 })
-
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -37,51 +27,69 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 50000
+        runs: 200
       }
     }
   },
   namedAccounts: {
-    deployer: 0,
-    greeter: 1
+    deployer: 0
   },
   networks: {
-    localnet: {
-      url: 'http://localhost:9500',
-      accounts: [`0x${HARMONY_PRIVATE_KEY}`]
+    local: {
+      url: process.env.LOCAL_URL || 'http://localhost:8545',
+      accounts: { mnemonic: process.env.LOCAL_MNEMONIC },
+      live: false,
+      saveDeployments: false
     },
     testnet: {
-      url: 'https://api.s0.b.hmny.io',
-      accounts: [`0x${HARMONY_PRIVATE_KEY}`]
+      url: process.env.TESTNET_URL,
+      accounts: { mnemonic: process.env.TEST_MNEMONIC },
+      chainId: 1666700000,
+      live: true,
+      gasMultiplier: 2,
+      saveDeployments: false
     },
     mainnet: {
-      url: 'https://api.harmony.one',
-      accounts: [`0x${HARMONY_PRIVATE_KEY}`]
+      url: process.env.MAINNET_URL,
+      accounts: { mnemonic: process.env.MNEMONIC },
+      chainId: 1666600000,
+      live: true,
+      gasPrice: 100e+9,
+      gasMultiplier: 2,
+      gas: 10e+6
+    },
+    s1: {
+      url: process.env.S1_URL,
+      accounts: { mnemonic: process.env.MNEMONIC },
+      chainId: 1666600001,
+      live: true,
+      gasPrice: 100e+9,
+      gasMultiplier: 2,
+      gas: 10e+6
     }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: 'USD'
   },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY
-  },
-  dodoc: {
-    runOnCompile: true,
-    debugMode: false,
-    outputDir: 'docs/solidity'
-  },
   abiExporter: {
-    path: './docs/abi',
+    path: './abi',
     runOnCompile: true,
     clear: true,
     flat: true,
     spacing: 2,
-    pretty: true
+    pretty: true,
+    only: ['D1DC']
   },
   spdxLicenseIdentifier: {
     overwrite: true,
     runOnCompile: true
+  },
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: true
   }
 }
 
