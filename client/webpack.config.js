@@ -1,15 +1,18 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+require('dotenv').config()
 const path = require('path')
 const webpack = require('webpack')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 
+console.log(!process.env.HTTP)
+
 module.exports = {
   devServer: {
     port: 3100,
-    https: true,
-    http2: true,
+    https: !process.env.HTTP,
+    http2: !process.env.HTTP,
     historyApiFallback: true,
     hot: false,
     client: {
