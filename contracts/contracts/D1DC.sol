@@ -17,14 +17,14 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
  */
 contract D1DC is ERC721, Pausable, Ownable {
     uint256 public baseRentalPrice;
-    uint256 public rentalPeriod;
+    uint32 public rentalPeriod;
     uint32 public priceMultiplier;
 
     // TODO remove nameExists and replace logic with renter not equal to zero address
     struct NameRecord {
         address renter;
+        uint32 timeUpdated;
         uint256 lastPrice;
-        uint256 timeUpdated;
         string url;
     }
 
@@ -38,7 +38,7 @@ contract D1DC is ERC721, Pausable, Ownable {
         string memory _name,
         string memory _symbol,
         uint256 _baseRentalPrice,
-        uint256 _rentalPeriod,
+        uint32 _rentalPeriod,
         uint32 _priceMultiplier
     ) ERC721(_name, _symbol) {
         baseRentalPrice = _baseRentalPrice;
@@ -52,7 +52,7 @@ contract D1DC is ERC721, Pausable, Ownable {
         baseRentalPrice = _baseRentalPrice;
     }
 
-    function setRentalPeriod(uint256 _rentalPeriod) public onlyOwner {
+    function setRentalPeriod(uint32 _rentalPeriod) public onlyOwner {
         rentalPeriod = _rentalPeriod;
     }
 
@@ -72,13 +72,15 @@ contract D1DC is ERC721, Pausable, Ownable {
 
     function getPrice(bytes32 encodedName) public view returns (uint256) {
         NameRecord storage nameRecord = nameRecords[encodedName];
-        if (nameRecord.timeUpdated + rentalPeriod <= block.timestamp) {
+        if (nameRecord.timeUpdated + rentalPeriod <= uint32(block.timestamp)) {
             return baseRentalPrice;
         }
         return nameRecord.renter == msg.sender ? nameRecord.lastPrice : nameRecord.lastPrice * priceMultiplier;
     }
 
     function rent(string calldata name, string calldata url) public payable whenNotPaused {
+        require(bytes(name).length <= 128, "D1DC: name too long");
+        require(bytes(url).length <= 1024, "D1DC: url too long");
         uint256 tokenId = uint256(keccak256(bytes(name)));
         NameRecord storage nameRecord = nameRecords[bytes32(tokenId)];
         uint256 price = getPrice(bytes32(tokenId));
@@ -86,7 +88,7 @@ contract D1DC is ERC721, Pausable, Ownable {
 
         nameRecord.renter = msg.sender;
         nameRecord.lastPrice = price;
-        nameRecord.timeUpdated = block.timestamp;
+        nameRecord.timeUpdated = uint32(block.timestamp);
         nameRecord.url = url;
 
         if (_exists(tokenId)) {
@@ -104,6 +106,7 @@ contract D1DC is ERC721, Pausable, Ownable {
 
     function updateURL(string calldata name, string calldata url) public payable whenNotPaused {
         require(nameRecords[keccak256(bytes(name))].renter == msg.sender, "D1DC: not owner");
+        require(bytes(url).length <= 1024, "D1DC: url too long");
         nameRecords[keccak256(bytes(name))].url = url;
     }
 
