@@ -19,6 +19,13 @@ const Container = styled(Main)`
   // TODO: responsive
 `
 
+const TweetContainerRow = styled(FlexRow)`
+  width: 100%;
+  div {
+    width: 100%;
+  }
+`
+
 const SmallTextGrey = styled(SmallText)`
   color: grey;
 `
@@ -42,6 +49,15 @@ const getSubdomain = () => {
   return parts.slice(0, parts.length - 2).join('.')
 }
 
+const parseBN = (n) => {
+  try {
+    return new BN(n)
+  } catch (ex) {
+    console.error(ex)
+    return null
+  }
+}
+
 const parseTweetId = (urlInput) => {
   try {
     const url = new URL(urlInput)
@@ -56,11 +72,11 @@ const parseTweetId = (urlInput) => {
     if (parts[parts.length - 2] !== 'status') {
       return BAD_FORM
     }
-    const tweetId = parseInt(parts[parts.length - 1])
-    if (isNaN(tweetId)) {
+    const tweetId = parseBN(parts[parts.length - 1])
+    if (!tweetId) {
       return { error: 'cannot parse tweet id' }
     }
-    return { tweetId }
+    return { tweetId: tweetId.toString() }
   } catch (ex) {
     console.error(ex)
     return { error: ex.toString() }
@@ -160,6 +176,16 @@ const Home = ({ subdomain = config.tld }) => {
     client.getPrice({ name }).then(p => setPrice(p))
   }, [client])
 
+  useEffect(() => {
+    if (!record?.url) {
+      return
+    }
+    const id = parseBN(record.url)
+    if (!id) {
+      return
+    }
+    setTweetId(id.toString())
+  }, [record?.url])
   const onBuy = async () => {
     if (!url) {
       return toast.error('Invalid URL to embed')
@@ -212,9 +238,10 @@ const Home = ({ subdomain = config.tld }) => {
             <Label>purchased on</Label><BaseText> {new Date(record.timeUpdated).toLocaleString()}</BaseText>
           </Row>
           {tweetId &&
-            <FlexRow className='tweet-container'>
+            <TweetContainerRow>
+              {tweetId}
               <TwitterTweetEmbed tweetId={tweetId} />
-            </FlexRow>}
+            </TweetContainerRow>}
           <Row style={{ marginTop: 32, justifyContent: 'center' }}>
             {record.url && !tweetId &&
               <Col>
@@ -224,9 +251,9 @@ const Home = ({ subdomain = config.tld }) => {
             {!record.url &&
               <BaseText>Owner hasn't embedded any tweet yet</BaseText>}
           </Row>
-          <SmallTextGrey style={{ marginTop: 32, textAlign: 'center' }}>
+          <Title style={{ marginTop: 64, textAlign: 'center' }}>
             Take over this page, embed a tweet you choose
-          </SmallTextGrey>
+          </Title>
           <Row style={{ marginTop: 16, justifyContent: 'center' }}>
             <Label>Price</Label><BaseText>{price?.formatted} ONE</BaseText>
           </Row>
