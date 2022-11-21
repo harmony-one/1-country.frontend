@@ -89,6 +89,7 @@
     "@reduxjs/toolkit": "^1.6.0",
     "@transak/transak-sdk": "^1.0.31",
     "axios": "^0.21.1",
+    "bn.js": "^5.2.1",
     "connected-react-router": "^6.9.1",
     "dotenv-webpack": "^8.0.0",
     "html2canvas": "^1.3.2",
