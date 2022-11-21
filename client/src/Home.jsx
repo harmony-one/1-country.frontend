@@ -99,6 +99,8 @@ const Home = ({ subdomain = config.tld }) => {
 
   const name = getSubdomain()
 
+  const isOwner = address && record?.renter && (record.renter.toLowerCase() === address.toLowerCase())
+
   const switchChain = async (address) => {
     return window.ethereum.request({
       method: 'wallet_switchEthereumChain',
@@ -239,7 +241,6 @@ const Home = ({ subdomain = config.tld }) => {
           </Row>
           {tweetId &&
             <TweetContainerRow>
-              {tweetId}
               <TwitterTweetEmbed tweetId={tweetId} />
             </TweetContainerRow>}
           <Row style={{ marginTop: 32, justifyContent: 'center' }}>
@@ -251,12 +252,21 @@ const Home = ({ subdomain = config.tld }) => {
             {!record.url &&
               <BaseText>Owner hasn't embedded any tweet yet</BaseText>}
           </Row>
-          <Title style={{ marginTop: 64, textAlign: 'center' }}>
-            Take over this page, embed a tweet you choose
-          </Title>
-          <Row style={{ marginTop: 16, justifyContent: 'center' }}>
-            <Label>Price</Label><BaseText>{price?.formatted} ONE</BaseText>
-          </Row>
+          {isOwner
+            ? (
+              <>
+                <Title style={{ marginTop: 32, textAlign: 'center' }}>
+                  Take over this page, embed a tweet you choose
+                </Title>
+                <Row style={{ marginTop: 16, justifyContent: 'center' }}>
+                  <Label>Price</Label><BaseText>{price?.formatted} ONE</BaseText>
+                </Row>
+              </>)
+            : (
+              <Title style={{ marginTop: 32, textAlign: 'center' }}>
+                You own this subdomain
+              </Title>)}
+
         </Desc>}
       {!record?.renter &&
         <Col>
@@ -283,7 +293,7 @@ const Home = ({ subdomain = config.tld }) => {
             <Input $width='100%' $margin='8px' value={url} onChange={({ target: { value } }) => setUrl(value)} />
             <FloatingText>copy the tweet's URL</FloatingText>
           </Row>
-          <Button onClick={onBuy}>BUY</Button>
+          <Button onClick={onBuy} disabled={buying}>{isOwner ? 'UPDATE URL' : 'BUY'}</Button>
           <SmallTextGrey>Your address: {address}</SmallTextGrey>
         </>
       )}
