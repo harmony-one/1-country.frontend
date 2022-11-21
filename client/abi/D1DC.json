@@ -17,9 +17,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint32",
         "name": "_rentalPeriod",
-        "type": "uint256"
+        "type": "uint32"
       },
       {
         "internalType": "uint32",
@@ -353,13 +353,13 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "lastPrice",
-        "type": "uint256"
+        "internalType": "uint32",
+        "name": "timeUpdated",
+        "type": "uint32"
       },
       {
         "internalType": "uint256",
-        "name": "timeUpdated",
+        "name": "lastPrice",
         "type": "uint256"
       },
       {
@@ -466,9 +466,9 @@
     "name": "rentalPeriod",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint32",
         "name": "",
-        "type": "uint256"
+        "type": "uint32"
       }
     ],
     "stateMutability": "view",
@@ -572,9 +572,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint32",
         "name": "_rentalPeriod",
-        "type": "uint256"
+        "type": "uint32"
       }
     ],
     "name": "setRentalPeriod",
