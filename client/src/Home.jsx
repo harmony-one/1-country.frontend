@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react'
 import Web3 from 'web3'
 import detectEthereumProvider from '@metamask/detect-provider'
 import config from '../config'
-import { Button, LinkWrarpper } from './components/Controls'
-import { BaseText, SmallText, Title } from './components/Text'
-import { Col, FlexColumn, FlexRow, Main, Row } from './components/Layout'
+import { Button, FloatingText, Input, LinkWrarpper } from './components/Controls'
+import { BaseText, Desc, SmallText, Title } from './components/Text'
+import { Col, FlexRow, Main, Row } from './components/Layout'
 import { TwitterTweetEmbed } from 'react-twitter-embed'
 import styled from 'styled-components'
-
+import humanizeDuration from 'humanize-duration'
 import { toast } from 'react-toastify'
 import apis from './api'
+import BN from 'bn.js'
 
 const Container = styled(Main)`
   margin: 32px auto;
@@ -18,9 +19,12 @@ const Container = styled(Main)`
   // TODO: responsive
 `
 
-const Label = styled(SmallText)`
-  margin-right: 16px;
+const SmallTextGrey = styled(SmallText)`
   color: grey;
+`
+
+const Label = styled(SmallTextGrey)`
+  margin-right: 16px;
 `
 
 const getSubdomain = () => {
@@ -38,19 +42,48 @@ const getSubdomain = () => {
   return parts.slice(0, parts.length - 2).join('.')
 }
 
+const parseTweetId = (urlInput) => {
+  try {
+    const url = new URL(urlInput)
+    if (url.host !== 'twitter.com') {
+      return { error: 'URL must be from https://twitter.com' }
+    }
+    const parts = url.pathname.split('/')
+    const BAD_FORM = { error: 'URL has bad form. It must be https://twitter.com/[some_account]/status/[tweet_id]' }
+    if (parts.length < 2) {
+      return BAD_FORM
+    }
+    if (parts[parts.length - 2] !== 'status') {
+      return BAD_FORM
+    }
+    const tweetId = parseInt(parts[parts.length - 1])
+    if (isNaN(tweetId)) {
+      return { error: 'cannot parse tweet id' }
+    }
+    return { tweetId }
+  } catch (ex) {
+    console.error(ex)
+    return { error: ex.toString() }
+  }
+}
+
 const Home = ({ subdomain = config.tld }) => {
   const [web3, setWeb3] = useState()
   const [provider, setProvider] = useState()
-  const [address, setAddress] = useState()
+  const [address, setAddress] = useState('')
   const [client, setClient] = useState(apis({}))
   const [record, setRecord] = useState(null)
   const [price, setPrice] = useState(null)
-  const [parameters, setParameters] = useState()
-  const [tweetId, setTweetId] = useState('933354946111705097')
+  const [parameters, setParameters] = useState({ rentalPeriod: 0, priceMultiplier: 0 })
+  const [tweetId, setTweetId] = useState('')
+  const [buying, setBuying] = useState(false)
+
+  // for updating stuff
+  const [url, setUrl] = useState('')
 
   const name = getSubdomain()
 
-  const switchChain = async () => {
+  const switchChain = async (address) => {
     return window.ethereum.request({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: config.chainParameters.chainId }],
@@ -81,7 +114,7 @@ const Home = ({ subdomain = config.tld }) => {
       setAddress(address)
 
       try {
-        await switchChain()
+        await switchChain(address)
       } catch (ex) {
         console.error(ex)
         if (ex.code !== 4902) {
@@ -128,23 +161,37 @@ const Home = ({ subdomain = config.tld }) => {
   }, [client])
 
   const onBuy = async () => {
+    if (!url) {
+      return toast.error('Invalid URL to embed')
+    }
+    setBuying(true)
     try {
-      const tx = await client.purchase({ amount: price * 2 })
-      if (!tx) {
-        return toast.error('Failed to approve')
+      const tweetId = parseTweetId(url)
+      if (tweetId.error) {
+        return toast.error(tweetId.error)
       }
-      console.log(tx)
-      const { transactionHash } = tx
-      toast.success(
-        <FlexRow>
-          <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
-          <LinkWrarpper target='_blank' href={client.getExplorerUri(transactionHash)}>
-            <BaseText>View transaction</BaseText>
-          </LinkWrarpper>
-        </FlexRow>)
+      await client.rent({
+        name,
+        url: tweetId.tweetId.toString(),
+        amount: new BN(price.amount).toString(),
+        onFailed: () => toast.error('Failed to purchase'),
+        onSuccess: (tx) => {
+          console.log(tx)
+          const { transactionHash } = tx
+          toast.success(
+            <FlexRow>
+              <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
+              <LinkWrarpper target='_blank' href={client.getExplorerUri(transactionHash)}>
+                <BaseText>View transaction</BaseText>
+              </LinkWrarpper>
+            </FlexRow>)
+        }
+      })
     } catch (ex) {
       console.error(ex)
-      toast.error('Had error during approval: ', ex.toString())
+      toast.error(`Unexpected error: ${ex.toString()}`)
+    } finally {
+      setBuying(false)
     }
   }
 
@@ -157,36 +204,61 @@ const Home = ({ subdomain = config.tld }) => {
         </BaseText>
       </FlexRow>
       {record?.renter &&
-        <>
-          <Col>
-            <Row>
-              <Label>Price</Label><BaseText>{price?.formatted} ONE</BaseText>
-            </Row>
-            <Row>
-              <Label>Last purchase</Label><BaseText> {new Date(record.timeUpdated).toLocaleString()}</BaseText>
-            </Row>
-          </Col>
-          <FlexRow className='tweet-container'>
-            <TwitterTweetEmbed tweetId={tweetId} />
-          </FlexRow>
-        </>}
+        <Desc style={{ marginTop: 32 }}>
+          <Row>
+            <Label>owned by</Label><BaseText>{record.renter}</BaseText>
+          </Row>
+          <Row>
+            <Label>purchased on</Label><BaseText> {new Date(record.timeUpdated).toLocaleString()}</BaseText>
+          </Row>
+          {tweetId &&
+            <FlexRow className='tweet-container'>
+              <TwitterTweetEmbed tweetId={tweetId} />
+            </FlexRow>}
+          <Row style={{ marginTop: 32, justifyContent: 'center' }}>
+            {record.url && !tweetId &&
+              <Col>
+                <BaseText>Owner embedded an unsupported link:</BaseText>
+                <SmallTextGrey> {record.url}</SmallTextGrey>
+              </Col>}
+            {!record.url &&
+              <BaseText>Owner hasn't embedded any tweet yet</BaseText>}
+          </Row>
+          <SmallTextGrey style={{ marginTop: 32, textAlign: 'center' }}>
+            Take over this page, embed a tweet you choose
+          </SmallTextGrey>
+          <Row style={{ marginTop: 16, justifyContent: 'center' }}>
+            <Label>Price</Label><BaseText>{price?.formatted} ONE</BaseText>
+          </Row>
+        </Desc>}
       {!record?.renter &&
         <Col>
           <Title>Page Not Yet Claimed</Title>
-          <BaseText style={{ marginTop: 32, fontSize: 12, color: 'grey', marginLeft: '16px', textAlign: 'center' }}>
+          <SmallTextGrey style={{ marginTop: 32, textAlign: 'center' }}>
             Claim now and embed a tweet you choose
-          </BaseText>
-          <Row style={{ marginTop: 32, justifyContent: 'center' }}>
-            <Label>Price</Label><BaseText>{price?.formatted} ONE</BaseText>
-          </Row>
+          </SmallTextGrey>
+          <Col>
+            <Row style={{ marginTop: 32, justifyContent: 'center' }}>
+              <Label>price</Label><BaseText>{price?.formatted} ONE</BaseText>
+            </Row>
+            <Row style={{ justifyContent: 'center' }}>
+              <SmallTextGrey>for {humanizeDuration(parameters.rentalPeriod, { round: true, largest: 1 })} </SmallTextGrey>
+            </Row>
+          </Col>
         </Col>}
 
       {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>}
 
-      {address && config.debug && <BaseText>Your address: {address}</BaseText>}
-
       {address && (
-        <Button onClick={onBuy}>Buy</Button>
+        <>
+          <SmallTextGrey style={{ marginTop: 32 }}>Which tweet do you want this page to embed?</SmallTextGrey>
+          <Row style={{ width: '80%', gap: 0, position: 'relative' }}>
+            <Input $width='100%' $margin='8px' value={url} onChange={({ target: { value } }) => setUrl(value)} />
+            <FloatingText>copy the tweet's URL</FloatingText>
+          </Row>
+          <Button onClick={onBuy}>BUY</Button>
+          <SmallTextGrey>Your address: {address}</SmallTextGrey>
+        </>
       )}
     </Container>
   )

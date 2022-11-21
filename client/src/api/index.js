@@ -11,14 +11,49 @@ const apis = ({ web3, address }) => {
   Contract.setProvider(web3.currentProvider)
   const contract = new Contract(D1DC, config.contract)
 
+  const call = async ({ amount, onFailed, onSubmitted, onSuccess, methodName, parameters }) => {
+    console.log({ methodName, parameters, amount, address })
+    try {
+      const testTx = await contract.methods[methodName](...parameters).call({ from: address, value: amount })
+      if (config.debug) {
+        console.log('testTx', methodName, parameters, testTx)
+      }
+    } catch (ex) {
+      const err = ex.toString()
+      console.error('testTx Error', err)
+      onFailed && onFailed(ex)
+      return null
+    }
+    onSubmitted && onSubmitted()
+    try {
+      const tx = await contract.methods[methodName](...parameters).send({ from: address, value: amount })
+      if (config.debug) {
+        console.log(methodName, JSON.stringify(tx))
+      }
+      console.log(methodName, tx?.events)
+      onSuccess && onSuccess(tx)
+      return tx
+    } catch (ex) {
+      onFailed && onFailed(ex, true)
+    }
+  }
+
   return {
     address,
     web3,
     getExplorerUri: (txHash) => {
       return config.explorer.replace('{{txId}}', txHash)
     },
-    purchase: ({ amount }) => {
-      return amount
+    call,
+    rent: async ({ name, url, amount, onFailed, onSubmitted, onSuccess }) => {
+      return call({
+        amount, parameters: [name, url], methodName: 'rent', onFailed, onSubmitted, onSuccess
+      })
+    },
+    updateURL: async ({ name, url, onFailed, onSubmitted, onSuccess }) => {
+      return call({
+        parameters: [name, url], methodName: 'updateURL', onFailed, onSubmitted, onSuccess
+      })
     },
     getParameters: async () => {
       const [baseRentalPrice, rentalPeriod, priceMultiplier] = await Promise.all([
