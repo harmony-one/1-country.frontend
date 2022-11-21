@@ -28,7 +28,7 @@ contract D1DC is ERC721, Pausable, Ownable {
         string url;
     }
 
-    mapping(bytes32 => NameRecord) nameRecords;
+    mapping(bytes32 => NameRecord) public nameRecords;
 
     event NameRented(string indexed name, address indexed renter, uint256 price, string url);
     event URLUpdated(string indexed name, address indexed renter, string oldUrl, string newUrl);
@@ -105,5 +105,15 @@ contract D1DC is ERC721, Pausable, Ownable {
     function updateURL(string calldata name, string calldata url) public payable whenNotPaused {
         require(nameRecords[keccak256(bytes(name))].renter == msg.sender, "D1DC: not owner");
         nameRecords[keccak256(bytes(name))].url = url;
+    }
+
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 firstTokenId,
+        uint256 batchSize
+    ) internal override virtual {
+        NameRecord storage nameRecord = nameRecords[bytes32(firstTokenId)];
+        nameRecord.renter = to;
     }
 }
