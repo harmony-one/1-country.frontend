@@ -75,7 +75,7 @@ contract D1DC is ERC721, Pausable, Ownable {
         if (nameRecord.timeUpdated + rentalPeriod <= uint32(block.timestamp)) {
             return baseRentalPrice;
         }
-        return nameRecord.renter == msg.sender ? nameRecord.lastPrice : nameRecord.lastPrice * priceMultiplier;
+        return nameRecord.renter == msg.sender ? nameRecord.lastPrice : nameRecord.lastPrice * priceMultiplier ;
     }
 
     function rent(string calldata name, string calldata url) public payable whenNotPaused {
