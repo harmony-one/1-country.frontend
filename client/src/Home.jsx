@@ -3,7 +3,7 @@ import Web3 from 'web3'
 import detectEthereumProvider from '@metamask/detect-provider'
 import config from '../config'
 import { Button, FloatingText, Input, LinkWrarpper } from './components/Controls'
-import { BaseText, Desc, SmallText, Title } from './components/Text'
+import { BaseText, Desc, DescLeft, SmallText, Title } from './components/Text'
 import { Col, FlexRow, Main, Row } from './components/Layout'
 import { TwitterTweetEmbed } from 'react-twitter-embed'
 import styled from 'styled-components'
@@ -14,9 +14,17 @@ import BN from 'bn.js'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
+const Banner = styled(Col)`
+  justify-content: center;
+  border-bottom: 1px solid black;
+  padding: 8px 16px;
+  position: fixed;
+  background: #eee;
+`
+
 const Container = styled(Main)`
-  margin: 32px auto;
-  padding: 16px;
+  margin: 0 auto;
+  padding: 0 16px;
   max-width: 800px;
   // TODO: responsive
 `
@@ -36,14 +44,21 @@ const Label = styled(SmallTextGrey)`
   margin-right: 16px;
 `
 
+const DescResponsive = styled(Desc)`
+  @media(max-width: 640px){
+    text-align: left;
+    align-items: start;
+  }
+`
+
 const getSubdomain = () => {
   if (!window) {
     return null
   }
   const host = window.location.host
   const parts = host.split('.')
-  if (parts.length < 2) {
-    return null
+  if (parts.length <= 2) {
+    return ''
   }
   if (parts.length <= 3) {
     return parts[0]
@@ -86,10 +101,11 @@ const parseTweetId = (urlInput) => {
 }
 
 const Home = ({ subdomain = config.tld }) => {
-  const [web3, setWeb3] = useState()
+  const [web3, setWeb3] = useState(new Web3(config.defaultRPC))
   const [address, setAddress] = useState('')
   const [client, setClient] = useState(apis({}))
   const [record, setRecord] = useState(null)
+  const [lastRentedRecord, setLastRentedRecord] = useState(null)
   const [price, setPrice] = useState(null)
   const [parameters, setParameters] = useState({ rentalPeriod: 0, priceMultiplier: 0 })
   const [tweetId, setTweetId] = useState('')
@@ -189,6 +205,13 @@ const Home = ({ subdomain = config.tld }) => {
   }, [client])
 
   useEffect(() => {
+    if (!parameters?.lastRented) {
+      return
+    }
+    client.getRecord({ name: parameters.lastRented }).then(r => setLastRentedRecord(r))
+  }, [parameters?.lastRented])
+
+  useEffect(() => {
     if (!record?.url) {
       return
     }
@@ -235,18 +258,59 @@ const Home = ({ subdomain = config.tld }) => {
     }
   }
 
+  const expired = record?.timeUpdated + parameters?.rentalPeriod - Date.now() < 0
+
+  if (name === '') {
+    return (
+      <Container>
+        {lastRentedRecord &&
+          <Banner>
+            <Row style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
+              <SmallTextGrey>last purchase</SmallTextGrey>
+              <BaseText>{parameters.lastRented}{config.tld} ({lastRentedRecord.lastPrice.formatted} ONE)</BaseText>
+            </Row>
+            <Row style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
+              <SmallTextGrey>{humanD(Date.now() - lastRentedRecord.timeUpdated)} ago</SmallTextGrey>
+              <SmallTextGrey>by {lastRentedRecord.renter}</SmallTextGrey>
+            </Row>
+          </Banner>}
+        <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
+          <Title style={{ margin: 0 }}>Claim your {subdomain}</Title>
+        </FlexRow>
+        <DescLeft>
+          <BaseText>How it works:</BaseText>
+          <BaseText>- go to any *.1.country website (e.g. <a href='https://crypto.1.country' target='_blank' rel='noreferrer'>crypto.1.country</a>) </BaseText>
+          <BaseText>- if you are the first, pay {parameters?.baseRentalPrice?.formatted || '100'} ONE to claim the page for {humanD(parameters?.rentalPeriod) || '3 months'}</BaseText>
+          <BaseText>- otherwise, pay double the last person paid to claim the page</BaseText>
+          <BaseText>- once claimed, you can embed any tweet on your page!</BaseText>
+        </DescLeft>
+      </Container>
+    )
+  }
+
   return (
     <Container>
-      <FlexRow style={{ alignItems: 'baseline' }}>
+      {lastRentedRecord &&
+        <Banner>
+          <Row style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
+            <SmallTextGrey>last purchase</SmallTextGrey>
+            <BaseText>{parameters.lastRented}{config.tld} ({lastRentedRecord.lastPrice.formatted} ONE)</BaseText>
+          </Row>
+          <Row style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
+            <SmallTextGrey>{humanD(Date.now() - lastRentedRecord.timeUpdated)} ago</SmallTextGrey>
+            <SmallTextGrey>by {lastRentedRecord.renter}</SmallTextGrey>
+          </Row>
+        </Banner>}
+      <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
         <Title style={{ margin: 0 }}>{name}</Title>
         <BaseText style={{ fontSize: 12, color: 'grey', marginLeft: '16px' }}>
           {subdomain}
         </BaseText>
       </FlexRow>
       {record?.renter &&
-        <Desc style={{ marginTop: 32 }}>
+        <DescResponsive style={{ marginTop: 32 }}>
           <Row>
-            <Label>owned by</Label><BaseText>{record.renter}</BaseText>
+            <Label>owned by</Label><BaseText style={{ wordBreak: 'break-word' }}>{record.renter}</BaseText>
           </Row>
           <Row>
             <Label>purchased on</Label>
@@ -255,7 +319,8 @@ const Home = ({ subdomain = config.tld }) => {
           <Row>
             <Label>expires on</Label>
             <BaseText> {new Date(record.timeUpdated + parameters.rentalPeriod).toLocaleString()}</BaseText>
-            <SmallTextGrey>(in {humanD(record.timeUpdated + parameters.rentalPeriod - Date.now())})</SmallTextGrey>
+            {!expired && <SmallTextGrey>(in {humanD(record.timeUpdated + parameters.rentalPeriod - Date.now())})</SmallTextGrey>}
+            {expired && <SmallText style={{ color: 'red' }}>(expired)</SmallText>}
           </Row>
           {tweetId &&
             <TweetContainerRow>
@@ -288,7 +353,7 @@ const Home = ({ subdomain = config.tld }) => {
                 You own this page
               </Title>)}
 
-        </Desc>}
+        </DescResponsive>}
       {!record?.renter &&
         <Col>
           <Title>Page Not Yet Claimed</Title>

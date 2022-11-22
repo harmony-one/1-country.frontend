@@ -15,6 +15,7 @@
   "function getApproved(uint256) view returns (address)",
   "function getPrice(bytes32) view returns (uint256)",
   "function isApprovedForAll(address,address) view returns (bool)",
+  "function lastRented() view returns (string)",
   "function name() view returns (string)",
   "function nameRecords(bytes32) view returns (address, uint32, uint256, string)",
   "function owner() view returns (address)",

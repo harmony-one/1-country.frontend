@@ -31,6 +31,8 @@ contract D1DC is ERC721, Pausable, Ownable {
 
     mapping(bytes32 => NameRecord) public nameRecords;
 
+    string public lastRented;
+
     event NameRented(string indexed name, address indexed renter, uint256 price, string url);
     event URLUpdated(string indexed name, address indexed renter, string oldUrl, string newUrl);
     event RevenueAccountChanged(address from, address to);
@@ -103,6 +105,8 @@ contract D1DC is ERC721, Pausable, Ownable {
             nameRecord.url = url;
         }
 
+        lastRented = name;
+
         if (_exists(tokenId)) {
             _safeTransfer(originalOwner, msg.sender, tokenId, "");
         } else {
@@ -114,11 +118,13 @@ contract D1DC is ERC721, Pausable, Ownable {
             (bool success,) = msg.sender.call{value : excess}("");
             require(success, "cannot refund excess");
         }
+        emit NameRented(name, msg.sender, price, url);
     }
 
     function updateURL(string calldata name, string calldata url) public payable whenNotPaused {
         require(nameRecords[keccak256(bytes(name))].renter == msg.sender, "D1DC: not owner");
         require(bytes(url).length <= 1024, "D1DC: url too long");
+        emit URLUpdated(name, msg.sender, nameRecords[keccak256(bytes(name))].url, url);
         nameRecords[keccak256(bytes(name))].url = url;
     }
 

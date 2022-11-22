@@ -56,10 +56,11 @@ const apis = ({ web3, address }) => {
       })
     },
     getParameters: async () => {
-      const [baseRentalPrice, rentalPeriod, priceMultiplier] = await Promise.all([
+      const [baseRentalPrice, rentalPeriod, priceMultiplier, lastRented] = await Promise.all([
         contract.methods.baseRentalPrice().call(),
         contract.methods.rentalPeriod().call(),
         contract.methods.priceMultiplier().call(),
+        contract.methods.lastRented().call(),
       ])
       return {
         baseRentalPrice: {
@@ -67,7 +68,8 @@ const apis = ({ web3, address }) => {
           formatted: web3.utils.fromWei(baseRentalPrice)
         },
         rentalPeriod: new BN(rentalPeriod).toNumber() * 1000,
-        priceMultiplier: new BN(priceMultiplier).toNumber()
+        priceMultiplier: new BN(priceMultiplier).toNumber(),
+        lastRented,
       }
     },
     getPrice: async ({ name }) => {
