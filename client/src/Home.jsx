@@ -12,6 +12,8 @@ import { toast } from 'react-toastify'
 import apis from './api'
 import BN from 'bn.js'
 
+const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
+
 const Container = styled(Main)`
   margin: 32px auto;
   padding: 16px;
@@ -171,6 +173,10 @@ const Home = ({ subdomain = config.tld }) => {
 
   useEffect(() => {
     setClient(apis({ web3, address }))
+    if (!web3 || !address) {
+      return
+    }
+    client.getPrice({ name }).then(p => setPrice(p))
   }, [web3, address])
 
   useEffect(() => {
@@ -192,20 +198,20 @@ const Home = ({ subdomain = config.tld }) => {
     }
     setTweetId(id.toString())
   }, [record?.url])
-  const onAction = async () => {
-    if (!url) {
+  const onAction = async ({ isRenewal }) => {
+    if (!url && !isRenewal) {
       return toast.error('Invalid URL to embed')
     }
     setPending(true)
     try {
-      const tweetId = parseTweetId(url)
+      const tweetId = isRenewal ? {} : parseTweetId(url)
       if (tweetId.error) {
         return toast.error(tweetId.error)
       }
-      const f = isOwner ? client.updateURL : client.rent
+      const f = isOwner && !isRenewal ? client.updateURL : client.rent
       await f({
         name,
-        url: tweetId.tweetId.toString(),
+        url: isRenewal ? '' : tweetId.tweetId.toString(),
         amount: new BN(price.amount).toString(),
         onFailed: () => toast.error('Failed to purchase'),
         onSuccess: (tx) => {
@@ -218,6 +224,7 @@ const Home = ({ subdomain = config.tld }) => {
                 <BaseText>View transaction</BaseText>
               </LinkWrarpper>
             </FlexRow>)
+          setTimeout(() => location.reload(), 1500)
         }
       })
     } catch (ex) {
@@ -242,7 +249,13 @@ const Home = ({ subdomain = config.tld }) => {
             <Label>owned by</Label><BaseText>{record.renter}</BaseText>
           </Row>
           <Row>
-            <Label>purchased on</Label><BaseText> {new Date(record.timeUpdated).toLocaleString()}</BaseText>
+            <Label>purchased on</Label>
+            <BaseText> {new Date(record.timeUpdated).toLocaleString()}</BaseText>
+          </Row>
+          <Row>
+            <Label>expires on</Label>
+            <BaseText> {new Date(record.timeUpdated + parameters.rentalPeriod).toLocaleString()}</BaseText>
+            <SmallTextGrey>(in {humanD(record.timeUpdated + parameters.rentalPeriod - Date.now())})</SmallTextGrey>
           </Row>
           {tweetId &&
             <TweetContainerRow>
@@ -266,6 +279,9 @@ const Home = ({ subdomain = config.tld }) => {
                 <Row style={{ marginTop: 16, justifyContent: 'center' }}>
                   <Label>Price</Label><BaseText>{price?.formatted} ONE</BaseText>
                 </Row>
+                <Row style={{ justifyContent: 'center' }}>
+                  <SmallTextGrey>for {humanD(parameters.rentalPeriod)} </SmallTextGrey>
+                </Row>
               </>)
             : (
               <Title style={{ marginTop: 32, textAlign: 'center' }}>
@@ -284,7 +300,7 @@ const Home = ({ subdomain = config.tld }) => {
               <Label>price</Label><BaseText>{price?.formatted} ONE</BaseText>
             </Row>
             <Row style={{ justifyContent: 'center' }}>
-              <SmallTextGrey>for {humanizeDuration(parameters.rentalPeriod, { round: true, largest: 1 })} </SmallTextGrey>
+              <SmallTextGrey>for {humanD(parameters.rentalPeriod)} </SmallTextGrey>
             </Row>
           </Col>
         </Col>}
@@ -299,6 +315,15 @@ const Home = ({ subdomain = config.tld }) => {
             <FloatingText>copy the tweet's URL</FloatingText>
           </Row>
           <Button onClick={onAction} disabled={pending}>{isOwner ? 'UPDATE URL' : 'BUY'}</Button>
+          {isOwner &&
+            <>
+              <Title style={{ marginTop: 64 }}>Renew ownership</Title>
+              <Row style={{ justifyContent: 'center' }}>
+                <Label>renewal price</Label><BaseText>{price?.formatted} ONE</BaseText>
+              </Row>
+              <SmallTextGrey>for {humanD(parameters.rentalPeriod)} </SmallTextGrey>
+              <Button onClick={() => onAction({ isRenewal: true })} disabled={pending}>RENEW</Button>
+            </>}
           <SmallTextGrey>Your address: {address}</SmallTextGrey>
         </>
       )}

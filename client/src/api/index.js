@@ -72,7 +72,7 @@ const apis = ({ web3, address }) => {
     },
     getPrice: async ({ name }) => {
       const nameBytes = web3.utils.keccak256(name)
-      const price = await contract.methods.getPrice(nameBytes).call()
+      const price = await contract.methods.getPrice(nameBytes).call({ from: address })
       const amount = new BN(price).toString()
       return {
         amount,
