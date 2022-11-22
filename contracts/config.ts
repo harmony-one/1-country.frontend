@@ -6,5 +6,6 @@ export default {
   debug,
   baseRentalPrice: process.env.BASE_RENTAL_PRICE_ETH || '1',
   rentalPeriod: parseFloat(process.env.RENTAL_PERIOD_DAYS || '1'),
-  priceMultiplier: parseInt(process.env.PRICE_MULTIPLIER || '2')
+  priceMultiplier: parseInt(process.env.PRICE_MULTIPLIER || '2'),
+  revenueAccount: process.env.REVENUE_ACCOUNT
 }
