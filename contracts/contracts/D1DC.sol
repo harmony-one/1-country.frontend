@@ -90,7 +90,10 @@ contract D1DC is ERC721, Pausable, Ownable {
         nameRecord.renter = msg.sender;
         nameRecord.lastPrice = price;
         nameRecord.timeUpdated = uint32(block.timestamp);
-        nameRecord.url = url;
+
+        if(bytes(url).length > 0){
+            nameRecord.url = url;
+        }
 
         if (_exists(tokenId)) {
             _safeTransfer(originalOwner, msg.sender, tokenId, "");
