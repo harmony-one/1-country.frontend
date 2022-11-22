@@ -86,13 +86,14 @@ contract D1DC is ERC721, Pausable, Ownable {
         uint256 price = getPrice(bytes32(tokenId));
         require(price <= msg.value, "D1DC: insufficient payment");
 
+        address originalOwner = nameRecord.renter;
         nameRecord.renter = msg.sender;
         nameRecord.lastPrice = price;
         nameRecord.timeUpdated = uint32(block.timestamp);
         nameRecord.url = url;
 
         if (_exists(tokenId)) {
-            _safeTransfer(nameRecord.renter, msg.sender, tokenId, "");
+            _safeTransfer(originalOwner, msg.sender, tokenId, "");
         } else {
             _safeMint(msg.sender, tokenId);
         }
