@@ -25,6 +25,11 @@
         "internalType": "uint32",
         "name": "_priceMultiplier",
         "type": "uint32"
+      },
+      {
+        "internalType": "address",
+        "name": "_revenueAccount",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -141,6 +146,25 @@
       }
     ],
     "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "RevenueAccountChanged",
     "type": "event"
   },
   {
@@ -475,6 +499,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "revenueAccount",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -578,6 +615,19 @@
       }
     ],
     "name": "setRentalPeriod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_revenueAccount",
+        "type": "address"
+      }
+    ],
+    "name": "setRevenueAccount",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -692,6 +742,13 @@
     "name": "updateURL",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "withdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

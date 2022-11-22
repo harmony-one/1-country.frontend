@@ -19,6 +19,7 @@ contract D1DC is ERC721, Pausable, Ownable {
     uint256 public baseRentalPrice;
     uint32 public rentalPeriod;
     uint32 public priceMultiplier;
+    address public revenueAccount;
 
     // TODO remove nameExists and replace logic with renter not equal to zero address
     struct NameRecord {
@@ -32,6 +33,7 @@ contract D1DC is ERC721, Pausable, Ownable {
 
     event NameRented(string indexed name, address indexed renter, uint256 price, string url);
     event URLUpdated(string indexed name, address indexed renter, string oldUrl, string newUrl);
+    event RevenueAccountChanged(address from, address to);
 
     //TODO create the EREC721 token at time of construction
     constructor(
@@ -39,15 +41,16 @@ contract D1DC is ERC721, Pausable, Ownable {
         string memory _symbol,
         uint256 _baseRentalPrice,
         uint32 _rentalPeriod,
-        uint32 _priceMultiplier
+        uint32 _priceMultiplier,
+        address _revenueAccount
     ) ERC721(_name, _symbol) {
         baseRentalPrice = _baseRentalPrice;
         rentalPeriod = _rentalPeriod;
         priceMultiplier = _priceMultiplier;
+        revenueAccount = _revenueAccount;
     }
 
     // admin functions
-
     function setBaseRentalPrice(uint256 _baseRentalPrice) public onlyOwner {
         baseRentalPrice = _baseRentalPrice;
     }
@@ -58,6 +61,11 @@ contract D1DC is ERC721, Pausable, Ownable {
 
     function setPriceMultiplier(uint32 _priceMultiplier) public onlyOwner {
         priceMultiplier = _priceMultiplier;
+    }
+
+    function setRevenueAccount(address _revenueAccount) public onlyOwner {
+        emit RevenueAccountChanged(revenueAccount, _revenueAccount);
+        revenueAccount = _revenueAccount;
     }
 
     function pause() external onlyOwner {
@@ -75,7 +83,7 @@ contract D1DC is ERC721, Pausable, Ownable {
         if (nameRecord.timeUpdated + rentalPeriod <= uint32(block.timestamp)) {
             return baseRentalPrice;
         }
-        return nameRecord.renter == msg.sender ? nameRecord.lastPrice : nameRecord.lastPrice * priceMultiplier ;
+        return nameRecord.renter == msg.sender ? nameRecord.lastPrice : nameRecord.lastPrice * priceMultiplier;
     }
 
     function rent(string calldata name, string calldata url) public payable whenNotPaused {
@@ -91,7 +99,7 @@ contract D1DC is ERC721, Pausable, Ownable {
         nameRecord.lastPrice = price;
         nameRecord.timeUpdated = uint32(block.timestamp);
 
-        if(bytes(url).length > 0){
+        if (bytes(url).length > 0) {
             nameRecord.url = url;
         }
 
@@ -122,5 +130,10 @@ contract D1DC is ERC721, Pausable, Ownable {
     ) internal override virtual {
         NameRecord storage nameRecord = nameRecords[bytes32(firstTokenId)];
         nameRecord.renter = to;
+    }
+
+    function withdraw() external {
+        require(msg.sender == owner() || msg.sender == revenueAccount, "D1DC: must be owner or revenue account");
+        revenueAccount.call{value : address(this).balance}("");
     }
 }
