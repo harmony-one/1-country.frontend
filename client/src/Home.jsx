@@ -85,14 +85,13 @@ const parseTweetId = (urlInput) => {
 
 const Home = ({ subdomain = config.tld }) => {
   const [web3, setWeb3] = useState()
-  const [provider, setProvider] = useState()
   const [address, setAddress] = useState('')
   const [client, setClient] = useState(apis({}))
   const [record, setRecord] = useState(null)
   const [price, setPrice] = useState(null)
   const [parameters, setParameters] = useState({ rentalPeriod: 0, priceMultiplier: 0 })
   const [tweetId, setTweetId] = useState('')
-  const [buying, setBuying] = useState(false)
+  const [pending, setPending] = useState(false)
 
   // for updating stuff
   const [url, setUrl] = useState('')
@@ -113,7 +112,6 @@ const Home = ({ subdomain = config.tld }) => {
 
   async function init () {
     const provider = await detectEthereumProvider()
-    setProvider(provider)
     setWeb3(new Web3(provider))
   }
 
@@ -123,7 +121,7 @@ const Home = ({ subdomain = config.tld }) => {
       return
     }
     try {
-      const ethAccounts = await provider.request({ method: 'eth_requestAccounts' })
+      const ethAccounts = await web3.currentProvider.request({ method: 'eth_requestAccounts' })
 
       if (ethAccounts.length >= 2) {
         return toast.info('Please connect using only one account')
@@ -166,6 +164,12 @@ const Home = ({ subdomain = config.tld }) => {
   }, [])
 
   useEffect(() => {
+    if (web3 && !address) {
+      connect()
+    }
+  }, [web3, address])
+
+  useEffect(() => {
     setClient(apis({ web3, address }))
   }, [web3, address])
 
@@ -188,17 +192,18 @@ const Home = ({ subdomain = config.tld }) => {
     }
     setTweetId(id.toString())
   }, [record?.url])
-  const onBuy = async () => {
+  const onAction = async () => {
     if (!url) {
       return toast.error('Invalid URL to embed')
     }
-    setBuying(true)
+    setPending(true)
     try {
       const tweetId = parseTweetId(url)
       if (tweetId.error) {
         return toast.error(tweetId.error)
       }
-      await client.rent({
+      const f = isOwner ? client.updateURL : client.rent
+      await f({
         name,
         url: tweetId.tweetId.toString(),
         amount: new BN(price.amount).toString(),
@@ -219,7 +224,7 @@ const Home = ({ subdomain = config.tld }) => {
       console.error(ex)
       toast.error(`Unexpected error: ${ex.toString()}`)
     } finally {
-      setBuying(false)
+      setPending(false)
     }
   }
 
@@ -252,7 +257,7 @@ const Home = ({ subdomain = config.tld }) => {
             {!record.url &&
               <BaseText>Owner hasn't embedded any tweet yet</BaseText>}
           </Row>
-          {isOwner
+          {!isOwner
             ? (
               <>
                 <Title style={{ marginTop: 32, textAlign: 'center' }}>
@@ -264,7 +269,7 @@ const Home = ({ subdomain = config.tld }) => {
               </>)
             : (
               <Title style={{ marginTop: 32, textAlign: 'center' }}>
-                You own this subdomain
+                You own this page
               </Title>)}
 
         </Desc>}
@@ -293,7 +298,7 @@ const Home = ({ subdomain = config.tld }) => {
             <Input $width='100%' $margin='8px' value={url} onChange={({ target: { value } }) => setUrl(value)} />
             <FloatingText>copy the tweet's URL</FloatingText>
           </Row>
-          <Button onClick={onBuy} disabled={buying}>{isOwner ? 'UPDATE URL' : 'BUY'}</Button>
+          <Button onClick={onAction} disabled={pending}>{isOwner ? 'UPDATE URL' : 'BUY'}</Button>
           <SmallTextGrey>Your address: {address}</SmallTextGrey>
         </>
       )}
