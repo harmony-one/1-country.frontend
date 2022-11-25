@@ -1,61 +1,28 @@
 import React, { useEffect, useState } from 'react'
 import Web3 from 'web3'
 import detectEthereumProvider from '@metamask/detect-provider'
-import config from '../config'
-import { Button, FloatingText, Input, LinkWrarpper } from './components/Controls'
-import { BaseText, Desc, DescLeft, SmallText, Title } from './components/Text'
-import { Col, FlexRow, Main, Row } from './components/Layout'
-import { TwitterTweetEmbed } from 'react-twitter-embed'
-import styled from 'styled-components'
-import humanizeDuration from 'humanize-duration'
-import { toast } from 'react-toastify'
-import apis from './api'
 import BN from 'bn.js'
+import { toast } from 'react-toastify'
+import { TwitterTweetEmbed } from 'react-twitter-embed'
+
+import humanizeDuration from 'humanize-duration'
+
+import apis from '../../api'
+import config from '../../../config'
+import { Banner, DescResponsive, SmallTextGrey, TweetContainerRow, Container, Label } from './home.styles'
+import { Col, FlexRow, Row } from '../../components/Layout'
+
+import { Button, FloatingText, Input, LinkWrarpper } from '../../components/Controls'
+import { BaseText, DescLeft, SmallText, Title } from '../../components/Text'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
-
-const Banner = styled(Col)`
-  justify-content: center;
-  border-bottom: 1px solid black;
-  padding: 8px 16px;
-  position: fixed;
-  background: #eee;
-`
-
-const Container = styled(Main)`
-  margin: 0 auto;
-  padding: 0 16px;
-  max-width: 800px;
-  // TODO: responsive
-`
-
-const TweetContainerRow = styled(FlexRow)`
-  width: 100%;
-  div {
-    width: 100%;
-  }
-`
-
-const SmallTextGrey = styled(SmallText)`
-  color: grey;
-`
-
-const Label = styled(SmallTextGrey)`
-  margin-right: 16px;
-`
-
-const DescResponsive = styled(Desc)`
-  @media(max-width: 640px){
-    text-align: left;
-    align-items: start;
-  }
-`
 
 const getSubdomain = () => {
   if (!window) {
     return null
   }
-  const host = window.location.host
+  console.log('getSubDomain()', window.location.host)
+  const host = 'egloff.1.country' // window.location.host
   const parts = host.split('.')
   if (parts.length <= 2) {
     return ''
@@ -102,6 +69,7 @@ const parseTweetId = (urlInput) => {
 
 const Home = ({ subdomain = config.tld }) => {
   const [web3, setWeb3] = useState(new Web3(config.defaultRPC))
+  // const [web3] = useState(new Web3(config.defaultRPC))
   const [address, setAddress] = useState('')
   const [client, setClient] = useState(apis({}))
   const [record, setRecord] = useState(null)
@@ -130,6 +98,7 @@ const Home = ({ subdomain = config.tld }) => {
 
   async function init () {
     const provider = await detectEthereumProvider()
+    console.log('provider', provider)
     setWeb3(new Web3(provider))
   }
 
@@ -221,6 +190,7 @@ const Home = ({ subdomain = config.tld }) => {
     }
     setTweetId(id.toString())
   }, [record?.url])
+
   const onAction = async ({ isRenewal }) => {
     if (!url && !isRenewal) {
       return toast.error('Invalid URL to embed')

@@ -74,8 +74,10 @@ const apis = ({ web3, address }) => {
     },
     getPrice: async ({ name }) => {
       const nameBytes = web3.utils.keccak256(name)
+      // const price = '1000000000000000000'
       const price = await contract.methods.getPrice(nameBytes).call({ from: address })
       const amount = new BN(price).toString()
+      console.log('apis getPrice', price, amount)
       return {
         amount,
         formatted: web3.utils.fromWei(amount)
