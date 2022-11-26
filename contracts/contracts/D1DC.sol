@@ -112,6 +112,8 @@ contract D1DC is ERC721, Pausable, Ownable {
                 nameRecords[key].next = _names[i + 1];
             }
         }
+        lastCreated = _names[_names.length-1];
+        lastRented = lastCreated;
     }
 
     function finishInitialization() external onlyOwner {
