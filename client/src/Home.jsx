@@ -118,12 +118,12 @@ const Home = ({ subdomain = config.tld }) => {
 
   const isOwner = address && record?.renter && (record.renter.toLowerCase() === address.toLowerCase())
 
-  const switchChain = async (address) => {
+  const switchChain = async (address, silence) => {
     return window.ethereum.request({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: config.chainParameters.chainId }],
     }).then(() => {
-      toast.success(`Switched to network: ${config.chainParameters.chainName}`)
+      !silence && toast.success(`Switched to network: ${config.chainParameters.chainName}`)
       setClient(apis({ web3, address }))
     })
   }
@@ -133,26 +133,26 @@ const Home = ({ subdomain = config.tld }) => {
     setWeb3(new Web3(provider))
   }
 
-  const connect = async () => {
+  const connect = async (silence) => {
     if (!window.ethereum) {
-      toast.error('Wallet not found')
+      !silence && toast.error('Wallet not found')
       return
     }
     try {
       const ethAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
 
       if (ethAccounts.length >= 2) {
-        return toast.info('Please connect using only one account')
+        return !silence && toast.info('Please connect using only one account')
       }
       const address = ethAccounts[0]
       setAddress(address)
 
       try {
-        await switchChain(address)
+        await switchChain(address, silence)
       } catch (ex) {
         console.error(ex)
         if (ex.code !== 4902) {
-          toast.error(`Failed to switch to network ${config.chainParameters.chainName}: ${ex.message}`)
+          !silence && toast.error(`Failed to switch to network ${config.chainParameters.chainName}: ${ex.message}`)
           return
         }
         try {
@@ -160,10 +160,10 @@ const Home = ({ subdomain = config.tld }) => {
             method: 'wallet_addEthereumChain',
             params: [config.chainParameters]
           })
-          toast.success(`Added ${config.chainParameters.chainName} Network on MetaMask`)
+          !silence && toast.success(`Added ${config.chainParameters.chainName} Network on MetaMask`)
         } catch (ex2) {
           // message.error('Failed to add Harmony network:' + ex.toString())
-          toast.error(`Failed to add network ${config.chainParameters.chainName}: ${ex.message}`)
+          !silence && toast.error(`Failed to add network ${config.chainParameters.chainName}: ${ex.message}`)
         }
       }
 
@@ -183,7 +183,7 @@ const Home = ({ subdomain = config.tld }) => {
 
   useEffect(() => {
     if (web3 && !address) {
-      connect()
+      connect(true)
     }
   }, [web3, address])
 
