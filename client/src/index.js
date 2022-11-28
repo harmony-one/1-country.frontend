@@ -4,15 +4,18 @@ import Routes from './Routes'
 import { ToastContainer } from 'react-toastify'
 import { EthereumClient, modalConnectors, walletConnectProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
-import { chain, configureChains, createClient, WagmiConfig } from 'wagmi'
+import { configureChains, createClient, WagmiConfig } from 'wagmi'
+import config from '../config'
 
 import 'react-toastify/dist/ReactToastify.css'
 import './app.scss'
 
 document.body.ontouchstart = function () {}
+
 const projectId = process.env.REACT_APP_WALLETCONNECT_PROJECTID
-const chains = [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum]
-console.log('CHAINS', chains)
+
+const chains = [config.wagmiChain] // chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum]
+
 const { provider } = configureChains(chains, [walletConnectProvider({ projectId })])
 
 const wagmiClient = createClient({

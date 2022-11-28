@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-// import Web3 from 'web3'
+import Web3 from 'web3'
 // import detectEthereumProvider from '@metamask/detect-provider'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
@@ -96,7 +96,6 @@ const Home = ({ subdomain = config.tld }) => {
     record?.renter &&
     record.renter.toLowerCase() === address.toLowerCase()
 
-  console.log('connector', connector)
   // const switchChain = async (address) => {
   //   return window.ethereum
   //     .request({
@@ -188,6 +187,9 @@ const Home = ({ subdomain = config.tld }) => {
       return parts.slice(0, parts.length - 2).join('.')
     }
     setName(getSubdomain())
+    const web3 = new Web3(config.defaultRPC)
+    const api = apis({ web3, address })
+    setClient(api)
     // init()
   }, [])
 
@@ -198,11 +200,19 @@ const Home = ({ subdomain = config.tld }) => {
   // }, [web3, address])
 
   useEffect(() => {
-    setClient(apis({ connector, address }))
-    if (!connector || !address) {
-      return
+    console.log('USE EFFECT connector, address', connector)
+    const callApi = async () => {
+      const provider = await connector.getProvider()
+      const web3 = new Web3(provider)
+      const api = apis({ web3, address })
+      setClient(api)
+      api.getPrice({ name }).then((p) => {
+        setPrice(p)
+      })
     }
-    client.getPrice({ name }).then((p) => setPrice(p))
+    if (connector && address) {
+      callApi()
+    }
   }, [connector, address])
 
   useEffect(() => {

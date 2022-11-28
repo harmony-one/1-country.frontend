@@ -18,7 +18,24 @@ const config = {
         },
         rpcUrls: ['https://api.harmony.one'],
         blockExplorerUrls: ['https://explorer.harmony.one/']
-      }
+      },
+  wagmiChain: {
+    id: 1666600000,
+    name: 'Harmony Mainnet Shard 0',
+    network: 'harmony',
+    nativeCurrency: {
+      decimals: 18,
+      name: 'ONE',
+      symbol: 'ONE',
+    },
+    rpcUrls: {
+      default: 'https://api.harmony.one',
+    },
+    blockExplorers: {
+      default: { name: 'Explorer', url: 'https://explorer.harmony.one/' },
+    },
+    testnet: true,
+  }
 }
 
 export default config
