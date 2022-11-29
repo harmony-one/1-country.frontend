@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Col, FlexRow, Main } from '../../components/Layout'
+import { Col, Main, FlexColumn } from '../../components/Layout'
 import { Desc, SmallText } from '../../components/Text'
 
 export const Banner = styled(Col)`
@@ -17,7 +17,7 @@ export const Container = styled(Main)`
   // TODO: responsive
 `
 
-export const TweetContainerRow = styled(FlexRow)`
+export const TweetContainerRow = styled(FlexColumn)`
   width: 100%;
   div {
     width: 100%;

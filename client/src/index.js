@@ -12,9 +12,9 @@ import './app.scss'
 
 document.body.ontouchstart = function () {}
 
-const projectId = process.env.REACT_APP_WALLETCONNECT_PROJECTID
+const projectId = process.env.WALLETCONNECT_PROJECTID
 
-const chains = [config.wagmiChain] // chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum]
+const chains = [config.chainParameters]
 
 const { provider } = configureChains(chains, [walletConnectProvider({ projectId })])
 

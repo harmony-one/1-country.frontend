@@ -3,7 +3,6 @@ import Web3 from 'web3'
 // import detectEthereumProvider from '@metamask/detect-provider'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
-import { TwitterTweetEmbed } from 'react-twitter-embed'
 import { useAccount } from 'wagmi'
 import { Web3Button } from '@web3modal/react'
 
@@ -15,10 +14,9 @@ import {
   Banner,
   DescResponsive,
   SmallTextGrey,
-  TweetContainerRow,
   Container,
   Label,
-} from './home.styles'
+} from './Home.styles'
 import { Col, FlexRow, Row } from '../../components/Layout'
 
 import {
@@ -28,6 +26,7 @@ import {
   LinkWrarpper,
 } from '../../components/Controls'
 import { BaseText, DescLeft, SmallText, Title } from '../../components/Text'
+import TwitterSection from '../../components/twitter-section/TwitterSection'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -176,7 +175,7 @@ const Home = ({ subdomain = config.tld }) => {
         return null
       }
       console.log('getSubDomain()', window.location.host)
-      const host = 'egloff2.1.country' // window.location.host
+      const host = 'artem.1.country' // window.location.host
       const parts = host.split('.')
       if (parts.length <= 2) {
         return ''
@@ -200,7 +199,6 @@ const Home = ({ subdomain = config.tld }) => {
   // }, [web3, address])
 
   useEffect(() => {
-    console.log('USE EFFECT connector, address', connector)
     const callApi = async () => {
       const provider = await connector.getProvider()
       const web3 = new Web3(provider)
@@ -398,9 +396,7 @@ const Home = ({ subdomain = config.tld }) => {
             )}
           </Row>
           {tweetId && (
-            <TweetContainerRow>
-              <TwitterTweetEmbed tweetId={tweetId} />
-            </TweetContainerRow>
+            <TwitterSection tweetId={tweetId} />
           )}
           <Row style={{ marginTop: 32, justifyContent: 'center' }}>
             {record.url && !tweetId && (
@@ -474,7 +470,7 @@ const Home = ({ subdomain = config.tld }) => {
             <FloatingText>copy the tweet's URL</FloatingText>
           </Row>
           <Button onClick={onAction} disabled={pending}>
-            {isOwner ? 'UPDATE URL' : 'BUY'}
+            {isOwner ? 'UPDATE URL' : 'RENT'}
           </Button>
           {isOwner && (
             <>
