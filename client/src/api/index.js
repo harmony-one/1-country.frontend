@@ -74,10 +74,8 @@ const apis = ({ web3, address }) => {
     },
     getPrice: async ({ name }) => {
       const nameBytes = web3.utils.keccak256(name)
-      // const price = '1000000000000000000'
       const price = await contract.methods.getPrice(nameBytes).call({ from: address })
       const amount = new BN(price).toString()
-      console.log('apis getPrice', price, amount)
       return {
         amount,
         formatted: web3.utils.fromWei(amount)
@@ -86,7 +84,7 @@ const apis = ({ web3, address }) => {
     getRecord: async ({ name }) => {
       const nameBytes = web3.utils.keccak256(name)
       const result = await contract.methods.nameRecords(nameBytes).call()
-      const [renter, timeUpdated, lastPrice, url] = Object.keys(result).map(k => result[k])
+      const [renter, timeUpdated, lastPrice, url, prev, next] = Object.keys(result).map(k => result[k])
       return {
         renter: renter === Constants.EmptyAddress ? null : renter,
         lastPrice: {
@@ -94,12 +92,16 @@ const apis = ({ web3, address }) => {
           formatted: web3.utils.fromWei(lastPrice)
         },
         timeUpdated: new BN(timeUpdated).toNumber() * 1000,
-        url
+        url,
+        prev,
+        next
       }
     }
   }
 }
+
 if (window) {
   window.apis = apis
 }
+
 export default apis

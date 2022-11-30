@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { Main } from '../../components/Layout'
-import { SmallTextGrey } from '../../components/Text'
+import { SmallTextGrey, Desc } from '../../components/Text'
 
 export const Container = styled(Main)`
   margin: 0 auto;
@@ -11,4 +11,11 @@ export const Container = styled(Main)`
 
 export const HomeLabel = styled(SmallTextGrey)`
   margin-right: 16px;
+`
+
+export const DescResponsive = styled(Desc)`
+  @media(max-width: 640px){
+    text-align: left;
+    align-items: start;
+  }
 `

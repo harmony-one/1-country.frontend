@@ -4,12 +4,12 @@ import { MdOutlineMail } from 'react-icons/md'
 import { TbPhoneCall, TbBrandTelegram } from 'react-icons/tb'
 import { Col, Row } from '../../components/Layout'
 import { BaseText, SmallText, Title, SmallTextGrey } from '../../components/Text'
-import { DescResponsive, OnwerLabel } from './OwnerInfo.module'
+import { OnwerLabel } from './OwnerInfo.module'
 
-const OwnerInfo = ({ isOwner, record, expired, parameters, price, tweetId, humanD }) => {
+const OwnerInfo = ({ isOwner, tld, record, expired, parameters, price, tweetId, humanD }) => {
   return (
-    <DescResponsive style={{ marginTop: 32 }}>
-      <Row>
+    <>
+      <Row style={{ marginTop: 16 }}>
         <OnwerLabel>owned by</OnwerLabel>
         <BaseText style={{ wordBreak: 'break-word' }}>
           {record.renter}
@@ -91,7 +91,7 @@ const OwnerInfo = ({ isOwner, record, expired, parameters, price, tweetId, human
             You own this page
           </Title>
           )}
-    </DescResponsive>
+    </>
   )
 }
 

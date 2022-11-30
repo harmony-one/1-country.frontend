@@ -21,6 +21,7 @@ import { BaseText, DescLeft, SmallTextGrey, Title } from '../../components/Text'
 import {
   Container,
   HomeLabel,
+  DescResponsive
 } from './Home.module'
 import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
@@ -85,6 +86,7 @@ const Home = ({ subdomain = config.tld }) => {
   // for updating stuff
   const [url, setUrl] = useState('')
 
+  console.log('RECORD', record)
   // const name = getSubdomain()
 
   const isOwner =
@@ -339,15 +341,34 @@ const Home = ({ subdomain = config.tld }) => {
         </BaseText>
       </FlexRow>
       {record?.renter && (
-        <OwnerInfo
-          isOwner={isOwner}
-          record={record}
-          expired={expired}
-          parameters={parameters}
-          price={price}
-          tweetId={tweetId}
-          humanD={humanD}
-        />
+        <DescResponsive style={{ marginTop: 16 }}>
+          <Row style={{ justifyContent: 'space-between' }}>
+
+            {record.prev &&
+              <a href={`https://${record.prev}${config.tld}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
+                <FlexRow style={{ gap: 16 }}>
+                  <SmallTextGrey>{'<'} prev</SmallTextGrey><SmallTextGrey>{record.prev}{config.tld}</SmallTextGrey>
+                </FlexRow>
+              </a>}
+
+            {record.next &&
+              <a href={`https://${record.next}${config.tld}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
+                <FlexRow style={{ gap: 16 }}>
+                  <SmallTextGrey>{record.next}{config.tld}</SmallTextGrey> <SmallTextGrey> next {'>'}</SmallTextGrey>
+                </FlexRow>
+              </a>}
+          </Row>
+          <OwnerInfo
+            isOwner={isOwner}
+            record={record}
+            tld={config.tld}
+            expired={expired}
+            parameters={parameters}
+            price={price}
+            tweetId={tweetId}
+            humanD={humanD}
+          />
+        </DescResponsive>
       )}
       {!record?.renter && (
         <Col>
