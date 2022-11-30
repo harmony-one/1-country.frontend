@@ -302,11 +302,10 @@ const Home = ({ subdomain = config.tld }) => {
         <DescLeft>
           <BaseText>How it works:</BaseText>
           <BaseText>
-            - go to any *.1.country website (e.g.{' '}
-            <a href='https://crypto.1.country' target='_blank' rel='noreferrer'>
-              crypto.1.country
-            </a>
-            ){' '}
+            - go to any *.1.country website (e.g.
+            <a href='https://all.1.country' target='_blank' rel='noreferrer'>
+              all.1.country
+            </a>)
           </BaseText>
           <BaseText>
             - if you are the first, pay{' '}
@@ -336,9 +335,11 @@ const Home = ({ subdomain = config.tld }) => {
       )}
       <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
         <Title style={{ margin: 0 }}>{name}</Title>
-        <BaseText style={{ fontSize: 12, color: 'grey', marginLeft: '16px' }}>
-          {subdomain}
-        </BaseText>
+        <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
+          <BaseText style={{ fontSize: 12, color: 'grey', marginLeft: '16px', textDecoration: 'none' }}>
+            {subdomain}
+          </BaseText>
+        </a>
       </FlexRow>
       {record?.renter && (
         <DescResponsive style={{ marginTop: 16 }}>
@@ -430,6 +431,15 @@ const Home = ({ subdomain = config.tld }) => {
           <SmallTextGrey>Your address: {address}</SmallTextGrey>
         </>
       )}
+      <SmallTextGrey>Learn more about the future of domain name services:
+        <a
+          href='https://harmony.one/domains'
+          target='_blank' rel='noreferrer'
+        >
+          RADICAL Market for Internet Domains
+        </a>
+      </SmallTextGrey>
+      <div style={{ height: 200 }} />
     </Container>
   )
 }

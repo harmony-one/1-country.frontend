@@ -14,3 +14,5 @@ artifacts
 docs
 typechain-types
 /deployments
+dump.json
+.env.dump
