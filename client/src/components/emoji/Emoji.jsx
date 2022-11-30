@@ -1,32 +1,106 @@
 import React from 'react'
-import { MdEmail } from 'react-icons/md'
-import { BsTelegram, BsTelephoneFill } from 'react-icons/bs'
-import { Label } from '../Text'
-import { EmojiButton, EmojisContainerRow } from './Emoji.styles'
-import { FlexRow } from '../Layout'
+import { Label, Hint } from '../Text'
+import { EmojiLabelDiv, EmojisContainerRow, EmojiCounterDiv, EmojisReactionRow } from './Emoji.module'
+// import { MdOutlineMail } from 'react-icons/md'
+// import { TbPhoneCall, TbBrandTelegram } from 'react-icons/tb'
 
-export const EmojiContainer = () => {
+// const emojiIcon = {
+//   telegram: <TbBrandTelegram />,
+//   email: <MdOutlineMail />,
+//   phone: <TbPhoneCall />
+// }
+
+// export const baseEmojiListValues = [
+//   {
+//     name: 'telegram',
+//     icon: '☝️', // emojiIcon.telegram,
+//     counter: 10,
+//     color: '#0088cc',
+//     price: '200'
+//   },
+//   {
+//     name: 'email',
+//     icon: '🥇', // emojiIcon.email,
+//     counter: 1,
+//     color: '#FBBC05',
+//     price: '400'
+//   },
+//   {
+//     name: 'phone',
+//     icon: emojiIcon.phone,
+//     counter: 1,
+//     color: 'red',
+//     price: '800'
+//   }
+// ]
+
+export const baseEmojiListValues = [
+  {
+    name: 'One token',
+    icon: '☝️', // emojiIcon.telegram,
+    counter: 10,
+    color: '#0088cc',
+    price: '1'
+  },
+  {
+    name: 'First price',
+    icon: '🥇', // emojiIcon.email,
+    counter: 1,
+    color: '#FBBC05',
+    price: '10'
+  },
+  {
+    name: '100 percent',
+    icon: '💯', // emojiIcon.phone,
+    counter: 1,
+    color: 'red',
+    price: '100'
+  }
+]
+
+export const EmojiCounterContainer = ({ emojiList }) => {
   return (
     <EmojisContainerRow>
-      <EmojiCounter icon={<BsTelephoneFill />} counter={100} />
-      <EmojiCounter icon={<MdEmail />} counter={8} />
-      <EmojiCounter icon={<BsTelegram />} counter={6} />
+      {
+        emojiList &&
+        emojiList.map((emoji) =>
+          <EmojiCounter key={emoji.name} icon={emoji.icon} counter={emoji.counter} color={emoji.color} />
+        )
+      }
     </EmojisContainerRow>
   )
 }
 
-export const EmojiCounter = ({ icon, counter }) => {
+export const EmojisReactionContainer = ({ emojiList }) => {
   return (
-    <FlexRow style={{ width: '3.5em' }}>
-      <div style={{ fontSize: '1.2rem' }}>{icon}</div><Label>{counter}</Label>
-    </FlexRow>
+    <EmojisReactionRow>
+      {
+        emojiList &&
+        emojiList.map((emoji) =>
+          <EmojiLabel key={emoji.name} icon={emoji.icon} color={emoji.color} price={emoji.price} />
+        )
+      }
+    </EmojisReactionRow>
   )
 }
 
-export const EmojiLabel = ({ icon, counter, clickEvent }) => {
+export const EmojiCounter = ({ icon, counter, color }) => {
   return (
-    <EmojiButton className='emoji' onClick={clickEvent}>
-      <Label><span style={{ paddingRight: '0.5em' }}>{icon}</span>{counter}</Label>
-    </EmojiButton>
+    <EmojiCounterDiv style={{ width: '3.5em' }}>
+      <Label>
+        <span style={{ fontSize: '1.1rem', textAlign: 'center', color: color, paddingRight: '0.2em' }}>{icon}</span>
+        <span style={{ color: '#7f7f7f', fontSize: '0.85rem' }}>{counter > 0 && counter}</span>
+      </Label>
+      {/* <div style={{ fontSize: '1.1rem', textAlign: 'center', color: color, paddingTop: '0.1em' }}>{icon}</div><span style={{ color: '#7f7f7f', fontSize: '0.85rem' }}>{counter > 0 && counter}</span> */}
+    </EmojiCounterDiv>
+  )
+}
+
+export const EmojiLabel = ({ icon, price, clickEvent }) => {
+  return (
+    <EmojiLabelDiv className='emoji' onClick={clickEvent}>
+      <span style={{ paddingRight: '0.5em' }}>{icon}</span>
+      <Hint>React with {price} {price > 1 ? 'tokens' : 'token'}</Hint>
+    </EmojiLabelDiv>
   )
 }

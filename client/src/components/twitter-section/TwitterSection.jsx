@@ -1,13 +1,20 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TwitterTweetEmbed } from 'react-twitter-embed'
-import { TweetContainerRow } from '../../routes/home/Home.styles'
-import { EmojiContainer } from '../emoji/Emoji'
+import { EmojiCounterContainer, baseEmojiListValues, EmojisReactionContainer } from '../emoji/Emoji'
 
+import { TweetContainerRow } from './TwitterSection.module'
+
+// add EmojiList props
 const TwitterSection = ({ tweetId }) => {
+  // eslint-disable-next-line array-bracket-spacing
+  const [emojiList, ] = useState(baseEmojiListValues)
+  // const [emojiList, setEmojiList] = useState(baseEmojiListValues)
+
   return (
     <TweetContainerRow>
       <TwitterTweetEmbed tweetId={tweetId} />
-      <EmojiContainer />
+      <EmojiCounterContainer emojiList={emojiList} />
+      <EmojisReactionContainer emojiList={emojiList} />
     </TweetContainerRow>
   )
 }

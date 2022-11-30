@@ -70,3 +70,7 @@ export const Hint = styled.div`
   font-size: 10px;
   color: ${props => props.$color ?? '#888888'};
 `
+
+export const SmallTextGrey = styled(SmallText)`
+  color: grey;
+`

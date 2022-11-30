@@ -5,28 +5,25 @@ import BN from 'bn.js'
 import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
 import { Web3Button } from '@web3modal/react'
-
 import humanizeDuration from 'humanize-duration'
 
 import apis from '../../api'
 import config from '../../../config'
-import {
-  Banner,
-  DescResponsive,
-  SmallTextGrey,
-  Container,
-  Label,
-} from './Home.styles'
-import { Col, FlexRow, Row } from '../../components/Layout'
-
 import {
   Button,
   FloatingText,
   Input,
   LinkWrarpper,
 } from '../../components/Controls'
-import { BaseText, DescLeft, SmallText, Title } from '../../components/Text'
-import TwitterSection from '../../components/twitter-section/TwitterSection'
+
+import { Col, FlexRow, Row } from '../../components/Layout'
+import { BaseText, DescLeft, SmallTextGrey, Title } from '../../components/Text'
+import {
+  Container,
+  HomeLabel,
+} from './Home.module'
+import OwnerInfo from '../../components/owner-info/OwnerInfo'
+import LastPurchase from '../../components/last-purchase/LastPurchase'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -290,21 +287,12 @@ const Home = ({ subdomain = config.tld }) => {
     return (
       <Container>
         {lastRentedRecord && (
-          <Banner>
-            <Row style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
-              <SmallTextGrey>last purchase</SmallTextGrey>
-              <BaseText>
-                {parameters.lastRented}
-                {config.tld} ({lastRentedRecord.lastPrice.formatted} ONE)
-              </BaseText>
-            </Row>
-            <Row style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
-              <SmallTextGrey>
-                {humanD(Date.now() - lastRentedRecord.timeUpdated)} ago
-              </SmallTextGrey>
-              <SmallTextGrey>by {lastRentedRecord.renter}</SmallTextGrey>
-            </Row>
-          </Banner>
+          <LastPurchase
+            parameters={parameters}
+            tld={config.tld}
+            lastRentedRecord={lastRentedRecord}
+            humanD={humanD}
+          />
         )}
         <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
           <Title style={{ margin: 0 }}>Claim your {subdomain}</Title>
@@ -337,21 +325,12 @@ const Home = ({ subdomain = config.tld }) => {
   return (
     <Container>
       {lastRentedRecord && (
-        <Banner>
-          <Row style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
-            <SmallTextGrey>last purchase</SmallTextGrey>
-            <BaseText>
-              {parameters.lastRented}
-              {config.tld} ({lastRentedRecord.lastPrice.formatted} ONE)
-            </BaseText>
-          </Row>
-          <Row style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
-            <SmallTextGrey>
-              {humanD(Date.now() - lastRentedRecord.timeUpdated)} ago
-            </SmallTextGrey>
-            <SmallTextGrey>by {lastRentedRecord.renter}</SmallTextGrey>
-          </Row>
-        </Banner>
+        <LastPurchase
+          parameters={parameters}
+          tld={config.tld}
+          lastRentedRecord={lastRentedRecord}
+          humanD={humanD}
+        />
       )}
       <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
         <Title style={{ margin: 0 }}>{name}</Title>
@@ -360,78 +339,15 @@ const Home = ({ subdomain = config.tld }) => {
         </BaseText>
       </FlexRow>
       {record?.renter && (
-        <DescResponsive style={{ marginTop: 32 }}>
-          <Row>
-            <Label>owned by</Label>
-            <BaseText style={{ wordBreak: 'break-word' }}>
-              {record.renter}
-            </BaseText>
-          </Row>
-          <Row>
-            <Label>purchased on</Label>
-            <BaseText>
-              {' '}
-              {new Date(record.timeUpdated).toLocaleString()}
-            </BaseText>
-          </Row>
-          <Row>
-            <Label>expires on</Label>
-            <BaseText>
-              {' '}
-              {new Date(
-                record.timeUpdated + parameters.rentalPeriod
-              ).toLocaleString()}
-            </BaseText>
-            {!expired && (
-              <SmallTextGrey>
-                (in{' '}
-                {humanD(
-                  record.timeUpdated + parameters.rentalPeriod - Date.now()
-                )}
-                )
-              </SmallTextGrey>
-            )}
-            {expired && (
-              <SmallText style={{ color: 'red' }}>(expired)</SmallText>
-            )}
-          </Row>
-          {tweetId && (
-            <TwitterSection tweetId={tweetId} />
-          )}
-          <Row style={{ marginTop: 32, justifyContent: 'center' }}>
-            {record.url && !tweetId && (
-              <Col>
-                <BaseText>Owner embedded an unsupported link:</BaseText>
-                <SmallTextGrey> {record.url}</SmallTextGrey>
-              </Col>
-            )}
-            {!record.url && (
-              <BaseText>Owner hasn't embedded any tweet yet</BaseText>
-            )}
-          </Row>
-          {!isOwner
-            ? (
-              <>
-                <Title style={{ marginTop: 32, textAlign: 'center' }}>
-                  Take over this page, embed a tweet you choose
-                </Title>
-                <Row style={{ marginTop: 16, justifyContent: 'center' }}>
-                  <Label>Price</Label>
-                  <BaseText>{price?.formatted} ONE</BaseText>
-                </Row>
-                <Row style={{ justifyContent: 'center' }}>
-                  <SmallTextGrey>
-                    for {humanD(parameters.rentalPeriod)}{' '}
-                  </SmallTextGrey>
-                </Row>
-              </>
-              )
-            : (
-              <Title style={{ marginTop: 32, textAlign: 'center' }}>
-                You own this page
-              </Title>
-              )}
-        </DescResponsive>
+        <OwnerInfo
+          isOwner={isOwner}
+          record={record}
+          expired={expired}
+          parameters={parameters}
+          price={price}
+          tweetId={tweetId}
+          humanD={humanD}
+        />
       )}
       {!record?.renter && (
         <Col>
@@ -441,7 +357,7 @@ const Home = ({ subdomain = config.tld }) => {
           </SmallTextGrey>
           <Col>
             <Row style={{ marginTop: 32, justifyContent: 'center' }}>
-              <Label>price</Label>
+              <HomeLabel>price</HomeLabel>
               <BaseText>{price?.formatted} ONE</BaseText>
             </Row>
             <Row style={{ justifyContent: 'center' }}>
@@ -476,7 +392,7 @@ const Home = ({ subdomain = config.tld }) => {
             <>
               <Title style={{ marginTop: 64 }}>Renew ownership</Title>
               <Row style={{ justifyContent: 'center' }}>
-                <Label>renewal price</Label>
+                <HomeLabel>renewal price</HomeLabel>
                 <BaseText>{price?.formatted} ONE</BaseText>
               </Row>
               <SmallTextGrey>
