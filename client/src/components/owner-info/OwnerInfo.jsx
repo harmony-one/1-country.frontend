@@ -1,12 +1,38 @@
-import React from 'react'
+import React, { useState } from 'react'
 import TwitterSection from '../../components/twitter-section/TwitterSection'
 import { MdOutlineMail } from 'react-icons/md'
 import { TbPhoneCall, TbBrandTelegram } from 'react-icons/tb'
-import { Col, Row } from '../../components/Layout'
-import { BaseText, SmallText, Title, SmallTextGrey } from '../../components/Text'
-import { OnwerLabel } from './OwnerInfo.module'
+import { Col, Row, FlexRow } from '../../components/Layout'
+import { BaseText, SmallText, SmallTextGrey } from '../../components/Text'
+import { OnwerLabel, PersonalInfoRevealContainer } from './OwnerInfo.module'
 
-const OwnerInfo = ({ isOwner, tld, record, expired, parameters, price, tweetId, humanD }) => {
+const defaultOwnerInfo = {
+  telegram: '',
+  email: '',
+  phone: ''
+}
+
+const OwnerInfo = (props) => {
+  const { record, expired, parameters, tweetId, humanD } = props
+  const [ownerInfo, setOwnerInfo] = useState(defaultOwnerInfo)
+
+  const reveal = (event) => {
+    const { name } = event.target
+    let value = ''
+    switch (name) {
+      case 'telegram':
+        value = 'user1234'
+        break
+      case 'email':
+        value = 'email@gmail.com'
+        break
+      case 'phone':
+        value = '+1 555 945 3221'
+        break
+    }
+    setOwnerInfo({ ...ownerInfo, [name]: value })
+  }
+
   return (
     <>
       <Row style={{ marginTop: 16 }}>
@@ -43,22 +69,28 @@ const OwnerInfo = ({ isOwner, tld, record, expired, parameters, price, tweetId, 
           <SmallText style={{ color: 'red' }}>(expired)</SmallText>
         )}
       </Row>
-      <Row>
-        <OnwerLabel>Telegram handle:</OnwerLabel>
-        <button><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>
-      </Row>
-      <Row>
-        <OnwerLabel>Email address:</OnwerLabel>
-        <button><span style={{ color: '#FBBC05', paddingRight: '0.3em' }}><MdOutlineMail /></span>Reveal</button>
-      </Row>
-      <Row>
-        <OnwerLabel>Phone number:</OnwerLabel>
-        <button><span style={{ color: 'red', paddingRight: '0.3em' }}><TbPhoneCall /></span>Reveal</button>
-      </Row>
+      <PersonalInfoRevealContainer style={{ marginTop: '1em' }}>
+        <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
+          <OnwerLabel>Owners's Telegram handle:</OnwerLabel>
+          {ownerInfo.telegram && (<b>{ownerInfo.telegram}</b>)}
+          <button onClick={reveal} name='telegram'><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>
+        </FlexRow>
+        <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
+          <OnwerLabel>Owners's Email address:</OnwerLabel>
+          {ownerInfo.email && (<b>{ownerInfo.email}</b>)}
+          <button onClick={reveal} name='email'><span style={{ color: '#FBBC05', paddingRight: '0.3em' }}><MdOutlineMail /></span>Reveal</button>
+        </FlexRow>
+        <FlexRow style={{ justifyContent: 'space-between' }}>
+          <OnwerLabel>Owners's Phone number:</OnwerLabel>
+          {ownerInfo.phone && (<b>{ownerInfo.phone}</b>)}
+          <button onClick={reveal} name='phone'><span style={{ color: 'red', paddingRight: '0.3em' }}><TbPhoneCall /></span>Reveal</button>
+        </FlexRow>
+      </PersonalInfoRevealContainer>
       {tweetId && (
         <TwitterSection tweetId={tweetId} />
       )}
-      <Row style={{ marginTop: 32, justifyContent: 'center' }}>
+      {/* <Row style={{ marginTop: 32, justifyContent: 'center' }}> */}
+      <Row>
         {record.url && !tweetId && (
           <Col>
             <BaseText>Owner embedded an unsupported link:</BaseText>
@@ -69,28 +101,6 @@ const OwnerInfo = ({ isOwner, tld, record, expired, parameters, price, tweetId, 
           <BaseText>Owner hasn't embedded any tweet yet</BaseText>
         )}
       </Row>
-      {!isOwner
-        ? (
-          <>
-            <Title style={{ marginTop: 32, textAlign: 'center' }}>
-              Take over this page, embed a tweet you choose
-            </Title>
-            <Row style={{ marginTop: 16, justifyContent: 'center' }}>
-              <OnwerLabel>Price</OnwerLabel>
-              <BaseText>{price?.formatted} ONE</BaseText>
-            </Row>
-            <Row style={{ justifyContent: 'center' }}>
-              <SmallTextGrey>
-                for {humanD(parameters.rentalPeriod)}{' '}
-              </SmallTextGrey>
-            </Row>
-          </>
-          )
-        : (
-          <Title style={{ marginTop: 32, textAlign: 'center' }}>
-            You own this page
-          </Title>
-          )}
     </>
   )
 }

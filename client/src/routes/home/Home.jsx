@@ -25,6 +25,7 @@ import {
 } from './Home.module'
 import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
+import OwnerForm from '../../components/owner-form/OwnerForm'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -86,7 +87,6 @@ const Home = ({ subdomain = config.tld }) => {
   // for updating stuff
   const [url, setUrl] = useState('')
 
-  console.log('RECORD', record)
   // const name = getSubdomain()
 
   const isOwner =
@@ -174,7 +174,7 @@ const Home = ({ subdomain = config.tld }) => {
         return null
       }
       console.log('getSubDomain()', window.location.host)
-      const host = 'artem.1.country' // window.location.host
+      const host = 'all.1.country' // window.location.host
       const parts = host.split('.')
       if (parts.length <= 2) {
         return ''
@@ -333,7 +333,7 @@ const Home = ({ subdomain = config.tld }) => {
           humanD={humanD}
         />
       )}
-      <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
+      <FlexRow style={{ alignItems: 'baseline', marginTop: 70 }}>
         <Title style={{ margin: 0 }}>{name}</Title>
         <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
           <BaseText style={{ fontSize: 12, color: 'grey', marginLeft: '16px', textDecoration: 'none' }}>
@@ -342,7 +342,7 @@ const Home = ({ subdomain = config.tld }) => {
         </a>
       </FlexRow>
       {record?.renter && (
-        <DescResponsive style={{ marginTop: 16 }}>
+        <DescResponsive>
           <Row style={{ justifyContent: 'space-between' }}>
 
             {record.prev &&
@@ -360,17 +360,36 @@ const Home = ({ subdomain = config.tld }) => {
               </a>}
           </Row>
           <OwnerInfo
-            isOwner={isOwner}
             record={record}
-            tld={config.tld}
             expired={expired}
             parameters={parameters}
-            price={price}
             tweetId={tweetId}
             humanD={humanD}
           />
         </DescResponsive>
       )}
+      {!isOwner
+        ? (
+          <>
+            <Title style={{ textAlign: 'center' }}>
+              Take over this page, embed a tweet you choose
+            </Title>
+            <Row style={{ marginTop: 16, justifyContent: 'center' }}>
+              <HomeLabel>Price</HomeLabel>
+              <BaseText>{price?.formatted} ONE</BaseText>
+            </Row>
+            <Row style={{ justifyContent: 'center' }}>
+              <SmallTextGrey>
+                for {humanD(parameters.rentalPeriod)}{' '}
+              </SmallTextGrey>
+            </Row>
+          </>
+          )
+        : (
+          <Title style={{ marginTop: 32, textAlign: 'center' }}>
+            You own this page
+          </Title>
+          )}
       {!record?.renter && (
         <Col>
           <Title>Page Not Yet Claimed</Title>
@@ -407,9 +426,13 @@ const Home = ({ subdomain = config.tld }) => {
             />
             <FloatingText>copy the tweet's URL</FloatingText>
           </Row>
-          <Button onClick={onAction} disabled={pending}>
-            {isOwner ? 'UPDATE URL' : 'RENT'}
-          </Button>
+          {!isOwner
+            ? (
+              <OwnerForm onAction={onAction} buttonLabel='Rent' />
+              )
+            : (
+              <Button onClick={onAction} disabled={pending}>'UPDATE URL'</Button>
+              )}
           {isOwner && (
             <>
               <Title style={{ marginTop: 64 }}>Renew ownership</Title>
