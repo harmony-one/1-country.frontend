@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
-import config from '../config'
+import config from '../../config'
 import fs from 'fs/promises'
 import { chunk } from 'lodash'
 
