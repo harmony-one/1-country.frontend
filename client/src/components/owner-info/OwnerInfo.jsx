@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, { useState } from 'react'
 import TwitterSection from '../../components/twitter-section/TwitterSection'
 import { MdOutlineMail } from 'react-icons/md'
@@ -71,19 +73,20 @@ const OwnerInfo = (props) => {
       </Row>
       <PersonalInfoRevealContainer style={{ marginTop: '1em' }}>
         <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
-          <OnwerLabel>Owners's Telegram handle:</OnwerLabel>
-          {ownerInfo.telegram && (<b>{ownerInfo.telegram}</b>)}
-          <button onClick={reveal} name='telegram'><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>
-        </FlexRow>
-        <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
-          <OnwerLabel>Owners's Email address:</OnwerLabel>
-          {ownerInfo.email && (<b>{ownerInfo.email}</b>)}
+          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>Owners's Email address:</OnwerLabel>
+          {ownerInfo.email ? ownerInfo.email : (<OnwerLabel>Pay 200 to reveal</OnwerLabel>)}
+          {/* <div className='icon-button' onClick={reveal} name='email'><span style={{ color: '#FBBC05' }}><MdOutlineMail /></span>Reveal</div> */}
           <button onClick={reveal} name='email'><span style={{ color: '#FBBC05', paddingRight: '0.3em' }}><MdOutlineMail /></span>Reveal</button>
         </FlexRow>
-        <FlexRow style={{ justifyContent: 'space-between' }}>
-          <OnwerLabel>Owners's Phone number:</OnwerLabel>
-          {ownerInfo.phone && (<b>{ownerInfo.phone}</b>)}
+        <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
+          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>Owners's Phone number:</OnwerLabel>
+          {ownerInfo.phone ? ownerInfo.phone : (<OnwerLabel>Pay 400 to reveal</OnwerLabel>)}
           <button onClick={reveal} name='phone'><span style={{ color: 'red', paddingRight: '0.3em' }}><TbPhoneCall /></span>Reveal</button>
+        </FlexRow>
+        <FlexRow style={{ justifyContent: 'space-between' }}>
+          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>Owners's Telegram handle:</OnwerLabel>
+          {ownerInfo.telegram ? ownerInfo.telegram : (<OnwerLabel>Pay 800 to reveal</OnwerLabel>)}
+          <button onClick={reveal} name='telegram'><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>
         </FlexRow>
       </PersonalInfoRevealContainer>
       {tweetId && (
