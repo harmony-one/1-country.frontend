@@ -1,15 +1,21 @@
 import Contract from 'web3-eth-contract'
 import config from '../../config'
-import D1DC from '../../abi/D1DC.json'
+import D1DCV2 from '../../abi/D1DCV2.json'
 import Constants from '../constants'
 import BN from 'bn.js'
+
+export const EmojiType = {
+  ONE_ABOVE: 0,
+  FIRST_PRIZE: 1,
+  ONE_HUNDRED_PERCENT: 2
+}
 
 const apis = ({ web3, address }) => {
   if (!web3) {
     return
   }
   Contract.setProvider(web3.currentProvider)
-  const contract = new Contract(D1DC, config.contract)
+  const contract = new Contract(D1DCV2, config.contract)
 
   const call = async ({ amount, onFailed, onSubmitted, onSuccess, methodName, parameters }) => {
     console.log({ methodName, parameters, amount, address })
@@ -45,15 +51,42 @@ const apis = ({ web3, address }) => {
       return config.explorer.replace('{{txId}}', txHash)
     },
     call,
-    rent: async ({ name, url, amount, onFailed, onSubmitted, onSuccess }) => {
+    rent: async ({ name, url, telegram, email, phone, amount, onFailed, onSubmitted, onSuccess }) => {
       return call({
-        amount, parameters: [name, url], methodName: 'rent', onFailed, onSubmitted, onSuccess
+        amount, parameters: [name, url, telegram, email, phone], methodName: 'rent', onFailed, onSubmitted, onSuccess
       })
     },
     updateURL: async ({ name, url, onFailed, onSubmitted, onSuccess }) => {
       return call({
         parameters: [name, url], methodName: 'updateURL', onFailed, onSubmitted, onSuccess
       })
+    },
+    // owner info
+    revealInfo: async ({ name, info }) => {
+      const amount = new BN(1).toString()
+      console.log('reveal info', name, info)
+      try {
+        const tx = await contract.methods.requestTelegramReveal(name).send({ from: address, value: amount })
+        console.log(tx)
+        // const telegram = await contract.method.getOwnerTelegram(name).call()
+        // console.log('mi telegram', telegram)
+        return 'hola' // telegram
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    getOwnerInfo: async ({ name }) => {
+      const [telegram] = await Promise.all([
+        contract.methods.getOwnerTelegram(name).call(),
+        // contract.methods.getOwnerPhone(name).call(),
+        // contract.methods.getOwnerEmail(name).call()
+      ])
+      console.log('JUAS', telegram)
+      return {
+        telegram,
+        // phone,
+        // email
+      }
     },
     getParameters: async () => {
       const [baseRentalPrice, rentalPeriod, priceMultiplier, lastRented] = await Promise.all([
@@ -97,6 +130,12 @@ const apis = ({ web3, address }) => {
         prev,
         next
       }
+    },
+    getEmojiCounter: async ({ name, emojiType }) => {
+      console.log('getEmojiCounter before', name, emojiType)
+      const emoji = await contract.methods.emojiReactionCounters(name, emojiType).call()
+      console.log('getEmojiCounter', emoji)
+      return emoji
     }
   }
 }

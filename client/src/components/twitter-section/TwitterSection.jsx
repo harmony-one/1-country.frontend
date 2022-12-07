@@ -5,7 +5,7 @@ import { EmojiCounterContainer, baseEmojiListValues, EmojisReactionContainer } f
 import { TweetContainerRow } from './TwitterSection.module'
 
 // add EmojiList props
-const TwitterSection = ({ tweetId }) => {
+const TwitterSection = ({ tweetId, pageName, client }) => {
   // eslint-disable-next-line array-bracket-spacing
   const [emojiList, ] = useState(baseEmojiListValues)
   // const [emojiList, setEmojiList] = useState(baseEmojiListValues)
@@ -13,7 +13,7 @@ const TwitterSection = ({ tweetId }) => {
   return (
     <TweetContainerRow>
       <TwitterTweetEmbed tweetId={tweetId} />
-      <EmojiCounterContainer emojiList={emojiList} />
+      <EmojiCounterContainer emojiList={emojiList} pageName={pageName} client={client} />
       <EmojisReactionContainer emojiList={emojiList} />
     </TweetContainerRow>
   )

@@ -1,4 +1,6 @@
 import React from 'react'
+import { useEffect } from 'react'
+import { EmojiType } from '../../api'
 import { Label, Hint } from '../Text'
 import { EmojiLabelDiv, EmojisContainerRow, EmojiCounterDiv, EmojisReactionRow } from './Emoji.module'
 // import { MdOutlineMail } from 'react-icons/md'
@@ -38,6 +40,7 @@ export const baseEmojiListValues = [
   {
     name: 'One token',
     icon: '☝️', // emojiIcon.telegram,
+    type: EmojiType.ONE_ABOVE,
     counter: 10,
     color: '#0088cc',
     price: '1'
@@ -45,6 +48,7 @@ export const baseEmojiListValues = [
   {
     name: 'First price',
     icon: '🥇', // emojiIcon.email,
+    type: EmojiType.FIRST_PRIZE,
     counter: 1,
     color: '#FBBC05',
     price: '10'
@@ -52,13 +56,22 @@ export const baseEmojiListValues = [
   {
     name: '100 percent',
     icon: '💯', // emojiIcon.phone,
+    type: EmojiType.ONE_HUNDRED_PERCENT,
     counter: 1,
     color: 'red',
     price: '100'
   }
 ]
 
-export const EmojiCounterContainer = ({ emojiList }) => {
+export const EmojiCounterContainer = ({ emojiList, pageName, client }) => {
+  useEffect(() => {
+    const getEmojisCounter = async () => {
+      const fco = await client.getEmojiCounter({ name: pageName, emojiType: '1' })
+      console.log('EmojiCounter', fco)
+    }
+    getEmojisCounter()
+  }, [])
+
   return (
     <EmojisContainerRow>
       {
