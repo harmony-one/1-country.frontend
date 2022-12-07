@@ -96,8 +96,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const records = await getRecords(keys)
     console.log(`Records ${i} to ${Math.min(n, i + 50)}: `, keys, records)
   }
-
-  console.log('333')
 }
 export default func
 func.tags = ['D1DCV2']
