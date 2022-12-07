@@ -321,6 +321,8 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         require(price <= msg.value, "D1DC: insufficient telegram payment");
 
         address owner = nameRecords[keccak256(bytes(name))].renter;
+        require(owner != msg.sender, "D1DC: self reveal for telegram");
+        require(!_isTelegramReveal[msg.sender][owner], "D1DC: already paid for telegram");
         _isTelegramReveal[msg.sender][owner] = true;
         (bool success,) = owner.call{value : price}("");
 
@@ -337,6 +339,8 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         require(price <= msg.value, "D1DC: insufficient email payment");
 
         address owner = nameRecords[keccak256(bytes(name))].renter;
+        require(owner != msg.sender, "D1DC: self reveal for email");
+        require(!_isEmailReveal[msg.sender][owner], "D1DC: already paid for email");
         _isEmailReveal[msg.sender][owner] = true;
         (bool success,) = owner.call{value : price}("");
 
@@ -353,6 +357,8 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         require(price <= msg.value, "D1DC: insufficient phone payment");
 
         address owner = nameRecords[keccak256(bytes(name))].renter;
+        require(owner != msg.sender, "D1DC: self reveal for phone");
+        require(!_isPhoneReveal[msg.sender][owner], "D1DC: already paid for phone");
         _isPhoneReveal[msg.sender][owner] = true;
         (bool success,) = owner.call{value : price}("");
 
@@ -366,21 +372,27 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
 
     function getOwnerTelegram(string calldata name) external returns (string memory) {
         address owner = nameRecords[keccak256(bytes(name))].renter;
-        require(_isTelegramReveal[msg.sender][owner], "D1DC: no permission for telegram reveal");
+        if (msg.sender != owner) {
+            require(_isTelegramReveal[msg.sender][owner], "D1DC: no permission for telegram reveal");
+        }
 
         return _ownerInfos[owner].telegram;
     }
 
     function getOwnerEmail(string calldata name) external returns (string memory) {
         address owner = nameRecords[keccak256(bytes(name))].renter;
-        require(_isEmailReveal[msg.sender][owner], "D1DC: no permission for email reveal");
+        if (msg.sender != owner) {
+            require(_isEmailReveal[msg.sender][owner], "D1DC: no permission for email reveal");
+        }
 
         return _ownerInfos[owner].email;
     }
 
     function getOwnerPhone(string calldata name) external returns (string memory) {
         address owner = nameRecords[keccak256(bytes(name))].renter;
-        require(_isPhoneReveal[msg.sender][owner], "D1DC: no permission for phone reveal");
+        if (msg.sender != owner) {
+            require(_isPhoneReveal[msg.sender][owner], "D1DC: no permission for phone reveal");
+        }
 
         return _ownerInfos[owner].phone;
     }
