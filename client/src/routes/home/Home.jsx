@@ -174,7 +174,7 @@ const Home = ({ subdomain = config.tld }) => {
         return null
       }
       console.log('getSubDomain()', window.location.host)
-      const host = 'all.1.country' // window.location.host
+      const host = 'test2.1.country' // window.location.host
       const parts = host.split('.')
       if (parts.length <= 2) {
         return ''
@@ -255,6 +255,9 @@ const Home = ({ subdomain = config.tld }) => {
       await f({
         name,
         url: isRenewal ? '' : tweetId.tweetId.toString(),
+        telegram: 'telegram',
+        email: 'email',
+        phone: 'phone',
         amount: new BN(price.amount).toString(),
         onFailed: () => toast.error('Failed to purchase'),
         onSuccess: (tx) => {
@@ -365,6 +368,9 @@ const Home = ({ subdomain = config.tld }) => {
             parameters={parameters}
             tweetId={tweetId}
             humanD={humanD}
+            client={client}
+            isOwner={isOwner}
+            pageName={name}
           />
         </DescResponsive>
       )}
@@ -428,7 +434,7 @@ const Home = ({ subdomain = config.tld }) => {
           </Row>
           {!isOwner
             ? (
-              <OwnerForm onAction={onAction} buttonLabel='Rent' />
+              <OwnerForm onAction={() => onAction({ isRenewal: false })} buttonLabel='Rent' />
               )
             : (
               <Button onClick={onAction} disabled={pending}>'UPDATE URL'</Button>

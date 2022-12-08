@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import TwitterSection from '../../components/twitter-section/TwitterSection'
 import { MdOutlineMail } from 'react-icons/md'
 import { TbPhoneCall, TbBrandTelegram } from 'react-icons/tb'
@@ -15,12 +15,33 @@ const defaultOwnerInfo = {
 }
 
 const OwnerInfo = (props) => {
-  const { record, expired, parameters, tweetId, humanD } = props
+  const { record, expired, parameters, tweetId, humanD, client, isOwner, pageName } = props
   const [ownerInfo, setOwnerInfo] = useState(defaultOwnerInfo)
 
-  const reveal = (event) => {
+  useEffect(() => {
+    console.log('JAJAJAJ', props)
+    const getInfo = async () => {
+      const info = {
+        telegram: 'Owner handler',
+        email: 'owner@mail.com',
+        phone: '+1 212 555 8181'
+      }
+      setOwnerInfo(info)
+      const fco = await client.getOwnerInfo({ name: pageName })
+      console.log('hudhifhudifhishdfuf', fco)
+    }
+    if (isOwner) {
+      getInfo()
+    }
+  },
+  [])
+
+  const reveal = async (event) => {
     const { name } = event.target
     let value = ''
+    console.log(name, pageName)
+    const info = await client.revealInfo({ name: pageName, info: name })
+    console.log(info)
     switch (name) {
       case 'telegram':
         value = 'user1234'
@@ -73,24 +94,24 @@ const OwnerInfo = (props) => {
       </Row>
       <PersonalInfoRevealContainer style={{ marginTop: '1em' }}>
         <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
-          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>Owners's Email address:</OnwerLabel>
+          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Email address:' : 'Owners\'s Email address:'}</OnwerLabel>
           {ownerInfo.email ? ownerInfo.email : (<OnwerLabel>Pay 200 to reveal</OnwerLabel>)}
           {/* <div className='icon-button' onClick={reveal} name='email'><span style={{ color: '#FBBC05' }}><MdOutlineMail /></span>Reveal</div> */}
-          <button onClick={reveal} name='email'><span style={{ color: '#FBBC05', paddingRight: '0.3em' }}><MdOutlineMail /></span>Reveal</button>
+          {!isOwner && <button onClick={reveal} name='email'><span style={{ color: '#FBBC05', paddingRight: '0.3em' }}><MdOutlineMail /></span>Reveal</button>}
         </FlexRow>
         <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
-          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>Owners's Phone number:</OnwerLabel>
+          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Phone number:' : 'Owners\'s Phone number:'}</OnwerLabel>
           {ownerInfo.phone ? ownerInfo.phone : (<OnwerLabel>Pay 400 to reveal</OnwerLabel>)}
-          <button onClick={reveal} name='phone'><span style={{ color: 'red', paddingRight: '0.3em' }}><TbPhoneCall /></span>Reveal</button>
+          {!isOwner && <button onClick={reveal} name='phone'><span style={{ color: 'red', paddingRight: '0.3em' }}><TbPhoneCall /></span>Reveal</button>}
         </FlexRow>
         <FlexRow style={{ justifyContent: 'space-between' }}>
-          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>Owners's Telegram handle:</OnwerLabel>
+          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Telegram handler:' : 'Owners\'s Telegram handler:'}</OnwerLabel>
           {ownerInfo.telegram ? ownerInfo.telegram : (<OnwerLabel>Pay 800 to reveal</OnwerLabel>)}
-          <button onClick={reveal} name='telegram'><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>
+          {!isOwner && <button onClick={reveal} name='telegram'><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>}
         </FlexRow>
       </PersonalInfoRevealContainer>
       {tweetId && (
-        <TwitterSection tweetId={tweetId} />
+        <TwitterSection tweetId={tweetId} pageName={pageName} client={client} />
       )}
       {/* <Row style={{ marginTop: 32, justifyContent: 'center' }}> */}
       <Row>
