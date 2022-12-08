@@ -11,7 +11,7 @@
   "event URLUpdated(string indexed,address indexed,string,string)",
   "event Unpaused(address)",
   "function addEmojiReaction(string,uint8) payable",
-  "function addOwnerInfo(string,string,string) payable",
+  "function addOwnerInfo(string,string,string,string) payable",
   "function approve(address,uint256)",
   "function balanceOf(address) view returns (uint256)",
   "function baseRentalPrice() view returns (uint256)",

@@ -49,14 +49,14 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
     /// @dev TokenId -> NameRecord
     mapping(bytes32 => NameRecord) public nameRecords;
 
+    /// @dev TokenId -> OwnerInfo
+    mapping(bytes32 => OwnerInfo) internal _ownerInfos;
+
     /// @dev Emoji Type -> Price
     mapping(EmojiType => uint256) public emojiReactionPrices;
 
     /// @dev TokenId -> Emoji Type -> Counter
     mapping(bytes32 => mapping(EmojiType => uint256)) public emojiReactionCounters;
-
-    /// @dev Name Owner -> OwnerInfo
-    mapping(address => OwnerInfo) internal _ownerInfos;
 
     /// @dev User -> Name Owner -> Bool
     mapping(address => mapping(address => bool)) internal _isTelegramReveal;
@@ -230,6 +230,7 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
             // pay 90% to the original name owner
             uint256 priceForOwner = price * 90 / 100;
             (bool success,) = originalOwner.call{value : priceForOwner}("");
+            require(success, "error sending ether");
         } else {
             nameRecords[keccak256(bytes(lastCreated))].next = name;
             nameRecord.prev = lastCreated;
@@ -237,8 +238,8 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
             _safeMint(msg.sender, tokenId);
         }
 
-        // since _afterTokenTransfer function removes the sender's info, add it after transferring tokens
-        OwnerInfo storage ownerInfo = _ownerInfos[msg.sender];
+        // since _afterTokenTransfer function removes the owner info, add it after transferring NFT
+        OwnerInfo storage ownerInfo = _ownerInfos[bytes32(tokenId)];
         ownerInfo.telegram = telegram;
         ownerInfo.email = email;
         ownerInfo.phone = phone;
@@ -279,6 +280,7 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         // pay 90% to the name owner
         uint256 priceForOwner = price * 90 / 100;
         (bool success,) = owner.call{value : priceForOwner}("");
+        require(success, "error sending ether");
 
         uint256 excess = msg.value - price;
         if (excess > 0) {
@@ -289,25 +291,26 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         emit EmojiReactionAdded(msg.sender, name, emojiType);
     }
 
-    function addOwnerInfo(string memory telegram, string memory email, string memory phone) external payable nonReentrant whenNotPaused {
+    function addOwnerInfo(string memory name, string memory telegram, string memory email, string memory phone) external payable nonReentrant whenNotPaused {
+        bytes32 tokenId = keccak256(bytes(name));
         uint256 price = msg.value;
 
         if (bytes(telegram).length != 0) {
             require(telegramRevealPrice <= price, "D1DC: insufficient personal info payment");
             price -= telegramRevealPrice;
-            _ownerInfos[msg.sender].telegram = telegram;
+            _ownerInfos[tokenId].telegram = telegram;
         }
 
         if (bytes(email).length != 0) {
             require(emailRevealPrice <= price, "D1DC: insufficient personal info payment");
             price -= emailRevealPrice;
-            _ownerInfos[msg.sender].email = email;
+            _ownerInfos[tokenId].email = email;
         }
 
         if (bytes(phone).length != 0) {
             require(phoneRevealPrice <= price, "D1DC: insufficient personal info payment");
             price -= emailRevealPrice;
-            _ownerInfos[msg.sender].email = email;
+            _ownerInfos[tokenId].email = email;
         }
 
         if (price > 0) {
@@ -325,6 +328,7 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         require(!_isTelegramReveal[msg.sender][owner], "D1DC: already paid for telegram");
         _isTelegramReveal[msg.sender][owner] = true;
         (bool success,) = owner.call{value : price}("");
+        require(success, "error sending ether");
 
         // returns the exceeded payment
         uint256 excess = msg.value - price;
@@ -343,6 +347,7 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         require(!_isEmailReveal[msg.sender][owner], "D1DC: already paid for email");
         _isEmailReveal[msg.sender][owner] = true;
         (bool success,) = owner.call{value : price}("");
+        require(success, "error sending ether");
 
         // returns the exceeded payment
         uint256 excess = msg.value - price;
@@ -361,6 +366,7 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         require(!_isPhoneReveal[msg.sender][owner], "D1DC: already paid for phone");
         _isPhoneReveal[msg.sender][owner] = true;
         (bool success,) = owner.call{value : price}("");
+        require(success, "error sending ether");
 
         // returns the exceeded payment
         uint256 excess = msg.value - price;
@@ -372,29 +378,32 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
 
     function getOwnerTelegram(string calldata name) external returns (string memory) {
         address owner = nameRecords[keccak256(bytes(name))].renter;
+        bytes32 tokenId = keccak256(bytes(name));
         if (msg.sender != owner) {
             require(_isTelegramReveal[msg.sender][owner], "D1DC: no permission for telegram reveal");
         }
 
-        return _ownerInfos[owner].telegram;
+        return _ownerInfos[tokenId].telegram;
     }
 
     function getOwnerEmail(string calldata name) external returns (string memory) {
         address owner = nameRecords[keccak256(bytes(name))].renter;
+        bytes32 tokenId = keccak256(bytes(name));
         if (msg.sender != owner) {
             require(_isEmailReveal[msg.sender][owner], "D1DC: no permission for email reveal");
         }
 
-        return _ownerInfos[owner].email;
+        return _ownerInfos[tokenId].email;
     }
 
     function getOwnerPhone(string calldata name) external returns (string memory) {
         address owner = nameRecords[keccak256(bytes(name))].renter;
+        bytes32 tokenId = keccak256(bytes(name));
         if (msg.sender != owner) {
             require(_isPhoneReveal[msg.sender][owner], "D1DC: no permission for phone reveal");
         }
 
-        return _ownerInfos[owner].phone;
+        return _ownerInfos[tokenId].phone;
     }
 
     function _afterTokenTransfer(
@@ -406,7 +415,8 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         NameRecord storage nameRecord = nameRecords[bytes32(firstTokenId)];
         nameRecord.renter = to;
         
-        OwnerInfo storage ownerInfo = _ownerInfos[from];
+        bytes32 tokenId = bytes32(firstTokenId);
+        OwnerInfo storage ownerInfo = _ownerInfos[tokenId];
         ownerInfo.telegram = "";
         ownerInfo.email = "";
         ownerInfo.phone = "";

@@ -2,19 +2,19 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    "txHash": "0x02b2abc716b62746e3befe62eb7f75a5a5432fa7943d43c82eba334b5508c049"
+    "txHash": "0xb5d40dc2357280fb6d5ba9953b4ad7339ce681cb8ef91f126cb96ffc292f19be"
   },
   "proxies": [
     {
       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x298ecb321e487ca79b407584986c64851092acd701119a9b3668d83fe97fbd7b",
+      "txHash": "0x8180b212704a99e4b61387a92e00a1b87a5078a830c750a82656484b269aff35",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "7636d3728b166cdc6bb253fba8c8ce2ce21018c2b0154db8a99271a3f81aaed4": {
+    "6794068fe4df99a4cd1a0ffadcdd622cd35520707e9eeef5f7f1ed46f71faca1": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x8e857839f855092c0f58504d44f473915332510c6276267113c29014f3e07a01",
+      "txHash": "0xd380255f6c346a89173c8274b898e00f20133f292ce31c7aa988f93aafafb2f3",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -199,31 +199,31 @@
             "label": "nameRecords",
             "offset": 0,
             "slot": "304",
-            "type": "t_mapping(t_bytes32,t_struct(NameRecord)6604_storage)",
+            "type": "t_mapping(t_bytes32,t_struct(NameRecord)3091_storage)",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:50"
           },
           {
-            "label": "emojiReactionPrices",
+            "label": "_ownerInfos",
             "offset": 0,
             "slot": "305",
-            "type": "t_mapping(t_enum(EmojiType)6615,t_uint256)",
+            "type": "t_mapping(t_bytes32,t_struct(OwnerInfo)3098_storage)",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:53"
           },
           {
-            "label": "emojiReactionCounters",
+            "label": "emojiReactionPrices",
             "offset": 0,
             "slot": "306",
-            "type": "t_mapping(t_bytes32,t_mapping(t_enum(EmojiType)6615,t_uint256))",
+            "type": "t_mapping(t_enum(EmojiType)3102,t_uint256)",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:56"
           },
           {
-            "label": "_ownerInfos",
+            "label": "emojiReactionCounters",
             "offset": 0,
             "slot": "307",
-            "type": "t_mapping(t_address,t_struct(OwnerInfo)6611_storage)",
+            "type": "t_mapping(t_bytes32,t_mapping(t_enum(EmojiType)3102,t_uint256))",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:59"
           },
@@ -337,7 +337,7 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_enum(EmojiType)6615": {
+          "t_enum(EmojiType)3102": {
             "label": "enum D1DCV2.EmojiType",
             "members": [
               "ONE_ABOVE",
@@ -354,23 +354,23 @@
             "label": "mapping(address => mapping(address => bool))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_struct(OwnerInfo)6611_storage)": {
-            "label": "mapping(address => struct D1DCV2.OwnerInfo)",
-            "numberOfBytes": "32"
-          },
           "t_mapping(t_address,t_uint256)": {
             "label": "mapping(address => uint256)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_mapping(t_enum(EmojiType)6615,t_uint256))": {
+          "t_mapping(t_bytes32,t_mapping(t_enum(EmojiType)3102,t_uint256))": {
             "label": "mapping(bytes32 => mapping(enum D1DCV2.EmojiType => uint256))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(NameRecord)6604_storage)": {
+          "t_mapping(t_bytes32,t_struct(NameRecord)3091_storage)": {
             "label": "mapping(bytes32 => struct D1DCV2.NameRecord)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_enum(EmojiType)6615,t_uint256)": {
+          "t_mapping(t_bytes32,t_struct(OwnerInfo)3098_storage)": {
+            "label": "mapping(bytes32 => struct D1DCV2.OwnerInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_enum(EmojiType)3102,t_uint256)": {
             "label": "mapping(enum D1DCV2.EmojiType => uint256)",
             "numberOfBytes": "32"
           },
@@ -382,7 +382,7 @@
             "label": "string",
             "numberOfBytes": "32"
           },
-          "t_struct(NameRecord)6604_storage": {
+          "t_struct(NameRecord)3091_storage": {
             "label": "struct D1DCV2.NameRecord",
             "members": [
               {
@@ -424,7 +424,7 @@
             ],
             "numberOfBytes": "160"
           },
-          "t_struct(OwnerInfo)6611_storage": {
+          "t_struct(OwnerInfo)3098_storage": {
             "label": "struct D1DCV2.OwnerInfo",
             "members": [
               {
