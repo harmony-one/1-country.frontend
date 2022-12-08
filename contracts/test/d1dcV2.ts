@@ -62,4 +62,14 @@ describe('D1DCV2', () => {
       expect(telegramInfo).to.equal(telegram);
     });
   });
+
+  describe("addEmojiReaction", () => {
+    beforeEach(async () => {
+      await d1dcV2.connect(alice).rent(dotName, url, telegram, email, phone, { value: baseRentalPrice });
+    });
+
+    it("Should be ale to add the emoji reaction", async () => {
+      await d1dcV2.addEmojiReaction(dotName, 0, { value: emojiPrice0 });
+    });
+  });
 });
