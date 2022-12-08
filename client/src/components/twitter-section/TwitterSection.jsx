@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { TwitterTweetEmbed } from 'react-twitter-embed'
-import { EmojiCounterContainer, baseEmojiListValues, EmojisReactionContainer } from '../emoji/Emoji'
+import { EmojiCounterContainer, baseEmojiListValues } from '../emoji/Emoji'
 
 import { TweetContainerRow } from './TwitterSection.module'
 
@@ -14,7 +14,6 @@ const TwitterSection = ({ tweetId, pageName, client }) => {
     <TweetContainerRow>
       <TwitterTweetEmbed tweetId={tweetId} />
       <EmojiCounterContainer emojiList={emojiList} pageName={pageName} client={client} />
-      <EmojisReactionContainer emojiList={emojiList} />
     </TweetContainerRow>
   )
 }

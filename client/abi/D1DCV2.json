@@ -383,6 +383,11 @@
 		"inputs": [
 			{
 				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
 				"name": "telegram",
 				"type": "string"
 			},

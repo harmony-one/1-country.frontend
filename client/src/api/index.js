@@ -76,16 +76,16 @@ const apis = ({ web3, address }) => {
       }
     },
     getOwnerInfo: async ({ name }) => {
-      const [telegram] = await Promise.all([
-        contract.methods.getOwnerTelegram(name).call(),
-        // contract.methods.getOwnerPhone(name).call(),
-        // contract.methods.getOwnerEmail(name).call()
+      const [telegram, phone, email] = await Promise.all([
+        contract.methods.getOwnerTelegram(name).call({ from: address }),
+        contract.methods.getOwnerPhone(name).call({ from: address }),
+        contract.methods.getOwnerEmail(name).call({ from: address })
       ])
       console.log('JUAS', telegram)
       return {
         telegram,
-        // phone,
-        // email
+        phone,
+        email
       }
     },
     getParameters: async () => {
@@ -131,11 +131,30 @@ const apis = ({ web3, address }) => {
         next
       }
     },
+    getEmojisCounter: async ({ name }) => {
+      const byte32Name = web3.utils.asciiToHex(name)
+      const [oneAbove, firstPrice, oneHundred] = await Promise.all([
+        contract.methods.emojiReactionCounters(byte32Name, 0).call(),
+        contract.methods.emojiReactionCounters(byte32Name, 1).call(),
+        contract.methods.emojiReactionCounters(byte32Name, 2).call()
+      ])
+      return {
+        0: oneAbove,
+        1: firstPrice,
+        2: oneHundred
+      }
+    },
     getEmojiCounter: async ({ name, emojiType }) => {
-      console.log('getEmojiCounter before', name, emojiType)
-      const emoji = await contract.methods.emojiReactionCounters(name, emojiType).call()
-      console.log('getEmojiCounter', emoji)
+      const byte32Name = web3.utils.asciiToHex(name)
+      const emoji = await contract.methods.emojiReactionCounters(byte32Name, emojiType).call()
       return emoji
+    },
+    addEmojiReaction: async ({ name, emojiType }) => {
+      const byte32Name = web3.utils.asciiToHex(name)
+      const amount = new BN(1).toString()
+      console.log('PARAMS', byte32Name, emojiType)
+      const tx = await contract.methods.addEmojiReaction(name, emojiType).call({ from: address, value: amount })
+      console.log(tx)
     }
   }
 }
