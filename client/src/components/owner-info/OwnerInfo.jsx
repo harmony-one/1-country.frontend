@@ -1,9 +1,12 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, { useState, useEffect } from 'react'
-import TwitterSection from '../../components/twitter-section/TwitterSection'
+import { useAccount } from 'wagmi'
+import { toast } from 'react-toastify'
 import { MdOutlineMail } from 'react-icons/md'
 import { TbPhoneCall, TbBrandTelegram } from 'react-icons/tb'
+
+import TwitterSection from '../../components/twitter-section/TwitterSection'
 import { Col, Row, FlexRow } from '../../components/Layout'
 import { BaseText, SmallText, SmallTextGrey } from '../../components/Text'
 import { OnwerLabel, PersonalInfoRevealContainer } from './OwnerInfo.module'
@@ -17,6 +20,7 @@ const defaultOwnerInfo = {
 const OwnerInfo = (props) => {
   const { record, expired, parameters, tweetId, humanD, client, isOwner, pageName } = props
   const [ownerInfo, setOwnerInfo] = useState(defaultOwnerInfo)
+  const { isConnected } = useAccount()
 
   useEffect(() => {
     const getInfo = async () => {
@@ -31,23 +35,27 @@ const OwnerInfo = (props) => {
   [])
 
   const reveal = async (event) => {
-    const { name } = event.target
-    let value = ''
-    console.log(name, pageName)
-    const info = await client.revealInfo({ name: pageName, info: name })
-    console.log(info)
-    switch (name) {
-      case 'telegram':
-        value = 'user1234'
-        break
-      case 'email':
-        value = 'email@gmail.com'
-        break
-      case 'phone':
-        value = '+1 555 945 3221'
-        break
+    if (isConnected) {
+      const { name } = event.target
+      let value = ''
+      console.log(name, pageName)
+      const info = await client.revealInfo({ name: pageName, info: name })
+      console.log(info)
+      switch (name) {
+        case 'telegram':
+          value = 'user1234'
+          break
+        case 'email':
+          value = 'email@gmail.com'
+          break
+        case 'phone':
+          value = '+1 555 945 3221'
+          break
+      }
+      setOwnerInfo({ ...ownerInfo, [name]: value })
+    } else {
+      toast.error('Please connect your wallet')
     }
-    setOwnerInfo({ ...ownerInfo, [name]: value })
   }
 
   return (

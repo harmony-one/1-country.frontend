@@ -7,6 +7,21 @@ const config = {
   defaultRPC: process.env.DEFAULT_RPC || 'https://api.harmony.one',
   tld: process.env.TLD || '.1.country',
   tldLink: process.env.TLD_LINK || '1.country',
+  emojiType: {
+    ONE_ABOVE: 0,
+    FIRST_PRIZE: 1,
+    ONE_HUNDRED_PERCENT: 2
+  },
+  emojiTypePrice: {
+    ONE_ABOVE: 1,
+    FIRST_PRIZE: 2,
+    ONE_HUNDRED_PERCENT: 3
+  },
+  infoRevealPrice: {
+    EMAIL: 1,
+    PHONE: 2,
+    TELEGRAM: 4
+  },
   // chainParameters: process.env.CHAIN_PARAMETERS
   //   ? JSON.parse(process.env.CHAIN_PARAMETERS)
   //   : {

@@ -199,11 +199,13 @@ const Home = ({ subdomain = config.tld }) => {
 
   useEffect(() => {
     const callApi = async () => {
+      console.log('CallApi UseEffect', name)
       const provider = await connector.getProvider()
       const web3 = new Web3(provider)
       const api = apis({ web3, address })
       setClient(api)
       api.getPrice({ name }).then((p) => {
+        console.log('pppp', p)
         setPrice(p)
       })
     }
@@ -252,6 +254,7 @@ const Home = ({ subdomain = config.tld }) => {
         return toast.error(tweetId.error)
       }
       const f = isOwner && !isRenewal ? client.updateURL : client.rent
+      console.log('onAction', price)
       await f({
         name,
         url: isRenewal ? '' : tweetId.tweetId.toString(),
