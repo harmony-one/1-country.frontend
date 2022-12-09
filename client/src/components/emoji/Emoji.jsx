@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
+import { getEmojiPrice } from '../../api/index'
 
 import config from '../../../config'
 import { Label, Hint } from '../Text'
@@ -13,7 +14,7 @@ const baseEmojiListValues = [
     type: config.emojiType.ONE_ABOVE,
     counter: 0,
     color: '#0088cc',
-    price: '1'
+    price: getEmojiPrice(config.emojiType.ONE_ABOVE)
   },
   {
     name: 'First price',
@@ -21,7 +22,7 @@ const baseEmojiListValues = [
     type: config.emojiType.FIRST_PRIZE,
     counter: 0,
     color: '#FBBC05',
-    price: '10'
+    price: getEmojiPrice(config.emojiType.FIRST_PRIZE)
   },
   {
     name: '100 percent',
@@ -29,7 +30,7 @@ const baseEmojiListValues = [
     type: config.emojiType.ONE_HUNDRED_PERCENT,
     counter: 0,
     color: 'red',
-    price: '100'
+    price: getEmojiPrice(config.emojiType.ONE_HUNDRED_PERCENT)
   }
 ]
 

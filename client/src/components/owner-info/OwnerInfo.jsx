@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import { MdOutlineMail } from 'react-icons/md'
 import { TbPhoneCall, TbBrandTelegram } from 'react-icons/tb'
 
+import config from '../../../config'
 import TwitterSection from '../../components/twitter-section/TwitterSection'
 import { Col, Row, FlexRow } from '../../components/Layout'
 import { BaseText, SmallText, SmallTextGrey } from '../../components/Text'
@@ -90,18 +91,18 @@ const OwnerInfo = (props) => {
       <PersonalInfoRevealContainer style={{ marginTop: '1em' }}>
         <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
           <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Email address:' : 'Owners\'s Email address:'}</OnwerLabel>
-          {ownerInfo.email ? ownerInfo.email : (<OnwerLabel>Pay 200 to reveal</OnwerLabel>)}
+          {ownerInfo.email ? ownerInfo.email : (<OnwerLabel>{`Pay ${config.infoRevealPrice.email} to reveal`}</OnwerLabel>)}
           {/* <div className='icon-button' onClick={reveal} name='email'><span style={{ color: '#FBBC05' }}><MdOutlineMail /></span>Reveal</div> */}
           {!isOwner && <button onClick={reveal} name='email'><span style={{ color: '#FBBC05', paddingRight: '0.3em' }}><MdOutlineMail /></span>Reveal</button>}
         </FlexRow>
         <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
           <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Phone number:' : 'Owners\'s Phone number:'}</OnwerLabel>
-          {ownerInfo.phone ? ownerInfo.phone : (<OnwerLabel>Pay 400 to reveal</OnwerLabel>)}
+          {ownerInfo.phone ? ownerInfo.phone : (<OnwerLabel>{`Pay ${config.infoRevealPrice.phone} to reveal`}</OnwerLabel>)}
           {!isOwner && <button onClick={reveal} name='phone'><span style={{ color: 'red', paddingRight: '0.3em' }}><TbPhoneCall /></span>Reveal</button>}
         </FlexRow>
         <FlexRow style={{ justifyContent: 'space-between' }}>
           <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Telegram handler:' : 'Owners\'s Telegram handler:'}</OnwerLabel>
-          {ownerInfo.telegram ? ownerInfo.telegram : (<OnwerLabel>Pay 800 to reveal</OnwerLabel>)}
+          {ownerInfo.telegram ? ownerInfo.telegram : (<OnwerLabel>{`Pay ${config.infoRevealPrice.telegram} to reveal`}</OnwerLabel>)}
           {!isOwner && <button onClick={reveal} name='telegram'><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>}
         </FlexRow>
       </PersonalInfoRevealContainer>

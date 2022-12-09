@@ -174,12 +174,13 @@ const Home = ({ subdomain = config.tld }) => {
         return null
       }
       console.log('getSubDomain()', window.location.host)
-      const host = 'test7.1.country' // window.location.host
+      const host = window.location.host
       const parts = host.split('.')
+      console.log(host, parts, parts.length)
       if (parts.length <= 2) {
         return ''
       }
-      if (parts.length <= 3) {
+      if (parts.length <= 4) { // 3 CHANGE FOR PRODUCTION
         return parts[0]
       }
       return parts.slice(0, parts.length - 2).join('.')
