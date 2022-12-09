@@ -69,7 +69,15 @@ describe('D1DCV2', () => {
     });
 
     it("Should be ale to add the emoji reaction", async () => {
-      await d1dcV2.addEmojiReaction(dotName, 0, { value: emojiPrice0 });
+      // check the old emoji reaction counter
+      const hexName = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(dotName));
+      const emojiCounterBefore = await d1dcV2.emojiReactionCounters(hexName, 0);
+
+      await d1dcV2.connect(bob).addEmojiReaction(dotName, 0, { value: emojiPrice0 });
+
+      // check the new emoji reaction counter
+      const emojiCounterAfter = await d1dcV2.emojiReactionCounters(hexName, 0);
+      expect(emojiCounterAfter).to.equal(emojiCounterBefore.add(1));
     });
   });
 });
