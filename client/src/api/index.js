@@ -7,7 +7,8 @@ import BN from 'bn.js'
 console.log('CONTRACT', process.env.CONTRACT)
 
 export const getFullName = (name) => {
-  return `${name}${config.tdl}`
+  return name
+  // `${name}${config.tdl}`
 }
 
 export const getEmojiPrice = (emojiType) => {
@@ -68,24 +69,37 @@ const apis = ({ web3, address }) => {
     },
     // owner info
     revealInfo: async ({ name, info }) => {
-      const amount = web3.utils.toWei(new BN(4).toString())
-      console.log('reveal info', name, info)
-      // const nameBytes = web3.utils.keccak256(name)
+      const amount = web3.utils.toWei(new BN(config.infoRevealPrice[info]).toString())
+      console.log('reveal info', name, info, config.infoRevealPrice[info])
       try {
         if (name) {
-          const tx = await contract.methods.requestTelegramReveal(name).send({ from: address, value: amount })
-          console.log(tx)
-          if (tx.status) {
-            const telegram = await contract.methods.getOwnerTelegram(name).call()
-            console.log('mi telegram', telegram)
-            return telegram
+          let revealMethod = ''
+          let getMethod = ''
+          switch (info) {
+            case 'telegram':
+              revealMethod = 'requestTelegramReveal'
+              getMethod = 'getOwnerTelegram'
+              break
+            case 'phone':
+              revealMethod = 'requestPhoneReveal'
+              getMethod = 'getOwnerPhone'
+              break
+            case 'email':
+              revealMethod = 'requestEmailReveal'
+              getMethod = 'getOwnerEmail'
+              break
           }
-          // const telegram = await contract.methods.getOwnerTelegram(name).call()
-          // console.log('mi telegram', telegram)
+          console.log('case result', info, revealMethod, getMethod)
+          const tx = await contract.methods[revealMethod](name).send({ from: address, value: amount })
+          console.log(tx)
+          const ownerInfo = await contract.methods[getMethod](name).call()
+          console.log('my ownerInfo', ownerInfo)
+          return ownerInfo
         }
-        return 'telegram'
+        return null
       } catch (e) {
         console.log(e)
+        return null
       }
     },
     getOwnerInfo: async ({ name }) => {
@@ -94,7 +108,6 @@ const apis = ({ web3, address }) => {
         contract.methods.getOwnerPhone(name).call({ from: address }),
         contract.methods.getOwnerEmail(name).call({ from: address })
       ])
-      console.log('JUAS', telegram)
       return {
         telegram,
         phone,

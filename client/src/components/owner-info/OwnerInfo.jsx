@@ -31,28 +31,21 @@ const OwnerInfo = (props) => {
       console.log('is owner')
       getInfo()
     }
-  },
-  [])
+  }, [])
+
+  useEffect(() => {
+    if (!isOwner) {
+      setOwnerInfo(defaultOwnerInfo)
+    }
+  }, [isOwner])
 
   const reveal = async (event) => {
     if (isConnected) {
       const { name } = event.target
-      let value = ''
       console.log(name, pageName)
       const info = await client.revealInfo({ name: pageName, info: name })
-      console.log(info)
-      switch (name) {
-        case 'telegram':
-          value = 'user1234'
-          break
-        case 'email':
-          value = 'email@gmail.com'
-          break
-        case 'phone':
-          value = '+1 555 945 3221'
-          break
-      }
-      setOwnerInfo({ ...ownerInfo, [name]: value })
+      console.log('reveal info', info)
+      setOwnerInfo({ ...ownerInfo, [name]: info })
     } else {
       toast.error('Please connect your wallet')
     }

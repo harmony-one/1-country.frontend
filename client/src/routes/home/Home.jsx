@@ -174,7 +174,7 @@ const Home = ({ subdomain = config.tld }) => {
         return null
       }
       console.log('getSubDomain()', window.location.host)
-      const host = 'test2.1.country' // window.location.host
+      const host = 'test7.1.country' // window.location.host
       const parts = host.split('.')
       if (parts.length <= 2) {
         return ''
@@ -192,12 +192,13 @@ const Home = ({ subdomain = config.tld }) => {
   }, [])
 
   // useEffect(() => {
-  //   if (web3 && !address) {
-  //     connect()
-  //   }
-  // }, [web3, address])
+  //   const web3 = new Web3(config.defaultRPC)
+  //   const api = apis({ web3, address })
+  //   setClient(api)
+  // }, [address])
 
   useEffect(() => {
+    console.log('Use Effect address change')
     const callApi = async () => {
       console.log('CallApi UseEffect', name)
       const provider = await connector.getProvider()
@@ -215,6 +216,7 @@ const Home = ({ subdomain = config.tld }) => {
   }, [connector, address])
 
   useEffect(() => {
+    console.log('Use Effect client change')
     if (!client) {
       return
     }
@@ -243,7 +245,8 @@ const Home = ({ subdomain = config.tld }) => {
     setTweetId(id.toString())
   }, [record?.url])
 
-  const onAction = async ({ isRenewal }) => {
+  const onAction = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
+    console.log('onAction params', isRenewal, telegram, email, phone)
     if (!url && !isRenewal) {
       return toast.error('Invalid URL to embed')
     }
@@ -254,13 +257,13 @@ const Home = ({ subdomain = config.tld }) => {
         return toast.error(tweetId.error)
       }
       const f = isOwner && !isRenewal ? client.updateURL : client.rent
-      console.log('onAction', price)
+      console.log('onAction', price, name)
       await f({
         name,
         url: isRenewal ? '' : tweetId.tweetId.toString(),
-        telegram: 'telegram',
-        email: 'email',
-        phone: 'phone',
+        telegram: telegram,
+        email: email,
+        phone: phone,
         amount: new BN(price.amount).toString(),
         onFailed: () => toast.error('Failed to purchase'),
         onSuccess: (tx) => {
@@ -437,10 +440,10 @@ const Home = ({ subdomain = config.tld }) => {
           </Row>
           {!isOwner
             ? (
-              <OwnerForm onAction={() => onAction({ isRenewal: false })} buttonLabel='Rent' />
+              <OwnerForm onAction={onAction} buttonLabel='Rent' pending={pending} />
               )
             : (
-              <Button onClick={onAction} disabled={pending}>'UPDATE URL'</Button>
+              <Button onClick={onAction} disabled={pending}>UPDATE URL</Button>
               )}
           {isOwner && (
             <>

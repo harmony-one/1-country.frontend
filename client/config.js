@@ -18,9 +18,9 @@ const config = {
     ONE_HUNDRED_PERCENT: 3
   },
   infoRevealPrice: {
-    EMAIL: 1,
-    PHONE: 2,
-    TELEGRAM: 4
+    email: 1,
+    phone: 2,
+    telegram: 4
   },
   // chainParameters: process.env.CHAIN_PARAMETERS
   //   ? JSON.parse(process.env.CHAIN_PARAMETERS)

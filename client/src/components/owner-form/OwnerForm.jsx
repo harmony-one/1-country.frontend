@@ -11,7 +11,7 @@ const defaultFormFields = {
   email: '',
   phone: ''
 }
-const OwnerForm = ({ onAction, buttonLabel }) => {
+const OwnerForm = ({ onAction, buttonLabel, pending }) => {
   const [formFields, setFormFields] = useState(defaultFormFields)
 
   const onChange = (event) => {
@@ -21,10 +21,14 @@ const OwnerForm = ({ onAction, buttonLabel }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    onAction()
+    console.log(formFields)
+    onAction({
+      telegram: formFields.telegram,
+      email: formFields.email,
+      phone: formFields.phone,
+      isRenewal: false
+    })
   }
-
-  console.log(formFields)
 
   return (
     <>
@@ -32,18 +36,18 @@ const OwnerForm = ({ onAction, buttonLabel }) => {
         <OwnerFormContainer>
           <span style={{ marginTop: '1em', marginBottom: '1.5em' }}>Please fill the following information</span>
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
-            <Input name='telegram' required={false} onChange={onChange} />
+            <Input name='telegram' required onChange={onChange} />
             <FloatingTextInput>Telegram Handler</FloatingTextInput>
           </Row>
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
-            <Input name='email' required={false} onChange={onChange} />
+            <Input name='email' required onChange={onChange} type='email' />
             <FloatingTextInput>Email Address</FloatingTextInput>
           </Row>
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
-            <Input name='phone' required={false} onChange={onChange} />
+            <Input name='phone' required onChange={onChange} />
             <FloatingTextInput>Phone Number</FloatingTextInput>
           </Row>
-          <Button type='submit' style={{ marginTop: '1em' }}>{buttonLabel}</Button>
+          <Button type='submit' style={{ marginTop: '1em' }} disabled={pending}>{buttonLabel}</Button>
         </OwnerFormContainer>
       </form>
     </>
