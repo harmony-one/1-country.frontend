@@ -19,18 +19,12 @@ const OwnerInfo = (props) => {
   const [ownerInfo, setOwnerInfo] = useState(defaultOwnerInfo)
 
   useEffect(() => {
-    console.log('JAJAJAJ', props)
     const getInfo = async () => {
-      const info = {
-        telegram: 'Owner handler',
-        email: 'owner@mail.com',
-        phone: '+1 212 555 8181'
-      }
+      const info = await client.getOwnerInfo({ name: pageName })
       setOwnerInfo(info)
-      const fco = await client.getOwnerInfo({ name: pageName })
-      console.log('hudhifhudifhishdfuf', fco)
     }
     if (isOwner) {
+      console.log('is owner')
       getInfo()
     }
   },

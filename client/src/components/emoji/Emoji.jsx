@@ -1,5 +1,4 @@
-import React from 'react'
-import { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { EmojiType } from '../../api'
 import { Label, Hint } from '../Text'
 import { EmojiLabelDiv, EmojisContainerRow, EmojiCounterDiv, EmojisReactionRow } from './Emoji.module'
@@ -64,36 +63,40 @@ export const baseEmojiListValues = [
 ]
 
 export const EmojiCounterContainer = ({ emojiList, pageName, client }) => {
+  const [emojisCounter, setEmojisCounter] = useState({})
   useEffect(() => {
     const getEmojisCounter = async () => {
-      const fco = await client.getEmojiCounter({ name: pageName, emojiType: '1' })
+      const fco = await client.getEmojisCounter({ name: pageName }) //, emojiType: 1 })
       console.log('EmojiCounter', fco)
+      setEmojisCounter(fco)
     }
     getEmojisCounter()
   }, [])
 
-  return (
-    <EmojisContainerRow>
-      {
-        emojiList &&
-        emojiList.map((emoji) =>
-          <EmojiCounter key={emoji.name} icon={emoji.icon} counter={emoji.counter} color={emoji.color} />
-        )
-      }
-    </EmojisContainerRow>
-  )
-}
+  const reaction = async (emojiType) => {
+    const tx = await client.addEmojiReaction({ name: pageName, emojiType: emojiType })
+    console.log(tx)
+  }
 
-export const EmojisReactionContainer = ({ emojiList }) => {
   return (
-    <EmojisReactionRow>
-      {
-        emojiList &&
-        emojiList.map((emoji) =>
-          <EmojiLabel key={emoji.name} icon={emoji.icon} color={emoji.color} price={emoji.price} />
-        )
-      }
-    </EmojisReactionRow>
+    <>
+      <EmojisContainerRow>
+        {
+          emojiList &&
+          emojiList.map((emoji) =>
+            <EmojiCounter key={emoji.name} icon={emoji.icon} counter={emojisCounter[emoji.type]} color={emoji.color} />
+          )
+        }
+      </EmojisContainerRow>
+      <EmojisReactionRow>
+        {
+          emojiList &&
+          emojiList.map((emoji) =>
+            <EmojiLabel key={emoji.name} icon={emoji.icon} color={emoji.color} price={emoji.price} emojiType={emoji.type} clickEvent={reaction} />
+          )
+        }
+      </EmojisReactionRow>
+    </>
   )
 }
 
@@ -109,9 +112,9 @@ export const EmojiCounter = ({ icon, counter, color }) => {
   )
 }
 
-export const EmojiLabel = ({ icon, price, clickEvent }) => {
+export const EmojiLabel = ({ icon, price, clickEvent, emojiType }) => {
   return (
-    <EmojiLabelDiv className='emoji' onClick={clickEvent}>
+    <EmojiLabelDiv onClick={() => clickEvent(emojiType)}>
       <span style={{ paddingRight: '0.5em' }}>{icon}</span>
       <Hint>React with {price} {price > 1 ? 'tokens' : 'token'}</Hint>
     </EmojiLabelDiv>

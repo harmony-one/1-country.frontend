@@ -21,6 +21,7 @@ export const EmojiCounterDiv = styled(FlexRow)`
   justify-items: center;
 `
 export const EmojiLabelDiv = styled(FlexColumn)`
+  cursor: pointer;
   padding-top: 0.2em;
   padding-bottom: 0.2em;
   align-items: center;
