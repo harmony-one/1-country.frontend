@@ -74,7 +74,7 @@ export const EmojiCounterContainer = ({ pageName, client }) => {
         {
           emojisCounter &&
           emojisCounter.map((emoji) =>
-            <EmojiCounter key={emoji.name} icon={emoji.icon} counter={emoji.counter} color={emoji.color} />
+            <EmojiCounter key={emoji.name} icon={emoji.icon} counter={emoji.counter} color={emoji.color} emojiType={emoji.type} clickEvent={reaction} />
           )
         }
       </EmojisContainerRow>
@@ -90,9 +90,9 @@ export const EmojiCounterContainer = ({ pageName, client }) => {
   )
 }
 
-export const EmojiCounter = ({ icon, counter, color }) => {
+export const EmojiCounter = ({ icon, counter, color, clickEvent, emojiType }) => {
   return (
-    <EmojiCounterDiv style={{ width: '3.5em' }}>
+    <EmojiCounterDiv style={{ width: '3.5em' }} onClick={() => clickEvent(emojiType)}>
       <Label>
         <span style={{ fontSize: '1.1rem', textAlign: 'center', color: color, paddingRight: '0.2em' }}>{icon}</span>
         <span style={{ color: '#7f7f7f', fontSize: '0.85rem' }}>{counter > 0 && counter}</span>

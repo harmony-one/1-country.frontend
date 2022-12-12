@@ -94,80 +94,6 @@ const Home = ({ subdomain = config.tld }) => {
     record?.renter &&
     record.renter.toLowerCase() === address.toLowerCase()
 
-  // const switchChain = async (address) => {
-  //   return window.ethereum
-  //     .request({
-  //       method: 'wallet_switchEthereumChain',
-  //       params: [{ chainId: config.chainParameters.chainId }],
-  //     })
-  //     .then(() => {
-  //       toast.success(
-  //         `Switched to network: ${config.chainParameters.chainName}`
-  //       )
-  //       setClient(apis({ web3, address }))
-  //     })
-  // }
-
-  // async function init () {
-  //   const provider = await detectEthereumProvider()
-  //   console.log('provider', provider)
-  //   setWeb3(new Web3(provider))
-  // }
-
-  // const connect = async () => {
-  //   if (!web3) {
-  //     toast.error('Wallet not found')
-  //     return
-  //   }
-  //   try {
-  //     const ethAccounts = await web3.currentProvider.request({
-  //       method: 'eth_requestAccounts',
-  //     })
-
-  //     if (ethAccounts.length >= 2) {
-  //       return toast.info('Please connect using only one account')
-  //     }
-  //     const address = ethAccounts[0]
-  //     setAddress(address)
-
-  //     try {
-  //       await switchChain(address)
-  //     } catch (ex) {
-  //       console.error(ex)
-  //       if (ex.code !== 4902) {
-  //         toast.error(
-  //           `Failed to switch to network ${config.chainParameters.chainName}: ${ex.message}`
-  //         )
-  //         return
-  //       }
-  //       try {
-  //         await window.ethereum.request({
-  //           method: 'wallet_addEthereumChain',
-  //           params: [config.chainParameters],
-  //         })
-  //         toast.success(
-  //           `Added ${config.chainParameters.chainName} Network on MetaMask`
-  //         )
-  //       } catch (ex2) {
-  //         // message.error('Failed to add Harmony network:' + ex.toString())
-  //         toast.error(
-  //           `Failed to add network ${config.chainParameters.chainName}: ${ex.message}`
-  //         )
-  //       }
-  //     }
-
-  //     window.ethereum.on('accountsChanged', (accounts) =>
-  //       setAddress(accounts[0])
-  //     )
-  //     window.ethereum.on('networkChanged', (networkId) => {
-  //       console.log('networkChanged', networkId)
-  //       init()
-  //     })
-  //   } catch (ex) {
-  //     console.error(ex)
-  //   }
-  // }
-
   useEffect(() => {
     const getSubdomain = () => {
       if (!window) {
@@ -199,15 +125,12 @@ const Home = ({ subdomain = config.tld }) => {
   // }, [address])
 
   useEffect(() => {
-    console.log('Use Effect address change')
     const callApi = async () => {
-      console.log('CallApi UseEffect', name)
       const provider = await connector.getProvider()
       const web3 = new Web3(provider)
       const api = apis({ web3, address })
       setClient(api)
       api.getPrice({ name }).then((p) => {
-        console.log('pppp', p)
         setPrice(p)
       })
     }
@@ -217,7 +140,6 @@ const Home = ({ subdomain = config.tld }) => {
   }, [connector, address])
 
   useEffect(() => {
-    console.log('Use Effect client change')
     if (!client) {
       return
     }
@@ -247,7 +169,6 @@ const Home = ({ subdomain = config.tld }) => {
   }, [record?.url])
 
   const onAction = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
-    console.log('onAction params', isRenewal, telegram, email, phone)
     if (!url && !isRenewal) {
       return toast.error('Invalid URL to embed')
     }

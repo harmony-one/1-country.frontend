@@ -15,6 +15,7 @@ export const EmojiButton = styled.button`
   width: 5em;
 `
 export const EmojiCounterDiv = styled(FlexRow)`
+  cursor: pointer;
   align-items: center;
   align-content: center;
   justify-content: center;
