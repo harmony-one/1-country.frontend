@@ -2,19 +2,19 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    "txHash": "0xb5d40dc2357280fb6d5ba9953b4ad7339ce681cb8ef91f126cb96ffc292f19be"
+    "txHash": "0x9a54938b03c05b3928548d82c819ae94642a2cfb724fa9575eb4aaac53102c52"
   },
   "proxies": [
     {
       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x8180b212704a99e4b61387a92e00a1b87a5078a830c750a82656484b269aff35",
+      "txHash": "0x6e4c591f42cb4fc901a28a82aee3cdb2e4664233dc284e16848a09c852030c89",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "6794068fe4df99a4cd1a0ffadcdd622cd35520707e9eeef5f7f1ed46f71faca1": {
+    "36b1087623a4d233c9167bcd93328a75e1db5253736e58068373e337ef78fda5": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x334127bdfd0603bef04c7c649b6768ea75741ee7a60aacf698041653b3b32eb9",
+      "txHash": "0x4a5365ef3277e6fab8b8cbad4100b72b7015e052f0b63ab6da914bf7842d4951",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -228,84 +228,108 @@
             "src": "contracts/D1DCV2.sol:59"
           },
           {
-            "label": "_isTelegramReveal",
+            "label": "_telegramRevealAt",
             "offset": 0,
             "slot": "308",
-            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "type": "t_mapping(t_address,t_mapping(t_bytes32,t_uint256))",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:62"
           },
           {
-            "label": "_isEmailReveal",
+            "label": "_emailRevealAt",
             "offset": 0,
             "slot": "309",
-            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "type": "t_mapping(t_address,t_mapping(t_bytes32,t_uint256))",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:65"
           },
           {
-            "label": "_isPhoneReveal",
+            "label": "_phoneRevealAt",
             "offset": 0,
             "slot": "310",
-            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "type": "t_mapping(t_address,t_mapping(t_bytes32,t_uint256))",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:68"
           },
           {
-            "label": "lastRented",
+            "label": "_telegramUpdateAt",
             "offset": 0,
             "slot": "311",
-            "type": "t_string_storage",
+            "type": "t_mapping(t_bytes32,t_uint256)",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:71"
           },
           {
-            "label": "lastCreated",
+            "label": "_emailUpdateAt",
             "offset": 0,
             "slot": "312",
-            "type": "t_string_storage",
+            "type": "t_mapping(t_bytes32,t_uint256)",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:74"
           },
           {
-            "label": "keys",
+            "label": "_phoneUpdateAt",
             "offset": 0,
             "slot": "313",
-            "type": "t_array(t_bytes32)dyn_storage",
+            "type": "t_mapping(t_bytes32,t_uint256)",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:77"
           },
           {
-            "label": "urlUpdatePrice",
+            "label": "lastRented",
             "offset": 0,
             "slot": "314",
-            "type": "t_uint256",
+            "type": "t_string_storage",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:80"
           },
           {
-            "label": "telegramRevealPrice",
+            "label": "lastCreated",
             "offset": 0,
             "slot": "315",
-            "type": "t_uint256",
+            "type": "t_string_storage",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:83"
           },
           {
-            "label": "emailRevealPrice",
+            "label": "keys",
             "offset": 0,
             "slot": "316",
-            "type": "t_uint256",
+            "type": "t_array(t_bytes32)dyn_storage",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:86"
           },
           {
-            "label": "phoneRevealPrice",
+            "label": "urlUpdatePrice",
             "offset": 0,
             "slot": "317",
             "type": "t_uint256",
             "contract": "D1DCV2",
             "src": "contracts/D1DCV2.sol:89"
+          },
+          {
+            "label": "telegramRevealPrice",
+            "offset": 0,
+            "slot": "318",
+            "type": "t_uint256",
+            "contract": "D1DCV2",
+            "src": "contracts/D1DCV2.sol:92"
+          },
+          {
+            "label": "emailRevealPrice",
+            "offset": 0,
+            "slot": "319",
+            "type": "t_uint256",
+            "contract": "D1DCV2",
+            "src": "contracts/D1DCV2.sol:95"
+          },
+          {
+            "label": "phoneRevealPrice",
+            "offset": 0,
+            "slot": "320",
+            "type": "t_uint256",
+            "contract": "D1DCV2",
+            "src": "contracts/D1DCV2.sol:98"
           }
         ],
         "types": {
@@ -354,6 +378,10 @@
             "label": "mapping(address => mapping(address => bool))",
             "numberOfBytes": "32"
           },
+          "t_mapping(t_address,t_mapping(t_bytes32,t_uint256))": {
+            "label": "mapping(address => mapping(bytes32 => uint256))",
+            "numberOfBytes": "32"
+          },
           "t_mapping(t_address,t_uint256)": {
             "label": "mapping(address => uint256)",
             "numberOfBytes": "32"
@@ -368,6 +396,10 @@
           },
           "t_mapping(t_bytes32,t_struct(OwnerInfo)3098_storage)": {
             "label": "mapping(bytes32 => struct D1DCV2.OwnerInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
             "numberOfBytes": "32"
           },
           "t_mapping(t_enum(EmojiType)3102,t_uint256)": {

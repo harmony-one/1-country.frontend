@@ -61,6 +61,19 @@ describe('D1DCV2', () => {
       let telegramInfo = await d1dcV2.connect(bob).callStatic.getOwnerTelegram(dotName);
       expect(telegramInfo).to.equal(telegram);
     });
+
+    it("Should be delete the reveal permission after the name is transferred", async () => {
+      const tokenId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(dotName));
+      await d1dcV2.connect(alice)["safeTransferFrom(address,address,uint256)"](alice.address, john.address, tokenId);
+
+      // check if telegram info was reset
+      let telegramInfo = await d1dcV2.connect(john).callStatic.getOwnerTelegram(dotName);
+      expect(telegramInfo).to.equal("");
+      // check if the original owner can't reveal the current owner info
+      await expect(d1dcV2.connect(alice).callStatic.getOwnerTelegram(dotName)).to.be.revertedWith("D1DC: no permission for telegram reveal");
+      // check if the reveal permission was reset after the name is transferred
+      await expect(d1dcV2.connect(bob).callStatic.getOwnerTelegram(dotName)).to.be.revertedWith("D1DC: no permission for telegram reveal");
+    });
   });
 
   describe("addEmojiReaction", () => {
@@ -70,13 +83,13 @@ describe('D1DCV2', () => {
 
     it("Should be ale to add the emoji reaction", async () => {
       // check the old emoji reaction counter
-      const hexName = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(dotName));
-      const emojiCounterBefore = await d1dcV2.emojiReactionCounters(hexName, 0);
+      const tokenId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(dotName));
+      const emojiCounterBefore = await d1dcV2.emojiReactionCounters(tokenId, 0);
 
       await d1dcV2.connect(bob).addEmojiReaction(dotName, 0, { value: emojiPrice0 });
 
       // check the new emoji reaction counter
-      const emojiCounterAfter = await d1dcV2.emojiReactionCounters(hexName, 0);
+      const emojiCounterAfter = await d1dcV2.emojiReactionCounters(tokenId, 0);
       expect(emojiCounterAfter).to.equal(emojiCounterBefore.add(1));
     });
   });
