@@ -16,3 +16,5 @@ backend
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
+# Local Netlify folder
+.netlify

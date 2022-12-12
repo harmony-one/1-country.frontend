@@ -1,9 +1,13 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, { useState, useEffect } from 'react'
-import TwitterSection from '../../components/twitter-section/TwitterSection'
+import { useAccount } from 'wagmi'
+import { toast } from 'react-toastify'
 import { MdOutlineMail } from 'react-icons/md'
 import { TbPhoneCall, TbBrandTelegram } from 'react-icons/tb'
+
+import config from '../../../config'
+import TwitterSection from '../../components/twitter-section/TwitterSection'
 import { Col, Row, FlexRow } from '../../components/Layout'
 import { BaseText, SmallText, SmallTextGrey } from '../../components/Text'
 import { OnwerLabel, PersonalInfoRevealContainer } from './OwnerInfo.module'
@@ -17,6 +21,7 @@ const defaultOwnerInfo = {
 const OwnerInfo = (props) => {
   const { record, expired, parameters, tweetId, humanD, client, isOwner, pageName } = props
   const [ownerInfo, setOwnerInfo] = useState(defaultOwnerInfo)
+  const { isConnected } = useAccount()
 
   useEffect(() => {
     const getInfo = async () => {
@@ -27,27 +32,24 @@ const OwnerInfo = (props) => {
       console.log('is owner')
       getInfo()
     }
-  },
-  [])
+  }, [])
+
+  useEffect(() => {
+    if (!isOwner) {
+      setOwnerInfo(defaultOwnerInfo)
+    }
+  }, [isOwner])
 
   const reveal = async (event) => {
-    const { name } = event.target
-    let value = ''
-    console.log(name, pageName)
-    const info = await client.revealInfo({ name: pageName, info: name })
-    console.log(info)
-    switch (name) {
-      case 'telegram':
-        value = 'user1234'
-        break
-      case 'email':
-        value = 'email@gmail.com'
-        break
-      case 'phone':
-        value = '+1 555 945 3221'
-        break
+    if (isConnected) {
+      const { name } = event.target
+      console.log(name, pageName)
+      const info = await client.revealInfo({ name: pageName, info: name })
+      console.log('reveal info', info)
+      setOwnerInfo({ ...ownerInfo, [name]: info })
+    } else {
+      toast.error('Please connect your wallet')
     }
-    setOwnerInfo({ ...ownerInfo, [name]: value })
   }
 
   return (
@@ -89,18 +91,18 @@ const OwnerInfo = (props) => {
       <PersonalInfoRevealContainer style={{ marginTop: '1em' }}>
         <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
           <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Email address:' : 'Owners\'s Email address:'}</OnwerLabel>
-          {ownerInfo.email ? ownerInfo.email : (<OnwerLabel>Pay 200 to reveal</OnwerLabel>)}
+          {ownerInfo.email ? ownerInfo.email : (<OnwerLabel>{`Pay ${config.infoRevealPrice.email} to reveal`}</OnwerLabel>)}
           {/* <div className='icon-button' onClick={reveal} name='email'><span style={{ color: '#FBBC05' }}><MdOutlineMail /></span>Reveal</div> */}
           {!isOwner && <button onClick={reveal} name='email'><span style={{ color: '#FBBC05', paddingRight: '0.3em' }}><MdOutlineMail /></span>Reveal</button>}
         </FlexRow>
         <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
           <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Phone number:' : 'Owners\'s Phone number:'}</OnwerLabel>
-          {ownerInfo.phone ? ownerInfo.phone : (<OnwerLabel>Pay 400 to reveal</OnwerLabel>)}
+          {ownerInfo.phone ? ownerInfo.phone : (<OnwerLabel>{`Pay ${config.infoRevealPrice.phone} to reveal`}</OnwerLabel>)}
           {!isOwner && <button onClick={reveal} name='phone'><span style={{ color: 'red', paddingRight: '0.3em' }}><TbPhoneCall /></span>Reveal</button>}
         </FlexRow>
         <FlexRow style={{ justifyContent: 'space-between' }}>
           <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Telegram handler:' : 'Owners\'s Telegram handler:'}</OnwerLabel>
-          {ownerInfo.telegram ? ownerInfo.telegram : (<OnwerLabel>Pay 800 to reveal</OnwerLabel>)}
+          {ownerInfo.telegram ? ownerInfo.telegram : (<OnwerLabel>{`Pay ${config.infoRevealPrice.telegram} to reveal`}</OnwerLabel>)}
           {!isOwner && <button onClick={reveal} name='telegram'><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>}
         </FlexRow>
       </PersonalInfoRevealContainer>

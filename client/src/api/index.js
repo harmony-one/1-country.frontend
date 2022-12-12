@@ -4,10 +4,16 @@ import D1DCV2 from '../../abi/D1DCV2.json'
 import Constants from '../constants'
 import BN from 'bn.js'
 
-export const EmojiType = {
-  ONE_ABOVE: 0,
-  FIRST_PRIZE: 1,
-  ONE_HUNDRED_PERCENT: 2
+console.log('CONTRACT', process.env.CONTRACT)
+
+export const getFullName = (name) => {
+  return name
+  // `${name}${config.tdl}`
+}
+
+export const getEmojiPrice = (emojiType) => {
+  const key = Object.keys(config.emojiType).find(key => config.emojiType[key] === emojiType)
+  return config.emojiTypePrice[key]
 }
 
 const apis = ({ web3, address }) => {
@@ -63,16 +69,37 @@ const apis = ({ web3, address }) => {
     },
     // owner info
     revealInfo: async ({ name, info }) => {
-      const amount = new BN(1).toString()
-      console.log('reveal info', name, info)
+      const amount = web3.utils.toWei(new BN(config.infoRevealPrice[info]).toString())
+      console.log('reveal info', name, info, config.infoRevealPrice[info])
       try {
-        const tx = await contract.methods.requestTelegramReveal(name).send({ from: address, value: amount })
-        console.log(tx)
-        // const telegram = await contract.method.getOwnerTelegram(name).call()
-        // console.log('mi telegram', telegram)
-        return 'hola' // telegram
+        if (name) {
+          let revealMethod = ''
+          let getMethod = ''
+          switch (info) {
+            case 'telegram':
+              revealMethod = 'requestTelegramReveal'
+              getMethod = 'getOwnerTelegram'
+              break
+            case 'phone':
+              revealMethod = 'requestPhoneReveal'
+              getMethod = 'getOwnerPhone'
+              break
+            case 'email':
+              revealMethod = 'requestEmailReveal'
+              getMethod = 'getOwnerEmail'
+              break
+          }
+          console.log('case result', info, revealMethod, getMethod)
+          const tx = await contract.methods[revealMethod](name).send({ from: address, value: amount })
+          console.log(tx)
+          const ownerInfo = await contract.methods[getMethod](name).call()
+          console.log('my ownerInfo', ownerInfo)
+          return ownerInfo
+        }
+        return null
       } catch (e) {
         console.log(e)
+        return null
       }
     },
     getOwnerInfo: async ({ name }) => {
@@ -81,7 +108,6 @@ const apis = ({ web3, address }) => {
         contract.methods.getOwnerPhone(name).call({ from: address }),
         contract.methods.getOwnerEmail(name).call({ from: address })
       ])
-      console.log('JUAS', telegram)
       return {
         telegram,
         phone,
@@ -132,12 +158,12 @@ const apis = ({ web3, address }) => {
       }
     },
     getEmojisCounter: async ({ name }) => {
-      const byte32Name = web3.utils.asciiToHex(name)
-      const [oneAbove, firstPrice, oneHundred] = await Promise.all([
-        contract.methods.emojiReactionCounters(byte32Name, 0).call(),
-        contract.methods.emojiReactionCounters(byte32Name, 1).call(),
-        contract.methods.emojiReactionCounters(byte32Name, 2).call()
-      ])
+      const byte32Name = web3.utils.soliditySha3(getFullName(name))
+      const [oneAbove, firstPrice, oneHundred] = await Promise.all(
+        Object.values(config.emojiType).map(
+          emoji => contract.methods.emojiReactionCounters(byte32Name, emoji).call()
+        )
+      )
       return {
         0: oneAbove,
         1: firstPrice,
@@ -145,16 +171,20 @@ const apis = ({ web3, address }) => {
       }
     },
     getEmojiCounter: async ({ name, emojiType }) => {
-      const byte32Name = web3.utils.asciiToHex(name)
+      const byte32Name = web3.utils.soliditySha3(getFullName(name))
       const emoji = await contract.methods.emojiReactionCounters(byte32Name, emojiType).call()
       return emoji
     },
     addEmojiReaction: async ({ name, emojiType }) => {
-      const byte32Name = web3.utils.asciiToHex(name)
-      const amount = new BN(1).toString()
-      console.log('PARAMS', byte32Name, emojiType)
-      const tx = await contract.methods.addEmojiReaction(name, emojiType).call({ from: address, value: amount })
-      console.log(tx)
+      try {
+        const amount = web3.utils.toWei(new BN(getEmojiPrice(emojiType)).toString())
+        const tx = await contract.methods.addEmojiReaction(getFullName(name), emojiType).send({ from: address, value: amount })
+        console.log('addEmojiReaction TX', tx)
+        return tx
+      } catch (e) {
+        console.log('addEmojiReaction ERROR', e)
+        return null
+      }
     }
   }
 }
