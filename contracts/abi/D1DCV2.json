@@ -37,6 +37,7 @@
   "function numRecords() view returns (uint256)",
   "function owner() view returns (address)",
   "function ownerOf(uint256) view returns (address)",
+  "function ownersOfName(bytes32,uint256) view returns (address)",
   "function pause()",
   "function paused() view returns (bool)",
   "function phoneRevealPrice() view returns (uint256)",
