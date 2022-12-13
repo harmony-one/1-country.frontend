@@ -97,6 +97,9 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
     /// @dev Price for the phone reveal
     uint256 public phoneRevealPrice;
 
+    /// @dev TokenId -> Owner list
+    mapping(bytes32 => address[]) public ownersOfName;
+
     event NameRented(string indexed name, address indexed renter, uint256 price, string url);
     event URLUpdated(string indexed name, address indexed renter, string oldUrl, string newUrl);
     event RevenueAccountChanged(address from, address to);
@@ -466,6 +469,9 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         _telegramUpdateAt[tokenId] = block.timestamp;
         _emailUpdateAt[tokenId] = block.timestamp;
         _phoneUpdateAt[tokenId] = block.timestamp;
+
+        // update the owner list
+        ownersOfName[tokenId].push(to);
     }
 
     function withdraw() external {
