@@ -22,19 +22,6 @@ const config = {
     phone: 2,
     telegram: 4
   },
-  // chainParameters: process.env.CHAIN_PARAMETERS
-  //   ? JSON.parse(process.env.CHAIN_PARAMETERS)
-  //   : {
-  //       chainId: '0x63564C40', // A 0x-prefixed hexadecimal string
-  //       chainName: 'Harmony Mainnet Shard 0',
-  //       nativeCurrency: {
-  //         name: 'ONE',
-  //         symbol: 'ONE',
-  //         decimals: 18
-  //       },
-  //       rpcUrls: ['https://api.harmony.one'],
-  //       blockExplorerUrls: ['https://explorer.harmony.one/']
-  //     },
   chainParameters: process.env.CHAIN_PARAMETERS
     ? JSON.parse(process.env.CHAIN_PARAMETERS)
     : {

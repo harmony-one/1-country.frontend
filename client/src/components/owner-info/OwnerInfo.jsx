@@ -25,7 +25,7 @@ const OwnerInfo = (props) => {
 
   useEffect(() => {
     const getInfo = async () => {
-      const info = await client.getOwnerInfo({ name: pageName })
+      const info = await client.getAllOwnerInfo({ name: pageName })
       setOwnerInfo(info)
     }
     if (isOwner) {

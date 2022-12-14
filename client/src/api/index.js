@@ -23,6 +23,31 @@ const apis = ({ web3, address }) => {
   Contract.setProvider(web3.currentProvider)
   const contract = new Contract(D1DCV2, config.contract)
 
+  const getOwnerInfo = async (name, info) => {
+    try {
+      if (name) {
+        let getMethod = ''
+        switch (info) {
+          case 'telegram':
+            getMethod = 'getOwnerTelegram'
+            break
+          case 'phone':
+            getMethod = 'getOwnerPhone'
+            break
+          case 'email':
+            getMethod = 'getOwnerEmail'
+            break
+        }
+        const ownerInfo = await contract.methods[getMethod](name).call({ from: address })
+        console.log('my ownerInfo', ownerInfo)
+        return ownerInfo
+      }
+      return null
+    } catch (e) {
+      return null
+    }
+  }
+
   const call = async ({ amount, onFailed, onSubmitted, onSuccess, methodName, parameters }) => {
     console.log({ methodName, parameters, amount, address })
     try {
@@ -89,11 +114,14 @@ const apis = ({ web3, address }) => {
               getMethod = 'getOwnerEmail'
               break
           }
-          console.log('case result', info, revealMethod, getMethod)
-          const tx = await contract.methods[revealMethod](name).send({ from: address, value: amount })
-          console.log(tx)
-          const ownerInfo = await contract.methods[getMethod](name).call()
-          console.log('my ownerInfo', ownerInfo)
+          let ownerInfo = await getOwnerInfo(name, info)
+          if (!ownerInfo) {
+            console.log('case result', info, revealMethod, getMethod)
+            const tx = await contract.methods[revealMethod](name).send({ from: address, value: amount })
+            console.log(tx)
+            ownerInfo = await contract.methods[getMethod](name).call({ from: address })
+            console.log('my ownerInfo', ownerInfo)
+          }
           return ownerInfo
         }
         return null
@@ -102,7 +130,7 @@ const apis = ({ web3, address }) => {
         return null
       }
     },
-    getOwnerInfo: async ({ name }) => {
+    getAllOwnerInfo: async ({ name }) => {
       const [telegram, phone, email] = await Promise.all([
         contract.methods.getOwnerTelegram(name).call({ from: address }),
         contract.methods.getOwnerPhone(name).call({ from: address }),
