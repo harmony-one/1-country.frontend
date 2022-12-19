@@ -27,6 +27,7 @@ import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
 
+
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
 const parseBN = (n) => {
@@ -256,14 +257,14 @@ const Home = ({ subdomain = config.tld }) => {
 
   return (
     <Container>
-      {lastRentedRecord && (
+      {/* {lastRentedRecord && (
         <LastPurchase
           parameters={parameters}
           tld={config.tld}
           lastRentedRecord={lastRentedRecord}
           humanD={humanD}
         />
-      )}
+      )} */}
       <FlexRow style={{ alignItems: 'baseline', marginTop: 70 }}>
         <Title style={{ margin: 0 }}>{name}</Title>
         <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
@@ -277,14 +278,14 @@ const Home = ({ subdomain = config.tld }) => {
           <Row style={{ justifyContent: 'space-between' }}>
 
             {record.prev &&
-              <a href={`https://${record.prev}${config.tld}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
+              <a href={`https://${record.prev}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
                 <FlexRow style={{ gap: 16 }}>
                   <SmallTextGrey>{'<'} prev</SmallTextGrey><SmallTextGrey>{record.prev}{config.tld}</SmallTextGrey>
                 </FlexRow>
               </a>}
 
             {record.next &&
-              <a href={`https://${record.next}${config.tld}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
+              <a href={`https://${record.next}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
                 <FlexRow style={{ gap: 16 }}>
                   <SmallTextGrey>{record.next}{config.tld}</SmallTextGrey> <SmallTextGrey> next {'>'}</SmallTextGrey>
                 </FlexRow>
@@ -388,12 +389,12 @@ const Home = ({ subdomain = config.tld }) => {
           <SmallTextGrey>Your address: {address}</SmallTextGrey>
         </>
       )}
-      <SmallTextGrey>Learn more about the future of domain name services:
+      <SmallTextGrey> 
         <a
           href='https://harmony.one/domains'
-          target='_blank' rel='noreferrer'
+          rel='noreferrer'
         >
-          RADICAL Market for Internet Domains
+          <SmallTextGrey> Harmony's Creator Economy & Web3 Nations </SmallTextGrey>
         </a>
       </SmallTextGrey>
       <div style={{ height: 200 }} />
