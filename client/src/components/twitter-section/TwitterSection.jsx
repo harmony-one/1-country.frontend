@@ -12,8 +12,7 @@ const TwitterSection = ({ tweetId, pageName, client }) => {
   return (
     <TweetContainerRow>
       <TwitterTweetEmbed tweetId={tweetId} />
-      {/* uncomment the line below to reveal the emojis */}
-      {/* <EmojiCounterContainer pageName={pageName} client={client} /> */}
+      <EmojiCounterContainer pageName={pageName} client={client} />
     </TweetContainerRow>
   )
 }
