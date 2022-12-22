@@ -14,5 +14,7 @@ export default {
   emojiReactionPrice1: process.env.EMOJI_REACTION_PRICE_1_ETH || '2', // '10',
   emojiReactionPrice2: process.env.EMOJI_REACTION_PRICE_2_ETH || '3', // '100',
   revenueAccount: process.env.REVENUE_ACCOUNT,
-  initialRecordFile: process.env.INITIAL_RECORD_FILE
+  initialRecordFile: process.env.INITIAL_RECORD_FILE,
+
+  urlUpdatePrice: process.env.URL_UPDATE_PRICE || '1' // '1'
 }
