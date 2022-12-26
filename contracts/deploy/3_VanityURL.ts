@@ -8,6 +8,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployer } = await getNamedAccounts()
 
+  const addressRegistry = await get("AddressRegistry");
+
   const urlUpdatePrice = config.urlUpdatePrice
   // const urlUpdatePrice = ethers.utils.parseEther(config.urlUpdatePrice)
 
@@ -21,7 +23,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: "initialize",
-          args: [urlUpdatePrice],
+          args: [addressRegistry.address, urlUpdatePrice],
         },
       },
     },

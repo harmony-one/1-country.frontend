@@ -6,9 +6,11 @@ import { chunk } from 'lodash'
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, ethers } = hre
-  const { deploy } = deployments
+  const { deploy, get } = deployments
 
   const { deployer } = await getNamedAccounts()
+
+  const addressRegistry = await get("AddressRegistry");
 
   const name = '.1.country'
   const symbol = 'D1DCV2'
@@ -34,7 +36,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: "initialize",
-          args: [name, symbol, baseRentalPrice, rentalPeriod, priceMultiplier, revenueAccount, telegramRevealPrice, emailRevealPrice, phoneRevealPrice],
+          args: [addressRegistry.address, name, symbol, baseRentalPrice, rentalPeriod, priceMultiplier, revenueAccount, telegramRevealPrice, emailRevealPrice, phoneRevealPrice],
         },
       },
     },
