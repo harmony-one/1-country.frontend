@@ -12,6 +12,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const urlUpdatePrice = config.urlUpdatePrice
   // const urlUpdatePrice = ethers.utils.parseEther(config.urlUpdatePrice)
+  const revenueAccount = config.revenueAccount
 
   const VanityURL = await deploy("VanityURL", {
     from: deployer,
@@ -23,7 +24,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: "initialize",
-          args: [addressRegistry.address, urlUpdatePrice],
+          args: [addressRegistry.address, urlUpdatePrice, revenueAccount],
         },
       },
     },
