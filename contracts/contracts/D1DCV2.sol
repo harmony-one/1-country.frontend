@@ -7,6 +7,9 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 
+import "./interfaces/IAddressRegistry.sol";
+import "./interfaces/IVanityURL.sol";
+
 /**
     @title A subdomain manager contract for .1.country (D1DC - Dot 1 Dot Country)
     @author John Whitton (github.com/johnwhitton), reviewed and revised by Aaron Li (github.com/polymorpher)
@@ -100,13 +103,18 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
     /// @dev TokenId -> Owner list
     mapping(bytes32 => address[]) public ownersOfName;
 
+    /// @dev AddressRegistry contract
+    IAddressRegistry public addressRegistry;
+
     event NameRented(string indexed name, address indexed renter, uint256 price, string url);
     event URLUpdated(string indexed name, address indexed renter, string oldUrl, string newUrl);
     event RevenueAccountChanged(address from, address to);
     event EmojiReactionAdded(address indexed by, string indexed name, EmojiType indexed emoji);
+    event AddressRegistryUpdated(address indexed oldAddressRegistry, address indexed newAddressRegistry);
 
     //TODO create the EREC721 token at time of construction
     function initialize(
+        address _addressRegistry,
         string memory _name,
         string memory _symbol,
         uint256 _baseRentalPrice,
@@ -122,6 +130,8 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         __Ownable_init();
         __ReentrancyGuard_init();
 
+        addressRegistry = IAddressRegistry(_addressRegistry);
+
         baseRentalPrice = _baseRentalPrice;
         rentalPeriod = _rentalPeriod;
         priceMultiplier = _priceMultiplier;
@@ -129,6 +139,12 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         telegramRevealPrice = _telegramRevealPrice;
         emailRevealPrice = _emailRevealPrice;
         phoneRevealPrice = _phoneRevealPrice;
+    }
+
+    function updateAddressRegistry(address _addressRegistry) external onlyOwner {
+        emit AddressRegistryUpdated(address(addressRegistry), _addressRegistry);
+
+        addressRegistry = IAddressRegistry(_addressRegistry);
     }
 
     function numRecords() public view returns (uint256){
@@ -296,7 +312,7 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
 
         uint256 excess = msg.value - price;
         if (excess > 0) {
-            (bool success,) = msg.sender.call{value : excess}("");
+            (success,) = msg.sender.call{value : excess}("");
             require(success, "cannot refund excess");
         }
 
@@ -341,22 +357,23 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         bytes32 tokenId = keccak256(bytes(name));
         address owner = nameRecords[tokenId].renter;
         require(owner != msg.sender, "D1DC: self reveal for telegram");
+        bool success;
         if (_telegramRevealAt[msg.sender][tokenId] <= _telegramUpdateAt[tokenId]) {
             _telegramRevealAt[msg.sender][tokenId] =block.timestamp;
-            (bool success,) = owner.call{value : price}("");
+            (success,) = owner.call{value : price}("");
             require(success, "error sending ether");
 
             // returns the exceeded payment
             uint256 excess = msg.value - price;
             if (excess > 0) {
-                (bool success,) = msg.sender.call{value : excess}("");
+                (success,) = msg.sender.call{value : excess}("");
                 require(success, "cannot refund excess");
             }
         } else {
             // since the requester already has the permission, returns the all payment
             uint256 excess = msg.value;
             if (excess > 0) {
-                (bool success,) = msg.sender.call{value : excess}("");
+                (success,) = msg.sender.call{value : excess}("");
                 require(success, "cannot refund excess");
             }
         }
@@ -369,22 +386,23 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         bytes32 tokenId = keccak256(bytes(name));
         address owner = nameRecords[tokenId].renter;
         require(owner != msg.sender, "D1DC: self reveal for email");
+        bool success;
         if (_emailRevealAt[msg.sender][tokenId] <= _emailUpdateAt[tokenId]) {
             _emailRevealAt[msg.sender][tokenId] = block.timestamp;
-            (bool success,) = owner.call{value : price}("");
+            (success,) = owner.call{value : price}("");
             require(success, "error sending ether");
 
             // returns the exceeded payment
             uint256 excess = msg.value - price;
             if (excess > 0) {
-                (bool success,) = msg.sender.call{value : excess}("");
+                (success,) = msg.sender.call{value : excess}("");
                 require(success, "cannot refund excess");
             }
         } else {
             // since the requester already has the permission, returns the all payment
             uint256 excess = msg.value;
             if (excess > 0) {
-                (bool success,) = msg.sender.call{value : excess}("");
+                (success,) = msg.sender.call{value : excess}("");
                 require(success, "cannot refund excess");
             }
         }
@@ -397,29 +415,30 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         bytes32 tokenId = keccak256(bytes(name));
         address owner = nameRecords[tokenId].renter;
         require(owner != msg.sender, "D1DC: self reveal for phone");
+        bool success;
         if (_phoneRevealAt[msg.sender][tokenId] <= _phoneUpdateAt[tokenId]) {
             _phoneRevealAt[msg.sender][tokenId] = block.timestamp;
-            (bool success,) = owner.call{value : price}("");
+            (success,) = owner.call{value : price}("");
             require(success, "error sending ether");
 
             // returns the exceeded payment
             uint256 excess = msg.value - price;
             if (excess > 0) {
-                (bool success,) = msg.sender.call{value : excess}("");
+                (success,) = msg.sender.call{value : excess}("");
                 require(success, "cannot refund excess");
             }
         } else {
             // since the requester already has the permission, returns the all payment
             uint256 excess = msg.value;
             if (excess > 0) {
-                (bool success,) = msg.sender.call{value : excess}("");
+                (success,) = msg.sender.call{value : excess}("");
                 require(success, "cannot refund excess");
             }
         }
         
     }
 
-    function getOwnerTelegram(string calldata name) external returns (string memory) {
+    function getOwnerTelegram(string calldata name) external view returns (string memory) {
         address owner = nameRecords[keccak256(bytes(name))].renter;
         bytes32 tokenId = keccak256(bytes(name));
         if (msg.sender != owner) {
@@ -429,7 +448,7 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         return _ownerInfos[tokenId].telegram;
     }
 
-    function getOwnerEmail(string calldata name) external returns (string memory) {
+    function getOwnerEmail(string calldata name) external view returns (string memory) {
         address owner = nameRecords[keccak256(bytes(name))].renter;
         bytes32 tokenId = keccak256(bytes(name));
         if (msg.sender != owner) {
@@ -439,7 +458,7 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
         return _ownerInfos[tokenId].email;
     }
 
-    function getOwnerPhone(string calldata name) external returns (string memory) {
+    function getOwnerPhone(string calldata name) external view returns (string memory) {
         address owner = nameRecords[keccak256(bytes(name))].renter;
         bytes32 tokenId = keccak256(bytes(name));
         if (msg.sender != owner) {
@@ -472,6 +491,11 @@ contract D1DCV2 is ERC721Upgradeable, PausableUpgradeable, OwnableUpgradeable, R
 
         // update the owner list
         ownersOfName[tokenId].push(to);
+
+        // set the timestamp that the name owner(renter) was updated on VanityURL
+        // The vanity URL is valid only if nameOwnerUpdateAt <= vanityURLUpdatedAt
+        IVanityURL vanityURL = IVanityURL(addressRegistry.vanityURL());
+        vanityURL.setNameOwnerUpdateAt(tokenId);
     }
 
     function withdraw() external {
