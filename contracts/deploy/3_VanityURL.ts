@@ -4,7 +4,7 @@ import config from '../config'
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, ethers } = hre
-  const { deploy } = deployments
+  const { deploy, get } = deployments
 
   const { deployer } = await getNamedAccounts()
 
