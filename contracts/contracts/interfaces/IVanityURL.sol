@@ -3,5 +3,5 @@
 pragma solidity ^0.8.17;
 
 interface IVanityURL {
-    function setnameOwnerUpdateAt(bytes32 d1dcV2TokenId) external;
+    function setNameOwnerUpdateAt(bytes32 d1dcV2TokenId) external;
 }
