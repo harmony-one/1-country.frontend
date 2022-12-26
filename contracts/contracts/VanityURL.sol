@@ -10,11 +10,6 @@ import "./interfaces/IAddressRegistry.sol";
 import "./interfaces/ID1DCV2.sol";
 
 contract VanityURL is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable {
-    struct VanityURLInfo {
-        string aliasName;
-        string url;
-    }
-
     /// @dev AddressRegistry contract
     IAddressRegistry public addressRegistry;
 
@@ -27,12 +22,6 @@ contract VanityURL is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUp
     /// @dev D1DCV2 Token Id -> Alias Name -> Vanity URL -> Timestamp the URL was updated
     /// @dev Vanity URL is valid only if nameOwnerUpdateAt <= vanityURLUpdatedAt
     mapping(bytes32 => mapping(string => mapping(string => uint256))) public vanityURLUpdatedAt;
-
-    // /// @dev Alias Name -> Owner
-    // mapping(string => address) public aliasOwners;
-
-    // /// @dev Alias Name -> URL
-    // mapping(string => string) public aliasURLs;
 
     /// @dev Price for the url update
     uint256 public urlUpdatePrice;
