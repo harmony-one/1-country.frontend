@@ -99,7 +99,10 @@ contract VanityURL is
         string calldata _url
     ) external payable nonReentrant whenNotPaused onlyD1DCV2NameOwner(_name) {
         bytes32 tokenId = keccak256(bytes(_name));
-        require(!checkURLValidity(_name, _aliasName, _url), "VanityURL: url already exists");
+        require(
+            !checkURLValidity(_name, _aliasName, _url),
+            "VanityURL: url already exists"
+        );
 
         uint256 price = urlUpdatePrice;
         require(price <= msg.value, "VanityURL: insufficient payment");
@@ -125,7 +128,10 @@ contract VanityURL is
     {
         bytes32 tokenId = keccak256(bytes(_name));
         string memory url = vanityURLs[tokenId][_aliasName];
-        require(checkURLValidity(_name, _aliasName, url), "VanityURL: invalid URL");
+        require(
+            checkURLValidity(_name, _aliasName, url),
+            "VanityURL: invalid URL"
+        );
 
         emit URLDeleted(msg.sender, _name, _aliasName, url);
 
@@ -141,7 +147,10 @@ contract VanityURL is
         string calldata _url
     ) external whenNotPaused onlyD1DCV2NameOwner(_name) {
         bytes32 tokenId = keccak256(bytes(_name));
-        require(checkURLValidity(_name, _aliasName, _url), "VanityURL: invalid URL");
+        require(
+            checkURLValidity(_name, _aliasName, _url),
+            "VanityURL: invalid URL"
+        );
 
         emit URLUpdated(
             msg.sender,
@@ -166,9 +175,17 @@ contract VanityURL is
         return vanityURLs[tokenId][_aliasName];
     }
 
-    function checkURLValidity(string memory _name, string memory _aliasName, string memory _url) public view returns (bool) {
+    function checkURLValidity(
+        string memory _name,
+        string memory _aliasName,
+        string memory _url
+    ) public view returns (bool) {
         bytes32 tokenId = keccak256(bytes(_name));
-        return nameOwnerUpdateAt[tokenId] <= vanityURLUpdatedAt[tokenId][_aliasName][_url] ? true : false;
+        return
+            nameOwnerUpdateAt[tokenId] <=
+                vanityURLUpdatedAt[tokenId][_aliasName][_url]
+                ? true
+                : false;
     }
 
     function withdraw() external {
