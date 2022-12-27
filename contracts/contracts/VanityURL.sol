@@ -23,10 +23,9 @@ contract VanityURL is
     /// @dev D1DCV2 TokenId -> Alias Name -> URL
     mapping(bytes32 => mapping(string => string)) public vanityURLs;
 
-    /// @dev D1DCV2 Token Id -> Alias Name -> Vanity URL -> Timestamp the URL was updated
+    /// @dev D1DCV2 Token Id -> Alias Name -> Timestamp the URL was updated
     /// @dev Vanity URL is valid only if nameOwnerUpdateAt <= vanityURLUpdatedAt
-    mapping(bytes32 => mapping(string => mapping(string => uint256)))
-        public vanityURLUpdatedAt;
+    mapping(bytes32 => mapping(string => uint256)) public vanityURLUpdatedAt;
 
     /// @dev Price for the url update
     uint256 public urlUpdatePrice;
@@ -109,7 +108,7 @@ contract VanityURL is
 
         // set a new URL
         vanityURLs[tokenId][_aliasName] = _url;
-        vanityURLUpdatedAt[tokenId][_aliasName][_url] = block.timestamp;
+        vanityURLUpdatedAt[tokenId][_aliasName] = block.timestamp;
 
         // returns the exceeded payment
         uint256 excess = msg.value - price;
@@ -133,9 +132,8 @@ contract VanityURL is
         emit URLDeleted(msg.sender, _name, _aliasName, url);
 
         // delete the URL
-        string memory emptyURL = "";
-        vanityURLs[tokenId][_aliasName] = emptyURL;
-        vanityURLUpdatedAt[tokenId][_aliasName][emptyURL] = block.timestamp;
+        vanityURLs[tokenId][_aliasName] = "";
+        vanityURLUpdatedAt[tokenId][_aliasName] = block.timestamp;
     }
 
     function updateURL(
@@ -156,7 +154,7 @@ contract VanityURL is
 
         // update the URL
         vanityURLs[tokenId][_aliasName] = _url;
-        vanityURLUpdatedAt[tokenId][_aliasName][_url] = block.timestamp;
+        vanityURLUpdatedAt[tokenId][_aliasName] = block.timestamp;
     }
 
     function getURL(string calldata _name, string calldata _aliasName)
@@ -175,10 +173,9 @@ contract VanityURL is
         returns (bool)
     {
         bytes32 tokenId = keccak256(bytes(_name));
-        string memory url = vanityURLs[tokenId][_aliasName];
         return
             nameOwnerUpdateAt[tokenId] <=
-                vanityURLUpdatedAt[tokenId][_aliasName][url]
+                vanityURLUpdatedAt[tokenId][_aliasName]
                 ? true
                 : false;
     }
