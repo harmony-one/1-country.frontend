@@ -94,16 +94,12 @@ contract VanityURL is
     }
 
     function setNewURL(
-        string memory _name,
-        string memory _aliasName,
-        string memory _url
+        string calldata _name,
+        string calldata _aliasName,
+        string calldata _url
     ) external payable nonReentrant whenNotPaused onlyD1DCV2NameOwner(_name) {
         bytes32 tokenId = keccak256(bytes(_name));
-        require(
-            vanityURLUpdatedAt[tokenId][_aliasName][_url] <
-                nameOwnerUpdateAt[tokenId],
-            "VanityURL: url already exists"
-        );
+        require(!checkURLValidity(_name, _aliasName, _url), "VanityURL: url already exists");
 
         uint256 price = urlUpdatePrice;
         require(price <= msg.value, "VanityURL: insufficient payment");
@@ -122,18 +118,14 @@ contract VanityURL is
         emit NewURLSet(msg.sender, _name, _aliasName, _url);
     }
 
-    function deleteURL(string memory _name, string memory _aliasName)
+    function deleteURL(string calldata _name, string calldata _aliasName)
         external
         whenNotPaused
         onlyD1DCV2NameOwner(_name)
     {
         bytes32 tokenId = keccak256(bytes(_name));
         string memory url = vanityURLs[tokenId][_aliasName];
-        require(
-            nameOwnerUpdateAt[tokenId] <=
-                vanityURLUpdatedAt[tokenId][_aliasName][url],
-            "VanityURL: invalid URL"
-        );
+        require(checkURLValidity(_name, _aliasName, url), "VanityURL: invalid URL");
 
         emit URLDeleted(msg.sender, _name, _aliasName, url);
 
@@ -144,16 +136,12 @@ contract VanityURL is
     }
 
     function updateURL(
-        string memory _name,
-        string memory _aliasName,
-        string memory _url
+        string calldata _name,
+        string calldata _aliasName,
+        string calldata _url
     ) external whenNotPaused onlyD1DCV2NameOwner(_name) {
         bytes32 tokenId = keccak256(bytes(_name));
-        require(
-            nameOwnerUpdateAt[tokenId] <=
-                vanityURLUpdatedAt[tokenId][_aliasName][_url],
-            "VanityURL: invalid URL"
-        );
+        require(checkURLValidity(_name, _aliasName, _url), "VanityURL: invalid URL");
 
         emit URLUpdated(
             msg.sender,
@@ -168,7 +156,7 @@ contract VanityURL is
         vanityURLUpdatedAt[tokenId][_aliasName][_url] = block.timestamp;
     }
 
-    function getURL(string memory _name, string memory _aliasName)
+    function getURL(string calldata _name, string calldata _aliasName)
         external
         view
         returns (string memory)
@@ -176,6 +164,11 @@ contract VanityURL is
         bytes32 tokenId = keccak256(bytes(_name));
 
         return vanityURLs[tokenId][_aliasName];
+    }
+
+    function checkURLValidity(string memory _name, string memory _aliasName, string memory _url) public view returns (bool) {
+        bytes32 tokenId = keccak256(bytes(_name));
+        return nameOwnerUpdateAt[tokenId] <= vanityURLUpdatedAt[tokenId][_aliasName][_url] ? true : false;
     }
 
     function withdraw() external {
