@@ -26,7 +26,7 @@ import {
 import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
-
+import { VanityURL } from './VanityURL'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -69,7 +69,7 @@ const parseTweetId = (urlInput) => {
 
 const Home = ({ subdomain = config.tld }) => {
   // const [web3, setWeb3] = useState(new Web3(config.defaultRPC))
-  const [name, setName] = useState('')
+  const [name, setName] = useState()
   // const [web3] = useState(new Web3(config.defaultRPC))
   // const [address, setAddress] = useState('')
   const [client, setClient] = useState(apis({}))
@@ -97,6 +97,7 @@ const Home = ({ subdomain = config.tld }) => {
 
   useEffect(() => {
     const getSubdomain = () => {
+      return 'j'
       if (!window) {
         return null
       }
@@ -257,6 +258,7 @@ const Home = ({ subdomain = config.tld }) => {
 
   return (
     <Container>
+      <VanityURL record={record}/>
       {/* {lastRentedRecord && (
         <LastPurchase
           parameters={parameters}
@@ -389,7 +391,7 @@ const Home = ({ subdomain = config.tld }) => {
           <SmallTextGrey>Your address: {address}</SmallTextGrey>
         </>
       )}
-      <SmallTextGrey> 
+      <SmallTextGrey>
         <a
           href='https://harmony.one/domains'
           rel='noreferrer'
