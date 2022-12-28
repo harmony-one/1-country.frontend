@@ -97,6 +97,7 @@ contract VanityURL is
         string calldata _aliasName,
         string calldata _url
     ) external payable nonReentrant whenNotPaused onlyD1DCV2NameOwner(_name) {
+        require(bytes(_aliasName).length <= 1024, "VanityURL: alias too long");
         require(bytes(_url).length <= 1024, "VanityURL: url too long");
 
         bytes32 tokenId = keccak256(bytes(_name));
