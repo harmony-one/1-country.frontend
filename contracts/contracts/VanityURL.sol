@@ -58,7 +58,7 @@ contract VanityURL is
         bytes32 tokenId = keccak256(bytes(_name));
         ID1DCV2 d1dcV2 = ID1DCV2(addressRegistry.d1dcV2());
         (address nameOwner, , , , , ) = d1dcV2.nameRecords(tokenId);
-        require(msg.sender == nameOwner, "VanityURL: only D1DCV2");
+        require(msg.sender == nameOwner, "VanityURL: only D1DCV2 name owner");
         _;
     }
 
@@ -97,6 +97,8 @@ contract VanityURL is
         string calldata _aliasName,
         string calldata _url
     ) external payable nonReentrant whenNotPaused onlyD1DCV2NameOwner(_name) {
+        require(bytes(_url).length <= 1024, "VanityURL: url too long");
+
         bytes32 tokenId = keccak256(bytes(_name));
         require(
             !checkURLValidity(_name, _aliasName),
@@ -141,6 +143,8 @@ contract VanityURL is
         string calldata _aliasName,
         string calldata _url
     ) external whenNotPaused onlyD1DCV2NameOwner(_name) {
+        require(bytes(_url).length <= 1024, "VanityURL: url too long");
+        
         bytes32 tokenId = keccak256(bytes(_name));
         require(checkURLValidity(_name, _aliasName), "VanityURL: invalid URL");
 
