@@ -67,6 +67,7 @@ contract VanityURL is
         uint256 _urlUpdatePrice,
         address _revenueAccount
     ) external initializer {
+        __Pausable_init();
         __Ownable_init();
         __ReentrancyGuard_init();
 
@@ -194,5 +195,13 @@ contract VanityURL is
             ""
         );
         require(success, "D1DC: failed to withdraw");
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
     }
 }
