@@ -23,12 +23,12 @@ export const VanityURL = ({
     pageAddress.toLowerCase() === address.toLowerCase()
 
   useEffect(() => {
-    if (!name || !connector) {
+    if (!name) {
       return
     }
 
     const call = async () => {
-      const redirectURL = await api.getURL(connector, name, currentPath)
+      const redirectURL = await api.getURL(name, currentPath)
       if (redirectURL) {
         window.location.href = redirectURL
       }
@@ -45,7 +45,7 @@ export const VanityURL = ({
     const call = async () => {
       for (const key of urlParamsKeys) {
         const value = urlParams.getAll(key)[0]
-        const currentAlias = await api.getURL(connector, name, key)
+        const currentAlias = await api.getURL(name, key)
 
         if (!value) {
           // remove alias

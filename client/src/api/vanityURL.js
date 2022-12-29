@@ -9,9 +9,8 @@ import Web3 from 'web3'
 const vanityURLAmount = '1000000000000000000'
 
 
-export const getURL = async (connector, pageName, alias) => {
-  const provider = await connector.getProvider()
-  const web3 = new Web3(provider)
+export const getURL = async (pageName, alias) => {
+  const web3 = new Web3(config.defaultRPC)
   Contract.setProvider(web3.currentProvider)
   const contract = new Contract(VanityURLABI.abi, config.contractVanityURL)
   const res = await contract.methods.getURL(pageName, alias).call()
