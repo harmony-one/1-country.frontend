@@ -9,15 +9,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts()
 
   // get AddressRegistry contract
-  const addresRegistry: Contract = await ethers.getContract('AddressRegistry')
+  const addressRegistryContract: Contract = await ethers.getContract('AddressRegistry')
+  const d1dcV2Contract: Contract = await ethers.getContract('D1DCV2');
 
   // get the contracts deployed
   const d1dcV2 = await get("D1DCV2")
   const vanityURL = await get("VanityURL")
 
   // register the contracts deployed to AddressRegistry contract
-  addresRegistry.setD1DCV2(d1dcV2.address)
-  addresRegistry.setVanityURL(vanityURL.address)
+  await addressRegistryContract.setD1DCV2(d1dcV2.address)
+  await addressRegistryContract.setVanityURL(vanityURL.address)
 
   console.log('AddressRegistry set done')
 }
