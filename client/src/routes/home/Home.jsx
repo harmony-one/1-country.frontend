@@ -97,7 +97,6 @@ const Home = ({ subdomain = config.tld }) => {
 
   useEffect(() => {
     const getSubdomain = () => {
-      return 'j'
       if (!window) {
         return null
       }
@@ -113,6 +112,7 @@ const Home = ({ subdomain = config.tld }) => {
       }
       return parts.slice(0, parts.length - 2).join('.')
     }
+
     setName(getSubdomain())
     const web3 = new Web3(config.defaultRPC)
     const api = apis({ web3, address })
@@ -258,7 +258,7 @@ const Home = ({ subdomain = config.tld }) => {
 
   return (
     <Container>
-      <VanityURL record={record}/>
+      <VanityURL record={record} name={name}/>
       {/* {lastRentedRecord && (
         <LastPurchase
           parameters={parameters}

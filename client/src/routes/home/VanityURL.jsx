@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import * as api from '../../api/vanityURL'
 import { useAccount } from 'wagmi'
+import { toast } from 'react-toastify'
 
 /* redirect for vanity URLS
 import * as api from '../api/vanityURL'
@@ -14,34 +15,84 @@ export const checkVanityURL = () => {
 */
 
 // mind that react router redirects after initialization to base /
-const currentPath = window.location.pathname
-console.log({currentPath})
+const currentPath = window.location.pathname.replace('/', '')
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const urlParamsKeys = urlParams.keys()
 
 export const VanityURL = ({
-  record // page information
+  record, // page information,
+  name // subdomain name
 }) => {
 
   const pageAddress = record ? record.renter : null
+
   const { isConnected, address, connector } = useAccount()
   const isOwner =
     address &&
     pageAddress &&
     pageAddress.toLowerCase() === address.toLowerCase()
 
-  console.log('VanityURL', {address, pageAddress, isOwner})
-
   useEffect(() => {
-    if (!pageAddress) {
+    if (!name || !connector) {
       return
     }
 
     const call = async () => {
-      const res = await api.getURL(pageAddress, currentPath)
-      console.log({res})
+      const redirectURL = await api.getURL(connector, name, currentPath)
+      if (redirectURL) {
+        window.location.href = redirectURL
+      }
+      // without connected wallet?
     }
 
     call()
-  }, [pageAddress])
+  }, [name, connector])
+
+  useEffect(() => {
+    if (!isOwner) {
+      return
+    }
+
+    const call = async () => {
+      for (const key of urlParamsKeys) {
+        const value = urlParams.getAll(key)[0]
+        const currentAlias = await api.getURL(connector, name, key)
+
+        if (!value) {
+          // remove alias
+          try {
+            const newAlias = await api.deleteURL(connector, address, name, key)
+            toast.success('URL removed')
+          } catch (e) {
+             toast.error(e.message)
+          }
+          continue
+        }
+
+        if (!currentAlias) {
+          // create
+          try {
+            const newAlias = await api.setNewURL(connector, address, name, key, value)
+            toast.success('URL created')
+          } catch (e) {
+             toast.error(e.message)
+          }
+        } else {
+          // update
+          try {
+            const newAlias = await api.updateURL(connector, address, name, key, value)
+            toast.success('URL updated')
+          } catch (e) {
+            toast.error(e.message)
+          }
+        }
+
+      }
+    }
+
+    call()
+  }, [isOwner])
 
   return <></>
 }
