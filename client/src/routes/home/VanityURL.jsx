@@ -9,6 +9,8 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const urlParamsKeys = urlParams.keys()
 
+console.log('VanityURL',{currentPath})
+
 export const VanityURL = ({
   record, // page information,
   name // subdomain name
@@ -23,12 +25,14 @@ export const VanityURL = ({
     pageAddress.toLowerCase() === address.toLowerCase()
 
   useEffect(() => {
+    console.log('VanityURL',{name})
     if (!name) {
       return
     }
 
     const call = async () => {
       const redirectURL = await api.getURL(name, currentPath)
+      console.log('VanityURL',{redirectURL})
       if (redirectURL) {
         window.location.href = redirectURL
       }
