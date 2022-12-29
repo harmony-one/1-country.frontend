@@ -3,7 +3,7 @@ import { ethers, upgrades } from 'hardhat'
 
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
-import type { D1DCV2 } from "../typechain-types"
+import type { AddressRegistry, D1DCV2, VanityURL } from "../typechain-types"
 
 const name = '.1.country'
 const symbol = 'D1DCV2'
@@ -16,6 +16,7 @@ const phoneRevealPrice = 100
 const emojiPrice0 = 1;
 const emojiPrice1 = 10;
 const emojiPrice2 = 100;
+const urlUpdatePrice = ethers.utils.parseEther("1");
 
 describe('D1DCV2', () => {
   let accounts: SignerWithAddress;
@@ -23,7 +24,11 @@ describe('D1DCV2', () => {
   let alice: SignerWithAddress;
   let bob: SignerWithAddress;
   let john: SignerWithAddress;
+  let revenueAccount: SignerWithAddress;
+  
+  let addressRegistry: AddressRegistry;
   let d1dcV2: D1DCV2;
+  let vanityURL: VanityURL;
 
   let dotName = "all.1.country";
   let url = "https://all.1.country_url";
@@ -31,18 +36,33 @@ describe('D1DCV2', () => {
   let email = "email";
   let phone = "phone";
 
-  before(async () => {
+  beforeEach(async () => {
     accounts = await ethers.getSigners();
-    [deployer, alice, bob, john] = accounts;
+    [deployer, alice, bob, john, revenueAccount] = accounts;
+
+    // Initialize AddressRegistry Contract
+    const AddressRegistry = await ethers.getContractFactory("AddressRegistry");
+    addressRegistry = (await upgrades.deployProxy(AddressRegistry, [])) as AddressRegistry;
 
     // Initialize D1DCV2 contract
     const D1DCV2Factory = await ethers.getContractFactory("D1DCV2");
-    d1dcV2 = (await upgrades.deployProxy(D1DCV2Factory, [name, symbol, baseRentalPrice, rentalPeriod, priceMultiplier, john.address, telegramRevealPrice, emailRevealPrice, phoneRevealPrice])) as D1DCV2
+    d1dcV2 = (await upgrades.deployProxy(D1DCV2Factory, [addressRegistry.address, name, symbol, baseRentalPrice, rentalPeriod, priceMultiplier, john.address, telegramRevealPrice, emailRevealPrice, phoneRevealPrice])) as D1DCV2
+
+    // Initialize VanityURL contract
+    const VanityURL = await ethers.getContractFactory("VanityURL");
+    vanityURL = (await upgrades.deployProxy(VanityURL, [addressRegistry.address, urlUpdatePrice, revenueAccount.address])) as VanityURL;
+
+    // Register the contract addresses to AddressRegistry
+    await addressRegistry.setD1DCV2(d1dcV2.address);
+    await addressRegistry.setVanityURL(vanityURL.address);
 
     // Set the emoji prices
     await d1dcV2.setEmojiPrice(0, emojiPrice0);
     await d1dcV2.setEmojiPrice(1, emojiPrice1);
     await d1dcV2.setEmojiPrice(2, emojiPrice2);
+
+    // Set the url update price
+    await vanityURL.updateURLUpdatePrice(urlUpdatePrice);
   });
 
   describe("rent", () => {
