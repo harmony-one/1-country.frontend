@@ -258,7 +258,7 @@ const Home = ({ subdomain = config.tld }) => {
 
   return (
     <Container>
-      <VanityURL record={record} name={name}/>
+      <VanityURL record={record} name={name} />
       {/* {lastRentedRecord && (
         <LastPurchase
           parameters={parameters}
