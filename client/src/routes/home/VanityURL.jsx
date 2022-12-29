@@ -49,7 +49,7 @@ export const VanityURL = ({
     const call = async () => {
       for (const key of urlParamsKeys) {
         const value = urlParams.getAll(key)[0]
-        const currentAlias = await api.getURL(name, key)
+        const currentAlias = await api.checkURLValidity(name, key)
 
         if (!value) {
           // remove alias
