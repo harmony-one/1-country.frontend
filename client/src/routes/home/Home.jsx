@@ -69,7 +69,7 @@ const parseTweetId = (urlInput) => {
 
 const Home = ({ subdomain = config.tld }) => {
   // const [web3, setWeb3] = useState(new Web3(config.defaultRPC))
-  const [name, setName] = useState()
+  const [name, setName] = useState('')
   // const [web3] = useState(new Web3(config.defaultRPC))
   // const [address, setAddress] = useState('')
   const [client, setClient] = useState(apis({}))

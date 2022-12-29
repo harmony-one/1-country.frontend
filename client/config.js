@@ -1,4 +1,4 @@
-const debug = 0 //process.env.DEBUG
+const debug = process.env.DEBUG
 
 const config = {
   debug,
@@ -6,8 +6,8 @@ const config = {
   contractVanityURL: process.env.CONTRACT_VANITY_URL || '0x88a1afC4134f385337Dd5F530D452079fC9E14CC', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
   explorer: process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
   defaultRPC: process.env.DEFAULT_RPC || 'https://api.harmony.one',
-  tld: process.env.TLD || '.1.country', // '.1.country',
-  tldLink: process.env.TLD_LINK || '.1.country', // '1.country',
+  tld: process.env.TLD || '.dev.1.country', // '.1.country',
+  tldLink: process.env.TLD_LINK || '.dev.1.country', // '1.country',
   emojiType: {
     ONE_ABOVE: 0,
     FIRST_PRIZE: 1,
