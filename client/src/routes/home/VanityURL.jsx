@@ -23,7 +23,7 @@ export const VanityURL = ({
     pageAddress.toLowerCase() === address.toLowerCase()
 
   useEffect(() => {
-    if (!name) {
+    if (!name || !currentPath) {
       return
     }
 
@@ -50,7 +50,7 @@ export const VanityURL = ({
         if (!value && currentAlias) {
           // remove alias
           try {
-            const newAlias = await api.deleteURL(connector, address, name, key)
+            await api.deleteURL(connector, address, name, key)
             toast.success('URL removed')
           } catch (e) {
              toast.error(e.message)
@@ -61,7 +61,7 @@ export const VanityURL = ({
         if (!currentAlias) {
           // create
           try {
-            const newAlias = await api.setNewURL(connector, address, name, key, value)
+            await api.setNewURL(connector, address, name, key, value)
             toast.success('URL created')
           } catch (e) {
              toast.error(e.message)
@@ -69,7 +69,7 @@ export const VanityURL = ({
         } else {
           // update
           try {
-            const newAlias = await api.updateURL(connector, address, name, key, value)
+            await api.updateURL(connector, address, name, key, value)
             toast.success('URL updated')
           } catch (e) {
             toast.error(e.message)
