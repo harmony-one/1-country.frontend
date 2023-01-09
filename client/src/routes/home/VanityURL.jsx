@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import * as api from '../../api/vanityURL'
 import { useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
 
 // mind that react router redirects after initialization to base /
 const currentPath = window.location.pathname.replace('/', '')
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
+const queryString = window.location.search
+const urlParams = new URLSearchParams(queryString)
 const urlParamsKeys = urlParams.keys()
+
+console.log('VanityURL', { currentPath })
 
 export const VanityURL = ({
   record, // page information,
   name // subdomain name
 }) => {
-
   const pageAddress = record ? record.renter : null
 
   const { isConnected, address, connector } = useAccount()
@@ -23,12 +24,14 @@ export const VanityURL = ({
     pageAddress.toLowerCase() === address.toLowerCase()
 
   useEffect(() => {
-    if (!name || !currentPath) {
+    console.log('VanityURL', { name })
+    if (!name) {
       return
     }
 
     const call = async () => {
       const redirectURL = await api.getURL(name, currentPath)
+      console.log('VanityURL', { redirectURL })
       if (redirectURL) {
         window.location.href = redirectURL
       }
@@ -53,7 +56,7 @@ export const VanityURL = ({
             await api.deleteURL(connector, address, name, key)
             toast.success('URL removed')
           } catch (e) {
-             toast.error(e.message)
+            toast.error(e.message)
           }
           continue
         }
@@ -64,7 +67,7 @@ export const VanityURL = ({
             await api.setNewURL(connector, address, name, key, value)
             toast.success('URL created')
           } catch (e) {
-             toast.error(e.message)
+            toast.error(e.message)
           }
         } else {
           // update
@@ -75,7 +78,6 @@ export const VanityURL = ({
             toast.error(e.message)
           }
         }
-
       }
     }
 
