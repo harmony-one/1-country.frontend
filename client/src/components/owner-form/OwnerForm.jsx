@@ -37,7 +37,7 @@ const OwnerForm = ({ onAction, buttonLabel, pending }) => {
           <span style={{ marginTop: '1em', marginBottom: '1.5em' }}>Please fill the following information</span>
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
             <Input name='telegram' required onChange={onChange} />
-            <FloatingTextInput>Telegram Handler</FloatingTextInput>
+            <FloatingTextInput>Telegram Handle</FloatingTextInput>
           </Row>
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
             <Input name='email' required onChange={onChange} type='email' />

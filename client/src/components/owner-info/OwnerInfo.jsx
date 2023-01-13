@@ -101,7 +101,7 @@ const OwnerInfo = (props) => {
           {!isOwner && <button onClick={reveal} name='phone'><span style={{ color: 'red', paddingRight: '0.3em' }}><TbPhoneCall /></span>Reveal</button>}
         </FlexRow>
         <FlexRow style={{ justifyContent: 'space-between' }}>
-          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Telegram handler:' : 'Owners\'s Telegram handler:'}</OnwerLabel>
+          <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Telegram handle:' : 'Owners\'s Telegram handle:'}</OnwerLabel>
           {ownerInfo.telegram ? ownerInfo.telegram : (<OnwerLabel>{`Pay ${config.infoRevealPrice.telegram} to reveal`}</OnwerLabel>)}
           {!isOwner && <button onClick={reveal} name='telegram'><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>}
         </FlexRow>
