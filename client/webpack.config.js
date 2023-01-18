@@ -13,7 +13,9 @@ module.exports = {
     port: 3100,
     https: !process.env.HTTP,
     http2: !process.env.HTTP,
-    historyApiFallback: true,
+    historyApiFallback: {
+      disableDotRule: true,
+    },
     hot: false,
     client: {
       overlay: false,
