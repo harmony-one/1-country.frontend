@@ -5,10 +5,6 @@ import { toast } from 'react-toastify'
 
 // mind that react router redirects after initialization to base /
 const currentPath = window.location.pathname.replace('/', '')
-// const queryString = window.location.search
-// const urlParams = new URLSearchParams(queryString)
-// const urlParamsKeys = urlParams.keys()
-
 const isSetOperation = currentPath.includes('=')
 const keys = isSetOperation ? currentPath.split('=') : null
 
@@ -16,7 +12,7 @@ console.log({isSetOperation, keys})
 
 export const VanityURL = ({
   record, // page information,
-  name = 'jenya' // subdomain name
+  name // subdomain name
 }) => {
   const pageAddress = record ? record.renter : null
 
@@ -33,7 +29,6 @@ export const VanityURL = ({
 
     const call = async () => {
       const redirectURL = await api.getURL(name, currentPath)
-      console.log('redirectURL', {redirectURL})
       if (redirectURL) {
         window.location.href = redirectURL
       }
