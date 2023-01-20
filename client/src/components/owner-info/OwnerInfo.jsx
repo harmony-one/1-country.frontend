@@ -28,7 +28,6 @@ const OwnerInfo = (props) => {
   useEffect(() => {
     const getInfo = async () => {
       const info = await client.getAllOwnerInfo({ name: pageName })
-      console.log('fco', info)
       setOwnerInfo(info)
     }
     if (isOwner) {
@@ -38,16 +37,16 @@ const OwnerInfo = (props) => {
   }, [])
 
   useEffect(() => {
-    const getInfo = async () => {
-      const info = await client.getAllOwnerInfo({ name: pageName })
-      console.log('fco', info)
-      setOwnerInfo(info)
-    }
+    // const getInfo = async () => {
+    //   const info = await client.getAllOwnerInfo({ name: pageName })
+    //   setOwnerInfo(info)
+    // }
     if (!isOwner) {
       setOwnerInfo(defaultOwnerInfo)
-    } else {
-      getInfo()
     }
+    // else {
+    //   getInfo()
+    // }
   }, [isOwner])
 
   console.log(isOwner)
