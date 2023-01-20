@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Web3 from 'web3'
 // import detectEthereumProvider from '@metamask/detect-provider'
 import BN from 'bn.js'
@@ -6,6 +6,8 @@ import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
 import { Web3Button } from '@web3modal/react'
 import humanizeDuration from 'humanize-duration'
+
+import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 
 import apis from '../../api'
 import config from '../../../config'
@@ -68,10 +70,7 @@ const parseTweetId = (urlInput) => {
 }
 
 const Home = ({ subdomain = config.tld }) => {
-  // const [web3, setWeb3] = useState(new Web3(config.defaultRPC))
   const [name, setName] = useState('')
-  // const [web3] = useState(new Web3(config.defaultRPC))
-  // const [address, setAddress] = useState('')
   const [client, setClient] = useState(apis({}))
   const [record, setRecord] = useState(null)
   const [lastRentedRecord, setLastRentedRecord] = useState(null)
@@ -83,6 +82,7 @@ const Home = ({ subdomain = config.tld }) => {
   const [tweetId, setTweetId] = useState('')
   const [pending, setPending] = useState(false)
 
+  const toastId = useRef(null)
   const { isConnected, address, connector } = useAccount()
 
   // for updating stuff
@@ -117,14 +117,7 @@ const Home = ({ subdomain = config.tld }) => {
     const web3 = new Web3(config.defaultRPC)
     const api = apis({ web3, address })
     setClient(api)
-    // init()
   }, [])
-
-  // useEffect(() => {
-  //   const web3 = new Web3(config.defaultRPC)
-  //   const api = apis({ web3, address })
-  //   setClient(api)
-  // }, [address])
 
   useEffect(() => {
     const callApi = async () => {
@@ -182,6 +175,7 @@ const Home = ({ subdomain = config.tld }) => {
       }
       const f = isOwner && !isRenewal ? client.updateURL : client.rent
       console.log('onAction', price, name)
+      toastId.current = toast.loading('Processing transaction')
       await f({
         name,
         url: isRenewal ? '' : tweetId.tweetId.toString(),
@@ -189,21 +183,30 @@ const Home = ({ subdomain = config.tld }) => {
         email: email,
         phone: phone,
         amount: new BN(price.amount).toString(),
-        onFailed: () => toast.error('Failed to purchase'),
+        onFailed: () => toast.update(toastId.current, {
+          render: 'Failed to purchase',
+          type: 'error',
+          isLoading: false,
+          autoClose: 2000
+        }),
         onSuccess: (tx) => {
           console.log(tx)
           const { transactionHash } = tx
-          toast.success(
-            <FlexRow>
-              <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
-              <LinkWrarpper
-                target='_blank'
-                href={client.getExplorerUri(transactionHash)}
-              >
-                <BaseText>View transaction</BaseText>
-              </LinkWrarpper>
-            </FlexRow>
-          )
+          toast.update(toastId.current, {
+            render: (
+              <FlexRow>
+                <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
+                <LinkWrarpper
+                  target='_blank'
+                  href={client.getExplorerUri(transactionHash)}
+                >
+                  <BaseText>View transaction</BaseText>
+                </LinkWrarpper>
+              </FlexRow>),
+            type: 'success',
+            isLoading: false,
+            autoClose: 2000
+          })
           setTimeout(() => location.reload(), 1500)
         },
       })
@@ -259,14 +262,6 @@ const Home = ({ subdomain = config.tld }) => {
   return (
     <Container>
       <VanityURL record={record} name={name} />
-      {/* {lastRentedRecord && (
-        <LastPurchase
-          parameters={parameters}
-          tld={config.tld}
-          lastRentedRecord={lastRentedRecord}
-          humanD={humanD}
-        />
-      )} */}
       <FlexRow style={{ alignItems: 'baseline', marginTop: 70 }}>
         <Title style={{ margin: 0 }}>{name}</Title>
         <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
@@ -282,14 +277,14 @@ const Home = ({ subdomain = config.tld }) => {
             {record.prev &&
               <a href={`https://${record.prev}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
                 <FlexRow style={{ gap: 16 }}>
-                  <SmallTextGrey>{'<'} prev</SmallTextGrey><SmallTextGrey>{record.prev}{config.tld}</SmallTextGrey>
+                  <AiOutlineDoubleLeft />
                 </FlexRow>
               </a>}
 
             {record.next &&
               <a href={`https://${record.next}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
                 <FlexRow style={{ gap: 16 }}>
-                  <SmallTextGrey>{record.next}{config.tld}</SmallTextGrey> <SmallTextGrey> next {'>'}</SmallTextGrey>
+                  <AiOutlineDoubleRight />
                 </FlexRow>
               </a>}
           </Row>

@@ -8,7 +8,7 @@ const currentPath = window.location.pathname.replace('/', '')
 const isSetOperation = currentPath.includes('=')
 const keys = isSetOperation ? currentPath.split('=') : null
 
-console.log({isSetOperation, keys})
+console.log({ isSetOperation, keys })
 
 export const VanityURL = ({
   record, // page information,
@@ -43,42 +43,42 @@ export const VanityURL = ({
     }
 
     const call = async () => {
-        if (!keys) {
-          return
-        }
+      if (!keys) {
+        return
+      }
 
-        const key = keys[0]
-        const value = keys[1]
-        const currentAlias = await api.checkURLValidity(name, key)
+      const key = keys[0]
+      const value = keys[1]
+      const currentAlias = await api.checkURLValidity(name, key)
 
-        if (!value && currentAlias) {
-          // remove alias
-          try {
-            await api.deleteURL(connector, address, name, key)
-            toast.success('URL removed')
-          } catch (e) {
-            toast.error(e.message)
-          }
-          return
+      if (!value && currentAlias) {
+        // remove alias
+        try {
+          await api.deleteURL(connector, address, name, key)
+          toast.success('URL removed')
+        } catch (e) {
+          toast.error(e.message)
         }
+        return
+      }
 
-        if (!currentAlias) {
-          // create
-          try {
-            await api.setNewURL(connector, address, name, key, value)
-            toast.success('URL created')
-          } catch (e) {
-            toast.error(e.message)
-          }
-        } else {
-          // update
-          try {
-            await api.updateURL(connector, address, name, key, value)
-            toast.success('URL updated')
-          } catch (e) {
-            toast.error(e.message)
-          }
+      if (!currentAlias) {
+        // create
+        try {
+          await api.setNewURL(connector, address, name, key, value)
+          toast.success('URL created')
+        } catch (e) {
+          toast.error(e.message)
         }
+      } else {
+        // update
+        try {
+          await api.updateURL(connector, address, name, key, value)
+          toast.success('URL updated')
+        } catch (e) {
+          toast.error(e.message)
+        }
+      }
     }
 
     call()

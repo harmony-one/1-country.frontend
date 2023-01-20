@@ -136,6 +136,7 @@ const apis = ({ web3, address }) => {
         contract.methods.getOwnerPhone(name).call({ from: address }),
         contract.methods.getOwnerEmail(name).call({ from: address })
       ])
+      console.log('JAJAJA', telegram, phone, email)
       return {
         telegram,
         phone,

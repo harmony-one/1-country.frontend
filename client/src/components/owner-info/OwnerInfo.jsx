@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
 import { MdOutlineMail } from 'react-icons/md'
@@ -9,8 +9,9 @@ import { TbPhoneCall, TbBrandTelegram } from 'react-icons/tb'
 import config from '../../../config'
 import TwitterSection from '../../components/twitter-section/TwitterSection'
 import { Col, Row, FlexRow } from '../../components/Layout'
-import { BaseText, SmallText, SmallTextGrey } from '../../components/Text'
-import { OnwerLabel, PersonalInfoRevealContainer } from './OwnerInfo.module'
+import { BaseText, SmallTextGrey, OnwerLabel } from '../../components/Text'
+import { PersonalInfoRevealContainer } from './OwnerInfo.styles'
+import RecordInfo from '../record-info/RecordInfo'
 
 const defaultOwnerInfo = {
   telegram: '',
@@ -22,10 +23,12 @@ const OwnerInfo = (props) => {
   const { record, expired, parameters, tweetId, humanD, client, isOwner, pageName } = props
   const [ownerInfo, setOwnerInfo] = useState(defaultOwnerInfo)
   const { isConnected } = useAccount()
+  const toastId = useRef(null)
 
   useEffect(() => {
     const getInfo = async () => {
       const info = await client.getAllOwnerInfo({ name: pageName })
+      console.log('fco', info)
       setOwnerInfo(info)
     }
     if (isOwner) {
@@ -35,18 +38,43 @@ const OwnerInfo = (props) => {
   }, [])
 
   useEffect(() => {
+    const getInfo = async () => {
+      const info = await client.getAllOwnerInfo({ name: pageName })
+      console.log('fco', info)
+      setOwnerInfo(info)
+    }
     if (!isOwner) {
       setOwnerInfo(defaultOwnerInfo)
+    } else {
+      getInfo()
     }
   }, [isOwner])
 
+  console.log(isOwner)
+
   const reveal = async (event) => {
     if (isConnected) {
+      toastId.current = toast.loading('Processing transaction')
       const { name } = event.target
       console.log(name, pageName)
       const info = await client.revealInfo({ name: pageName, info: name })
-      console.log('reveal info', info)
-      setOwnerInfo({ ...ownerInfo, [name]: info })
+      if (info) {
+        console.log('reveal info', info)
+        setOwnerInfo({ ...ownerInfo, [name]: info })
+        toast.update(toastId.current, {
+          render: 'Transaction success!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 2000
+        })
+      } else {
+        toast.update(toastId.current, {
+          render: 'Error processing the transaction',
+          type: 'error',
+          isLoading: false,
+          autoClose: 2000
+        })
+      }
     } else {
       toast.error('Please connect your wallet')
     }
@@ -54,40 +82,12 @@ const OwnerInfo = (props) => {
 
   return (
     <>
-      <Row style={{ marginTop: 16 }}>
-        <OnwerLabel>owned by</OnwerLabel>
-        <BaseText style={{ wordBreak: 'break-word' }}>
-          {record.renter}
-        </BaseText>
-      </Row>
-      <Row>
-        <OnwerLabel>purchased on</OnwerLabel>
-        <BaseText>
-          {' '}
-          {new Date(record.timeUpdated).toLocaleString()}
-        </BaseText>
-      </Row>
-      <Row>
-        <OnwerLabel>expires on</OnwerLabel>
-        <BaseText>
-          {' '}
-          {new Date(
-            record.timeUpdated + parameters.rentalPeriod
-          ).toLocaleString()}
-        </BaseText>
-        {!expired && (
-          <SmallTextGrey>
-            (in{' '}
-            {humanD(
-              record.timeUpdated + parameters.rentalPeriod - Date.now()
-            )}
-            )
-          </SmallTextGrey>
-        )}
-        {expired && (
-          <SmallText style={{ color: 'red' }}>(expired)</SmallText>
-        )}
-      </Row>
+      <RecordInfo
+        record={record}
+        expired={expired}
+        parameters={parameters}
+        humanD={humanD}
+      />
       <PersonalInfoRevealContainer style={{ marginTop: '1em' }}>
         <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
           <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Email address:' : 'Owners\'s Email address:'}</OnwerLabel>

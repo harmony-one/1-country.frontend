@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
 import { getEmojiPrice } from '../../api/index'
@@ -37,6 +37,7 @@ const baseEmojiListValues = [
 export const EmojiCounterContainer = ({ pageName, client }) => {
   const [emojisCounter, setEmojisCounter] = useState(baseEmojiListValues)
   const { isConnected } = useAccount()
+  const toastId = useRef(null)
 
   useEffect(() => {
     const getEmojisCounter = async () => {
@@ -51,6 +52,7 @@ export const EmojiCounterContainer = ({ pageName, client }) => {
 
   const reaction = async (emojiType) => {
     if (isConnected) {
+      toastId.current = toast.loading('Processing transaction')
       const tx = await client.addEmojiReaction({ name: pageName, emojiType: emojiType })
       if (tx) {
         const counter = await client.getEmojiCounter({ name: pageName, emojiType: emojiType })
@@ -61,6 +63,19 @@ export const EmojiCounterContainer = ({ pageName, client }) => {
           return emoji
         })
         setEmojisCounter(newState)
+        toast.update(toastId.current, {
+          render: 'Transaction success!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 2000
+        })
+      } else {
+        toast.update(toastId.current, {
+          render: 'Error processing the transaction',
+          type: 'error',
+          isLoading: false,
+          autoClose: 2000
+        })
       }
       console.log(tx)
     } else {

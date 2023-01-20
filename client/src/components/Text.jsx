@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 export const BaseText = styled.div`
   color: ${props => props.$color || 'inherit'};
-  font-size: 16px;
+  font-size: 0.9rem;
 `
 export const SmallText = styled(BaseText)`
   font-size: 12px;
@@ -73,4 +73,8 @@ export const Hint = styled.div`
 
 export const SmallTextGrey = styled(SmallText)`
   color: grey;
+`
+
+export const OnwerLabel = styled(SmallTextGrey)`
+  margin-right: 16px;
 `
