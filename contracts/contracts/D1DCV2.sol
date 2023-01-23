@@ -325,6 +325,9 @@ contract D1DCV2 is
             (bool success, ) = msg.sender.call{value: excess}("");
             require(success, "cannot refund excess");
         }
+
+        resetEmojiReactionCounters(name);
+
         emit NameRented(name, msg.sender, price, url);
     }
 
@@ -383,6 +386,12 @@ contract D1DCV2 is
         }
 
         emit EmojiReactionAdded(msg.sender, name, emojiType);
+    }
+
+    function resetEmojiReactionCounters(string memory name) private {
+        emojiReactionCounters[keccak256(bytes(name))][EmojiType.FIRST_PRIZE] = 0;
+        emojiReactionCounters[keccak256(bytes(name))][EmojiType.ONE_ABOVE] = 0;
+        emojiReactionCounters[keccak256(bytes(name))][EmojiType.ONE_HUNDRED_PERCENT] = 0;
     }
 
     function addOwnerInfo(
