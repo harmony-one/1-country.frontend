@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { OwnerFormContainer, FloatingTextInput } from './OwnerForm.module'
+import { OwnerFormContainer, FloatingTextInput } from './OwnerForm.styles'
 import {
   Button,
   Input,

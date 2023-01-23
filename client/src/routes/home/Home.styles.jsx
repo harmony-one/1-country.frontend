@@ -8,7 +8,13 @@ export const Container = styled(Main)`
   max-width: 800px;
   // TODO: responsive
 `
-
+export const PageHeader = styled.div`
+  display: flex;
+  direction: row;
+  justify-content: space-between;
+  gap: 3em;
+  
+`
 export const HomeLabel = styled(SmallTextGrey)`
   margin-right: 16px;
 `

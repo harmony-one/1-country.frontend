@@ -2,7 +2,7 @@ import React from 'react'
 
 import { SmallTextGrey, BaseText } from '../Text'
 import { Row } from '../Layout'
-import { Banner } from './LastPurchase.module'
+import { Banner } from './LastPurchase.styles'
 
 const LastPurchase = ({ parameters, tld, lastRentedRecord }) => {
   return (

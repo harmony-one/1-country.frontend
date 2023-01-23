@@ -3,14 +3,13 @@
 import React, { useState } from 'react'
 
 import { AiOutlineUp, AiOutlineDown } from 'react-icons/ai'
-import OwnerInfo from '../owner-info/OwnerInfo'
 import { BaseText, SmallText, SmallTextGrey, OnwerLabel } from '../../components/Text'
 import { Row } from '../../components/Layout'
 import { RecordRevealContainer } from './RecordInfo.styles'
 // import { OnwerLabel, PersonalInfoRevealContainer } from '../owner-info/OwnerInfo.styles'
 
 const RecordInfo = (props) => {
-  const { record, expired, parameters, humanD, client, isOwner, pageName } = props
+  const { record, expired, parameters, humanD } = props
   const [revealInfo, setRevealInfo] = useState(false)
 
   const revealEvent = () => {
@@ -19,7 +18,7 @@ const RecordInfo = (props) => {
   return (
     <RecordRevealContainer>
       <div className='reveal-button' onClick={revealEvent}>
-        <OnwerLabel>Reveal Page and Owner information</OnwerLabel>
+        <OnwerLabel>Reveal Page information</OnwerLabel>
         <div>{revealInfo ? <AiOutlineUp /> : <AiOutlineDown />}</div>
       </div>
       {revealInfo && (
@@ -59,11 +58,6 @@ const RecordInfo = (props) => {
               <SmallText style={{ color: 'red' }}>(expired)</SmallText>
             )}
           </Row>
-          <OwnerInfo
-            client={client}
-            pageName={pageName}
-            isOwner={isOwner}
-          />
         </>
       )}
     </RecordRevealContainer>

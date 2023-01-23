@@ -5,7 +5,7 @@ import { getEmojiPrice } from '../../api/index'
 
 import config from '../../../config'
 import { Label, Hint } from '../Text'
-import { EmojiLabelDiv, EmojisContainerRow, EmojiCounterDiv, EmojisReactionRow } from './Emoji.module'
+import { EmojiLabelDiv, EmojisContainerRow, EmojiCounterDiv, EmojisReactionRow } from './Emoji.styles'
 
 const baseEmojiListValues = [
   {

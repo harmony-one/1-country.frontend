@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Col } from '../../components/Layout'
+import { Col } from '../Layout'
 
 export const Banner = styled(Col)`
   z-index: 1;

@@ -23,7 +23,8 @@ import { BaseText, DescLeft, SmallTextGrey, Title } from '../../components/Text'
 import {
   Container,
   HomeLabel,
-  DescResponsive
+  DescResponsive,
+  PageHeader
 } from './Home.styles'
 import RecordInfo from '../../components/record-info/RecordInfo'
 import TwitterSection from '../../components/twitter-section/TwitterSection'
@@ -31,6 +32,7 @@ import TwitterSection from '../../components/twitter-section/TwitterSection'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
 import { VanityURL } from './VanityURL'
+import OwnerInfo from '../../components/owner-info/OwnerInfo'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -274,21 +276,25 @@ const Home = ({ subdomain = config.tld }) => {
       </FlexRow>
       {record?.renter && (
         <DescResponsive>
-          <Row style={{ justifyContent: 'space-between' }}>
+          <PageHeader>
             {record.prev &&
               <a href={`https://${record.prev}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
-                <FlexRow style={{ gap: 16, textDecoration: 'none' }}>
+                <FlexRow style={{ gap: 16, textDecoration: 'none', color: 'black' }}>
                   <AiOutlineDoubleLeft />
                 </FlexRow>
               </a>}
-
+            <OwnerInfo
+              client={client}
+              isOwner={isOwner}
+              pageName={name}
+            />
             {record.next &&
               <a href={`https://${record.next}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
-                <FlexRow style={{ gap: 16, textDecoration: 'none' }}>
+                <FlexRow style={{ gap: 16, textDecoration: 'none', color: 'black' }}>
                   <AiOutlineDoubleRight />
                 </FlexRow>
               </a>}
-          </Row>
+          </PageHeader>
           {tweetId && (
             <TwitterSection tweetId={tweetId} pageName={name} client={client} />
           )}
@@ -309,9 +315,6 @@ const Home = ({ subdomain = config.tld }) => {
             expired={expired}
             parameters={parameters}
             humanD={humanD}
-            client={client}
-            isOwner={isOwner}
-            pageName={name}
           />
         </DescResponsive>
       )}
