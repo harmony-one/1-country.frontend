@@ -3,15 +3,15 @@
 import React, { useState } from 'react'
 
 import { AiOutlineUp, AiOutlineDown } from 'react-icons/ai'
-
+import OwnerInfo from '../owner-info/OwnerInfo'
 import { BaseText, SmallText, SmallTextGrey, OnwerLabel } from '../../components/Text'
 import { Row } from '../../components/Layout'
 import { RecordRevealContainer } from './RecordInfo.styles'
 // import { OnwerLabel, PersonalInfoRevealContainer } from '../owner-info/OwnerInfo.styles'
 
 const RecordInfo = (props) => {
+  const { record, expired, parameters, humanD, client, isOwner, pageName } = props
   const [revealInfo, setRevealInfo] = useState(false)
-  const { record, expired, parameters, humanD } = props
 
   const revealEvent = () => {
     setRevealInfo(reveal => !reveal)
@@ -19,26 +19,26 @@ const RecordInfo = (props) => {
   return (
     <RecordRevealContainer>
       <div className='reveal-button' onClick={revealEvent}>
-        <OnwerLabel>Reveal page information</OnwerLabel>
+        <OnwerLabel>Reveal Page and Owner information</OnwerLabel>
         <div>{revealInfo ? <AiOutlineUp /> : <AiOutlineDown />}</div>
       </div>
       {revealInfo && (
         <>
-          <Row>
+          <Row style={{ paddingBottom: '0.5em' }}>
             {/* style={{ marginTop: 16 }} */}
             <OnwerLabel>owned by</OnwerLabel>
             <BaseText style={{ wordBreak: 'break-word' }}>
               {record.renter}
             </BaseText>
           </Row>
-          <Row>
+          <Row style={{ paddingBottom: '0.5em' }}>
             <OnwerLabel>purchased on</OnwerLabel>
             <BaseText>
               {' '}
               {new Date(record.timeUpdated).toLocaleString()}
             </BaseText>
           </Row>
-          <Row>
+          <Row style={{ paddingBottom: '0.5em' }}>
             <OnwerLabel>expires on</OnwerLabel>
             <BaseText>
               {' '}
@@ -59,6 +59,11 @@ const RecordInfo = (props) => {
               <SmallText style={{ color: 'red' }}>(expired)</SmallText>
             )}
           </Row>
+          <OwnerInfo
+            client={client}
+            pageName={pageName}
+            isOwner={isOwner}
+          />
         </>
       )}
     </RecordRevealContainer>

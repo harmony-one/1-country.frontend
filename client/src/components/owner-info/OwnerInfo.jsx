@@ -7,12 +7,9 @@ import { MdOutlineMail } from 'react-icons/md'
 import { TbPhoneCall, TbBrandTelegram } from 'react-icons/tb'
 
 import config from '../../../config'
-import TwitterSection from '../../components/twitter-section/TwitterSection'
-import { Col, Row, FlexRow } from '../../components/Layout'
-import { BaseText, SmallTextGrey, OnwerLabel } from '../../components/Text'
+import { FlexRow } from '../../components/Layout'
+import { OnwerLabel } from '../../components/Text'
 import { PersonalInfoRevealContainer } from './OwnerInfo.styles'
-import RecordInfo from '../record-info/RecordInfo'
-
 const defaultOwnerInfo = {
   telegram: '',
   email: '',
@@ -20,7 +17,7 @@ const defaultOwnerInfo = {
 }
 
 const OwnerInfo = (props) => {
-  const { record, expired, parameters, tweetId, humanD, client, isOwner, pageName } = props
+  const { client, isOwner, pageName } = props
   const [ownerInfo, setOwnerInfo] = useState(defaultOwnerInfo)
   const { isConnected } = useAccount()
   const toastId = useRef(null)
@@ -81,12 +78,6 @@ const OwnerInfo = (props) => {
 
   return (
     <>
-      <RecordInfo
-        record={record}
-        expired={expired}
-        parameters={parameters}
-        humanD={humanD}
-      />
       <PersonalInfoRevealContainer style={{ marginTop: '1em' }}>
         <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
           <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Email address:' : 'Owners\'s Email address:'}</OnwerLabel>
@@ -105,21 +96,6 @@ const OwnerInfo = (props) => {
           {!isOwner && <button onClick={reveal} name='telegram'><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>}
         </FlexRow>
       </PersonalInfoRevealContainer>
-      {tweetId && (
-        <TwitterSection tweetId={tweetId} pageName={pageName} client={client} />
-      )}
-      {/* <Row style={{ marginTop: 32, justifyContent: 'center' }}> */}
-      <Row>
-        {record.url && !tweetId && (
-          <Col>
-            <BaseText>Owner embedded an unsupported link:</BaseText>
-            <SmallTextGrey> {record.url}</SmallTextGrey>
-          </Col>
-        )}
-        {!record.url && (
-          <BaseText>Owner hasn't embedded any tweet yet</BaseText>
-        )}
-      </Row>
     </>
   )
 }

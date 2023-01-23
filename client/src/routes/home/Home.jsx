@@ -24,8 +24,10 @@ import {
   Container,
   HomeLabel,
   DescResponsive
-} from './Home.module'
-import OwnerInfo from '../../components/owner-info/OwnerInfo'
+} from './Home.styles'
+import RecordInfo from '../../components/record-info/RecordInfo'
+import TwitterSection from '../../components/twitter-section/TwitterSection'
+// import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
 import { VanityURL } from './VanityURL'
@@ -273,26 +275,39 @@ const Home = ({ subdomain = config.tld }) => {
       {record?.renter && (
         <DescResponsive>
           <Row style={{ justifyContent: 'space-between' }}>
-
             {record.prev &&
               <a href={`https://${record.prev}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
-                <FlexRow style={{ gap: 16 }}>
+                <FlexRow style={{ gap: 16, textDecoration: 'none' }}>
                   <AiOutlineDoubleLeft />
                 </FlexRow>
               </a>}
 
             {record.next &&
               <a href={`https://${record.next}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
-                <FlexRow style={{ gap: 16 }}>
+                <FlexRow style={{ gap: 16, textDecoration: 'none' }}>
                   <AiOutlineDoubleRight />
                 </FlexRow>
               </a>}
           </Row>
-          <OwnerInfo
+          {tweetId && (
+            <TwitterSection tweetId={tweetId} pageName={name} client={client} />
+          )}
+          {/* <Row style={{ marginTop: 32, justifyContent: 'center' }}> */}
+          <Row>
+            {record.url && !tweetId && (
+              <Col>
+                <BaseText>Owner embedded an unsupported link:</BaseText>
+                <SmallTextGrey> {record.url}</SmallTextGrey>
+              </Col>
+            )}
+            {!record.url && (
+              <BaseText>Owner hasn't embedded any tweet yet</BaseText>
+            )}
+          </Row>
+          <RecordInfo
             record={record}
             expired={expired}
             parameters={parameters}
-            tweetId={tweetId}
             humanD={humanD}
             client={client}
             isOwner={isOwner}

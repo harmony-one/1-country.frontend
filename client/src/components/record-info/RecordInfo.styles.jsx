@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 export const RecordRevealContainer = styled.div`
   width: 550px;
-
+  margin-top: 1em;
   .reveal-button {
     cursor: pointer;
     display: flex;
