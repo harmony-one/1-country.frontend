@@ -112,5 +112,22 @@ describe('D1DCV2', () => {
       const emojiCounterAfter = await d1dcV2.emojiReactionCounters(tokenId, 0);
       expect(emojiCounterAfter).to.equal(emojiCounterBefore.add(1));
     });
+
+    it("should be reset emoji reaction counters after rent", async () => {
+      const tokenId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(dotName));
+
+      await d1dcV2.connect(bob).addEmojiReaction(dotName, 0, { value: emojiPrice0 });
+      await d1dcV2.connect(bob).addEmojiReaction(dotName, 1, { value: emojiPrice1 });
+      await d1dcV2.connect(bob).addEmojiReaction(dotName, 2, { value: emojiPrice2 });
+
+      await d1dcV2.connect(bob).rent(dotName, url, telegram, email, phone, { value: baseRentalPrice * priceMultiplier });
+
+      const emojiCounterAfter0 = await d1dcV2.emojiReactionCounters(tokenId, 0);
+      const emojiCounterAfter1 = await d1dcV2.emojiReactionCounters(tokenId, 1);
+      const emojiCounterAfter2 = await d1dcV2.emojiReactionCounters(tokenId, 2);
+      expect(emojiCounterAfter0).to.equal(0);
+      expect(emojiCounterAfter1).to.equal(0);
+      expect(emojiCounterAfter2).to.equal(0);
+    });
   });
 });
