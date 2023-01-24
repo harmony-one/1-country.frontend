@@ -33,6 +33,8 @@ import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
 import { VanityURL } from './VanityURL'
 import OwnerInfo from '../../components/owner-info/OwnerInfo'
+import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
+import { wagmiClient } from '../../modules/wagmi/wagmiClient'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -98,6 +100,8 @@ const Home = ({ subdomain = config.tld }) => {
     address &&
     record?.renter &&
     record.renter.toLowerCase() === address.toLowerCase()
+
+  useDefaultNetwork()
 
   useEffect(() => {
     const getSubdomain = () => {
@@ -167,10 +171,17 @@ const Home = ({ subdomain = config.tld }) => {
     setTweetId(id.toString())
   }, [record?.url])
 
+  const isHarmonyNetwork = useIsHarmonyNetwork();
+
   const onAction = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
     if (!url && !isRenewal) {
       return toast.error('Invalid URL to embed')
     }
+
+    if (!isHarmonyNetwork) {
+      await wagmiClient.connector.connect({ chainId: config.chainParameters.id })
+    }
+
     setPending(true)
     try {
       const tweetId = isRenewal ? {} : parseTweetId(url)
