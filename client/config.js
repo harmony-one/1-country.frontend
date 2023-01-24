@@ -8,6 +8,9 @@ const config = {
   defaultRPC: process.env.DEFAULT_RPC || 'https://api.harmony.one',
   tld: process.env.TLD || '.dev.1.country', // '.1.country',
   tldLink: process.env.TLD_LINK || '.dev.1.country', // '1.country',
+  walletConnect: {
+    projectId: process.env.WALLETCONNECT_PROJECTID || ''
+  },
   emojiType: {
     ONE_ABOVE: 0,
     FIRST_PRIZE: 1,
@@ -35,7 +38,9 @@ const config = {
           symbol: 'ONE',
         },
         rpcUrls: {
-          default: 'https://api.harmony.one',
+          default: {
+            http: ['https://api.harmony.one']
+          },
         },
         blockExplorers: {
           default: { name: 'Explorer', url: 'https://explorer.harmony.one/' },

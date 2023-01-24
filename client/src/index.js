@@ -2,34 +2,16 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import Routes from './Routes'
 import { ToastContainer } from 'react-toastify'
-import { EthereumClient, modalConnectors, walletConnectProvider } from '@web3modal/ethereum'
-import { Web3Modal } from '@web3modal/react'
-import { configureChains, createClient, WagmiConfig } from 'wagmi'
 import { Helmet } from 'react-helmet'
-
-import config from '../config'
-
 import 'react-toastify/dist/ReactToastify.css'
 import './app.scss'
+import { Web3ModalProvider } from './modules/web3modal/Web3ModalProvider'
+import { WagmiConfigProvider } from './modules/wagmi/WagmiConfigProvider'
 
 document.body.ontouchstart = function () {}
 
-const projectId = process.env.WALLETCONNECT_PROJECTID
-
-const chains = [config.chainParameters]
-
-const { provider } = configureChains(chains, [walletConnectProvider({ projectId })])
-
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors: modalConnectors({ appName: 'web3Modal', chains }),
-  provider
-})
-
-export const ethereumClient = new EthereumClient(wagmiClient, chains)
-
 ReactDOM.render(
-  <WagmiConfig client={wagmiClient}>
+  <WagmiConfigProvider>
     <Helmet>
       <meta charSet='utf-8' />
       <title>.1.country | Harmony</title>
@@ -37,8 +19,8 @@ ReactDOM.render(
       {/* <link rel='icon' type='image/png' href={favicon} sizes='16x16' /> */}
     </Helmet>
     <Routes />
-    <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
+    <Web3ModalProvider />
     <ToastContainer position='top-left' />
-  </WagmiConfig>,
+  </WagmiConfigProvider>,
   document.getElementById('root')
 )

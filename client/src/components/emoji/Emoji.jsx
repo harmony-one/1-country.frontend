@@ -6,6 +6,8 @@ import { getEmojiPrice } from '../../api/index'
 import config from '../../../config'
 import { Label, Hint } from '../Text'
 import { EmojiLabelDiv, EmojisContainerRow, EmojiCounterDiv, EmojisReactionRow } from './Emoji.styles'
+import { wagmiClient } from '../../modules/wagmi/wagmiClient'
+import { useIsHarmonyNetwork } from '../../hooks/network'
 
 const baseEmojiListValues = [
   {
@@ -50,7 +52,13 @@ export const EmojiCounterContainer = ({ pageName, client }) => {
     getEmojisCounter()
   }, [])
 
+  const isHarmonyNetwork = useIsHarmonyNetwork()
+
   const reaction = async (emojiType) => {
+    if (!isHarmonyNetwork) {
+      await wagmiClient.connector.connect({ chainId: config.chainParameters.id })
+    }
+
     if (isConnected) {
       toastId.current = toast.loading('Processing transaction')
       const tx = await client.addEmojiReaction({ name: pageName, emojiType: emojiType })
