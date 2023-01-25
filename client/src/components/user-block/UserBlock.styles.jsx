@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 
 export const UserBlockDiv = styled.div`
+position: relative;
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -8,6 +9,18 @@ export const UserBlockDiv = styled.div`
   border-radius: 10px;
   padding-top: 0.5em;
 
+  .name-section {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    font-size: 0.7rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 0.5em;
+    margin-right: 0.5em;
+  }
+  
   .user-picture {
     margin: 0 auto;
     width: 4em;

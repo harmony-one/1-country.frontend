@@ -289,7 +289,7 @@ const Home = ({ subdomain = config.tld }) => {
       </FlexRow> */}
       {record?.renter && (
         <DescResponsive>
-          <UserBlock />
+          <UserBlock pageName={name} wallet={address} />
           <AppGallery />
           {/* <PageHeader>
             {record.prev &&
