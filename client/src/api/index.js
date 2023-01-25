@@ -5,6 +5,8 @@ import Constants from '../constants'
 import BN from 'bn.js'
 
 console.log('CONTRACT', process.env.CONTRACT)
+console.log('REACT_APP_SMS_WALLET_URL', process.env.REACT_APP_SMS_WALLET_URL)
+console.log('SMSWALLET_CALLBACK_VERIFY', process.env.SMSWALLET_CALLBACK_VERIFY)
 
 export const getFullName = (name) => {
   return name

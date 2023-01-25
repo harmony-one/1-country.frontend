@@ -26,6 +26,10 @@ const config = {
     phone: 2,
     telegram: 4
   },
+  smsWallet: {
+    defaultSignatureValidDuration: 1000 * 60 * 15, // used to sign request
+    callbackVerify: process.env.SMSWALLET_CALLBACK_VERIFY,
+  },
   chainParameters: process.env.CHAIN_PARAMETERS
     ? JSON.parse(process.env.CHAIN_PARAMETERS)
     : {

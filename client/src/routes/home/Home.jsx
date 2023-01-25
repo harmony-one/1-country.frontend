@@ -171,7 +171,7 @@ const Home = ({ subdomain = config.tld }) => {
     setTweetId(id.toString())
   }, [record?.url])
 
-  const isHarmonyNetwork = useIsHarmonyNetwork();
+  const isHarmonyNetwork = useIsHarmonyNetwork()
 
   const onAction = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
     if (!url && !isRenewal) {
