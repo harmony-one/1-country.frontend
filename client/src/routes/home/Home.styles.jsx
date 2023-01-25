@@ -20,6 +20,11 @@ export const HomeLabel = styled(SmallTextGrey)`
 `
 
 export const DescResponsive = styled(Desc)`
+  /* display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  justify-content: center; */
   @media(max-width: 640px){
     text-align: left;
     align-items: start;

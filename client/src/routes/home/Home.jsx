@@ -7,8 +7,9 @@ import { useAccount } from 'wagmi'
 import { Web3Button } from '@web3modal/react'
 import humanizeDuration from 'humanize-duration'
 
-import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
+// import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 
+import AppGallery from '../../components/app-gallery/AppGallery'
 import apis from '../../api'
 import config from '../../../config'
 import {
@@ -35,6 +36,7 @@ import { VanityURL } from './VanityURL'
 import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { wagmiClient } from '../../modules/wagmi/wagmiClient'
+import UserBlock from '../../components/user-block/UserBlock'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -171,7 +173,7 @@ const Home = ({ subdomain = config.tld }) => {
     setTweetId(id.toString())
   }, [record?.url])
 
-  const isHarmonyNetwork = useIsHarmonyNetwork();
+  const isHarmonyNetwork = useIsHarmonyNetwork()
 
   const onAction = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
     if (!url && !isRenewal) {
@@ -276,7 +278,7 @@ const Home = ({ subdomain = config.tld }) => {
 
   return (
     <Container>
-      <VanityURL record={record} name={name} />
+      {/* <VanityURL record={record} name={name} />
       <FlexRow style={{ alignItems: 'baseline', marginTop: 70 }}>
         <Title style={{ margin: 0 }}>{name}</Title>
         <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
@@ -284,10 +286,12 @@ const Home = ({ subdomain = config.tld }) => {
             {subdomain}
           </BaseText>
         </a>
-      </FlexRow>
+      </FlexRow> */}
       {record?.renter && (
         <DescResponsive>
-          <PageHeader>
+          <UserBlock />
+          <AppGallery />
+          {/* <PageHeader>
             {record.prev &&
               <a href={`https://${record.prev}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
                 <FlexRow style={{ gap: 16, textDecoration: 'none', color: 'black' }}>
@@ -309,7 +313,6 @@ const Home = ({ subdomain = config.tld }) => {
           {tweetId && (
             <TwitterSection tweetId={tweetId} pageName={name} client={client} />
           )}
-          {/* <Row style={{ marginTop: 32, justifyContent: 'center' }}> */}
           <Row>
             {record.url && !tweetId && (
               <Col>
@@ -326,10 +329,10 @@ const Home = ({ subdomain = config.tld }) => {
             expired={expired}
             parameters={parameters}
             humanD={humanD}
-          />
+          /> */}
         </DescResponsive>
       )}
-      {!isOwner
+      {/* {!isOwner
         ? (
           <>
             <Title style={{ textAlign: 'center' }}>
@@ -350,7 +353,7 @@ const Home = ({ subdomain = config.tld }) => {
           <Title style={{ marginTop: 32, textAlign: 'center' }}>
             You own this page
           </Title>
-          )}
+          )} */}
       {!record?.renter && (
         <Col>
           <Title>Page Not Yet Claimed</Title>
@@ -394,7 +397,7 @@ const Home = ({ subdomain = config.tld }) => {
             : (
               <Button onClick={onAction} disabled={pending}>UPDATE URL</Button>
               )}
-          {isOwner && (
+          {/* {isOwner && (
             <>
               <Title style={{ marginTop: 64 }}>Renew ownership</Title>
               <Row style={{ justifyContent: 'center' }}>
@@ -411,18 +414,18 @@ const Home = ({ subdomain = config.tld }) => {
                 RENEW
               </Button>
             </>
-          )}
-          <SmallTextGrey>Your address: {address}</SmallTextGrey>
+          )} */}
+          {/* <SmallTextGrey>Your address: {address}</SmallTextGrey> */}
         </>
       )}
-      <SmallTextGrey>
+      {/* <SmallTextGrey>
         <a
           href='https://harmony.one/domains'
           rel='noreferrer'
         >
           <SmallTextGrey> Harmony's Creator Economy & Web3 Nations </SmallTextGrey>
         </a>
-      </SmallTextGrey>
+      </SmallTextGrey> */}
       <div style={{ height: 200 }} />
     </Container>
   )
