@@ -35,8 +35,11 @@ import { VanityURL } from './VanityURL'
 import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { wagmiClient } from '../../modules/wagmi/wagmiClient'
+import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
+
+const minCentsAmount = 70
 
 const parseBN = (n) => {
   try {
@@ -92,7 +95,7 @@ const Home = ({ subdomain = config.tld }) => {
   const { isConnected, address, connector } = useAccount()
 
   // for updating stuff
-  const [url, setUrl] = useState('')
+  const [url, setUrl] = useState('https://twitter.com/WatcherGuru/status/1618245901679755264')
 
   // const name = getSubdomain()
 
@@ -171,15 +174,64 @@ const Home = ({ subdomain = config.tld }) => {
     setTweetId(id.toString())
   }, [record?.url])
 
-  const isHarmonyNetwork = useIsHarmonyNetwork();
+  const isHarmonyNetwork = useIsHarmonyNetwork()
 
-  const onAction = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
+  const onActionFiat = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
+    if (!price) {
+      console.error('No domain rental price provided, exit')
+      return
+    }
+
+    setPending(true)
+    let amount = 0
+
+    try {
+      const oneTokenPriceUsd = await getTokenPrice('harmony')
+      amount = (+price.formatted * +oneTokenPriceUsd) * 100 // price in cents
+      if (amount < minCentsAmount) {
+        console.log(`Amount ${amount} < min amount ${minCentsAmount} cents, using ${minCentsAmount} cents value. Required by Stripe.`)
+        amount = minCentsAmount
+      }
+
+      if (!amount) {
+        throw new Error(`Invalid USD amount: ${amount}`)
+      }
+
+      const pageUrl = new URL(window.location.href)
+      // const stripeCheckoutLink = `${config.payments.apiUrl}/stripe/checkout?mode=payment&amount=${amount}&successUrl=${successUrl}`
+      // window.open(stripeCheckoutLink, '_blank')
+      const stripeCheckoutLink = await createCheckoutSession({
+        amountUsd: +amount,
+        amountOne: +price.formatted,
+        domain: name,
+        url,
+        userAddress: address,
+        telegram,
+        email,
+        phone,
+        successUrl: `${pageUrl.origin}/success`,
+        cancelUrl: `${pageUrl.origin}/cancel`,
+      })
+      console.log('stripeCheckoutLink', stripeCheckoutLink)
+      window.open(stripeCheckoutLink, '_blank')
+    } catch (e) {
+      console.error('Cannot complete payment by USD:', e)
+    }
+  }
+
+  const onAction = async (params) => {
+    const { isRenewal, telegram = '', email = '', phone = '', paymentType = 'one' } = params
     if (!url && !isRenewal) {
       return toast.error('Invalid URL to embed')
     }
 
     if (!isHarmonyNetwork) {
       await wagmiClient.connector.connect({ chainId: config.chainParameters.id })
+    }
+
+    if (paymentType === 'usd') {
+      onActionFiat(params)
+      return
     }
 
     setPending(true)
@@ -389,7 +441,7 @@ const Home = ({ subdomain = config.tld }) => {
           </Row>
           {!isOwner
             ? (
-              <OwnerForm onAction={onAction} buttonLabel='Rent' pending={pending} />
+              <OwnerForm onAction={onAction} buttonLabel='Rent (ONE)' pending={pending} />
               )
             : (
               <Button onClick={onAction} disabled={pending}>UPDATE URL</Button>

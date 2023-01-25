@@ -46,7 +46,10 @@ const config = {
           default: { name: 'Explorer', url: 'https://explorer.harmony.one/' },
         },
         testnet: true,
-      }
+      },
+  payments: {
+    apiUrl: process.env.PAYMENTS_API_URL || 'http://localhost:3001'
+  }
 }
 
 export default config
