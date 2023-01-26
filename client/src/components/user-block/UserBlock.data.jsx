@@ -16,11 +16,11 @@ export const SOCIAL_MEDIA = [
     url: 'https://www.youtube.com/@Harmonyprotocol'
   },
   {
-    icon: <FaTelegram />,
-    url: 'https://harmony.one/telegram'
-  },
-  {
     icon: <FaDiscord />,
     url: 'https://harmony.one/discord'
+  },
+  {
+    icon: <FaTelegram />,
+    url: 'https://harmony.one/telegram'
   },
 ]
