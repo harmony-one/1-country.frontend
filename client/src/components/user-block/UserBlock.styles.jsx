@@ -8,7 +8,7 @@ export const UserBlockDiv = styled.div`
   flex-direction: column;
   border: 0.1px solid gray;
   border-radius: 10px;
-  padding-top: 0.5em;
+  padding-top: 2.0em;
   background-color: #FEE7E7;
 
   .status-section {

@@ -24,8 +24,9 @@ export const WidgetUserText = () => {
         <WidgetLikes />
       </WidgetHead>
       <TextContainer>
-        <p>Facebook has 100 million active users in Africa</p>
+        <p>Check out  <a style={{color: 'gray', textDecoration: 'none' }} href={"https://a.dev.1.country"}> abhinav.1</a></p>
       </TextContainer>
     </WidgetContainer>
   )
+  
 }

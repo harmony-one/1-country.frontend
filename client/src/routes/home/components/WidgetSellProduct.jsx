@@ -16,9 +16,9 @@ const ButtonBuy = styled.button`
 export const WidgetDirectSell = () => {
   return (
     <WidgetContainer>
-      <WidgetBackground image='https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/6392641f-3a4d-44f0-8759-78548c771274/air-max-dawn-mens-shoes-Rg69GM.png' />
+      <WidgetBackground image='https://static.wixstatic.com/media/b40d8c_5e0b10ec2fed43e397dfa0e4d7dfd19b~mv2.jpg/v1/fill/w_584,h_584,al_c,q_85,usm_0.66_1.00_0.01/b40d8c_5e0b10ec2fed43e397dfa0e4d7dfd19b~mv2.jpg' />
       <WidgetHead>
-        <ButtonBuy>BUY</ButtonBuy>
+        <ButtonBuy><a style={{color: 'white', textDecoration: 'none' }} href={"https://www.amazon.com/dp/B0BSP2HXQT"}> BUY</a></ButtonBuy>
         <WidgetLikes />
       </WidgetHead>
     </WidgetContainer>
