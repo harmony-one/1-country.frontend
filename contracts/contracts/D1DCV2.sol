@@ -326,9 +326,15 @@ contract D1DCV2 is
             require(success, "cannot refund excess");
         }
 
-        resetEmojiReactionCounters(name);
+        _resetEmojiReactionCounters(name);
 
         emit NameRented(name, msg.sender, price, url);
+    }
+
+    function _resetEmojiReactionCounters(string memory name) private {
+        emojiReactionCounters[keccak256(bytes(name))][EmojiType.FIRST_PRIZE] = 0;
+        emojiReactionCounters[keccak256(bytes(name))][EmojiType.ONE_ABOVE] = 0;
+        emojiReactionCounters[keccak256(bytes(name))][EmojiType.ONE_HUNDRED_PERCENT] = 0;
     }
 
     function updateURL(string calldata name, string calldata url)
@@ -386,12 +392,6 @@ contract D1DCV2 is
         }
 
         emit EmojiReactionAdded(msg.sender, name, emojiType);
-    }
-
-    function resetEmojiReactionCounters(string memory name) private {
-        emojiReactionCounters[keccak256(bytes(name))][EmojiType.FIRST_PRIZE] = 0;
-        emojiReactionCounters[keccak256(bytes(name))][EmojiType.ONE_ABOVE] = 0;
-        emojiReactionCounters[keccak256(bytes(name))][EmojiType.ONE_HUNDRED_PERCENT] = 0;
     }
 
     function addOwnerInfo(
