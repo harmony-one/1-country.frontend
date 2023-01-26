@@ -28,7 +28,7 @@ export const Col = styled(FlexColumn)`
 
 export const Main = styled(FlexColumn)`
   min-height: 100vh;
-  gap: 32px;
+  /* gap: 32px; */
   width: 100%;
   align-items: center;
 `

@@ -4,7 +4,7 @@ import { SmallTextGrey, Desc } from '../../components/Text'
 
 export const Container = styled(Main)`
   margin: 0 auto;
-  padding: 0 16px;
+  /* padding: 0 16px; */
   max-width: 800px;
   // TODO: responsive
 `
@@ -20,13 +20,15 @@ export const HomeLabel = styled(SmallTextGrey)`
 `
 
 export const DescResponsive = styled(Desc)`
-  /* display: flex;
+  width: 100%;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  align-content: center;
-  justify-content: center; */
-  @media(max-width: 640px){
+  justify-content: center;
+  text-align: center;
+
+  /* @media(max-width: 640px){
     text-align: left;
     align-items: start;
-  }
+  } */
 `

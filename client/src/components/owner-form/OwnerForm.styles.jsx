@@ -2,9 +2,11 @@ import styled from 'styled-components'
 import { FloatingText } from '../Controls'
 
 export const OwnerFormContainer = styled.div`
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   align-items: center;
 
   input {

@@ -34,7 +34,7 @@ const OwnerForm = ({ onAction, buttonLabel, pending }) => {
     <>
       <form onSubmit={handleSubmit}>
         <OwnerFormContainer>
-          <span style={{ marginTop: '1em', marginBottom: '1.5em' }}>Please fill the following information</span>
+          <span style={{ marginTop: '1em', marginBottom: '1.5em' }}>To claim this page, please fill the following information</span>
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
             <Input name='telegram' required onChange={onChange} />
             <FloatingTextInput>Telegram Handle</FloatingTextInput>
