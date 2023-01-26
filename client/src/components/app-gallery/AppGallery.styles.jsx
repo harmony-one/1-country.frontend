@@ -10,14 +10,12 @@ export const AppGalleryDiv = styled.div`
   grid-column-gap: 1.5em;
 
   @media (orientation: landscape) {
-    .video-gallery {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: 1fr auto auto;
-      grid-row-gap: 0.3em;
-      grid-column-gap: 0.3em;
-      margin-bottom: 5em;
-      overflow-y: auto;
-    }
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr auto auto;
+    grid-row-gap: 1.5em;
+    grid-column-gap: 1.5em;
+    margin-bottom: 5em;
+    overflow-y: auto;
   }
 `
