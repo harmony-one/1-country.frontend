@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const AppBlockDiv = styled.div`
-  width: 8.5em;
+  width: 1fr; //8.5em;
   height: 8.5em;
   cursor: pointer;
   overflow: hidden;
