@@ -67,22 +67,22 @@ contract D1DCV2 is
     mapping(bytes32 => mapping(EmojiType => uint256))
         public emojiReactionCounters;
 
-    /// @dev User -> key -> Timestamp got the reval permission
+    /// @dev User -> Key -> Timestamp got the reval permission
     mapping(address => mapping(bytes32 => uint256)) internal _telegramRevealAt;
 
-    /// @dev User -> key -> Timestamp got the reval permission
+    /// @dev User -> Key -> Timestamp got the reval permission
     mapping(address => mapping(bytes32 => uint256)) internal _emailRevealAt;
 
-    /// @dev User -> key -> Timestamp got the reval permission
+    /// @dev User -> Key -> Timestamp got the reval permission
     mapping(address => mapping(bytes32 => uint256)) internal _phoneRevealAt;
 
-    /// @dev key -> Timestamp the telegram info was updated
+    /// @dev Key -> Timestamp the telegram info was updated
     mapping(bytes32 => uint256) internal _telegramUpdateAt;
 
-    /// @dev key -> Timestamp the email info was updated
+    /// @dev Key -> Timestamp the email info was updated
     mapping(bytes32 => uint256) internal _emailUpdateAt;
 
-    /// @dev key -> Timestamp the phone info was updated
+    /// @dev Key -> Timestamp the phone info was updated
     mapping(bytes32 => uint256) internal _phoneUpdateAt;
 
     /// @dev Name rented lastly
@@ -91,7 +91,7 @@ contract D1DCV2 is
     /// @dev Name created lastly
     string public lastCreated;
 
-    /// @dev key list
+    /// @dev Key list
     bytes32[] public keys;
 
     /// @dev Price for the url update
@@ -106,7 +106,7 @@ contract D1DCV2 is
     /// @dev Price for the phone reveal
     uint256 public phoneRevealPrice;
 
-    /// @dev key -> Owner list
+    /// @dev Key -> Owner list
     mapping(bytes32 => address[]) public ownersOfName;
 
     /// @dev AddressRegistry contract
