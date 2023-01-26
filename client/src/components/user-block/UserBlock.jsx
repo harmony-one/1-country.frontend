@@ -20,7 +20,7 @@ const SocialMediaIcon = (props) => {
 
 const UserBlock = (props) => {
   const { pageName, wallet } = props
-  const src = 'https://images.pexels.com/photos/3763188/pexels-photo-3763188.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+  const src = 'https://ipfs.io/ipfs/QmP7ZybNFUgQWKoim9fnFPLBCyoWnZ5GT5acc8MFX9YVuC'
   const alt = 'Image text'
   return (
     <UserBlockDiv>
@@ -35,7 +35,7 @@ const UserBlock = (props) => {
         {wallet && <span>{`${truncateAddressString(wallet, 5)}`}</span>}
       </div>
       <div className='user-profile-text'>
-        Sed ut perspiciatis unde omnis iste natus
+        Insert your bio here
       </div>
       <div className='social-networks'>
         {SOCIAL_MEDIA.map((icon, index) => (
