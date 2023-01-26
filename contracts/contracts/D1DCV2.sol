@@ -285,9 +285,12 @@ contract D1DCV2 is
     ) public payable nonReentrant whenNotPaused {
         require(bytes(name).length <= 128, "D1DC: name too long");
         require(bytes(url).length <= 1024, "D1DC: url too long");
-        uint256 tokenId = uint256(keccak256(bytes(name)));
-        NameRecord storage nameRecord = nameRecords[bytes32(tokenId)];
-        uint256 price = getPrice(bytes32(tokenId));
+
+        bytes32 key = keccak256(bytes(name));
+
+        uint256 tokenId = uint256(key);
+        NameRecord storage nameRecord = nameRecords[key];
+        uint256 price = getPrice(key);
         require(price <= msg.value, "D1DC: insufficient payment");
 
         address originalOwner = nameRecord.renter;
@@ -308,6 +311,8 @@ contract D1DCV2 is
             (bool success, ) = originalOwner.call{value: priceForOwner}("");
             require(success, "error sending ether");
         } else {
+            keys.push(key);
+
             nameRecords[keccak256(bytes(lastCreated))].next = name;
             nameRecord.prev = lastCreated;
             lastCreated = name;
