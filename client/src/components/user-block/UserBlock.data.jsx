@@ -4,23 +4,28 @@ import { FaTelegram, FaDiscord } from 'react-icons/fa'
 
 export const SOCIAL_MEDIA = [
   {
-    icon: <AiFillTwitterCircle />,
-    url: 'https://twitter.com/harmonyprotocol'
+    icon: <AiFillTwitterCircle size='40px' />,
+    url: 'https://twitter.com/harmonyprotocol',
+    name: 'twitter',
   },
   {
-    icon: <AiFillInstagram />,
-    url: 'https://www.youtube.com/@Harmonyprotocol'
+    icon: <AiFillInstagram size='40px' />,
+    url: 'https://www.youtube.com/@Harmonyprotocol',
+    name: 'instagram'
   },
   {
-    icon: <AiFillYoutube />,
-    url: 'https://www.youtube.com/@Harmonyprotocol'
+    icon: <AiFillYoutube size='40px' />,
+    url: 'https://www.youtube.com/@Harmonyprotocol',
+    name: 'youtube'
   },
   {
-    icon: <FaDiscord />,
-    url: 'https://harmony.one/discord'
+    icon: <FaDiscord size='40px' />,
+    url: 'https://harmony.one/discord',
+    name: 'discord',
   },
   {
-    icon: <FaTelegram />,
-    url: 'https://harmony.one/telegram'
+    icon: <FaTelegram size='40px' />,
+    url: 'https://harmony.one/telegram',
+    name: 'telegram'
   },
 ]

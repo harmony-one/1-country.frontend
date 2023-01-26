@@ -213,7 +213,7 @@ const Home = ({ subdomain = config.tld }) => {
     <Container>
       {record?.renter && (
         <DescResponsive>
-          <UserBlock pageName={name} wallet={address} />
+          <UserBlock client={client} isOwner={isOwner} pageName={name} wallet={address} />
           <AppGallery />
           {(isOwner && isConnected && expired) && (
             <>

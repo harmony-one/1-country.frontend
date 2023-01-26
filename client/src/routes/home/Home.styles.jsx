@@ -6,6 +6,7 @@ export const Container = styled(Main)`
   margin: 0 auto;
   /* padding: 0 16px; */
   max-width: 800px;
+  background-color: #F8C1B0;
   // TODO: responsive
 `
 export const PageHeader = styled.div`
