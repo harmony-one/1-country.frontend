@@ -54,35 +54,35 @@ contract D1DCV2 is
         ONE_HUNDRED_PERCENT
     }
 
-    /// @dev TokenId -> NameRecord
+    /// @dev Key -> NameRecord
     mapping(bytes32 => NameRecord) public nameRecords;
 
-    /// @dev TokenId -> OwnerInfo
+    /// @dev Key -> OwnerInfo
     mapping(bytes32 => OwnerInfo) internal _ownerInfos;
 
     /// @dev Emoji Type -> Price
     mapping(EmojiType => uint256) public emojiReactionPrices;
 
-    /// @dev TokenId -> Emoji Type -> Counter
+    /// @dev key -> Emoji Type -> Counter
     mapping(bytes32 => mapping(EmojiType => uint256))
         public emojiReactionCounters;
 
-    /// @dev User -> Name -> Timestamp got the reval permission
+    /// @dev User -> key -> Timestamp got the reval permission
     mapping(address => mapping(bytes32 => uint256)) internal _telegramRevealAt;
 
-    /// @dev User -> Name -> Timestamp got the reval permission
+    /// @dev User -> key -> Timestamp got the reval permission
     mapping(address => mapping(bytes32 => uint256)) internal _emailRevealAt;
 
-    /// @dev User -> Name -> Timestamp got the reval permission
+    /// @dev User -> key -> Timestamp got the reval permission
     mapping(address => mapping(bytes32 => uint256)) internal _phoneRevealAt;
 
-    /// @dev TokenId -> Timestamp the telegram info was updated
+    /// @dev key -> Timestamp the telegram info was updated
     mapping(bytes32 => uint256) internal _telegramUpdateAt;
 
-    /// @dev TokenId -> Timestamp the email info was updated
+    /// @dev key -> Timestamp the email info was updated
     mapping(bytes32 => uint256) internal _emailUpdateAt;
 
-    /// @dev TokenId -> Timestamp the phone info was updated
+    /// @dev key -> Timestamp the phone info was updated
     mapping(bytes32 => uint256) internal _phoneUpdateAt;
 
     /// @dev Name rented lastly
@@ -91,7 +91,7 @@ contract D1DCV2 is
     /// @dev Name created lastly
     string public lastCreated;
 
-    /// @dev TokenId list
+    /// @dev key list
     bytes32[] public keys;
 
     /// @dev Price for the url update
@@ -106,7 +106,7 @@ contract D1DCV2 is
     /// @dev Price for the phone reveal
     uint256 public phoneRevealPrice;
 
-    /// @dev TokenId -> Owner list
+    /// @dev key -> Owner list
     mapping(bytes32 => address[]) public ownersOfName;
 
     /// @dev AddressRegistry contract
@@ -265,8 +265,8 @@ contract D1DCV2 is
 
     // User functions
 
-    function getPrice(bytes32 encodedName) public view returns (uint256) {
-        NameRecord storage nameRecord = nameRecords[encodedName];
+    function getPrice(bytes32 key) public view returns (uint256) {
+        NameRecord storage nameRecord = nameRecords[key];
         if (nameRecord.timeUpdated + rentalPeriod <= uint32(block.timestamp)) {
             return baseRentalPrice;
         }
@@ -405,7 +405,7 @@ contract D1DCV2 is
         string memory email,
         string memory phone
     ) external payable nonReentrant whenNotPaused {
-        bytes32 tokenId = keccak256(bytes(name));
+        bytes32 key = keccak256(bytes(name));
         uint256 price = msg.value;
 
         if (bytes(telegram).length != 0) {
@@ -414,8 +414,8 @@ contract D1DCV2 is
                 "D1DC: insufficient personal info payment"
             );
             price -= telegramRevealPrice;
-            _ownerInfos[tokenId].telegram = telegram;
-            _telegramRevealAt[msg.sender][tokenId] = block.timestamp;
+            _ownerInfos[key].telegram = telegram;
+            _telegramRevealAt[msg.sender][key] = block.timestamp;
         }
 
         if (bytes(email).length != 0) {
@@ -424,8 +424,8 @@ contract D1DCV2 is
                 "D1DC: insufficient personal info payment"
             );
             price -= emailRevealPrice;
-            _ownerInfos[tokenId].email = email;
-            _emailRevealAt[msg.sender][tokenId] = block.timestamp;
+            _ownerInfos[key].email = email;
+            _emailRevealAt[msg.sender][key] = block.timestamp;
         }
 
         if (bytes(phone).length != 0) {
@@ -434,8 +434,8 @@ contract D1DCV2 is
                 "D1DC: insufficient personal info payment"
             );
             price -= emailRevealPrice;
-            _ownerInfos[tokenId].email = email;
-            _phoneRevealAt[msg.sender][tokenId] = block.timestamp;
+            _ownerInfos[key].email = email;
+            _phoneRevealAt[msg.sender][key] = block.timestamp;
         }
 
         if (price > 0) {
@@ -453,14 +453,14 @@ contract D1DCV2 is
         uint256 price = telegramRevealPrice;
         require(price <= msg.value, "D1DC: insufficient telegram payment");
 
-        bytes32 tokenId = keccak256(bytes(name));
-        address owner = nameRecords[tokenId].renter;
+        bytes32 key = keccak256(bytes(name));
+        address owner = nameRecords[key].renter;
         require(owner != msg.sender, "D1DC: self reveal for telegram");
         bool success;
         if (
-            _telegramRevealAt[msg.sender][tokenId] <= _telegramUpdateAt[tokenId]
+            _telegramRevealAt[msg.sender][key] <= _telegramUpdateAt[key]
         ) {
-            _telegramRevealAt[msg.sender][tokenId] = block.timestamp;
+            _telegramRevealAt[msg.sender][key] = block.timestamp;
             (success, ) = owner.call{value: price}("");
             require(success, "error sending ether");
 
@@ -489,12 +489,12 @@ contract D1DCV2 is
         uint256 price = emailRevealPrice;
         require(price <= msg.value, "D1DC: insufficient email payment");
 
-        bytes32 tokenId = keccak256(bytes(name));
-        address owner = nameRecords[tokenId].renter;
+        bytes32 key = keccak256(bytes(name));
+        address owner = nameRecords[key].renter;
         require(owner != msg.sender, "D1DC: self reveal for email");
         bool success;
-        if (_emailRevealAt[msg.sender][tokenId] <= _emailUpdateAt[tokenId]) {
-            _emailRevealAt[msg.sender][tokenId] = block.timestamp;
+        if (_emailRevealAt[msg.sender][key] <= _emailUpdateAt[key]) {
+            _emailRevealAt[msg.sender][key] = block.timestamp;
             (success, ) = owner.call{value: price}("");
             require(success, "error sending ether");
 
@@ -523,12 +523,12 @@ contract D1DCV2 is
         uint256 price = phoneRevealPrice;
         require(price <= msg.value, "D1DC: insufficient phone payment");
 
-        bytes32 tokenId = keccak256(bytes(name));
-        address owner = nameRecords[tokenId].renter;
+        bytes32 key = keccak256(bytes(name));
+        address owner = nameRecords[key].renter;
         require(owner != msg.sender, "D1DC: self reveal for phone");
         bool success;
-        if (_phoneRevealAt[msg.sender][tokenId] <= _phoneUpdateAt[tokenId]) {
-            _phoneRevealAt[msg.sender][tokenId] = block.timestamp;
+        if (_phoneRevealAt[msg.sender][key] <= _phoneUpdateAt[key]) {
+            _phoneRevealAt[msg.sender][key] = block.timestamp;
             (success, ) = owner.call{value: price}("");
             require(success, "error sending ether");
 
@@ -554,16 +554,16 @@ contract D1DCV2 is
         returns (string memory)
     {
         address owner = nameRecords[keccak256(bytes(name))].renter;
-        bytes32 tokenId = keccak256(bytes(name));
+        bytes32 key = keccak256(bytes(name));
         if (msg.sender != owner) {
             require(
-                _telegramUpdateAt[tokenId] <
-                    _telegramRevealAt[msg.sender][tokenId],
+                _telegramUpdateAt[key] <
+                    _telegramRevealAt[msg.sender][key],
                 "D1DC: no permission for telegram reveal"
             );
         }
 
-        return _ownerInfos[tokenId].telegram;
+        return _ownerInfos[key].telegram;
     }
 
     function getOwnerEmail(string calldata name)
@@ -572,15 +572,15 @@ contract D1DCV2 is
         returns (string memory)
     {
         address owner = nameRecords[keccak256(bytes(name))].renter;
-        bytes32 tokenId = keccak256(bytes(name));
+        bytes32 key = keccak256(bytes(name));
         if (msg.sender != owner) {
             require(
-                _emailUpdateAt[tokenId] < _emailRevealAt[msg.sender][tokenId],
+                _emailUpdateAt[key] < _emailRevealAt[msg.sender][key],
                 "D1DC: no permission for email reveal"
             );
         }
 
-        return _ownerInfos[tokenId].email;
+        return _ownerInfos[key].email;
     }
 
     function getOwnerPhone(string calldata name)
@@ -589,15 +589,15 @@ contract D1DCV2 is
         returns (string memory)
     {
         address owner = nameRecords[keccak256(bytes(name))].renter;
-        bytes32 tokenId = keccak256(bytes(name));
+        bytes32 key = keccak256(bytes(name));
         if (msg.sender != owner) {
             require(
-                _phoneUpdateAt[tokenId] < _phoneRevealAt[msg.sender][tokenId],
+                _phoneUpdateAt[key] < _phoneRevealAt[msg.sender][key],
                 "D1DC: no permission for phone reveal"
             );
         }
 
-        return _ownerInfos[tokenId].phone;
+        return _ownerInfos[key].phone;
     }
 
     function _afterTokenTransfer(
@@ -606,28 +606,28 @@ contract D1DCV2 is
         uint256 firstTokenId,
         uint256 batchSize
     ) internal virtual override {
-        bytes32 tokenId = bytes32(firstTokenId);
-        NameRecord storage nameRecord = nameRecords[tokenId];
+        bytes32 key = bytes32(firstTokenId);
+        NameRecord storage nameRecord = nameRecords[key];
         nameRecord.renter = to;
 
         // reset the owner info
-        OwnerInfo storage ownerInfo = _ownerInfos[tokenId];
+        OwnerInfo storage ownerInfo = _ownerInfos[key];
         ownerInfo.telegram = "";
         ownerInfo.email = "";
         ownerInfo.phone = "";
 
         // update the owner update timestamp
-        _telegramUpdateAt[tokenId] = block.timestamp;
-        _emailUpdateAt[tokenId] = block.timestamp;
-        _phoneUpdateAt[tokenId] = block.timestamp;
+        _telegramUpdateAt[key] = block.timestamp;
+        _emailUpdateAt[key] = block.timestamp;
+        _phoneUpdateAt[key] = block.timestamp;
 
         // update the owner list
-        ownersOfName[tokenId].push(to);
+        ownersOfName[key].push(to);
 
         // set the timestamp that the name owner(renter) was updated on VanityURL
         // The vanity URL is valid only if nameOwnerUpdateAt <= vanityURLUpdatedAt
         IVanityURL vanityURL = IVanityURL(addressRegistry.vanityURL());
-        vanityURL.setNameOwnerUpdateAt(tokenId);
+        vanityURL.setNameOwnerUpdateAt(key);
     }
 
     function withdraw() external {
