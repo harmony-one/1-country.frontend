@@ -95,7 +95,7 @@ const Home = ({ subdomain = config.tld }) => {
   const { isConnected, address, connector } = useAccount()
 
   // for updating stuff
-  const [url, setUrl] = useState('https://twitter.com/WatcherGuru/status/1618245901679755264')
+  const [url, setUrl] = useState('')
 
   // const name = getSubdomain()
 
@@ -198,12 +198,10 @@ const Home = ({ subdomain = config.tld }) => {
       }
 
       const pageUrl = new URL(window.location.href)
-      // const stripeCheckoutLink = `${config.payments.apiUrl}/stripe/checkout?mode=payment&amount=${amount}&successUrl=${successUrl}`
-      // window.open(stripeCheckoutLink, '_blank')
       const stripeCheckoutLink = await createCheckoutSession({
         amountUsd: +amount,
         amountOne: +price.formatted,
-        domain: name,
+        name,
         url,
         userAddress: address,
         telegram,
@@ -212,7 +210,7 @@ const Home = ({ subdomain = config.tld }) => {
         successUrl: `${pageUrl.origin}/success`,
         cancelUrl: `${pageUrl.origin}/cancel`,
       })
-      console.log('stripeCheckoutLink', stripeCheckoutLink)
+      console.log('Stripe checkout link:', stripeCheckoutLink)
       window.open(stripeCheckoutLink, '_blank')
     } catch (e) {
       console.error('Cannot complete payment by USD:', e)

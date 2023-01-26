@@ -7,9 +7,9 @@ import {
 import { FlexRow, Row } from '../Layout'
 
 const defaultFormFields = {
-  telegram: 'artemcode',
-  email: 'tema@gmail.com',
-  phone: '123123'
+  telegram: '',
+  email: '',
+  phone: ''
 }
 const OwnerForm = ({ onAction, buttonLabel, pending }) => {
   const [formFields, setFormFields] = useState(defaultFormFields)
