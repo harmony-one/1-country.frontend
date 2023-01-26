@@ -1,14 +1,25 @@
+import React from 'react'
 import styled from 'styled-components'
 
 export const UserBlockDiv = styled.div`
-position: relative;
+  position: relative;
   display: flex;
   width: 100%;
   flex-direction: column;
   border: 0.1px solid gray;
   border-radius: 10px;
   padding-top: 0.5em;
+  background-color: #FEE7E7;
 
+  .status-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin-top: 0.5em;
+    margin-left: 0.5em;
+    font-size: 0.7rem;
+  }
+  
   .name-section {
     display: flex;
     flex-direction: column;
@@ -23,8 +34,8 @@ position: relative;
   
   .user-picture {
     margin: 0 auto;
-    width: 4em;
-    height: 4em;
+    width: 150px;
+    height: 150px;
     overflow: hidden;
 
     img {
@@ -50,4 +61,29 @@ position: relative;
     gap: 1em;
     /* justify-content: space-around; */
   }
+
+  
 `
+
+const WalletStatusCircle = styled.div`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: ${props => props.connected ? 'green' : 'red'};
+`
+
+const WalletStatusContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`
+
+export const WalletStatus = ({ connected = false, className }) => {
+  const label = connected ? 'connected' : 'not connected'
+  return (
+    <WalletStatusContainer className={className}>
+      <WalletStatusCircle connected={connected} />
+      <div style={{ paddingLeft: '4px' }}>{label}</div>
+    </WalletStatusContainer>
+  )
+}
