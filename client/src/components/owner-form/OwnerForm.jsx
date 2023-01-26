@@ -39,15 +39,15 @@ const OwnerForm = ({ onAction, buttonLabel, pending }) => {
         <OwnerFormContainer>
           <span style={{ marginTop: '1em', marginBottom: '1.5em' }}>Please fill the following information</span>
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
-            <Input name='telegram' required value={formFields.telegram} onChange={onChange} />
+            <Input name='telegram' required onChange={onChange} />
             <FloatingTextInput>Telegram Handle</FloatingTextInput>
           </Row>
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
-            <Input name='email' required value={formFields.email} onChange={onChange} type='email' />
+            <Input name='email' required onChange={onChange} type='email' />
             <FloatingTextInput>Email Address</FloatingTextInput>
           </Row>
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
-            <Input name='phone' required value={formFields.phone} onChange={onChange} />
+            <Input name='phone' required onChange={onChange} />
             <FloatingTextInput>Phone Number</FloatingTextInput>
           </Row>
           <FlexRow style={{ gap: 32 }}>

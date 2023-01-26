@@ -39,7 +39,7 @@ import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
-const minCentsAmount = 70
+const minCentsAmount = 60
 
 const parseBN = (n) => {
   try {
@@ -145,17 +145,28 @@ const Home = ({ subdomain = config.tld }) => {
     }
   }, [connector, address])
 
-  useEffect(() => {
+  const pollParams = () => {
     if (!client) {
       return
     }
     client.getParameters().then((p) => setParameters(p))
     client.getRecord({ name }).then((r) => setRecord(r))
     client.getPrice({ name }).then((p) => setPrice(p))
+  }
+
+  useEffect(() => {
+    if (!client) {
+      return
+    }
+    pollParams()
   }, [client])
 
   useEffect(() => {
     if (!parameters?.lastRented) {
+      setTimeout(() => {
+        console.log('Poll params')
+        pollParams()
+      }, 12000)
       return
     }
     client
@@ -197,12 +208,14 @@ const Home = ({ subdomain = config.tld }) => {
         throw new Error(`Invalid USD amount: ${amount}`)
       }
 
+      const tweetId = isRenewal ? {} : parseTweetId(url)
+
       const pageUrl = new URL(window.location.href)
       const stripeCheckoutLink = await createCheckoutSession({
         amountUsd: +amount,
         amountOne: +price.formatted,
         name,
-        url,
+        url: isRenewal ? '' : tweetId.tweetId.toString(),
         userAddress: address,
         telegram,
         email,
@@ -211,7 +224,7 @@ const Home = ({ subdomain = config.tld }) => {
         cancelUrl: `${pageUrl.origin}/cancel`,
       })
       console.log('Stripe checkout link:', stripeCheckoutLink)
-      window.open(stripeCheckoutLink, '_blank')
+      window.open(stripeCheckoutLink, '_self')
     } catch (e) {
       console.error('Cannot complete payment by USD:', e)
     }
