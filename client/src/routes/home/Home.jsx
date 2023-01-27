@@ -36,6 +36,7 @@ import { useClient } from '../../hooks/useClient'
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
 const Home = ({ subdomain = config.tld }) => {
+  const dispatch = useDispatch()
   const [name] = useDomainName()
   const [client] = useClient()
   const [record, setRecord] = useState(null)
@@ -47,7 +48,8 @@ const Home = ({ subdomain = config.tld }) => {
   })
 
   const [pending, setPending] = useState(false)
-
+  const smsWallet = useSelector(selectWallet)
+  const isSmsWalletConnected = useSelector(selectIsWalletConnected)
   const toastId = useRef(null)
   const { isConnected, address } = useAccount()
 

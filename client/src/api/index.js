@@ -4,7 +4,9 @@ import D1DCV2 from '../../abi/D1DCV2.json'
 import Constants from '../constants'
 import BN from 'bn.js'
 
-console.log('CONTRACT', process.env.CONTRACT)
+// console.log('CONTRACT', process.env.CONTRACT)
+// console.log('REACT_APP_SMS_WALLET_URL', process.env.REACT_APP_SMS_WALLET_URL)
+// console.log('SMSWALLET_CALLBACK_VERIFY', process.env.SMSWALLET_CALLBACK_VERIFY)
 
 export const getFullName = (name) => {
   return name
@@ -171,7 +173,7 @@ const apis = ({ web3, address }) => {
     getRecord: async ({ name }) => {
       const nameBytes = web3.utils.keccak256(name)
       const result = await contract.methods.nameRecords(nameBytes).call()
-      console.log('RESULT', result)
+      // console.log('RESULT', result)
       const [renter, timeUpdated, lastPrice, url, prev, next] = Object.keys(result).map(k => result[k])
       return {
         renter: renter === Constants.EmptyAddress ? null : renter,

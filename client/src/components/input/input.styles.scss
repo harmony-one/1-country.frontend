@@ -1,0 +1,48 @@
+.basic-input,
+.area-input {
+  width: 100%;
+  border-radius: 8px;
+  border-width: 0.5px;
+  padding: 0.4em 1.5em 0.4em;
+  margin-bottom: 1em;
+  box-sizing: border-box;
+
+  &::placeholder {
+    font-size: 0.8rem;
+    opacity: 80%;
+  }
+}
+
+.PhoneInputInput {
+  border-radius: 8px;
+  border-width: 0.5px;
+  padding: 0.4em 1.5em 0.4em;
+  width: 10em;
+
+  &::placeholder {
+    font-size: 0.8rem;
+    opacity: 80%;
+  }
+}
+
+.select-placeholder, select option[value=""] {
+  font-size: 0.8rem !important;
+  background-color: white;
+}
+
+.phone-number-input-container {
+  background-color: white;
+  padding: 0.3em 0.5em 0.3em;
+  border-radius: 10px;
+
+  .PhoneInput {
+    color: black;
+  }
+  .PhoneInputInput {
+    text-align: center;
+    // border: px ;
+    padding: 0.5em 1em 0.5em;
+
+  }
+
+}

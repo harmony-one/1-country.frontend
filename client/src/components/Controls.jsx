@@ -85,3 +85,30 @@ export const FloatingText = styled(SmallText)`
   bottom: -8px;
   margin-right: 0;
 `
+export const SmsWalletButton = styled.div`
+  width: 10.26em;
+  height: 2.5em;
+  
+  button {
+    width: 100%;
+    height: 100%;
+    background-color: #47A1FF;
+    color: white;
+    border-radius: 10px;
+    border: 0;
+  }
+`
+
+export const LogOutButton = styled(SmsWalletButton)`
+  width: 10.26em;
+  height: 2.5em;
+  
+  button {
+    width: 100%;
+    height: 100%;
+    background-color: red !important;
+    color: white;
+    border-radius: 10px;
+    border: 0;
+  }
+`
