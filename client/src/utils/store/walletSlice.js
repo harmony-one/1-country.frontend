@@ -1,14 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { PROVIDER_TYPE } from '../sms-wallet/SmsWallet.utils'
 
+const initalState = {
+  wallet: '',
+  provider: PROVIDER_TYPE.NONE,
+  isHarmony: false,
+  isWalletConnected: false
+}
 export const walletSlice = createSlice({
   name: 'wallet',
-  initialState: {
-    wallet: '',
-    provider: PROVIDER_TYPE.NONE,
-    isHarmony: false,
-    isWalletConnected: false
-  },
+  initialState: initalState,
   reducers: {
     setWallet: (state, action) => {
       state.wallet = action.payload
@@ -22,12 +23,15 @@ export const walletSlice = createSlice({
     setIsWalletConnected: (state, action) => {
       state.isWalletConnected = action.payload
     },
+    walletLogOut: (state) => {
+      return initalState // state.isWalletConnected = false
+    }
   },
 })
 
-export const { setWallet, setProvider, setIsHarmony, setIsConnected } = walletSlice.actions
+export const { setWallet, setProvider, setIsHarmony, setIsWalletConnected, walletLogOut } = walletSlice.actions
 export const selectWallet = state => state.wallet.wallet
 export const selectProvider = state => state.wallet.provider
 export const selectIsHarmony = state => state.wallet.isHarmony
-export const selectIsConnected = state => state.wallet.isWalletConnected
+export const selectIsWalletConnected = state => state.wallet.isWalletConnected
 export default walletSlice.reducer

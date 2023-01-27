@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { setWallet, setProvider, setIsHarmony } from '../../utils/store/walletSlice'
+import { setWallet, setProvider, setIsHarmony, setIsWalletConnected } from '../../utils/store/walletSlice'
 import { PROVIDER_TYPE } from '../../utils/sms-wallet/SmsWallet.utils'
 import { Container } from '../home/Home.styles'
 import { Main } from '../../components/Layout'
@@ -38,6 +38,7 @@ const Verify = () => {
     dispatch(setWallet(address))
     dispatch(setProvider(PROVIDER_TYPE.SMS_WALLET))
     dispatch(setIsHarmony(true))
+    dispatch(setIsWalletConnected(true))
 
     const doRedirect = (url) => {
       console.log('doredirect', url)

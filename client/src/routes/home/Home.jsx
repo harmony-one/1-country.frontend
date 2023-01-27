@@ -5,7 +5,7 @@ import BN from 'bn.js'
 import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
 import humanizeDuration from 'humanize-duration'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 
 import apis from '../../api'
@@ -20,6 +20,9 @@ import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { wagmiClient } from '../../modules/wagmi/wagmiClient'
 import { setPageName } from '../../utils/store/pageSlice'
+import { selectWallet, selectIsWalletConnected } from '../../utils/store/walletSlice'
+import Wallets from '../../components/wallets/Wallets'
+
 import {
   Button,
   FloatingText,
@@ -34,7 +37,6 @@ import {
   DescResponsive,
   PageHeader
 } from './Home.styles'
-import Wallets from '../../components/wallets/Wallets'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -88,13 +90,13 @@ const Home = ({ subdomain = config.tld }) => {
   })
   const [tweetId, setTweetId] = useState('')
   const [pending, setPending] = useState(false)
-
+  const smsWallet = useSelector(selectWallet)
+  const isSmsWalletConnected = useSelector(selectIsWalletConnected)
   const toastId = useRef(null)
   const { isConnected, address, connector } = useAccount()
 
   // for updating stuff
   const [url, setUrl] = useState('')
-
   // const name = getSubdomain()
 
   const isOwner =
@@ -109,10 +111,8 @@ const Home = ({ subdomain = config.tld }) => {
       if (!window) {
         return null
       }
-      console.log('getSubDomain()', window.location.host)
       const host = window.location.host
       const parts = host.split('.')
-      console.log(host, parts, parts.length)
       if (parts.length <= 2) {
         return ''
       }
@@ -125,10 +125,22 @@ const Home = ({ subdomain = config.tld }) => {
     const name = getSubdomain()
     setName(name)
     dispatch(setPageName(name))
-    const web3 = new Web3(config.defaultRPC)
-    const api = apis({ web3, address })
-    setClient(api)
+    if (!smsWallet && !address) {
+      const web3 = new Web3(config.defaultRPC)
+      const api = apis({ web3, address })
+      setClient(api)
+    }
   }, [])
+
+  useEffect(() => {
+    const web3 = new Web3(config.defaultRPC)
+    const api = apis({ web3, smsWallet })
+    setClient(api)
+    api.getPrice({ name }).then((p) => {
+      setPrice(p)
+    })
+  },
+  [smsWallet])
 
   useEffect(() => {
     const callApi = async () => {
@@ -373,8 +385,8 @@ const Home = ({ subdomain = config.tld }) => {
           </Col>
         </Col>
       )}
-      {!isConnected && (
-        <Wallets />)}
+      {/* {(!isConnected && !smsWallet) && ( */}
+      <Wallets isConnected={isConnected || isSmsWalletConnected} />
       {/* {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>} */}
 
       {address && (
