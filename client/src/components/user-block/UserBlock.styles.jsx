@@ -34,8 +34,8 @@ export const UserBlockDiv = styled.div`
   
   .user-picture {
     margin: 0 auto;
-    width: 150px;
-    height: 150px;
+    width: 125px;
+    height: 125px;
     overflow: hidden;
 
     img {
@@ -49,11 +49,11 @@ export const UserBlockDiv = styled.div`
   .user-profile-text {
     padding-top: 0.6em;
     text-align: center;
-    font-size: 0.6rem;
+    font-size: 0.8rem;
   }
 
   .social-networks {
-    padding-top: 0.6em;
+    padding-top: 0.4em;
     display: flex;
     flex-direction: row;
     align-items: center;

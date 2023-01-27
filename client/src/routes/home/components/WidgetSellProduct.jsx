@@ -6,7 +6,7 @@ import { WidgetHead } from './WidgetHead'
 import { WidgetLikes } from './WidgetLikes'
 
 const ButtonBuy = styled.button`
-  border-radius: 30px;
+  border-radius: 10px;
   background-color: #333333;
   color: white;
   padding: 4px 12px;

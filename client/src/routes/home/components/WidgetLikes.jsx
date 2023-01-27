@@ -6,7 +6,7 @@ export const WidgetLikes = ({ children }) => {
     <div>
       <AiFillHeart />
       <div>
-        {Math.floor(Math.random() * 101)}
+        {Math.floor(Math.random() * 501)}
       </div>
     </div>
   )
