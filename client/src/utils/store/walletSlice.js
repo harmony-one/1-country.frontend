@@ -24,7 +24,7 @@ export const walletSlice = createSlice({
       state.isWalletConnected = action.payload
     },
     walletLogOut: (state) => {
-      return initalState // state.isWalletConnected = false
+      return initalState
     }
   },
 })
