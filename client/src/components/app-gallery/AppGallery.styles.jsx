@@ -19,3 +19,8 @@ export const AppGalleryDiv = styled.div`
     overflow-y: auto;
   }
 `
+
+export const AppGalleryItem = styled.div`
+  grid-row: ${props => props.row};
+  grid-column: ${props => props.column};
+`

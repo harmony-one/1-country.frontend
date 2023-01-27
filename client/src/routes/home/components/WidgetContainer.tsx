@@ -6,8 +6,13 @@ const Container = styled.div`
   overflow: hidden;
   position: relative;
   min-height: 8.5em;
+  height: 100%;
 `
 
-export const WidgetContainer = ({ children }) => {
+interface Props {
+  children: React.ReactNode | React.ReactNode[]
+}
+
+export const WidgetContainer: React.FC<Props> = ({ children }) => {
   return <Container>{children}</Container>
 }
