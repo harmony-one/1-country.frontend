@@ -4,28 +4,12 @@ import Web3 from 'web3'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
-import { Web3Button } from '@web3modal/react'
 import humanizeDuration from 'humanize-duration'
-
+import { useDispatch } from 'react-redux'
 import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 
 import apis from '../../api'
 import config from '../../../config'
-import {
-  Button,
-  FloatingText,
-  Input,
-  LinkWrarpper,
-} from '../../components/Controls'
-
-import { Col, FlexRow, Row } from '../../components/Layout'
-import { BaseText, DescLeft, SmallTextGrey, Title } from '../../components/Text'
-import {
-  Container,
-  HomeLabel,
-  DescResponsive,
-  PageHeader
-} from './Home.styles'
 import RecordInfo from '../../components/record-info/RecordInfo'
 import TwitterSection from '../../components/twitter-section/TwitterSection'
 // import OwnerInfo from '../../components/owner-info/OwnerInfo'
@@ -35,6 +19,22 @@ import { VanityURL } from './VanityURL'
 import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { wagmiClient } from '../../modules/wagmi/wagmiClient'
+import { setPageName } from '../../utils/store/pageSlice'
+import {
+  Button,
+  FloatingText,
+  Input,
+  LinkWrarpper,
+} from '../../components/Controls'
+import { Col, FlexRow, Row } from '../../components/Layout'
+import { BaseText, DescLeft, SmallTextGrey, Title } from '../../components/Text'
+import {
+  Container,
+  HomeLabel,
+  DescResponsive,
+  PageHeader
+} from './Home.styles'
+import Wallets from '../../components/wallets/Wallets'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -76,6 +76,7 @@ const parseTweetId = (urlInput) => {
 }
 
 const Home = ({ subdomain = config.tld }) => {
+  const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [client, setClient] = useState(apis({}))
   const [record, setRecord] = useState(null)
@@ -121,7 +122,9 @@ const Home = ({ subdomain = config.tld }) => {
       return parts.slice(0, parts.length - 2).join('.')
     }
 
-    setName(getSubdomain())
+    const name = getSubdomain()
+    setName(name)
+    dispatch(setPageName(name))
     const web3 = new Web3(config.defaultRPC)
     const api = apis({ web3, address })
     setClient(api)
@@ -370,7 +373,8 @@ const Home = ({ subdomain = config.tld }) => {
           </Col>
         </Col>
       )}
-      {!isConnected && <Web3Button />}
+      {!isConnected && (
+        <Wallets />)}
       {/* {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>} */}
 
       {address && (

@@ -6,8 +6,8 @@ const config = {
   contractVanityURL: process.env.CONTRACT_VANITY_URL || '0x88a1afC4134f385337Dd5F530D452079fC9E14CC', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
   explorer: process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
   defaultRPC: process.env.DEFAULT_RPC || 'https://api.harmony.one',
-  tld: process.env.TLD || '.dev.1.country', // '.1.country',
-  tldLink: process.env.TLD_LINK || '.dev.1.country', // '1.country',
+  tld: process.env.TLD || '.dev.1.localhost:3100', // .dev.1.country', // '.1.country',
+  tldLink: process.env.TLD_LINK || '.dev.1.localhost:3100', // '1.country',
   walletConnect: {
     projectId: process.env.WALLETCONNECT_PROJECTID || ''
   },

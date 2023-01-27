@@ -3,7 +3,7 @@ import PhoneInput from 'react-phone-number-input'
 
 import 'react-phone-number-input/style.css'
 
-import './input.styles.scss'
+import './Input.styles.scss'
 
 const PhoneNumberInput = (props) => {
   const { name, defaultCountry, value, ...otherProps } = props
