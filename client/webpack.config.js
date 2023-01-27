@@ -29,7 +29,7 @@ module.exports = {
     noParse: /\.wasm$/,
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(js|jsx|ts|tsx)$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
@@ -42,6 +42,7 @@ module.exports = {
                   modules: 'cjs'
                 }],
               '@babel/preset-react',
+              '@babel/preset-typescript'
             ]
           }
         }
@@ -106,7 +107,7 @@ module.exports = {
   },
   resolve: {
     modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
-    extensions: ['.jsx', '.js'],
+    extensions: ['.jsx', '.js', '.ts', '.tsx'],
     fallback: {
       crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
