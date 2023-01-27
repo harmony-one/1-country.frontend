@@ -10,9 +10,10 @@ const Container = styled.div`
 `
 
 interface Props {
-  children: React.ReactNode | React.ReactNode[]
+  children: React.ReactNode | React.ReactNode[];
+  onClick?: () => void;
 }
 
-export const WidgetContainer: React.FC<Props> = ({ children }) => {
-  return <Container>{children}</Container>
+export const WidgetContainer: React.FC<Props> = ({ children, onClick = () => undefined }) => {
+  return <Container onClick={onClick}>{children}</Container>
 }

@@ -31,13 +31,12 @@ const Box = styled.div`
 `
 
 interface LockProps {
-  onClick: () => void;
   price: number
 }
 
-const Lock: React.FC<LockProps> = ({onClick, price}) => {
+const Lock: React.FC<LockProps> = ({price}) => {
   return (
-    <LockWrapper onClick={onClick}>
+    <LockWrapper>
       <Box>
         <SlLock size="40px" color="white" />
         <div style={{marginTop: '8px'}}>Unlock for {price} ONE</div>
@@ -56,20 +55,25 @@ export const WidgetNFT: React.FC<Props> = ({preview, price}) => {
   const { open } = useWeb3Modal()
 
   const [lock, setLock] = useState(true);
-  const handleClickUnlock = useCallback(() => {
+  const handleClick = useCallback(() => {
 
     if (!isConnected) {
       open({ route: 'ConnectWallet' })
       return
     }
 
-    setLock(false);
-  }, [isConnected, open]);
+    if (lock) {
+      setLock(false);
+      return;
+    }
+
+    window.open(preview, '_blank')
+  }, [isConnected, open, lock]);
 
   return (
-    <WidgetContainer>
+    <WidgetContainer onClick={handleClick}>
       <WidgetBackground image={preview} />
-      {lock && <Lock price={price} onClick={handleClickUnlock} />}
+      {lock && <Lock price={price} />}
       <WidgetHead>
         <WidgetLikes />
       </WidgetHead>
