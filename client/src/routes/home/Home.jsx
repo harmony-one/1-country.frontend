@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Web3 from 'web3'
+import { Helmet } from 'react-helmet'
 // import detectEthereumProvider from '@metamask/detect-provider'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
@@ -210,6 +211,9 @@ const Home = ({ subdomain = config.tld }) => {
 
   return (
     <Container>
+      <Helmet>
+        <title>{name}.1 | Harmony</title>
+      </Helmet>
       {record?.renter && (
         <DescResponsive>
           <UserBlock client={client} isOwner={isOwner} pageName={name} wallet={address} />
