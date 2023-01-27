@@ -4,7 +4,6 @@ import Web3 from 'web3'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
-import { Web3Button } from '@web3modal/react'
 import humanizeDuration from 'humanize-duration'
 
 // import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
@@ -268,7 +267,6 @@ const Home = ({ subdomain = config.tld }) => {
           )}
         </DescResponsive>
       )}
-      {!isConnected && <Web3Button />}
       {/* {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>} */}
       <div style={{ height: 50 }} />
     </Container>
