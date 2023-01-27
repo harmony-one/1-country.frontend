@@ -7,6 +7,8 @@ import { SOCIAL_MEDIA } from './UserBlock.data'
 import { UserBlockDiv, WalletStatus } from './UserBlock.styles'
 import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
+import { useClient } from '../../hooks/useClient'
+import { useDomainName } from '../../hooks/useDomainName'
 
 const SocialMediaIcon = (props) => {
   const { children, url, onClick } = props
@@ -31,7 +33,10 @@ const defaultOwnerInfo = {
 }
 
 const UserBlock = (props) => {
-  const { pageName, wallet, client, isOwner } = props
+  const { wallet, isOwner } = props
+
+  const [pageName] = useDomainName()
+  const [client] = useClient()
   const src = 'https://ipfs.io/ipfs/QmP7ZybNFUgQWKoim9fnFPLBCyoWnZ5GT5acc8MFX9YVuC'
   const alt = 'Image text'
 

@@ -5,6 +5,8 @@ import { WidgetContainer } from './WidgetContainer'
 import { WidgetBackground } from './WidgetBackground'
 import { WidgetHead } from './WidgetHead'
 import { WidgetLikes } from './WidgetLikes'
+import { useAccount } from "wagmi";
+import {useWeb3Modal} from "@web3modal/react";
 
 const LockWrapper = styled.div`
   position: absolute;
@@ -29,31 +31,45 @@ const Box = styled.div`
 `
 
 interface LockProps {
-  onClick: () => void
+  onClick: () => void;
+  price: number
 }
 
-const Lock: React.FC<LockProps> = ({onClick}) => {
+const Lock: React.FC<LockProps> = ({onClick, price}) => {
   return (
     <LockWrapper onClick={onClick}>
       <Box>
         <SlLock size="40px" color="white" />
-        <div style={{marginTop: '8px'}}>Unlock 100 ONE</div>
+        <div style={{marginTop: '8px'}}>Unlock for {price} ONE</div>
       </Box>
     </LockWrapper>
   );
 }
 
-export const WidgetNFT = () => {
+interface Props {
+  price: number,
+  preview: string;
+}
+
+export const WidgetNFT: React.FC<Props> = ({preview, price}) => {
+  const { isConnected } = useAccount()
+  const { open } = useWeb3Modal()
 
   const [lock, setLock] = useState(true);
   const handleClickUnlock = useCallback(() => {
+
+    if (!isConnected) {
+      open({ route: 'ConnectWallet' })
+      return
+    }
+
     setLock(false);
-  }, []);
+  }, [isConnected, open]);
 
   return (
     <WidgetContainer>
-      <WidgetBackground image='https://thumbor.forbes.com/thumbor/fit-in/900x510/https://www.forbes.com/advisor/in/wp-content/uploads/2022/03/monkey-g412399084_1280.jpg' />
-      {lock && <Lock onClick={handleClickUnlock} />}
+      <WidgetBackground image={preview} />
+      {lock && <Lock price={price} onClick={handleClickUnlock} />}
       <WidgetHead>
         <WidgetLikes />
       </WidgetHead>

@@ -18,8 +18,15 @@ const AppGallery = () => {
       <WidgetDirectSell />
       <WidgetUserText />
       <AppGalleryItem row='span 2'>
-        <WidgetNFT />
+        <WidgetNFT
+          price={100}
+          preview='https://i.seadn.io/gae/xvo_23hMeLYQ2SaNaDIhSvgKRLWIbFiSSigLDk1dqG1W6CT7zSUWBzfZrj06g7jskdYML7kMO5KE-OvDhBdEWV1SI19urbatIXfrmA4?auto=format&w=750'
+        />
       </AppGalleryItem>
+      <WidgetNFT
+        price={100}
+        preview='https://ik.imagekit.io/bayc/assets/ape1.png'
+      />
       {appList.length > 0 &&
         appList.map((app, index) => (
           <AppBlock src={app.img} url={app.url} alt={app.alt} key={index} />

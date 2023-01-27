@@ -10,7 +10,6 @@ import humanizeDuration from 'humanize-duration'
 // import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 
 import AppGallery from '../../components/app-gallery/AppGallery'
-import apis from '../../api'
 import config from '../../../config'
 import {
   Button,
@@ -31,12 +30,14 @@ import { VanityURL } from './VanityURL'
 import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { wagmiClient } from '../../modules/wagmi/wagmiClient'
 import UserBlock from '../../components/user-block/UserBlock'
+import { useDomainName } from '../../hooks/useDomainName'
+import { useClient } from '../../hooks/useClient'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
 const Home = ({ subdomain = config.tld }) => {
-  const [name, setName] = useState('')
-  const [client, setClient] = useState(apis({}))
+  const [name] = useDomainName()
+  const [client] = useClient()
   const [record, setRecord] = useState(null)
   const [lastRentedRecord, setLastRentedRecord] = useState(null)
   const [price, setPrice] = useState(null)
@@ -48,7 +49,7 @@ const Home = ({ subdomain = config.tld }) => {
   const [pending, setPending] = useState(false)
 
   const toastId = useRef(null)
-  const { isConnected, address, connector } = useAccount()
+  const { isConnected, address } = useAccount()
 
   const isOwner =
     address &&
@@ -58,43 +59,12 @@ const Home = ({ subdomain = config.tld }) => {
   useDefaultNetwork()
 
   useEffect(() => {
-    const getSubdomain = () => {
-      if (!window) {
-        return null
-      }
-      console.log('getSubDomain()', window.location.host)
-      const host = window.location.host
-      const parts = host.split('.')
-      console.log(host, parts, parts.length)
-      if (parts.length <= 2) {
-        return ''
-      }
-      if (parts.length <= 4) { // 3 CHANGE FOR PRODUCTION
-        return parts[0]
-      }
-      return parts.slice(0, parts.length - 2).join('.')
-    }
-
-    setName(getSubdomain())
-    const web3 = new Web3(config.defaultRPC)
-    const api = apis({ web3, address })
-    setClient(api)
-  }, [])
-
-  useEffect(() => {
-    const callApi = async () => {
-      const provider = await connector.getProvider()
-      const web3 = new Web3(provider)
-      const api = apis({ web3, address })
-      setClient(api)
-      api.getPrice({ name }).then((p) => {
+    if (client) {
+      client.getPrice({ name }).then((p) => {
         setPrice(p)
       })
     }
-    if (connector && address) {
-      callApi()
-    }
-  }, [connector, address])
+  }, [client, name])
 
   useEffect(() => {
     if (!client) {
@@ -216,7 +186,7 @@ const Home = ({ subdomain = config.tld }) => {
       </Helmet>
       {record?.renter && (
         <DescResponsive>
-          <UserBlock client={client} isOwner={isOwner} pageName={name} wallet={address} />
+          <UserBlock isOwner={isOwner} wallet={address} />
           <AppGallery />
           {(isOwner && isConnected && expired) && (
             <>
