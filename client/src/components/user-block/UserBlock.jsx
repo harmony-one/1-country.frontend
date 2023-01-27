@@ -6,7 +6,6 @@ import { truncateAddressString } from '../../utils/utils'
 import { SOCIAL_MEDIA } from './UserBlock.data'
 import { UserBlockDiv, WalletStatus } from './UserBlock.styles'
 import { toast } from 'react-toastify'
-import { useAccount } from 'wagmi'
 import { useClient } from '../../hooks/useClient'
 import { useDomainName } from '../../hooks/useDomainName'
 
@@ -33,10 +32,10 @@ const defaultOwnerInfo = {
 }
 
 const UserBlock = (props) => {
-  const { wallet, isOwner } = props
+  const { isOwner } = props
 
   const [pageName] = useDomainName()
-  const [client] = useClient()
+  const [client, walletAddress, isClientConnected] = useClient()
   const src = 'https://ipfs.io/ipfs/QmP7ZybNFUgQWKoim9fnFPLBCyoWnZ5GT5acc8MFX9YVuC'
   const alt = 'Image text'
 
@@ -61,12 +60,12 @@ const UserBlock = (props) => {
 
   const toastId = useRef(null)
 
-  const { isConnected } = useAccount()
+  // const { isConnected } = useAccount()
 
   const { open } = useWeb3Modal()
 
   const reveal = async (infoName) => {
-    if (isConnected) {
+    if (isClientConnected) {
       toastId.current = toast.loading('Processing transaction')
 
       const info = await client.revealInfo({ name: pageName, info: infoName })
@@ -99,7 +98,7 @@ const UserBlock = (props) => {
   }
 
   const handleSocialClick = useCallback(async (icon) => {
-    if (!isConnected) {
+    if (!isClientConnected) {
       await open({ route: 'ConnectWallet' })
     }
 
@@ -114,7 +113,7 @@ const UserBlock = (props) => {
     if (infoName === 'telegram' && infoValue) {
       return redirectToTelegram(infoValue)
     }
-  }, [ownerInfo, isConnected])
+  }, [ownerInfo, isClientConnected])
 
   return (
     <UserBlockDiv>
@@ -124,10 +123,10 @@ const UserBlock = (props) => {
           alt={alt}
         />
       </div>
-      <WalletStatus className='status-section' connected={isConnected} />
+      <WalletStatus className='status-section' connected={isClientConnected} />
       <div className='name-section'>
         <span>{`${pageName}.1`}</span>
-        {wallet && <span>{`${truncateAddressString(wallet, 5)}`}</span>}
+        {walletAddress && <span>{`${truncateAddressString(walletAddress, 5)}`}</span>}
       </div>
       <div className='user-profile-text'>
         Insert your bio here

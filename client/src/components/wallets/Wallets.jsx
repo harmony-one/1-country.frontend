@@ -1,16 +1,18 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Web3Button } from '@web3modal/react'
-import { useDispatch } from 'react-redux'
-import { useDisconnect } from 'wagmi'
+import { useDispatch, useSelector } from 'react-redux'
+import { useDisconnect, useAccount } from 'wagmi'
 import { useHistory } from 'react-router'
 
-import { walletLogOut } from '../../utils/store/walletSlice'
+import { walletLogOut, selectIsWalletConnected } from '../../utils/store/walletSlice'
 
 import { LogOutButton, SmsWalletButton } from '../Controls'
 import { FlexColumn } from '../Layout'
 
-const Wallets = (props) => {
-  const { isConnected } = props
+const Wallets = () => {
+  const [dispatchLogOut, setDispatchLogOut] = useState(false)
+  const { isConnected } = useAccount()
+  const isWalletConnected = useSelector(selectIsWalletConnected)
   const { disconnect } = useDisconnect()
   const dispatch = useDispatch()
   const history = useHistory()
@@ -20,13 +22,17 @@ const Wallets = (props) => {
   }
 
   const logOut = () => {
-    disconnect()
-    dispatch(walletLogOut())
+    isConnected && disconnect()
+    isWalletConnected && setDispatchLogOut(true)
   }
+
+  useEffect(() => {
+    dispatchLogOut && dispatch(walletLogOut(false))
+  }, [dispatchLogOut])
 
   return (
     <FlexColumn style={{ gap: '0.5em' }}>
-      {!isConnected
+      {(!isConnected && !isWalletConnected)
         ? (
           <>
             <SmsWalletButton>

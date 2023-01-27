@@ -1,4 +1,6 @@
-import {useState} from "react";
+import { useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { setPageName } from '../utils/store/pageSlice'
 
 const getDomainName = () => {
   if (!window) {
@@ -18,6 +20,16 @@ const getDomainName = () => {
 }
 
 export const useDomainName = () => {
-  const [domainName, setDomainName] = useState(getDomainName());
-  return [domainName];
+  const [domainName, setDomainName] = useState()
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (!domainName) {
+      const name = getDomainName()
+      setDomainName(name)
+      dispatch(setPageName(name))
+    }
+  }, [domainName])
+
+  return [domainName]
 }

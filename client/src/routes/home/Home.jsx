@@ -1,16 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Web3 from 'web3'
-import { Helmet } from 'react-helmet'
+// import { Helmet } from 'react-helmet'
 // import detectEthereumProvider from '@metamask/detect-provider'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
-import { useAccount } from 'wagmi'
 import humanizeDuration from 'humanize-duration'
-
 // import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
-
 import AppGallery from '../../components/app-gallery/AppGallery'
 import config from '../../../config'
+
+// import OwnerInfo from '../../components/owner-info/OwnerInfo'
+import LastPurchase from '../../components/last-purchase/LastPurchase'
+import OwnerForm from '../../components/owner-form/OwnerForm'
+import { VanityURL } from './VanityURL'
+import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
+import { wagmiClient } from '../../modules/wagmi/wagmiClient'
+import UserBlock from '../../components/user-block/UserBlock'
+import { useDomainName } from '../../hooks/useDomainName'
+import { useClient } from '../../hooks/useClient'
+// import { selectIsWalletConnected } from '../../utils/store/walletSlice'
+import Wallets from '../../components/wallets/Wallets'
+
 import {
   Button,
   LinkWrarpper,
@@ -23,22 +32,10 @@ import {
   HomeLabel,
   DescResponsive,
 } from './Home.styles'
-// import OwnerInfo from '../../components/owner-info/OwnerInfo'
-import LastPurchase from '../../components/last-purchase/LastPurchase'
-import OwnerForm from '../../components/owner-form/OwnerForm'
-import { VanityURL } from './VanityURL'
-import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
-import { wagmiClient } from '../../modules/wagmi/wagmiClient'
-import UserBlock from '../../components/user-block/UserBlock'
-import { useDomainName } from '../../hooks/useDomainName'
-import { useClient } from '../../hooks/useClient'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
 const Home = ({ subdomain = config.tld }) => {
-  const dispatch = useDispatch()
-  const [name] = useDomainName()
-  const [client] = useClient()
   const [record, setRecord] = useState(null)
   const [lastRentedRecord, setLastRentedRecord] = useState(null)
   const [price, setPrice] = useState(null)
@@ -46,17 +43,16 @@ const Home = ({ subdomain = config.tld }) => {
     rentalPeriod: 0,
     priceMultiplier: 0,
   })
-
+  const [name] = useDomainName()
+  const [client, walletAddress, isClientConnected] = useClient()
   const [pending, setPending] = useState(false)
-  const smsWallet = useSelector(selectWallet)
-  const isSmsWalletConnected = useSelector(selectIsWalletConnected)
   const toastId = useRef(null)
-  const { isConnected, address } = useAccount()
+  // const { isConnected, address } = useAccount()
 
   const isOwner =
-    address &&
+    walletAddress &&
     record?.renter &&
-    record.renter.toLowerCase() === address.toLowerCase()
+    record.renter.toLowerCase() === walletAddress.toLowerCase()
 
   useDefaultNetwork()
 
@@ -183,14 +179,14 @@ const Home = ({ subdomain = config.tld }) => {
 
   return (
     <Container>
-      <Helmet>
+      {/* <Helmet>
         <title>{name}.1 | Harmony</title>
-      </Helmet>
+      </Helmet> */}
       {record?.renter && (
         <DescResponsive>
-          <UserBlock isOwner={isOwner} wallet={address} />
+          <UserBlock isOwner={isOwner} />
           <AppGallery />
-          {(isOwner && isConnected && expired) && (
+          {(isOwner && isClientConnected && expired) && (
             <>
               <Title>Renew ownership</Title>
               <Row style={{ justifyContent: 'center' }}>
@@ -238,12 +234,13 @@ const Home = ({ subdomain = config.tld }) => {
               </Row>
             </Col>
           </Col>
-          {isConnected && (
+          {isClientConnected && (
             <OwnerForm onAction={onAction} buttonLabel='Rent' pending={pending} />
           )}
         </DescResponsive>
       )}
       {/* {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>} */}
+      <Wallets />
       <div style={{ height: 50 }} />
     </Container>
   )
