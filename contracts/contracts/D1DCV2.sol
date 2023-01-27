@@ -112,6 +112,15 @@ contract D1DCV2 is
     /// @dev AddressRegistry contract
     IAddressRegistry public addressRegistry;
 
+    /// @dev Total domain purchase counter
+    uint256 public totalDomainPurchaseCounter;
+
+    /// @dev Total emoji reaction counter
+    uint256 public totalEmojiReactionCounter;
+
+    /// @dev Total owner info reveal counter
+    uint256 public totalOwnerInfoRevealCounter;
+
     event NameRented(
         string indexed name,
         address indexed renter,
@@ -257,6 +266,9 @@ contract D1DCV2 is
         }
         lastCreated = _names[_names.length - 1];
         lastRented = lastCreated;
+
+        // increase the domain purchase counter
+        totalDomainPurchaseCounter += _records.length;
     }
 
     function finishNameInitialization() external onlyOwner {
@@ -331,7 +343,11 @@ contract D1DCV2 is
             require(success, "cannot refund excess");
         }
 
+        // reset the emoji reaction counter
         _resetEmojiReactionCounters(name);
+
+        // increase the domain purchase counter
+        ++totalDomainPurchaseCounter;
 
         emit NameRented(name, msg.sender, price, url);
     }
@@ -379,6 +395,9 @@ contract D1DCV2 is
     {
         // add the emoji reaction
         ++emojiReactionCounters[keccak256(bytes(name))][emojiType];
+
+        // increase the total emoji reaction counter
+        ++totalEmojiReactionCounter;
 
         // handle the payment
         uint256 price = emojiReactionPrices[emojiType];
@@ -470,6 +489,9 @@ contract D1DCV2 is
                 (success, ) = msg.sender.call{value: excess}("");
                 require(success, "cannot refund excess");
             }
+
+            // increase the total owner info reveal counter
+            _increaseTotalOwnerInfoRevealCounter();
         } else {
             // since the requester already has the permission, returns the all payment
             uint256 excess = msg.value;
@@ -504,6 +526,9 @@ contract D1DCV2 is
                 (success, ) = msg.sender.call{value: excess}("");
                 require(success, "cannot refund excess");
             }
+
+            // increase the total owner info reveal counter
+            _increaseTotalOwnerInfoRevealCounter();
         } else {
             // since the requester already has the permission, returns the all payment
             uint256 excess = msg.value;
@@ -538,6 +563,9 @@ contract D1DCV2 is
                 (success, ) = msg.sender.call{value: excess}("");
                 require(success, "cannot refund excess");
             }
+
+            // increase the total owner info reveal counter
+            _increaseTotalOwnerInfoRevealCounter();
         } else {
             // since the requester already has the permission, returns the all payment
             uint256 excess = msg.value;
@@ -546,6 +574,10 @@ contract D1DCV2 is
                 require(success, "cannot refund excess");
             }
         }
+    }
+
+    function _increaseTotalOwnerInfoRevealCounter() internal {
+        ++totalOwnerInfoRevealCounter;
     }
 
     function getOwnerTelegram(string calldata name)
