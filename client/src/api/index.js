@@ -19,6 +19,7 @@ export const getEmojiPrice = (emojiType) => {
 }
 
 const apis = ({ web3, address }) => {
+  console.log('apis', web3, address)
   if (!web3) {
     return
   }
@@ -26,6 +27,7 @@ const apis = ({ web3, address }) => {
   const contract = new Contract(D1DCV2, config.contract)
 
   const getOwnerInfo = async (name, info) => {
+    console.log('getOwnerInfo', name, info, address)
     try {
       if (name) {
         let getMethod = ''
@@ -98,6 +100,7 @@ const apis = ({ web3, address }) => {
     revealInfo: async ({ name, info }) => {
       const amount = web3.utils.toWei(new BN(config.infoRevealPrice[info]).toString())
       console.log('reveal info', name, info, config.infoRevealPrice[info])
+      console.log('reveal info address', address)
       try {
         if (name) {
           let revealMethod = ''

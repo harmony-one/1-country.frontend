@@ -6,10 +6,9 @@ const getDomainName = () => {
   if (!window) {
     return null
   }
-  console.log('getSubDomain()', window.location.host)
+  // console.log('getSubDomain()', window.location.host)
   const host = window.location.host
   const parts = host.split('.')
-  console.log(host, parts, parts.length)
   if (parts.length <= 2) {
     return ''
   }
@@ -20,7 +19,7 @@ const getDomainName = () => {
 }
 
 export const useDomainName = () => {
-  const [domainName, setDomainName] = useState()
+  const [domainName, setDomainName] = useState<string>()
   const dispatch = useDispatch()
 
   useEffect(() => {

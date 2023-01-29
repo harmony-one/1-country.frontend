@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Web3Button } from '@web3modal/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDisconnect, useAccount } from 'wagmi'
 import { useHistory } from 'react-router'
-
 import { walletLogOut, selectIsWalletConnected } from '../../utils/store/walletSlice'
 
 import { LogOutButton, SmsWalletButton } from '../Controls'
 import { FlexColumn } from '../Layout'
 
 const Wallets = () => {
-  const [dispatchLogOut, setDispatchLogOut] = useState(false)
   const { isConnected } = useAccount()
   const isWalletConnected = useSelector(selectIsWalletConnected)
   const { disconnect } = useDisconnect()
@@ -23,12 +21,8 @@ const Wallets = () => {
 
   const logOut = () => {
     isConnected && disconnect()
-    isWalletConnected && setDispatchLogOut(true)
+    isWalletConnected && dispatch(walletLogOut(false))
   }
-
-  useEffect(() => {
-    dispatchLogOut && dispatch(walletLogOut(false))
-  }, [dispatchLogOut])
 
   return (
     <FlexColumn style={{ gap: '0.5em' }}>

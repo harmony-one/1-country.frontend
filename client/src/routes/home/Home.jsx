@@ -7,7 +7,6 @@ import humanizeDuration from 'humanize-duration'
 // import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 import AppGallery from '../../components/app-gallery/AppGallery'
 import config from '../../../config'
-
 // import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
@@ -16,7 +15,7 @@ import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { wagmiClient } from '../../modules/wagmi/wagmiClient'
 import UserBlock from '../../components/user-block/UserBlock'
 import { useDomainName } from '../../hooks/useDomainName'
-import { useClient } from '../../hooks/useClient'
+import { useClient } from '../../hooks/useClient.ts'
 // import { selectIsWalletConnected } from '../../utils/store/walletSlice'
 import Wallets from '../../components/wallets/Wallets'
 
@@ -44,10 +43,9 @@ const Home = ({ subdomain = config.tld }) => {
     priceMultiplier: 0,
   })
   const [name] = useDomainName()
-  const [client, walletAddress, isClientConnected] = useClient()
+  const { client, walletAddress, isClientConnected } = useClient()
   const [pending, setPending] = useState(false)
   const toastId = useRef(null)
-  // const { isConnected, address } = useAccount()
 
   const isOwner =
     walletAddress &&
@@ -184,7 +182,7 @@ const Home = ({ subdomain = config.tld }) => {
       </Helmet> */}
       {record?.renter && (
         <DescResponsive>
-          <UserBlock isOwner={isOwner} />
+          <UserBlock isOwner={isOwner} client={client} walletAddress={walletAddress} isClientConnected={isClientConnected} />
           <AppGallery />
           {(isOwner && isClientConnected && expired) && (
             <>

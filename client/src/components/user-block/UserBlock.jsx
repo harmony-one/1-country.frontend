@@ -2,12 +2,12 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useWeb3Modal } from '@web3modal/react'
+import { useSelector } from 'react-redux'
+import { selectPageName } from '../../utils/store/pageSlice'
 import { truncateAddressString } from '../../utils/utils'
 import { SOCIAL_MEDIA } from './UserBlock.data'
 import { UserBlockDiv, WalletStatus } from './UserBlock.styles'
 import { toast } from 'react-toastify'
-import { useClient } from '../../hooks/useClient'
-import { useDomainName } from '../../hooks/useDomainName'
 
 const SocialMediaIcon = (props) => {
   const { children, url, onClick } = props
@@ -32,13 +32,10 @@ const defaultOwnerInfo = {
 }
 
 const UserBlock = (props) => {
-  const { isOwner } = props
-
-  const [pageName] = useDomainName()
-  const [client, walletAddress, isClientConnected] = useClient()
+  const { isOwner, client, walletAddress, isClientConnected } = props
+  const pageName = useSelector(selectPageName)
   const src = 'https://ipfs.io/ipfs/QmP7ZybNFUgQWKoim9fnFPLBCyoWnZ5GT5acc8MFX9YVuC'
   const alt = 'Image text'
-
   const [ownerInfo, setOwnerInfo] = useState(defaultOwnerInfo)
 
   useEffect(() => {
@@ -59,8 +56,6 @@ const UserBlock = (props) => {
   }, [isOwner])
 
   const toastId = useRef(null)
-
-  // const { isConnected } = useAccount()
 
   const { open } = useWeb3Modal()
 

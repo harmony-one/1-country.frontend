@@ -2,10 +2,7 @@ import { initLogin } from './ComunicatorV2'
 import config from '../../../config'
 import { saveLocalState } from '../storage/LocalStorage.utils'
 
-const BASE_URL = process.env.REACT_APP_BASE_URL
 const SMS_URL = process.env.REACT_APP_SMS_WALLET_URL
-
-console.log(BASE_URL, SMS_URL)
 
 export const PROVIDER_TYPE = {
   NONE: 0,
