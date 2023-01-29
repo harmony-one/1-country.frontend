@@ -212,14 +212,15 @@ const Home = ({ subdomain = config.tld }) => {
 
       const pageUrl = new URL(window.location.href)
       const stripeCheckoutLink = await createCheckoutSession({
-        amountUsd: +amount,
-        amountOne: +price.formatted,
-        name,
-        url: isRenewal ? '' : tweetId.tweetId.toString(),
+        amount: +amount,
         userAddress: address,
-        telegram,
-        email,
-        phone,
+        params: {
+          name,
+          url: isRenewal ? '' : tweetId.tweetId.toString(),
+          telegram,
+          email,
+          phone,
+        },
         successUrl: `${pageUrl.origin}/success`,
         cancelUrl: `${pageUrl.origin}/cancel`,
       })

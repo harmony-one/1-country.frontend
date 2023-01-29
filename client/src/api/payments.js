@@ -15,7 +15,7 @@ export const createPaymentIntent = async (paymentMethodType = 'card', currency =
 }
 
 export const createCheckoutSession = async (params) => {
-  const { data } = await paymentsApi.post('/stripe/checkout-one-country', {
+  const { data } = await paymentsApi.post('/stripe/checkout/one-country/rent', {
     ...params
   })
   return data
