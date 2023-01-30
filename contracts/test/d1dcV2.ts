@@ -80,7 +80,7 @@ describe('D1DCV2', () => {
   });
 
   describe("initializeNames", () => {
-    it("Should add the existing names", async () => {
+    it("Should be able to add the existing names", async () => {
       const NameRecord1: NameRecord = {
         renter: alice.address,
         timeUpdated: 10001,
@@ -131,7 +131,7 @@ describe('D1DCV2', () => {
   });
 
   describe("rent", () => {
-    it("Should be able mint the name", async () => {
+    it("Should be able to mint the name", async () => {
       const totalDomainPurchaseCounterBefore = await d1dcV2.totalDomainPurchaseCounter();
 
       // rent
@@ -153,7 +153,7 @@ describe('D1DCV2', () => {
       expect(telegramInfo).to.equal(telegram);
     });
 
-    it("Should be delete the reveal permission after the name is transferred", async () => {
+    it("Should be able to delete the reveal permission after the name is transferred", async () => {
       const tokenId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(dotName));
       await d1dcV2.connect(alice)["safeTransferFrom(address,address,uint256)"](alice.address, john.address, tokenId);
 
@@ -172,30 +172,40 @@ describe('D1DCV2', () => {
       await d1dcV2.connect(alice).rent(dotName, url, telegram, email, phone, { value: baseRentalPrice });
     });
 
-    it("Should be ale to add the emoji reaction", async () => {
+    it("Should be able to add the emoji reaction", async () => {
       // check the old emoji reaction counter
       const tokenId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(dotName));
       const emojiCounterBefore = await d1dcV2.emojiReactionCounters(tokenId, 0);
+      const totalEmojiReactionCounterBefore = await d1dcV2.totalEmojiReactionCounter();
 
+      // add emoji reaction
       await d1dcV2.connect(bob).addEmojiReaction(dotName, 0, { value: emojiPrice0 });
 
       // check the new emoji reaction counter
       const emojiCounterAfter = await d1dcV2.emojiReactionCounters(tokenId, 0);
+      const totalEmojiReactionCounterAfter = await d1dcV2.totalEmojiReactionCounter();
       expect(emojiCounterAfter).to.equal(emojiCounterBefore.add(1));
+      expect(totalEmojiReactionCounterAfter).to.equal(totalEmojiReactionCounterBefore.add(1));
     });
 
-    it("should be reset emoji reaction counters after rent", async () => {
+    it("should be able to reset emoji reaction counters after rent", async () => {
+      const totalEmojiReactionCounterBefore = await d1dcV2.totalEmojiReactionCounter();
+
+      // add emoji reaction
       const tokenId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(dotName));
 
       await d1dcV2.connect(bob).addEmojiReaction(dotName, 0, { value: emojiPrice0 });
       await d1dcV2.connect(bob).addEmojiReaction(dotName, 1, { value: emojiPrice1 });
       await d1dcV2.connect(bob).addEmojiReaction(dotName, 2, { value: emojiPrice2 });
 
+      // rent
       await d1dcV2.connect(bob).rent(dotName, url, telegram, email, phone, { value: baseRentalPrice * priceMultiplier });
 
+      const totalEmojiReactionCounterAfter = await d1dcV2.totalEmojiReactionCounter();
       const emojiCounterAfter0 = await d1dcV2.emojiReactionCounters(tokenId, 0);
       const emojiCounterAfter1 = await d1dcV2.emojiReactionCounters(tokenId, 1);
       const emojiCounterAfter2 = await d1dcV2.emojiReactionCounters(tokenId, 2);
+      expect(totalEmojiReactionCounterAfter).to.equal(totalEmojiReactionCounterBefore.add(3));
       expect(emojiCounterAfter0).to.equal(0);
       expect(emojiCounterAfter1).to.equal(0);
       expect(emojiCounterAfter2).to.equal(0);
