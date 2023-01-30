@@ -18,6 +18,7 @@ import { useDomainName } from '../../hooks/useDomainName'
 import { useClient } from '../../hooks/useClient.ts'
 // import { selectIsWalletConnected } from '../../utils/store/walletSlice'
 import Wallets from '../../components/wallets/Wallets'
+import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 
 import {
   Button,
@@ -46,6 +47,8 @@ const Home = ({ subdomain = config.tld }) => {
   const { client, walletAddress, isClientConnected } = useClient()
   const [pending, setPending] = useState(false)
   const toastId = useRef(null)
+  const tweet = 'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
+  const minCentsAmount = 60
 
   const isOwner =
     walletAddress &&
@@ -62,17 +65,28 @@ const Home = ({ subdomain = config.tld }) => {
     }
   }, [client, name])
 
-  useEffect(() => {
+  const pollParams = () => {
     if (!client) {
       return
     }
     client.getParameters().then((p) => setParameters(p))
     client.getRecord({ name }).then((r) => setRecord(r))
     client.getPrice({ name }).then((p) => setPrice(p))
+  }
+
+  useEffect(() => {
+    if (!client) {
+      return
+    }
+    pollParams()
   }, [client])
 
   useEffect(() => {
     if (!parameters?.lastRented) {
+      setTimeout(() => {
+        console.log('Poll params')
+        pollParams()
+      }, 12000)
       return
     }
     client
@@ -82,9 +96,59 @@ const Home = ({ subdomain = config.tld }) => {
 
   const isHarmonyNetwork = useIsHarmonyNetwork()
 
-  const onAction = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
+  const onActionFiat = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
+    if (!price) {
+      console.error('No domain rental price provided, exit')
+      return
+    }
+
+    setPending(true)
+    let amount = 0
+
+    try {
+      const oneTokenPriceUsd = await getTokenPrice('harmony')
+      amount = (+price.formatted * +oneTokenPriceUsd) * 100 // price in cents
+      if (amount < minCentsAmount) {
+        console.log(`Amount ${amount} < min amount ${minCentsAmount} cents, using ${minCentsAmount} cents value. Required by Stripe.`)
+        amount = minCentsAmount
+      }
+
+      if (!amount) {
+        throw new Error(`Invalid USD amount: ${amount}`)
+      }
+
+      // const tweetId = isRenewal ? {} : parseTweetId(url)
+
+      const pageUrl = new URL(window.location.href)
+      const { paymentUrl } = await createCheckoutSession({
+        amount: +amount,
+        userAddress: walletAddress,
+        params: {
+          name,
+          url: tweet,
+          telegram,
+          email,
+          phone,
+        },
+        successUrl: `${pageUrl.origin}/success`,
+        cancelUrl: `${pageUrl.origin}/cancel`,
+      })
+      console.log('Stripe checkout link:', paymentUrl)
+      window.open(paymentUrl, '_self')
+    } catch (e) {
+      console.error('Cannot complete payment by USD:', e)
+    }
+  }
+
+  const onAction = async (params) => {
+    const { isRenewal, telegram = '', email = '', phone = '', paymentType = 'one' } = params
     if (!isHarmonyNetwork) {
       await wagmiClient.connector.connect({ chainId: config.chainParameters.id })
+    }
+
+    if (paymentType === 'usd') {
+      onActionFiat(params)
+      return
     }
 
     setPending(true)
@@ -94,7 +158,7 @@ const Home = ({ subdomain = config.tld }) => {
       toastId.current = toast.loading('Processing transaction')
       await f({
         name,
-        url: '', // isRenewal ? '' : tweetId.tweetId.toString(),
+        url: tweet,
         telegram: telegram,
         email: email,
         phone: phone,
