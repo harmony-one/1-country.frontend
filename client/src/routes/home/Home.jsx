@@ -211,7 +211,7 @@ const Home = ({ subdomain = config.tld }) => {
       const tweetId = isRenewal ? {} : parseTweetId(url)
 
       const pageUrl = new URL(window.location.href)
-      const stripeCheckoutLink = await createCheckoutSession({
+      const { paymentUrl } = await createCheckoutSession({
         amount: +amount,
         userAddress: address,
         params: {
@@ -224,8 +224,8 @@ const Home = ({ subdomain = config.tld }) => {
         successUrl: `${pageUrl.origin}/success`,
         cancelUrl: `${pageUrl.origin}/cancel`,
       })
-      console.log('Stripe checkout link:', stripeCheckoutLink)
-      window.open(stripeCheckoutLink, '_self')
+      console.log('Stripe checkout link:', paymentUrl)
+      window.open(paymentUrl, '_self')
     } catch (e) {
       console.error('Cannot complete payment by USD:', e)
     }
