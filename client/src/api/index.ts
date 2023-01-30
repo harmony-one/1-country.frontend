@@ -1,4 +1,3 @@
-import { Contract } from 'web3-eth-contract'
 import config from '../../config'
 import D1DCV2 from '../../abi/D1DCV2'
 import Constants from '../constants'
@@ -63,8 +62,7 @@ const apis = ({ web3, address }: {web3: Web3, address: string}) => {
     return
   }
 
-  Contract.setProvider(web3.currentProvider)
-  const contract = new Contract(D1DCV2, config.contract)
+  const contract = new web3.eth.Contract(D1DCV2, config.contract)
 
   const getOwnerInfo = async (name: string, info: OWNER_INFO_FIELDS) => {
     console.log('getOwnerInfo', name, info, address)
