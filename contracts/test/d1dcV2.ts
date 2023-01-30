@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers, upgrades } from 'hardhat'
 
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
+import type { BigNumberish } from "@ethersproject/bignumber/lib/bignumber";
 
 import type { AddressRegistry, D1DCV2, VanityURL } from "../typechain-types"
 
@@ -17,6 +18,19 @@ const emojiPrice0 = 1;
 const emojiPrice1 = 10;
 const emojiPrice2 = 100;
 const urlUpdatePrice = ethers.utils.parseEther("1");
+
+type address = string;
+type uint32 = BigNumberish;
+type uint256 = BigNumberish;
+
+interface NameRecord {
+  renter: address;
+  timeUpdated: uint32;
+  lastPrice: uint256;
+  url: string;
+  prev: string;
+  next: string;
+}
 
 describe('D1DCV2', () => {
   let accounts: SignerWithAddress;
@@ -65,9 +79,66 @@ describe('D1DCV2', () => {
     await vanityURL.updateURLUpdatePrice(urlUpdatePrice);
   });
 
+  describe("initializeNames", () => {
+    it("Should add the existing names", async () => {
+      const NameRecord1: NameRecord = {
+        renter: alice.address,
+        timeUpdated: 10001,
+        lastPrice: 10001,
+        url: "https://nameRecord1.1.country_url",
+        prev: "",
+        next: "",
+      };
+
+      const NameRecord2: NameRecord = {
+        renter: bob.address,
+        timeUpdated: 10002,
+        lastPrice: 10002,
+        url: "https://nameRecord2.1.country_url",
+        prev: "",
+        next: "",
+      };
+
+      const NameRecord3: NameRecord = {
+        renter: john.address,
+        timeUpdated: 10003,
+        lastPrice: 10003,
+        url: "https://nameRecord3.1.country_url",
+        prev: "",
+        next: "",
+      };
+
+      const NameRecords: NameRecord[] = [
+        NameRecord1,
+        NameRecord2,
+        NameRecord3
+      ];
+
+      const Names: string[] = [
+        "nameRecord1.1.country",
+        "nameRecord2.1.country",
+        "nameRecord3.1.country",
+      ];
+
+      const totalDomainPurchaseCounterBefore = await d1dcV2.totalDomainPurchaseCounter();
+
+      // initializeNames
+      await d1dcV2.initializeNames(Names, NameRecords);
+
+      const totalDomainPurchaseCounterAfter = await d1dcV2.totalDomainPurchaseCounter();
+      expect(totalDomainPurchaseCounterAfter).to.equal(totalDomainPurchaseCounterBefore.add(Names.length));
+    });
+  });
+
   describe("rent", () => {
     it("Should be able mint the name", async () => {
+      const totalDomainPurchaseCounterBefore = await d1dcV2.totalDomainPurchaseCounter();
+
+      // rent
       await d1dcV2.connect(alice).rent(dotName, url, telegram, email, phone, { value: baseRentalPrice });
+
+      const totalDomainPurchaseCounterAfter = await d1dcV2.totalDomainPurchaseCounter();
+      expect(totalDomainPurchaseCounterAfter).to.equal(totalDomainPurchaseCounterBefore.add(1));
     });
   });
 
