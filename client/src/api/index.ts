@@ -1,44 +1,84 @@
-import Contract from 'web3-eth-contract'
+import { Contract } from 'web3-eth-contract'
 import config from '../../config'
-import D1DCV2 from '../../abi/D1DCV2.json'
+import D1DCV2 from '../../abi/D1DCV2'
 import Constants from '../constants'
 import BN from 'bn.js'
+import Web3 from "web3";
 
 // console.log('CONTRACT', process.env.CONTRACT)
 // console.log('REACT_APP_SMS_WALLET_URL', process.env.REACT_APP_SMS_WALLET_URL)
 // console.log('SMSWALLET_CALLBACK_VERIFY', process.env.SMSWALLET_CALLBACK_VERIFY)
 
-export const getFullName = (name) => {
+export enum EMOJI_TYPE {
+  ONE_ABOVE = 0,
+  FIRST_PRIZE = 1,
+  ONE_HUNDRED_PERCENT = 2
+}
+
+export enum OWNER_INFO_FIELDS {
+  TELEGRAM = 'telegram',
+  EMAIL = 'email',
+  PHONE = 'phone'
+}
+
+interface CallProps {
+  amount?: string,
+  onFailed?: (error: Error, flag?: boolean) => void,
+  onSubmitted?: () => void,
+  onSuccess?: (tx: unknown) => void,
+  methodName: string,
+  parameters: unknown[],
+}
+
+interface RentProps extends Pick<CallProps, 'amount' | 'onFailed' | 'onSubmitted' | 'onSuccess' > {
+  name: string
+  url: string
+  telegram: string
+  email: string
+  phone: string
+}
+
+interface UpdateUrlProps extends Pick<CallProps, 'onFailed' | 'onSubmitted' | 'onSuccess'> {
+  name: string,
+  url: string
+}
+
+export const getFullName = (name: string) => {
   return name
   // `${name}${config.tdl}`
 }
 
-export const getEmojiPrice = (emojiType) => {
-  const key = Object.keys(config.emojiType).find(key => config.emojiType[key] === emojiType)
+function objectKeys<T>(obj: T) {
+  return Object.keys(obj) as [keyof T];
+}
+
+export const getEmojiPrice = (emojiType: EMOJI_TYPE) => {
+  const key = objectKeys(config.emojiType).find(key => config.emojiType[key] === emojiType)
   return config.emojiTypePrice[key]
 }
 
-const apis = ({ web3, address }) => {
+const apis = ({ web3, address }: {web3: Web3, address: string}) => {
   console.log('apis', web3, address)
   if (!web3) {
     return
   }
+
   Contract.setProvider(web3.currentProvider)
   const contract = new Contract(D1DCV2, config.contract)
 
-  const getOwnerInfo = async (name, info) => {
+  const getOwnerInfo = async (name: string, info: OWNER_INFO_FIELDS) => {
     console.log('getOwnerInfo', name, info, address)
     try {
       if (name) {
         let getMethod = ''
         switch (info) {
-          case 'telegram':
+          case OWNER_INFO_FIELDS.TELEGRAM:
             getMethod = 'getOwnerTelegram'
             break
-          case 'phone':
+          case OWNER_INFO_FIELDS.PHONE:
             getMethod = 'getOwnerPhone'
             break
-          case 'email':
+          case OWNER_INFO_FIELDS.EMAIL:
             getMethod = 'getOwnerEmail'
             break
         }
@@ -52,7 +92,7 @@ const apis = ({ web3, address }) => {
     }
   }
 
-  const call = async ({ amount, onFailed, onSubmitted, onSuccess, methodName, parameters }) => {
+  const call = async ({ amount, onFailed, onSubmitted, onSuccess, methodName, parameters }: CallProps) => {
     console.log({ methodName, parameters, amount, address })
     try {
       const testTx = await contract.methods[methodName](...parameters).call({ from: address, value: amount })
@@ -82,22 +122,22 @@ const apis = ({ web3, address }) => {
   return {
     address,
     web3,
-    getExplorerUri: (txHash) => {
+    getExplorerUri: (txHash: string) => {
       return config.explorer.replace('{{txId}}', txHash)
     },
     call,
-    rent: async ({ name, url, telegram, email, phone, amount, onFailed, onSubmitted, onSuccess }) => {
+    rent: async ({ name, url, telegram, email, phone, amount, onFailed, onSubmitted, onSuccess }: RentProps) => {
       return call({
         amount, parameters: [name, url, telegram, email, phone], methodName: 'rent', onFailed, onSubmitted, onSuccess
       })
     },
-    updateURL: async ({ name, url, onFailed, onSubmitted, onSuccess }) => {
+    updateURL: async ({ name, url, onFailed, onSubmitted, onSuccess }: UpdateUrlProps) => {
       return call({
         parameters: [name, url], methodName: 'updateURL', onFailed, onSubmitted, onSuccess
       })
     },
     // owner info
-    revealInfo: async ({ name, info }) => {
+    revealInfo: async ({ name, info }: {name: string, info: OWNER_INFO_FIELDS}) => {
       const amount = web3.utils.toWei(new BN(config.infoRevealPrice[info]).toString())
       console.log('reveal info', name, info, config.infoRevealPrice[info])
       console.log('reveal info address', address)
@@ -106,15 +146,15 @@ const apis = ({ web3, address }) => {
           let revealMethod = ''
           let getMethod = ''
           switch (info) {
-            case 'telegram':
+            case OWNER_INFO_FIELDS.TELEGRAM:
               revealMethod = 'requestTelegramReveal'
               getMethod = 'getOwnerTelegram'
               break
-            case 'phone':
+            case OWNER_INFO_FIELDS.PHONE:
               revealMethod = 'requestPhoneReveal'
               getMethod = 'getOwnerPhone'
               break
-            case 'email':
+            case OWNER_INFO_FIELDS.EMAIL:
               revealMethod = 'requestEmailReveal'
               getMethod = 'getOwnerEmail'
               break
@@ -135,7 +175,7 @@ const apis = ({ web3, address }) => {
         return null
       }
     },
-    getAllOwnerInfo: async ({ name }) => {
+    getAllOwnerInfo: async ({ name }: {name: string}) => {
       const [telegram, phone, email] = await Promise.all([
         contract.methods.getOwnerTelegram(name).call({ from: address }),
         contract.methods.getOwnerPhone(name).call({ from: address }),
@@ -164,7 +204,7 @@ const apis = ({ web3, address }) => {
         lastRented,
       }
     },
-    getPrice: async ({ name }) => {
+    getPrice: async ({ name }: {name: string}) => {
       const nameBytes = web3.utils.keccak256(name)
       const price = await contract.methods.getPrice(nameBytes).call({ from: address })
       const amount = new BN(price).toString()
@@ -173,7 +213,7 @@ const apis = ({ web3, address }) => {
         formatted: web3.utils.fromWei(amount)
       }
     },
-    getRecord: async ({ name }) => {
+    getRecord: async ({ name }: {name: string}) => {
       const nameBytes = web3.utils.keccak256(name)
       const result = await contract.methods.nameRecords(nameBytes).call()
       // console.log('RESULT', result)
@@ -190,7 +230,7 @@ const apis = ({ web3, address }) => {
         next
       }
     },
-    getEmojisCounter: async ({ name }) => {
+    getEmojisCounter: async ({ name }: {name: string}) => {
       const byte32Name = web3.utils.soliditySha3(getFullName(name))
       const [oneAbove, firstPrice, oneHundred] = await Promise.all(
         Object.values(config.emojiType).map(
@@ -203,12 +243,12 @@ const apis = ({ web3, address }) => {
         2: oneHundred
       }
     },
-    getEmojiCounter: async ({ name, emojiType }) => {
+    getEmojiCounter: async ({ name, emojiType }: {name: string, emojiType: EMOJI_TYPE}) => {
       const byte32Name = web3.utils.soliditySha3(getFullName(name))
       const emoji = await contract.methods.emojiReactionCounters(byte32Name, emojiType).call()
       return emoji
     },
-    addEmojiReaction: async ({ name, emojiType }) => {
+    addEmojiReaction: async ({ name, emojiType }: {name: string, emojiType: EMOJI_TYPE}) => {
       try {
         const amount = web3.utils.toWei(new BN(getEmojiPrice(emojiType)).toString())
         const tx = await contract.methods.addEmojiReaction(getFullName(name), emojiType).send({ from: address, value: amount })
@@ -223,6 +263,7 @@ const apis = ({ web3, address }) => {
 }
 
 if (window) {
+  // @ts-expect-error
   window.apis = apis
 }
 

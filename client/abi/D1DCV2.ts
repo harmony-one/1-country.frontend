@@ -1,4 +1,6 @@
-[
+import {AbiItem} from "web3-utils";
+
+export default [
 	{
 		"anonymous": false,
 		"inputs": [
@@ -1421,4 +1423,4 @@
 		"stateMutability": "payable",
 		"type": "constructor"
 	}
-]
+] as AbiItem[]

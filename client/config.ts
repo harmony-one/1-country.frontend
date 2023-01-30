@@ -51,6 +51,6 @@ const config = {
         },
         testnet: true,
       }
-}
+} as const;
 
 export default config

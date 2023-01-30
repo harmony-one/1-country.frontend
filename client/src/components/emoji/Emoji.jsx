@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
-import { getEmojiPrice } from '../../api/index'
+import { getEmojiPrice } from '../../api'
 
 import config from '../../../config'
 import { Label, Hint } from '../Text'
