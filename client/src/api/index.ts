@@ -268,3 +268,6 @@ if (window) {
 }
 
 export default apis
+
+
+export type D1DCClient = ReturnType<typeof apis>

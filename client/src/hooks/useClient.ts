@@ -4,14 +4,14 @@ import { useSelector } from 'react-redux'
 import {useAccount} from "wagmi";
 
 import config from "../../config";
-import apis from "../api";
+import apis, {D1DCClient} from "../api";
 
 import { selectWallet, selectIsWalletConnected } from '../utils/store/walletSlice'
 import { PROVIDER_TYPE } from '../utils/sms-wallet/SmsWallet.utils'
 
 
 export const useClient = () => {
-  const [client, setClient] = useState<any>()
+  const [client, setClient] = useState<D1DCClient>()
 
   const [provider, setProvider] = useState(PROVIDER_TYPE.NONE)
   const [walletAddress, setWalletAddress] = useState<string>('')
