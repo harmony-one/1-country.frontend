@@ -87,6 +87,7 @@
   "dependencies": {
     "@metamask/detect-provider": "^2.0.0",
     "@reduxjs/toolkit": "^1.6.0",
+    "@stripe/react-stripe-js": "^1.16.4",
     "@transak/transak-sdk": "^1.0.31",
     "@web3modal/ethereum": "^2.0.0",
     "@web3modal/react": "^2.0.0",

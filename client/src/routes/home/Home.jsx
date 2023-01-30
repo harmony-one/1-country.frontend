@@ -35,8 +35,11 @@ import { VanityURL } from './VanityURL'
 import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { wagmiClient } from '../../modules/wagmi/wagmiClient'
+import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
+
+const minCentsAmount = 60
 
 const parseBN = (n) => {
   try {
@@ -142,17 +145,28 @@ const Home = ({ subdomain = config.tld }) => {
     }
   }, [connector, address])
 
-  useEffect(() => {
+  const pollParams = () => {
     if (!client) {
       return
     }
     client.getParameters().then((p) => setParameters(p))
     client.getRecord({ name }).then((r) => setRecord(r))
     client.getPrice({ name }).then((p) => setPrice(p))
+  }
+
+  useEffect(() => {
+    if (!client) {
+      return
+    }
+    pollParams()
   }, [client])
 
   useEffect(() => {
     if (!parameters?.lastRented) {
+      setTimeout(() => {
+        console.log('Poll params')
+        pollParams()
+      }, 12000)
       return
     }
     client
@@ -171,15 +185,65 @@ const Home = ({ subdomain = config.tld }) => {
     setTweetId(id.toString())
   }, [record?.url])
 
-  const isHarmonyNetwork = useIsHarmonyNetwork();
+  const isHarmonyNetwork = useIsHarmonyNetwork()
 
-  const onAction = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
+  const onActionFiat = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
+    if (!price) {
+      console.error('No domain rental price provided, exit')
+      return
+    }
+
+    setPending(true)
+    let amount = 0
+
+    try {
+      const oneTokenPriceUsd = await getTokenPrice('harmony')
+      amount = (+price.formatted * +oneTokenPriceUsd) * 100 // price in cents
+      if (amount < minCentsAmount) {
+        console.log(`Amount ${amount} < min amount ${minCentsAmount} cents, using ${minCentsAmount} cents value. Required by Stripe.`)
+        amount = minCentsAmount
+      }
+
+      if (!amount) {
+        throw new Error(`Invalid USD amount: ${amount}`)
+      }
+
+      const tweetId = isRenewal ? {} : parseTweetId(url)
+
+      const pageUrl = new URL(window.location.href)
+      const { paymentUrl } = await createCheckoutSession({
+        amount: +amount,
+        userAddress: address,
+        params: {
+          name,
+          url: isRenewal ? '' : tweetId.tweetId.toString(),
+          telegram,
+          email,
+          phone,
+        },
+        successUrl: `${pageUrl.origin}/success`,
+        cancelUrl: `${pageUrl.origin}/cancel`,
+      })
+      console.log('Stripe checkout link:', paymentUrl)
+      window.open(paymentUrl, '_self')
+    } catch (e) {
+      console.error('Cannot complete payment by USD:', e)
+    }
+  }
+
+  const onAction = async (params) => {
+    const { isRenewal, telegram = '', email = '', phone = '', paymentType = 'one' } = params
     if (!url && !isRenewal) {
       return toast.error('Invalid URL to embed')
     }
 
     if (!isHarmonyNetwork) {
       await wagmiClient.connector.connect({ chainId: config.chainParameters.id })
+    }
+
+    if (paymentType === 'usd') {
+      onActionFiat(params)
+      return
     }
 
     setPending(true)
@@ -389,7 +453,7 @@ const Home = ({ subdomain = config.tld }) => {
           </Row>
           {!isOwner
             ? (
-              <OwnerForm onAction={onAction} buttonLabel='Rent' pending={pending} />
+              <OwnerForm onAction={onAction} buttonLabel='Rent (ONE)' pending={pending} />
               )
             : (
               <Button onClick={onAction} disabled={pending}>UPDATE URL</Button>
