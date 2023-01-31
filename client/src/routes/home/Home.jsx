@@ -164,16 +164,16 @@ const Home = ({ subdomain = config.tld }) => {
             humanD={humanD}
           />
         )}
-        <FlexRow style={{ alignItems: 'baseline', marginTop: 120, width: '100%' }}>
-          <SearchBlock client={client} />
-        </FlexRow>
         <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
           <Title style={{ margin: 0 }}>Claim your {subdomain}</Title>
+        </FlexRow>
+        <FlexRow style={{ alignItems: 'baseline', marginTop: 40, marginBottom: 20, width: '100%' }}>
+          <SearchBlock client={client} />
         </FlexRow>
         <DescLeft>
           <BaseText>How it works:</BaseText>
           <BaseText>
-            - go to any *.1.country website (e.g.
+            - search any *.1.country website (e.g.
             <a href='https://all.1.country' target='_blank' rel='noreferrer'>
               all.1.country
             </a>)
