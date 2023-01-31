@@ -153,17 +153,47 @@ describe('D1DCV2', () => {
       expect(telegramInfo).to.equal(telegram);
     });
 
+    it("Should be able to increase the totalOwnerInfoRevealCounter", async () => {
+      let totalOwnerInfoRevealCounterBefore = await d1dcV2.totalOwnerInfoRevealCounter();
+
+      // request the telegram info reveal
+      await d1dcV2.connect(john).requestTelegramReveal(dotName, { value: telegramRevealPrice });
+
+      let totalOwnerInfoRevealCounterAfter = await d1dcV2.totalOwnerInfoRevealCounter();
+      expect(totalOwnerInfoRevealCounterAfter).to.equal(totalOwnerInfoRevealCounterBefore.add(1));
+
+      // request the phone info reveal
+      await d1dcV2.connect(john).requestPhoneReveal(dotName, { value: phoneRevealPrice });
+
+      totalOwnerInfoRevealCounterAfter = await d1dcV2.totalOwnerInfoRevealCounter();
+      expect(totalOwnerInfoRevealCounterAfter).to.equal(totalOwnerInfoRevealCounterBefore.add(2));
+
+      // request the email info reveal
+      await d1dcV2.connect(john).requestEmailReveal(dotName, { value: emailRevealPrice });
+
+      totalOwnerInfoRevealCounterAfter = await d1dcV2.totalOwnerInfoRevealCounter();
+      expect(totalOwnerInfoRevealCounterAfter).to.equal(totalOwnerInfoRevealCounterBefore.add(3));
+    });
+
     it("Should be able to delete the reveal permission after the name is transferred", async () => {
+      const totalOwnerInfoRevealCounterBefore = await d1dcV2.totalOwnerInfoRevealCounter();
+
       const tokenId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(dotName));
       await d1dcV2.connect(alice)["safeTransferFrom(address,address,uint256)"](alice.address, john.address, tokenId);
 
       // check if telegram info was reset
       let telegramInfo = await d1dcV2.connect(john).callStatic.getOwnerTelegram(dotName);
       expect(telegramInfo).to.equal("");
+
       // check if the original owner can't reveal the current owner info
       await expect(d1dcV2.connect(alice).callStatic.getOwnerTelegram(dotName)).to.be.revertedWith("D1DC: no permission for telegram reveal");
+
       // check if the reveal permission was reset after the name is transferred
       await expect(d1dcV2.connect(bob).callStatic.getOwnerTelegram(dotName)).to.be.revertedWith("D1DC: no permission for telegram reveal");
+
+      // check if totalOwnerInfoRevealCounter is not reset
+      const totalOwnerInfoRevealCounterAfter = await d1dcV2.totalOwnerInfoRevealCounter();
+      expect(totalOwnerInfoRevealCounterAfter).to.equal(totalOwnerInfoRevealCounterBefore);
     });
   });
 
