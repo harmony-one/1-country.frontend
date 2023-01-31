@@ -41,6 +41,7 @@ const UserBlock = (props) => {
   useEffect(() => {
     const getInfo = async () => {
       const info = await client.getAllOwnerInfo({ name: pageName })
+      console.log('getInfo', info)
       setOwnerInfo(info)
     }
     if (isOwner) {
@@ -48,7 +49,7 @@ const UserBlock = (props) => {
       getInfo()
     }
   }, [])
-
+  console.log('owner Info', ownerInfo)
   useEffect(() => {
     if (!isOwner) {
       setOwnerInfo(defaultOwnerInfo)

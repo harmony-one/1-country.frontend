@@ -142,13 +142,15 @@ const Home = ({ subdomain = config.tld }) => {
 
   const onAction = async (params) => {
     const { isRenewal, telegram = '', email = '', phone = '', paymentType = 'one' } = params
-    if (!isHarmonyNetwork) {
-      await wagmiClient.connector.connect({ chainId: config.chainParameters.id })
-    }
+    console.log(params)
 
     if (paymentType === 'usd') {
       onActionFiat(params)
       return
+    }
+
+    if (!isHarmonyNetwork) {
+      await wagmiClient.connector.connect({ chainId: config.chainParameters.id })
     }
 
     setPending(true)

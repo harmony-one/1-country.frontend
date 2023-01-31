@@ -5,6 +5,8 @@ import {
   Input,
 } from '../Controls'
 import { FlexRow, Row } from '../Layout'
+import { useSelector } from 'react-redux'
+import { selectIsWalletConnected } from '../../utils/store/walletSlice'
 
 const defaultFormFields = {
   telegram: '',
@@ -13,7 +15,7 @@ const defaultFormFields = {
 }
 const OwnerForm = ({ onAction, buttonLabel, pending }) => {
   const [formFields, setFormFields] = useState(defaultFormFields)
-
+  const isWalletConnected = useSelector(selectIsWalletConnected)
   const onChange = (event) => {
     const { name, value } = event.target
     setFormFields({ ...formFields, [name]: value })
@@ -51,7 +53,7 @@ const OwnerForm = ({ onAction, buttonLabel, pending }) => {
             <FloatingTextInput>Phone Number</FloatingTextInput>
           </Row>
           <FlexRow style={{ gap: 32 }}>
-            <Button type='submit' value='one' style={{ marginTop: '1em' }} disabled={pending}>{buttonLabel}</Button>
+            {!isWalletConnected && <Button type='submit' value='one' style={{ marginTop: '1em' }} disabled={pending}>{buttonLabel}</Button>}
             <Button type='submit' value='usd' style={{ marginTop: '1em' }} disabled={pending}>Rent (USD)</Button>
           </FlexRow>
         </OwnerFormContainer>
