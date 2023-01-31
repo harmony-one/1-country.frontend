@@ -2,7 +2,7 @@ import React from 'react'
 import { Web3Button } from '@web3modal/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDisconnect, useAccount } from 'wagmi'
-import { useHistory } from 'react-router'
+import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
 import { walletLogOut, selectIsWalletConnected } from '../../utils/store/walletSlice'
@@ -37,10 +37,10 @@ const Wallets = () => {
   const isWalletConnected = useSelector(selectIsWalletConnected)
   const { disconnect } = useDisconnect()
   const dispatch = useDispatch()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const goToLogin = () => {
-    history.push('/auth')
+    navigate('auth/')
   }
 
   const logOut = () => {

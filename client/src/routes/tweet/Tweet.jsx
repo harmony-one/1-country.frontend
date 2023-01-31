@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import BN from 'bn.js'
-import { selectPageName } from '../../utils/store/pageSlice'
-import { FlexRow } from '../../components/Layout'
-import { BaseText, Title } from '../../components/Text'
+import { FlexColumn } from '../../components/Layout'
+import { SmallTextGrey, Title } from '../../components/Text'
 import config from '../../../config'
 
 import { Container, DescResponsive } from '../home/Home.styles'
 import TwitterSection from '../../components/twitter-section/TwitterSection'
-import { useClient } from '../../hooks/useClient'
+import { useOutletContext } from 'react-router'
 
 const parseBN = (n) => {
   try {
@@ -19,53 +17,63 @@ const parseBN = (n) => {
   }
 }
 
+const parseTweetId = (urlInput) => {
+  try {
+    const url = new URL(urlInput)
+    if (url.host !== 'twitter.com') {
+      return { error: 'URL must be from https://twitter.com' }
+    }
+    const parts = url.pathname.split('/')
+    const BAD_FORM = {
+      error:
+        'URL has bad form. It must be https://twitter.com/[some_account]/status/[tweet_id]',
+    }
+    if (parts.length < 2) {
+      return BAD_FORM
+    }
+    if (parts[parts.length - 2] !== 'status') {
+      return BAD_FORM
+    }
+    const tweetId = parseBN(parts[parts.length - 1])
+    if (!tweetId) {
+      return { error: 'cannot parse tweet id' }
+    }
+    return { tweetId: tweetId.toString() }
+  } catch (ex) {
+    console.error(ex)
+    return { error: ex.toString() }
+  }
+}
+
 const Tweet = () => {
   const [tweetId, setTweetId] = useState('')
-  const [record, setRecord] = useState(null)
-  const pageName = useSelector(selectPageName)
-  const { client } = useClient()
+  const {
+    name,
+    record,
+    client,
+  } = useOutletContext()
 
-  const pollParams = () => {
-    if (!client) {
-      return
-    }
-    client.getRecord({ pageName }).then((r) => setRecord(r))
-  }
-  console.log('record', record)
-  useEffect(() => {
-    if (!client) {
-      return
-    }
-    pollParams()
-  }, [client])
-
+  console.log(record, client, tweetId)
   useEffect(() => {
     if (!record?.url) {
       return
     }
-    const id = parseBN(record.url)
-    if (!id) {
-      return
-    }
-    setTweetId(id.toString())
+    setTweetId(parseTweetId(record.url))
   }, [record?.url])
 
   return (
     <Container>
-      <FlexRow style={{ alignItems: 'baseline', marginTop: 70 }}>
-        <Title style={{ margin: 0 }}>{pageName}</Title>
+      <FlexColumn style={{ marginTop: 50, alignItems: 'center' }}>
+        <Title style={{ margin: 0 }}>{name}</Title>
         <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
-          <BaseText style={{ fontSize: 12, color: 'grey', marginLeft: '16px', textDecoration: 'none' }}>
-            {pageName}
-          </BaseText>
+          <SmallTextGrey>{name}{config.tld}</SmallTextGrey>
         </a>
-      </FlexRow>
+      </FlexColumn>
       <DescResponsive>
         {tweetId && (
-          <TwitterSection tweetId={tweetId} pageName={pageName} client={client} />
+          <TwitterSection tweetId={tweetId.tweetId} pageName={name} client={client} />
         )}
       </DescResponsive>
-      <h1>Tweet</h1>
     </Container>
   )
 }

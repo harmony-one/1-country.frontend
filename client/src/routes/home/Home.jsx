@@ -1,21 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react'
-// import { Helmet } from 'react-helmet'
-// import detectEthereumProvider from '@metamask/detect-provider'
+import React, { useRef, useState } from 'react'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
 import humanizeDuration from 'humanize-duration'
-// import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 import AppGallery from '../../components/app-gallery/AppGallery'
 import config from '../../../config'
-// import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
 import { VanityURL } from './VanityURL'
-import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { wagmiClient } from '../../modules/wagmi/wagmiClient'
 import UserBlock from '../../components/user-block/UserBlock'
-import { useDomainName } from '../../hooks/useDomainName'
-import { useClient } from '../../hooks/useClient.ts'
 import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 
 import {
@@ -31,69 +24,28 @@ import {
   DescResponsive,
 } from './Home.styles'
 import Wallets from '../../components/wallets/Wallets'
+import { useOutletContext } from 'react-router'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
 const Home = ({ subdomain = config.tld }) => {
-  const [record, setRecord] = useState(null)
-  const [lastRentedRecord, setLastRentedRecord] = useState(null)
-  const [price, setPrice] = useState(null)
-  const [parameters, setParameters] = useState({
-    rentalPeriod: 0,
-    priceMultiplier: 0,
-  })
-  const [name] = useDomainName()
-  const { client, walletAddress, isClientConnected } = useClient()
+  const {
+    record,
+    lastRentedRecord,
+    price,
+    parameters,
+    name,
+    client,
+    walletAddress,
+    isClientConnected,
+    isOwner,
+    isHarmonyNetwork
+  } = useOutletContext()
+
   const [pending, setPending] = useState(false)
   const toastId = useRef(null)
   const tweet = 'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
   const minCentsAmount = 60
-
-  const isOwner =
-    walletAddress &&
-    record?.renter &&
-    record.renter.toLowerCase() === walletAddress.toLowerCase()
-
-  useDefaultNetwork()
-
-  useEffect(() => {
-    if (client) {
-      client.getPrice({ name }).then((p) => {
-        setPrice(p)
-      })
-    }
-  }, [client, name])
-
-  const pollParams = () => {
-    if (!client) {
-      return
-    }
-    client.getParameters().then((p) => setParameters(p))
-    client.getRecord({ name }).then((r) => setRecord(r))
-    client.getPrice({ name }).then((p) => setPrice(p))
-  }
-
-  useEffect(() => {
-    if (!client) {
-      return
-    }
-    pollParams()
-  }, [client])
-
-  useEffect(() => {
-    if (!parameters?.lastRented) {
-      setTimeout(() => {
-        console.log('Poll params')
-        pollParams()
-      }, 12000)
-      return
-    }
-    client
-      .getRecord({ name: parameters.lastRented })
-      .then((r) => setLastRentedRecord(r))
-  }, [parameters?.lastRented])
-
-  const isHarmonyNetwork = useIsHarmonyNetwork()
 
   const onActionFiat = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
     if (!price) {
@@ -115,8 +67,6 @@ const Home = ({ subdomain = config.tld }) => {
       if (!amount) {
         throw new Error(`Invalid USD amount: ${amount}`)
       }
-
-      // const tweetId = isRenewal ? {} : parseTweetId(url)
 
       const pageUrl = new URL(window.location.href)
       const { paymentUrl } = await createCheckoutSession({
