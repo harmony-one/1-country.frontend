@@ -33,7 +33,7 @@ const defaultOwnerInfo = {
 }
 
 const UserBlock = (props) => {
-  const { isOwner, client, walletAddress, isClientConnected } = props
+  const { isOwner, client, walletAddress, isClientConnected, showSocialMedia = true } = props
   const pageName = useSelector(selectPageName)
   const src = 'https://ipfs.io/ipfs/QmP7ZybNFUgQWKoim9fnFPLBCyoWnZ5GT5acc8MFX9YVuC'
   const alt = 'Image text'
@@ -129,7 +129,7 @@ const UserBlock = (props) => {
         Insert your bio here
       </div>
       <div className='social-networks'>
-        {SOCIAL_MEDIA.map((icon, index) => (
+        {showSocialMedia && SOCIAL_MEDIA.map((icon, index) => (
           <SocialMediaIcon onClick={() => handleSocialClick(icon)} url={icon.url} key={index}>
             {icon.icon}
           </SocialMediaIcon>

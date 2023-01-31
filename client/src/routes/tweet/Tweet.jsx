@@ -72,7 +72,7 @@ const Tweet = () => {
   return (
     <Container>
       <DescResponsive style={{ gap: 2 }}>
-        <UserBlock isOwner={isOwner} client={client} walletAddress={walletAddress} isClientConnected={isClientConnected} />
+        <UserBlock isOwner={isOwner} client={client} walletAddress={walletAddress} isClientConnected={isClientConnected} showSocialMedia={false} />
         {/* <FlexColumn style={{ marginTop: 50, alignItems: 'center' }}>
           <Title style={{ margin: 0 }}>{name}</Title>
           <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
