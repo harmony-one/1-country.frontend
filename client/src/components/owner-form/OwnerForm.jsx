@@ -3,8 +3,10 @@ import { OwnerFormContainer, FloatingTextInput } from './OwnerForm.styles'
 import {
   Button,
   Input,
-} from '../../components/Controls'
-import { Row } from '../../components/Layout'
+} from '../Controls'
+import { FlexRow, Row } from '../Layout'
+import { useSelector } from 'react-redux'
+import { selectIsWalletConnected } from '../../utils/store/walletSlice'
 
 const defaultFormFields = {
   telegram: '',
@@ -13,20 +15,23 @@ const defaultFormFields = {
 }
 const OwnerForm = ({ onAction, buttonLabel, pending }) => {
   const [formFields, setFormFields] = useState(defaultFormFields)
-
+  const isWalletConnected = useSelector(selectIsWalletConnected)
   const onChange = (event) => {
     const { name, value } = event.target
     setFormFields({ ...formFields, [name]: value })
   }
 
   const handleSubmit = (event) => {
+    // get payment type from Submit button
+    const { value: paymentType } = document.activeElement
     event.preventDefault()
-    console.log(formFields)
+    console.log('formFields:', formFields)
     onAction({
       telegram: formFields.telegram,
       email: formFields.email,
       phone: formFields.phone,
-      isRenewal: false
+      isRenewal: false,
+      paymentType
     })
   }
 
@@ -47,7 +52,10 @@ const OwnerForm = ({ onAction, buttonLabel, pending }) => {
             <Input name='phone' required onChange={onChange} />
             <FloatingTextInput>Phone Number</FloatingTextInput>
           </Row>
-          <Button type='submit' style={{ marginTop: '1em' }} disabled={pending}>{buttonLabel}</Button>
+          <FlexRow style={{ gap: 32 }}>
+            {!isWalletConnected && <Button type='submit' value='one' style={{ marginTop: '1em' }} disabled={pending}>{buttonLabel}</Button>}
+            <Button type='submit' value='usd' style={{ marginTop: '1em' }} disabled={pending}>Rent (USD)</Button>
+          </FlexRow>
         </OwnerFormContainer>
       </form>
     </>

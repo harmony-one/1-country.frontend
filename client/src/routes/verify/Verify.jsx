@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { setWallet, setProvider, setIsHarmony, setIsWalletConnected } from '../../utils/store/walletSlice'
 import { PROVIDER_TYPE } from '../../utils/sms-wallet/SmsWallet.utils'
@@ -11,7 +11,7 @@ const Verify = () => {
   const [, setIsPending] = useState(true)
   const [message, setMessage] = useState('')
   const [redirectUri, setRedirectUri] = useState('')
-  const history = useHistory()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
   const pageName = useSelector(selectPageName)
 
@@ -42,7 +42,7 @@ const Verify = () => {
 
     const doRedirect = (url) => {
       console.log('doredirect', url)
-      history.push(url)
+      navigate(url)
     }
 
     setMessage(

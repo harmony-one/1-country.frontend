@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components'
 
 export const UserBlockDiv = styled.div`
@@ -60,30 +59,4 @@ export const UserBlockDiv = styled.div`
     justify-content: center;
     gap: 1em;
     /* justify-content: space-around; */
-  }
-
-  
-`
-
-const WalletStatusCircle = styled.div`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: ${props => props.connected ? 'green' : 'red'};
-`
-
-const WalletStatusContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-`
-
-export const WalletStatus = ({ connected = false, className }) => {
-  const label = connected ? 'connected' : 'not connected'
-  return (
-    <WalletStatusContainer className={className}>
-      <WalletStatusCircle connected={connected} />
-      <div style={{ paddingLeft: '4px' }}>{label}</div>
-    </WalletStatusContainer>
-  )
-}
+  }`
