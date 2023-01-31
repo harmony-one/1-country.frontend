@@ -1,6 +1,7 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Home from './routes/home/Home'
+import Live from './routes/live/Live'
 import LoginPage from './routes/login/Login'
 import Navigation from './routes/navigation/Navigation'
 import { Cancel } from './routes/pay/Cancel'
@@ -21,6 +22,7 @@ const AppRoutes = () => {
       <Route path='/' element={<Navigation />}>
         <Route index element={<Home />} />
         <Route path='tweet/' element={<Tweet />} />
+        <Route path='live/' element={<Live />} />
       </Route>
       <Route path='auth/' element={<LoginPage />} />
       <Route path='verify/' element={<Verify />} />

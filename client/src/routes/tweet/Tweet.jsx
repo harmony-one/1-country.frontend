@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import BN from 'bn.js'
-import { FlexColumn } from '../../components/Layout'
-import { SmallTextGrey, Title } from '../../components/Text'
-import config from '../../../config'
+// import { FlexColumn } from '../../components/Layout'
+// import { SmallTextGrey, Title } from '../../components/Text'
+// import config from '../../../config'
 
 import { Container, DescResponsive } from '../home/Home.styles'
 import TwitterSection from '../../components/twitter-section/TwitterSection'
 import { useOutletContext } from 'react-router'
+import UserBlock from '../../components/user-block/UserBlock'
 
 const parseBN = (n) => {
   try {
@@ -47,10 +48,14 @@ const parseTweetId = (urlInput) => {
 
 const Tweet = () => {
   const [tweetId, setTweetId] = useState('')
+  const [message, setMessage] = useState('Loading tweet...')
   const {
     name,
     record,
     client,
+    isOwner,
+    walletAddress,
+    isClientConnected
   } = useOutletContext()
 
   console.log(record, client, tweetId)
@@ -59,20 +64,24 @@ const Tweet = () => {
       return
     }
     setTweetId(parseTweetId(record.url))
+    if (record) {
+      setMessage('The page doesn\'t have a linked tweet.')
+    }
   }, [record?.url])
 
   return (
     <Container>
-      <FlexColumn style={{ marginTop: 50, alignItems: 'center' }}>
-        <Title style={{ margin: 0 }}>{name}</Title>
-        <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
-          <SmallTextGrey>{name}{config.tld}</SmallTextGrey>
-        </a>
-      </FlexColumn>
-      <DescResponsive>
-        {tweetId && (
-          <TwitterSection tweetId={tweetId.tweetId} pageName={name} client={client} />
-        )}
+      <DescResponsive style={{ gap: 2 }}>
+        <UserBlock isOwner={isOwner} client={client} walletAddress={walletAddress} isClientConnected={isClientConnected} />
+        {/* <FlexColumn style={{ marginTop: 50, alignItems: 'center' }}>
+          <Title style={{ margin: 0 }}>{name}</Title>
+          <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
+            <SmallTextGrey>{name}{config.tld}</SmallTextGrey>
+          </a>
+        </FlexColumn> */}
+        {tweetId
+          ? (<TwitterSection tweetId={tweetId.tweetId} pageName={name} client={client} />)
+          : <h3>{message}</h3>}
       </DescResponsive>
     </Container>
   )
