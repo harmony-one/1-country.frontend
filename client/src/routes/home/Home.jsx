@@ -25,6 +25,7 @@ import {
 } from './Home.styles'
 import Wallets from '../../components/wallets/Wallets'
 import { useOutletContext } from 'react-router'
+import { SearchBlock } from '../../components/SearchBlock'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -163,6 +164,9 @@ const Home = ({ subdomain = config.tld }) => {
             humanD={humanD}
           />
         )}
+        <FlexRow style={{ alignItems: 'baseline', marginTop: 120, width: '100%' }}>
+          <SearchBlock client={client} />
+        </FlexRow>
         <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
           <Title style={{ margin: 0 }}>Claim your {subdomain}</Title>
         </FlexRow>
