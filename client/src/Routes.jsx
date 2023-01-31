@@ -10,13 +10,6 @@ import Tweet from './routes/tweet/Tweet'
 import Verify from './routes/verify/Verify'
 
 const AppRoutes = () => {
-  // {/* <Route path='/auth'><LoginPage /></Route>
-  //     <Route path='/verify'><Verify /></Route>
-  //     <Route path='/tweet'><Tweet /></Route>
-  //     <Route path='/success'><Success /></Route>
-  //     <Route path='/cancel'><Cancel /></Route>
-  //     <Route exact path='/' render={() => <Home />} />
-  //     <Redirect to='/' /> */}
   return (
     <Routes>
       <Route path='/' element={<Navigation />}>

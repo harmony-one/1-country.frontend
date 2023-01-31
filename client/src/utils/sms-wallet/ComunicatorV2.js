@@ -25,7 +25,6 @@ export const initLogin = async (args) => {
     const result = await controller.initLogin({
       callbackUrl: redirect || callbackUrl,
     })
-    console.log('RESULT FCO', result)
     return result
     //  res.json(result)
   } catch (err) {
