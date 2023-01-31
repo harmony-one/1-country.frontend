@@ -52,7 +52,9 @@ const apis = ({ web3, address }) => {
     }
   }
 
-  const call = async ({ amount, onFailed, onSubmitted, onSuccess, methodName, parameters }) => {
+  const call = async (params) => {
+    const { amount, onFailed, onSubmitted, onSuccess, methodName, parameters } = params
+    console.log('call', params)
     console.log({ methodName, parameters, amount, address })
     try {
       const testTx = await contract.methods[methodName](...parameters).call({ from: address, value: amount })

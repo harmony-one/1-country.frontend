@@ -30,6 +30,7 @@ import {
   HomeLabel,
   DescResponsive,
 } from './Home.styles'
+import Wallets from '../../components/wallets/Wallets'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -299,6 +300,7 @@ const Home = ({ subdomain = config.tld }) => {
           {isClientConnected && (
             <OwnerForm onAction={onAction} buttonLabel='Rent' pending={pending} />
           )}
+          <Wallets />
         </DescResponsive>
       )}
       {/* {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>} */}
