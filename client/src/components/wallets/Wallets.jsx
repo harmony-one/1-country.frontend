@@ -3,10 +3,34 @@ import { Web3Button } from '@web3modal/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDisconnect, useAccount } from 'wagmi'
 import { useHistory } from 'react-router'
-import { walletLogOut, selectIsWalletConnected } from '../../utils/store/walletSlice'
+import { toast } from 'react-toastify'
 
+import { walletLogOut, selectIsWalletConnected } from '../../utils/store/walletSlice'
 import { LogOutButton, SmsWalletButton } from '../Controls'
+
 import { FlexColumn } from '../Layout'
+import { WalletStatusCircle, WalletStatusContainer } from './Wallets.styles'
+
+export const WalletStatus = ({ connected = false, className }) => {
+  const label = connected ? 'connected' : 'connect wallet'
+
+  const onClick = () => {
+    console.log('click')
+    toast(<Wallets />, {
+      position: 'top-center',
+      closeOnClick: true,
+      hideProgressBar: true,
+      autoClose: false,
+    })
+  }
+
+  return (
+    <WalletStatusContainer className={className} onClick={onClick}>
+      <WalletStatusCircle connected={connected} />
+      <div style={{ paddingLeft: '4px' }}>{label}</div>
+    </WalletStatusContainer>
+  )
+}
 
 const Wallets = () => {
   const { isConnected } = useAccount()
@@ -25,7 +49,7 @@ const Wallets = () => {
   }
 
   return (
-    <FlexColumn style={{ gap: '0.5em' }}>
+    <FlexColumn style={{ gap: '0.5em', alignItems: 'center' }}>
       {(!isConnected && !isWalletConnected)
         ? (
           <>

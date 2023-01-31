@@ -6,8 +6,9 @@ import { useSelector } from 'react-redux'
 import { selectPageName } from '../../utils/store/pageSlice'
 import { truncateAddressString } from '../../utils/utils'
 import { SOCIAL_MEDIA } from './UserBlock.data'
-import { UserBlockDiv, WalletStatus } from './UserBlock.styles'
+import { UserBlockDiv } from './UserBlock.styles'
 import { toast } from 'react-toastify'
+import { WalletStatus } from '../wallets/Wallets'
 
 const SocialMediaIcon = (props) => {
   const { children, url, onClick } = props
@@ -94,11 +95,11 @@ const UserBlock = (props) => {
   }
 
   const handleSocialClick = useCallback(async (icon) => {
-    if (!isClientConnected) {
+    const infoName = icon.name
+
+    if (!isClientConnected && infoName === 'telegram') {
       await open({ route: 'ConnectWallet' })
     }
-
-    const infoName = icon.name
 
     let infoValue = ownerInfo[infoName]
 

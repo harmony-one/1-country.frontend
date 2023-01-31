@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
+import { Route, Switch, Redirect } from 'react-router-dom'
 import Home from './routes/home/Home'
 import LoginPage from './routes/login/Login'
 import { Cancel } from './routes/pay/Cancel'
@@ -8,20 +8,18 @@ import Verify from './routes/verify/Verify'
 
 const Routes = () => {
   return (
-    <BrowserRouter>
-      <Switch>
-        <Route path='/auth'>
-          <LoginPage />
-        </Route>
-        <Route path='/verify'>
-          <Verify />
-        </Route>
-        <Route path='/success'><Success /></Route>
-        <Route path='/cancel'><Cancel /></Route>
-        <Route exact path='/' render={() => <Home />} />
-        <Redirect to='/' />
-      </Switch>
-    </BrowserRouter>
+    <Switch>
+      <Route path='/auth'>
+        <LoginPage />
+      </Route>
+      <Route path='/verify'>
+        <Verify />
+      </Route>
+      <Route path='/success'><Success /></Route>
+      <Route path='/cancel'><Cancel /></Route>
+      <Route exact path='/' render={() => <Home />} />
+      <Redirect to='/' />
+    </Switch>
   )
 }
 

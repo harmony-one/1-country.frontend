@@ -16,8 +16,6 @@ import { wagmiClient } from '../../modules/wagmi/wagmiClient'
 import UserBlock from '../../components/user-block/UserBlock'
 import { useDomainName } from '../../hooks/useDomainName'
 import { useClient } from '../../hooks/useClient.ts'
-// import { selectIsWalletConnected } from '../../utils/store/walletSlice'
-import Wallets from '../../components/wallets/Wallets'
 import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 
 import {
@@ -304,7 +302,6 @@ const Home = ({ subdomain = config.tld }) => {
         </DescResponsive>
       )}
       {/* {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>} */}
-      <Wallets />
       <div style={{ height: 50 }} />
     </Container>
   )
