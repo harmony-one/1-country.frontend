@@ -241,4 +241,15 @@ describe('D1DCV2', () => {
       expect(emojiCounterAfter2).to.equal(0);
     });
   });
+
+  describe("existName", () => {
+    it("Should be able to returns the name existance", async () => {
+      expect(await d1dcV2.existName(dotName)).to.be.false;
+
+      // rent the name
+      await d1dcV2.connect(alice).rent(dotName, url, telegram, email, phone, { value: baseRentalPrice });
+
+      expect(await d1dcV2.existName(dotName)).to.be.true;
+    });
+  });
 });
