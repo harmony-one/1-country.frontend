@@ -8,6 +8,8 @@ const Dotenv = require('dotenv-webpack')
 
 console.log(!process.env.HTTP)
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 module.exports = {
   devServer: {
     port: 3100,
@@ -43,6 +45,9 @@ module.exports = {
                 }],
               '@babel/preset-react',
               '@babel/preset-typescript'
+            ],
+            plugins: [
+              ['babel-plugin-styled-components', { displayName: !isProduction }]
             ]
           }
         }
