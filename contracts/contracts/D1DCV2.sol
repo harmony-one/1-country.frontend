@@ -632,10 +632,11 @@ contract D1DCV2 is
         return _ownerInfos[key].phone;
     }
 
-    function existName(string calldata name) external returns(bool) {
+    function existName(string calldata name) external view returns (bool) {
         bytes32 key = keccak256(bytes(name));
+        uint256 tokenId = uint256(key);
 
-        return _exists(key);
+        return _exists(tokenId);
     }
 
     function _afterTokenTransfer(
