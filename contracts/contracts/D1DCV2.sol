@@ -632,7 +632,7 @@ contract D1DCV2 is
         return _ownerInfos[key].phone;
     }
 
-    function exisetName(string calldata name) external returns(bool) {
+    function existName(string calldata name) external returns(bool) {
         bytes32 key = keccak256(bytes(name));
 
         return _exists(key);
