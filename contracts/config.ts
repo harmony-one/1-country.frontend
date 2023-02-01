@@ -4,7 +4,7 @@ dotenv.config()
 
 export default {
   debug,
-  baseRentalPrice: process.env.BASE_RENTAL_PRICE_ETH || '1',
+  baseRentalPrice: process.env.BASE_RENTAL_PRICE_ETH || '100',
   rentalPeriod: parseFloat(process.env.RENTAL_PERIOD_DAYS || '1'),
   priceMultiplier: parseInt(process.env.PRICE_MULTIPLIER || '2'),
   emailRevealPrice: process.env.EMAIL_REVEAL_PRICE_ETH || '1', // '200',
