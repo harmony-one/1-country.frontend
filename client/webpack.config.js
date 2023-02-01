@@ -5,6 +5,7 @@ const webpack = require('webpack')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
+const CopyPlugin = require('copy-webpack-plugin')
 
 console.log(!process.env.HTTP)
 
@@ -136,6 +137,11 @@ module.exports = {
     new webpack.ProvidePlugin({
       process: 'process/browser',
     }),
-    process.env.SIZE_ANALYSIS ? new BundleAnalyzerPlugin({ }) : null
+    process.env.SIZE_ANALYSIS ? new BundleAnalyzerPlugin({ }) : null,
+    new CopyPlugin({
+      patterns: [
+        'assets/_redirects'
+      ],
+    }),
   ].filter(i => i)
 }

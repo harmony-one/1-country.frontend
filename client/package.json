@@ -35,7 +35,7 @@
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "babel-preset-react": "^6.24.1",
     "base64-loader": "^1.0.0",
-    "copy-webpack-plugin": "^9.0.1",
+    "copy-webpack-plugin": "^11.0.0",
     "core-js": "^3.23.5",
     "css-loader": "^5.2.6",
     "dotenv": "^16.0.3",
