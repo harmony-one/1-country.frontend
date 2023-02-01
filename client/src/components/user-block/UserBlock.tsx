@@ -1,30 +1,16 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import React, { useEffect, useRef, useState, useCallback } from 'react'
-import { useWeb3Modal } from '@web3modal/react'
-import { useSelector } from 'react-redux'
-import { selectPageName } from '../../utils/store/pageSlice'
-import { truncateAddressString } from '../../utils/utils'
-import { SOCIAL_MEDIA } from './UserBlock.data'
-import { UserBlockDiv } from './UserBlock.styles'
-import { toast } from 'react-toastify'
-import { WalletStatus } from '../wallets/Wallets'
-
-const SocialMediaIcon = (props) => {
-  const { children, url, onClick } = props
-  const handleClick = () => {
-    if (onClick) {
-      return onClick()
-    }
-    window.open(url, '_blank')
-  }
-
-  return (
-    <div onClick={handleClick}>
-      {children}
-    </div>
-  )
-}
+import React, {useEffect, useRef, useState} from 'react'
+import {useWeb3Modal} from '@web3modal/react'
+import {useSelector} from 'react-redux'
+import {selectPageName} from '../../utils/store/pageSlice'
+import {truncateAddressString} from '../../utils/utils'
+import {SOCIAL_MEDIA, SocialMedia} from './UserBlock.data'
+import {UserBlockDiv} from './UserBlock.styles'
+import {toast} from 'react-toastify'
+import {WalletStatus} from '../wallets/Wallets'
+import {D1DCClient, OWNER_INFO_FIELDS} from "../../api";
+import {SocialMediaElement} from "./SocialMediaElement";
 
 const defaultOwnerInfo = {
   telegram: '',
@@ -32,7 +18,15 @@ const defaultOwnerInfo = {
   phone: ''
 }
 
-const UserBlock = (props) => {
+interface Props {
+  client: D1DCClient,
+  isOwner: boolean,
+  walletAddress: string,
+  isClientConnected: boolean,
+  showSocialMedia?: boolean
+}
+
+const UserBlock: React.FC<Props> = (props) => {
   const { isOwner, client, walletAddress, isClientConnected, showSocialMedia = true } = props
   const pageName = useSelector(selectPageName)
   const src = 'https://ipfs.io/ipfs/QmP7ZybNFUgQWKoim9fnFPLBCyoWnZ5GT5acc8MFX9YVuC'
@@ -61,7 +55,7 @@ const UserBlock = (props) => {
 
   const { open } = useWeb3Modal()
 
-  const reveal = async (infoName) => {
+  const reveal = async (infoName: OWNER_INFO_FIELDS) => {
     if (isClientConnected) {
       toastId.current = toast.loading('Processing transaction')
 
@@ -90,27 +84,36 @@ const UserBlock = (props) => {
     }
   }
 
-  const redirectToTelegram = (name) => {
+  const redirectToTelegram = (name: string) => {
     window.open(`https://t.me/${name}`, '_black')
   }
 
-  const handleSocialClick = useCallback(async (icon) => {
-    const infoName = icon.name
+  const handleTelegramClick = async (socialItem: SocialMedia) => {
+    if (socialItem.name !== OWNER_INFO_FIELDS.TELEGRAM) {
+      return;
+    }
 
-    if (!isClientConnected && infoName === 'telegram') {
+    if (!isClientConnected) {
       await open({ route: 'ConnectWallet' })
+      return;
     }
 
-    let infoValue = ownerInfo[infoName]
+    let telegramName = ownerInfo[OWNER_INFO_FIELDS.TELEGRAM]
 
-    if (!infoValue) {
-      infoValue = await reveal(infoName)
+    if (!telegramName) {
+      telegramName = await reveal(OWNER_INFO_FIELDS.TELEGRAM)
     }
 
-    if (infoName === 'telegram' && infoValue) {
-      return redirectToTelegram(infoValue)
+    if (telegramName) {
+      return redirectToTelegram(telegramName)
     }
-  }, [ownerInfo, isClientConnected])
+  }
+
+  const handleSocialIconClick = async (socialItem: SocialMedia) => {
+    if (socialItem.name === OWNER_INFO_FIELDS.TELEGRAM) {
+      return handleTelegramClick(socialItem)
+    }
+  }
 
   return (
     <UserBlockDiv>
@@ -129,10 +132,8 @@ const UserBlock = (props) => {
         Insert your bio here
       </div>
       <div className='social-networks'>
-        {showSocialMedia && SOCIAL_MEDIA.map((icon, index) => (
-          <SocialMediaIcon onClick={() => handleSocialClick(icon)} url={icon.url} key={index}>
-            {icon.icon}
-          </SocialMediaIcon>
+        {showSocialMedia && SOCIAL_MEDIA.map((item, index) => (
+          <SocialMediaElement key={index} data={item} onClick={handleSocialIconClick}  />
         ))}
       </div>
     </UserBlockDiv>

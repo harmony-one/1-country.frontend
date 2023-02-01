@@ -173,7 +173,7 @@ const apis = ({ web3, address }: {web3: Web3, address: string}) => {
         return null
       }
     },
-    getAllOwnerInfo: async ({ name }: {name: string}) => {
+    getAllOwnerInfo: async ({ name }: {name: string}): Promise<{telegram: string, phone: string, email: string}> => {
       const [telegram, phone, email] = await Promise.all([
         contract.methods.getOwnerTelegram(name).call({ from: address }),
         contract.methods.getOwnerPhone(name).call({ from: address }),

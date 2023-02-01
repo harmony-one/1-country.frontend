@@ -1,6 +1,9 @@
 import React from 'react'
 import { AiFillTwitterCircle, AiFillInstagram, AiFillYoutube } from 'react-icons/ai'
 import { FaTelegram, FaDiscord } from 'react-icons/fa'
+import {OWNER_INFO_FIELDS} from "../../api";
+
+
 
 export const SOCIAL_MEDIA = [
   {
@@ -26,6 +29,10 @@ export const SOCIAL_MEDIA = [
   {
     icon: <FaTelegram size='25px' />,
     url: 'https://harmony.one/telegram',
-    name: 'telegram'
+    name: OWNER_INFO_FIELDS.TELEGRAM
   },
-]
+] as const;
+
+
+type B<T extends readonly any[]> = T[number];
+export type SocialMedia = B<typeof SOCIAL_MEDIA>;
