@@ -49,17 +49,18 @@ const Home = ({ subdomain = config.tld }) => {
   const minCentsAmount = 60
 
   const onActionFiat = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
+    console.log(price)
     if (!price) {
       console.error('No domain rental price provided, exit')
-      return
+      throw new Error('No domain rental price provided')
     }
 
     setPending(true)
     let amount = 0
-
+    toast.info('Redirecting to Stripe')
     try {
       const oneTokenPriceUsd = await getTokenPrice('harmony')
-      amount = (+price.formatted * +oneTokenPriceUsd) * 100 // price in cents
+      amount = Math.round((+price.formatted * +oneTokenPriceUsd) * 100) // price in cents
       if (amount < minCentsAmount) {
         console.log(`Amount ${amount} < min amount ${minCentsAmount} cents, using ${minCentsAmount} cents value. Required by Stripe.`)
         amount = minCentsAmount
@@ -86,6 +87,7 @@ const Home = ({ subdomain = config.tld }) => {
       console.log('Stripe checkout link:', paymentUrl)
       window.open(paymentUrl, '_self')
     } catch (e) {
+      toast.error(`Cannot complete payment by USD: ${e.toString()}`)
       console.error('Cannot complete payment by USD:', e)
     }
   }

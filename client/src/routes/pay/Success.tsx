@@ -1,17 +1,24 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
+import { Button } from '../../components/Controls';
+import { Container, DescResponsive } from '../home/Home.styles';
 
 export const Success = () => {
-    return <div>
+  return (
+    <Container>
+      <DescResponsive>
         <div>
-          <h1>Payment status: Success</h1>
+          <h2>Payment status</h2>
+          <h1 style={{ color: 'green' }}>Success</h1>
         </div>
         <div>
           <Link to={'/'}>
-              <button>
-                  Back to main page
-              </button>
+            <Button>
+              Back to page
+            </Button>
           </Link>
         </div>
-    </div>
+      </DescResponsive>
+    </Container>
+  )
 }
