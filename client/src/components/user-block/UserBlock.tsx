@@ -61,7 +61,7 @@ const UserBlock: React.FC<Props> = observer((props) => {
       </div>
       <SocialMedia />
 
-      <ModalRegister modalId={ModalIds.PROFILE_EDIT_SOCIAL}>
+      <ModalRegister layerProps={{position: 'right', full: 'vertical'}} modalId={ModalIds.PROFILE_EDIT_SOCIAL}>
         <ModalProfileEditBio />
       </ModalRegister>
     </UserBlockDiv>

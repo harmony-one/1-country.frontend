@@ -7,7 +7,7 @@ export enum ModalIds {
 
 export interface LayerProps {
   full?: boolean | 'vertical' | 'horizontal';
-  position?: 'center' | 'top';
+  position?: 'center' | 'top' | 'right' | 'left';
 }
 
 export type InferModalProps<T> = T extends { [key: string]: infer U }

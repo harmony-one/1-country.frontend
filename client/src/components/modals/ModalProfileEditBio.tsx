@@ -1,9 +1,10 @@
 import React from 'react';
-import {FormField, TextInput, Form as GForm, Button} from "grommet";
+import {FormField, TextInput, Form as GForm, Button, Box} from "grommet";
 import {observer} from "mobx-react-lite";
 import {Form, Field} from 'react-final-form'
 import {ModalContent} from "./ModalContent";
 import {useStores} from "../../stores";
+import {Title} from "../Text";
 
 
 interface Props {
@@ -28,6 +29,7 @@ export const ModalProfileEditBio: React.FC<Props> = observer(({onClose}) => {
   return <ModalContent>
     <Form initialValues={domainRecordStore.profile} onSubmit={handleSubmit} render={({handleSubmit}) => (
       <GForm onSubmit={handleSubmit}>
+        <Title>Edit Profile</Title>
         <Field name="bio">
           {props => (
             <FormField name={props.input.name} label="BIO">
@@ -61,7 +63,10 @@ export const ModalProfileEditBio: React.FC<Props> = observer(({onClose}) => {
             </FormField>
           )}
         </Field>
-        <Button type="submit" label="Confirm" />
+        <Box gap="12px" direction="row">
+          <Button primary type="submit" label="Confirm" />
+          <Button secondary onClick={onClose} label="Close" />
+        </Box>
       </GForm>
     )} />
   </ModalContent>;

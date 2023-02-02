@@ -39,7 +39,7 @@ export const ModalProvider: React.FC<Props> = observer(() => {
       onClickOutside={handleCloseModal}
       full={full}
       position={position}
-      responsive={false}
+      responsive={true}
     >
       {modalComponent}
     </Layer>
