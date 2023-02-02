@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
 import humanizeDuration from 'humanize-duration'
+import { useSwipeable } from 'react-swipeable'
+
 import AppGallery from '../../components/app-gallery/AppGallery'
 import config from '../../../config'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
@@ -16,7 +18,7 @@ import {
   LinkWrarpper,
 } from '../../components/Controls'
 
-import { Col, FlexRow, Row } from '../../components/Layout'
+import { Col, FlexColumn, FlexRow, Row } from '../../components/Layout'
 import { BaseText, DescLeft, SmallTextGrey, Title } from '../../components/Text'
 import {
   Container,
@@ -24,12 +26,13 @@ import {
   DescResponsive,
 } from './Home.styles'
 import Wallets from '../../components/wallets/Wallets'
-import { useOutletContext } from 'react-router'
+import { useNavigate, useOutletContext } from 'react-router'
 import { SearchBlock } from '../../components/SearchBlock'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
 const Home = ({ subdomain = config.tld }) => {
+  const navigate = useNavigate()
   const {
     record,
     lastRentedRecord,
@@ -42,6 +45,28 @@ const Home = ({ subdomain = config.tld }) => {
     isOwner,
     isHarmonyNetwork
   } = useOutletContext()
+
+  const swipePage = (eventData) => {
+    console.log('SWIPEPAGE', eventData)
+    const direction = eventData.dir
+    let url = ''
+    if (direction === 'Left') {
+      url = record.next && `https://${record.next}${config.tld}`
+    } else {
+      url = record.prev && `https://${record.prev}${config.tld}`
+    }
+    if (url) {
+      window.location.assign(url)
+      navigate('/')
+    }
+  }
+
+  const handlers = useSwipeable({
+    onSwipedLeft: (eventData) => swipePage(eventData),
+    onSwipedRight: (eventData) => swipePage(eventData),
+    trackMouse: true,
+    preventScrollOnSwipe: true,
+  })
 
   const [pending, setPending] = useState(false)
   const toastId = useRef(null)
@@ -197,10 +222,11 @@ const Home = ({ subdomain = config.tld }) => {
   }
 
   return (
-    <Container>
+    <Container {...handlers}>
       {/* <Helmet>
         <title>{name}.1 | Harmony</title>
       </Helmet> */}
+      {!record && (<FlexColumn style={{ height: '90vh', justifyContent: 'center', alignContent: 'center' }}>Uploading...</FlexColumn>)}
       {record?.renter && (
         <DescResponsive>
           <UserBlock isOwner={isOwner} client={client} walletAddress={walletAddress} isClientConnected={isClientConnected} />
@@ -225,7 +251,7 @@ const Home = ({ subdomain = config.tld }) => {
           )}
         </DescResponsive>
       )}
-      {!record?.renter && (
+      {(record && !record?.renter) && (
         <DescResponsive>
           <VanityURL record={record} name={name} />
           <FlexRow style={{ width: '100%', justifyContent: 'center', marginTop: 30 }}>
