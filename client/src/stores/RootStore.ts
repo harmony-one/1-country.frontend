@@ -4,6 +4,7 @@ import {WalletStore} from "./WalletStore";
 import {DomainRecordStore} from "./DomainRecordStore";
 import {modalStore} from "../modules/modals/ModalContext";
 import {ModalStore} from "../modules/modals/ModalStore";
+import {WidgetsStore} from "./WidgetsStore";
 
 
 export class RootStore {
@@ -12,6 +13,7 @@ export class RootStore {
   modalStore: ModalStore;
   domainRecordStore: DomainRecordStore;
   walletStore: WalletStore;
+  widgetsStore: WidgetsStore
   domainName: string = '';
 
   constructor() {
@@ -24,6 +26,7 @@ export class RootStore {
     this.modalStore = modalStore;
     this.domainRecordStore = new DomainRecordStore(this);
     this.walletStore = new WalletStore(this);
+    this.widgetsStore = new WidgetsStore(this);
   }
 
   updateClient(client: D1DCClient) {

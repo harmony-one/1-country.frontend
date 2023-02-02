@@ -5,6 +5,7 @@ import {WidgetContainer} from './WidgetContainer'
 import {ModalIds, ModalRegister} from '../../../modules/modals'
 import {useStores} from "../../../stores";
 import {ModalWidgetAdd} from "../../../components/modals/ModalWidgetAdd";
+import {ModalWidgetText} from "../../../components/modals/ModalWidgetText";
 
 interface Props {}
 
@@ -25,6 +26,9 @@ export const WidgetCreator: React.FC<Props> = () => {
 
       <ModalRegister layerProps={{position: 'right', full: 'vertical'}} modalId={ModalIds.PROFILE_ADD_WIDGET}>
         <ModalWidgetAdd />
+      </ModalRegister>
+      <ModalRegister modalId={ModalIds.PROFILE_ADD_WIDGET_TEXT}>
+        <ModalWidgetText />
       </ModalRegister>
     </WidgetContainer>
   )

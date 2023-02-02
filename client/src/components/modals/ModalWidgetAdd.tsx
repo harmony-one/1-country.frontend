@@ -4,16 +4,25 @@ import {ModalContent} from "./ModalContent";
 import styled from "styled-components";
 import {Box} from "grommet";
 import {BaseText, Title} from "../Text";
-import {AiOutlineShoppingCart, AiOutlineTwitter, AiOutlineVideoCamera, IoTextSharp, AiOutlinePicture} from "react-icons/all";
+import {
+  AiOutlinePicture,
+  AiOutlineShoppingCart,
+  AiOutlineTwitter,
+  AiOutlineVideoCamera,
+  IoTextSharp
+} from "react-icons/all";
 import {ModalHeader} from "./ModalHeader";
+import {useStores} from "../../stores";
+import {ModalIds} from "../../modules/modals";
 
 
 interface CardProps {
+  onClick?: () => void;
   children: React.ReactNode | React.ReactNode[]
 }
 
-const Card: React.FC<CardProps> = ({children}) => {
-  return <Box pad="16px" round="8px" elevation="medium" align="center" justify="center" gap="8px">
+const Card: React.FC<CardProps> = ({children, onClick}) => {
+  return <Box onClick={onClick} pad="16px" round="8px" elevation="medium" align="center" justify="center" gap="8px">
     {children}
   </Box>
 }
@@ -30,6 +39,13 @@ interface Props {
 }
 
 export const ModalWidgetAdd: React.FC<Props> = observer(({onClose}) => {
+
+  const {modalStore} = useStores();
+
+  const handleClick = () => {
+    modalStore.showModal(ModalIds.PROFILE_ADD_WIDGET_TEXT);
+  }
+
   return (
     <>
       <ModalHeader onClick={onClose} />
@@ -40,7 +56,7 @@ export const ModalWidgetAdd: React.FC<Props> = observer(({onClose}) => {
             <AiOutlineTwitter size="40px" />
             <BaseText>Twitter</BaseText>
           </Card>
-          <Card>
+          <Card onClick={handleClick}>
             <IoTextSharp  size="40px"/>
             <BaseText>Text</BaseText>
           </Card>
