@@ -5,6 +5,7 @@ import { AppGalleryDiv, AppGalleryItem } from './AppGallery.styles'
 import { WidgetDirectSell } from '../../routes/home/components/WidgetSellProduct'
 import { WidgetUserText } from '../../routes/home/components/WidgetUserText'
 import { WidgetNFT } from '../../routes/home/components/WidgetNFT'
+import { WidgetCreator } from '../../routes/home/components/WidgetCreator'
 
 const AppGallery = () => {
   const [appList, setAppList] = useState([])
@@ -15,6 +16,7 @@ const AppGallery = () => {
 
   return (
     <AppGalleryDiv>
+      <WidgetCreator />
       <WidgetDirectSell />
       <WidgetUserText />
       <AppGalleryItem row='span 2'>

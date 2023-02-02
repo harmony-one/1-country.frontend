@@ -24,7 +24,7 @@ const UserBlock: React.FC<Props> = observer(() => {
 
 
   const handleEditProfile = () => {
-    modalStore.showModal(ModalIds.PROFILE_EDIT_SOCIAL)
+    modalStore.showModal(ModalIds.PROFILE_EDIT)
   }
 
   const {domainRecordStore, walletStore} = useStores()
@@ -54,7 +54,7 @@ const UserBlock: React.FC<Props> = observer(() => {
       </div>
       <SocialMedia />
 
-      <ModalRegister layerProps={{position: 'right', full: 'vertical'}} modalId={ModalIds.PROFILE_EDIT_SOCIAL}>
+      <ModalRegister layerProps={{position: 'right', full: 'vertical'}} modalId={ModalIds.PROFILE_EDIT}>
         <ModalProfileEditBio />
       </ModalRegister>
     </UserBlockDiv>
