@@ -20,7 +20,7 @@ export const AppGalleryDiv = styled.div`
   }
 `
 
-export const AppGalleryItem = styled.div`
+export const AppGalleryItem = styled.div<{row?: string, column?: string}>`
   grid-row: ${props => props.row};
   grid-column: ${props => props.column};
 `

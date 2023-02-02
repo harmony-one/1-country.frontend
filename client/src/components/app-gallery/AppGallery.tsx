@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import {observer} from "mobx-react-lite";
 import AppBlock from '../app-block/AppBlock'
 import { APPS } from './AppGallery.data'
 import { AppGalleryDiv, AppGalleryItem } from './AppGallery.styles'
@@ -6,9 +7,12 @@ import { WidgetDirectSell } from '../../routes/home/components/WidgetSellProduct
 import { WidgetUserText } from '../../routes/home/components/WidgetUserText'
 import { WidgetNFT } from '../../routes/home/components/WidgetNFT'
 import { WidgetCreator } from '../../routes/home/components/WidgetCreator'
+import {useStores} from "../../stores";
 
-const AppGallery = () => {
+const AppGallery: React.FC = observer(() => {
   const [appList, setAppList] = useState([])
+
+  const {domainRecordStore} = useStores();
 
   useEffect(() => {
     setAppList(APPS)
@@ -16,7 +20,7 @@ const AppGallery = () => {
 
   return (
     <AppGalleryDiv>
-      <WidgetCreator />
+      {domainRecordStore.isOwner && <WidgetCreator />}
       <WidgetDirectSell />
       <WidgetUserText />
       <AppGalleryItem row='span 2'>
@@ -35,6 +39,6 @@ const AppGallery = () => {
         ))}
     </AppGalleryDiv>
   )
-}
+})
 
 export default AppGallery
