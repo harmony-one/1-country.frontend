@@ -40,7 +40,7 @@ const UserBlock: React.FC<Props> = observer(() => {
       <WalletStatus className='status-section' connected={walletStore.isConnected} />
       <div className='name-section'>
         <span>{`${domainRecordStore.domainName}.1`}</span>
-        {walletStore.walletAddress && <span>{`${truncateAddressString(walletStore.walletAddress, 5)}`}</span>}
+        {domainRecordStore.domainRecord?.renter && <span>{`${truncateAddressString(domainRecordStore.domainRecord.renter, 5)}`}</span>}
       </div>
       {domainRecordStore.isOwner && (
         <Box align="center" pad="4px">
