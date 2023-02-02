@@ -1,6 +1,6 @@
 import React from 'react';
 import {Box, Button} from "grommet";
-import {AiOutlineCloseCircle} from "react-icons/all";
+import {GrClose} from "react-icons/gr";
 
 interface Props {
   onClick: () => void
@@ -8,7 +8,7 @@ interface Props {
 
 export const ModalHeader: React.FC<Props> = ({onClick}) => {
   return <Box direction="row" justify="end">
-    <Button onClick={onClick} icon={<AiOutlineCloseCircle />} />
+    <Button onClick={onClick} icon={<GrClose />} />
   </Box>;
 };
 
