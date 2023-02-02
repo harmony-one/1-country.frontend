@@ -47,8 +47,12 @@ module.exports = {
               '@babel/preset-typescript'
             ],
             plugins: [
-              ['babel-plugin-styled-components', { displayName: !isProduction }]
-            ]
+              ['babel-plugin-styled-components', { displayName: !isProduction }],
+              ['@babel/plugin-proposal-class-properties']
+            ],
+            assumptions: {
+              setPublicClassFields: false
+            }
           }
         }
       },
