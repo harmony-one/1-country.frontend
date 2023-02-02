@@ -8,6 +8,19 @@ import Web3 from "web3";
 // console.log('REACT_APP_SMS_WALLET_URL', process.env.REACT_APP_SMS_WALLET_URL)
 // console.log('SMSWALLET_CALLBACK_VERIFY', process.env.SMSWALLET_CALLBACK_VERIFY)
 
+export interface DomainRecord {
+  renter: string,
+  lastPrice: {
+    amount: string,
+    formatted: string
+  },
+  timeUpdated: number,
+  url: string,
+  prev: string,
+  next: string
+}
+
+
 export enum EMOJI_TYPE {
   ONE_ABOVE = 0,
   FIRST_PRIZE = 1,
@@ -135,7 +148,7 @@ const apis = ({ web3, address }: {web3: Web3, address: string}) => {
       })
     },
     // owner info
-    revealInfo: async ({ name, info }: {name: string, info: OWNER_INFO_FIELDS}) => {
+    revealInfo: async ({ name, info }: {name: string, info: OWNER_INFO_FIELDS}): Promise<string | null> => {
       const amount = web3.utils.toWei(new BN(config.infoRevealPrice[info]).toString())
       console.log('reveal info', name, info, config.infoRevealPrice[info])
       console.log('reveal info address', address)
@@ -211,7 +224,7 @@ const apis = ({ web3, address }: {web3: Web3, address: string}) => {
         formatted: web3.utils.fromWei(amount)
       }
     },
-    getRecord: async ({ name }: {name: string}) => {
+    getRecord: async ({ name }: {name: string}): Promise<DomainRecord> => {
       const nameBytes = web3.utils.keccak256(name)
       const result = await contract.methods.nameRecords(nameBytes).call()
       // console.log('RESULT', result)

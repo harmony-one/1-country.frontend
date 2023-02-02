@@ -1,22 +1,21 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import React, {useEffect, useRef, useState} from 'react'
-import {useWeb3Modal} from '@web3modal/react'
+import React from 'react'
+import {Box} from "grommet";
 import {useSelector} from 'react-redux'
+import {observer} from "mobx-react-lite";
 import {selectPageName} from '../../utils/store/pageSlice'
 import {truncateAddressString} from '../../utils/utils'
-import {SOCIAL_MEDIA, SocialMedia} from './UserBlock.data'
 import {UserBlockDiv} from './UserBlock.styles'
-import {toast} from 'react-toastify'
 import {WalletStatus} from '../wallets/Wallets'
-import {D1DCClient, OWNER_INFO_FIELDS} from "../../api";
-import {SocialMediaElement} from "./SocialMediaElement";
-
-const defaultOwnerInfo = {
-  telegram: '',
-  email: '',
-  phone: ''
-}
+import {D1DCClient} from "../../api";
+import {ModalRegister} from '../../modules/modals'
+import {ModalIds} from "../../modules/modals";
+import {ModalProfileEditBio} from "../modals/ModalProfileEditBio";
+import {ButtonSmall} from "../Controls";
+import {modalStore} from "../../modules/modals/ModalContext";
+import {useStores} from "../../stores";
+import {SocialMedia} from "./SocialMedia";
 
 interface Props {
   client: D1DCClient,
@@ -26,94 +25,18 @@ interface Props {
   showSocialMedia?: boolean
 }
 
-const UserBlock: React.FC<Props> = (props) => {
-  const { isOwner, client, walletAddress, isClientConnected, showSocialMedia = true } = props
+const UserBlock: React.FC<Props> = observer((props) => {
+  const { walletAddress, isClientConnected, isOwner, showSocialMedia = true } = props
   const pageName = useSelector(selectPageName)
   const src = 'https://ipfs.io/ipfs/QmP7ZybNFUgQWKoim9fnFPLBCyoWnZ5GT5acc8MFX9YVuC'
   const alt = 'Image text'
-  const [ownerInfo, setOwnerInfo] = useState(defaultOwnerInfo)
 
-  useEffect(() => {
-    const getInfo = async () => {
-      const info = await client.getAllOwnerInfo({ name: pageName })
-      console.log('getInfo', info)
-      setOwnerInfo(info)
-    }
-    if (isOwner) {
-      console.log('is owner')
-      getInfo()
-    }
-  }, [])
-  console.log('owner Info', ownerInfo)
-  useEffect(() => {
-    if (!isOwner) {
-      setOwnerInfo(defaultOwnerInfo)
-    }
-  }, [isOwner])
 
-  const toastId = useRef(null)
-
-  const { open } = useWeb3Modal()
-
-  const reveal = async (infoName: OWNER_INFO_FIELDS) => {
-    if (isClientConnected) {
-      toastId.current = toast.loading('Processing transaction')
-
-      const info = await client.revealInfo({ name: pageName, info: infoName })
-      if (info) {
-        setOwnerInfo({ ...ownerInfo, [infoName]: info })
-
-        toast.update(toastId.current, {
-          render: 'Transaction success!',
-          type: 'success',
-          isLoading: false,
-          autoClose: 2000
-        })
-
-        return info
-      } else {
-        toast.update(toastId.current, {
-          render: 'Error processing the transaction',
-          type: 'error',
-          isLoading: false,
-          autoClose: 2000
-        })
-      }
-    } else {
-      toast.error('Please connect your wallet')
-    }
+  const handleEditProfile = () => {
+    modalStore.showModal(ModalIds.PROFILE_EDIT_SOCIAL)
   }
 
-  const redirectToTelegram = (name: string) => {
-    window.open(`https://t.me/${name}`, '_black')
-  }
-
-  const handleTelegramClick = async (socialItem: SocialMedia) => {
-    if (socialItem.name !== OWNER_INFO_FIELDS.TELEGRAM) {
-      return;
-    }
-
-    if (!isClientConnected) {
-      await open({ route: 'ConnectWallet' })
-      return;
-    }
-
-    let telegramName = ownerInfo[OWNER_INFO_FIELDS.TELEGRAM]
-
-    if (!telegramName) {
-      telegramName = await reveal(OWNER_INFO_FIELDS.TELEGRAM)
-    }
-
-    if (telegramName) {
-      return redirectToTelegram(telegramName)
-    }
-  }
-
-  const handleSocialIconClick = async (socialItem: SocialMedia) => {
-    if (socialItem.name === OWNER_INFO_FIELDS.TELEGRAM) {
-      return handleTelegramClick(socialItem)
-    }
-  }
+  const {domainRecordStore} = useStores()
 
   return (
     <UserBlockDiv>
@@ -128,16 +51,21 @@ const UserBlock: React.FC<Props> = (props) => {
         <span>{`${pageName}.1`}</span>
         {walletAddress && <span>{`${truncateAddressString(walletAddress, 5)}`}</span>}
       </div>
+      {isOwner && <Box align="center" pad="4px">
+        <ButtonSmall onClick={handleEditProfile}>
+          Edit Profile
+        </ButtonSmall>
+      </Box>}
       <div className='user-profile-text'>
-        Insert your bio here
+        {domainRecordStore.profile.bio || 'Insert your bio here'}
       </div>
-      <div className='social-networks'>
-        {showSocialMedia && SOCIAL_MEDIA.map((item, index) => (
-          <SocialMediaElement key={index} data={item} onClick={handleSocialIconClick}  />
-        ))}
-      </div>
+      <SocialMedia />
+
+      <ModalRegister modalId={ModalIds.PROFILE_EDIT_SOCIAL}>
+        <ModalProfileEditBio />
+      </ModalRegister>
     </UserBlockDiv>
   )
-}
+})
 
 export default UserBlock

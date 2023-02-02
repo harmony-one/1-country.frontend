@@ -23,6 +23,11 @@ export const Button = styled.button`
   }
 `
 
+export const ButtonSmall = styled(Button)`
+  padding: 4px 8px;
+  font-size: 12px;
+`
+
 export const CancelButton = styled(Button)`
   background: transparent;
   color: red;

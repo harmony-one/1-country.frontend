@@ -3,6 +3,7 @@ import { Outlet } from 'react-router'
 import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { useClient } from '../../hooks/useClient'
 import { useDomainName } from '../../hooks/useDomainName'
+import { useStores } from '../../stores'
 
 const Navigation = () => {
   const [record, setRecord] = useState(null)
@@ -15,9 +16,26 @@ const Navigation = () => {
   const [name] = useDomainName()
   const { client, walletAddress, isClientConnected } = useClient()
   const isOwner =
-    walletAddress &&
+    !!(walletAddress &&
     record?.renter &&
-    record.renter.toLowerCase() === walletAddress.toLowerCase()
+    record.renter.toLowerCase() === walletAddress.toLowerCase())
+
+  // start: sync mobx store start
+  const { rootStore, domainRecordStore, walletStore } = useStores()
+  useEffect(() => {
+    domainRecordStore.isOwner = isOwner
+  }, [isOwner])
+
+  useEffect(() => {
+    rootStore.updateClient(client)
+  }, [client])
+
+  useEffect(() => {
+    walletStore.isConnected = isClientConnected
+    walletStore.walletAddress = walletAddress
+    console.log('### isClientConnected', isClientConnected)
+  }, [walletAddress, isClientConnected])
+  // end: sync mobx store start
 
   useDefaultNetwork()
 
@@ -34,7 +52,10 @@ const Navigation = () => {
       return
     }
     client.getParameters().then((p) => setParameters(p))
-    client.getRecord({ name }).then((r) => setRecord(r))
+    client.getRecord({ name }).then((r) => {
+      setRecord(r)
+      domainRecordStore.domainRecord = r
+    })
     client.getPrice({ name }).then((p) => setPrice(p))
   }
 

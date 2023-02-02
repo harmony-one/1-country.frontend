@@ -12,6 +12,7 @@ import { Web3ModalProvider } from './modules/web3modal/Web3ModalProvider'
 import { WagmiConfigProvider } from './modules/wagmi/WagmiConfigProvider'
 import { store, persistor } from './utils/store/store'
 import { BrowserRouter } from 'react-router-dom'
+import { ModalProvider } from './modules/modals/ModalProvider'
 
 document.body.ontouchstart = function () {}
 
@@ -29,6 +30,7 @@ ReactDOM.render(
             <Routes />
             <Web3ModalProvider />
             <ToastContainer position='top-left' />
+            <ModalProvider />
           </HelmetProvider>
         </WagmiConfigProvider>
       </BrowserRouter>

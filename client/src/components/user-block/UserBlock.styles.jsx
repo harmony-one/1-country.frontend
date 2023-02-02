@@ -50,13 +50,4 @@ export const UserBlockDiv = styled.div`
     text-align: center;
     font-size: 0.8rem;
   }
-
-  .social-networks {
-    padding-top: 0.4em;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 1em;
-    /* justify-content: space-around; */
-  }`
+`

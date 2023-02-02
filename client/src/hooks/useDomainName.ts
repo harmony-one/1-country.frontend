@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setPageName } from '../utils/store/pageSlice'
 
-const getDomainName = () => {
+export const getDomainName = () => {
   if (!window) {
     return null
   }

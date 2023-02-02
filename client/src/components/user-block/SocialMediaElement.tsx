@@ -1,22 +1,22 @@
 import React from 'react';
-import {SocialMedia} from "./UserBlock.data";
 
 interface Props {
-  data: SocialMedia
-  onClick?: (item: SocialMedia) => void
+  url?: string;
+  icon: React.ReactNode
+  onClick?: () => void
 }
 
-export const SocialMediaElement: React.FC<Props> = ({ data, onClick }) => {
+export const SocialMediaElement: React.FC<Props> = ({ icon, url, onClick }) => {
   const handleClick = () => {
     if (onClick) {
-      return onClick(data)
+      return onClick()
     }
-    window.open(data.url, '_blank')
+    window.open(url, '_blank')
   }
 
   return (
     <div onClick={handleClick}>
-      {data.icon}
+      {icon}
     </div>
   )
 }
