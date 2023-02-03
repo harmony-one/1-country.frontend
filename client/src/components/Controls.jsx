@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { SmallText } from './Text'
 
 export const Button = styled.button`
-  font-family: 'DecimaMono', system-ui;
+  font-family: 'NunitoBold', system-ui;  // 'DecimaMono', 
   font-size: 16px;
   font-weight: 200;
   border: none;
@@ -91,29 +91,21 @@ export const FloatingText = styled(SmallText)`
   margin-right: 0;
 `
 export const SmsWalletButton = styled.div`
-  width: 10.26em;
-  height: 2.5em;
-  
+
   button {
-    width: 100%;
-    height: 100%;
+    font-family: 'NunitoBold', system-ui;
+    font-size: 1rem;
     background-color: #47A1FF;
     color: white;
     border-radius: 10px;
     border: 0;
+    padding: 0.7em 2.25em 0.7em;
   }
 `
 
 export const LogOutButton = styled(SmsWalletButton)`
-  width: 10.26em;
-  height: 2.5em;
-  
+
   button {
-    width: 100%;
-    height: 100%;
     background-color: red !important;
-    color: white;
-    border-radius: 10px;
-    border: 0;
   }
 `

@@ -22,7 +22,7 @@ const InputContainer = styled.div`
 
 const StyledInput = styled.input`
   border: none;
-  font-family: 'DecimaMono', system-ui;
+  font-family: 'NunitoRegular', system-ui;
   font-size: 1rem;
   margin: 0;
   padding: 0;

@@ -28,7 +28,7 @@ export const UserBlockDiv = styled.div`
     top: 0;
     right: 0;
     margin-top: 0.5em;
-    margin-right: 0.5em;
+    margin-right: 1em;
   }
   
   .user-picture {

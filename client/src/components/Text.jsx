@@ -2,17 +2,17 @@ import styled from 'styled-components'
 
 export const BaseText = styled.div`
   color: ${props => props.$color || 'inherit'};
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 `
 export const SmallText = styled(BaseText)`
-  font-size: 12px;
+  font-size: 0.9rem;
 `
 export const Label = styled(BaseText)`
   width: ${props => props.$width || '64px'};
 `
 export const LabelSmall = styled(BaseText)`
   width: ${props => props.$width || '48px'};
-  font-size: 12px;
+  font-size: 1rem;
 `
 
 export const Address = styled(BaseText)`
@@ -22,7 +22,8 @@ export const Address = styled(BaseText)`
 `
 
 export const Title = styled.div`
-  font-size: 20px;
+  font-family: 'NunitoBold', system-ui;
+  font-size: 1.5rem;
   margin: 16px auto;
   text-align: center;
   text-transform: uppercase;
@@ -67,7 +68,7 @@ export const LinkText = styled(BaseText)`
 `
 
 export const Hint = styled.div`
-  font-size: 10px;
+  font-size: 0.9rem;
   color: ${props => props.$color ?? '#888888'};
 `
 

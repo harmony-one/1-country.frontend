@@ -9,25 +9,30 @@ import { walletLogOut, selectIsWalletConnected } from '../../utils/store/walletS
 import { LogOutButton, SmsWalletButton } from '../Controls'
 
 import { FlexColumn } from '../Layout'
-import { WalletStatusCircle, WalletStatusContainer } from './Wallets.styles'
+import { WalletStatusCircle, WalletStatusContainer, WalletStatusLabel } from './Wallets.styles'
+import { truncateAddressString } from '../../utils/utils'
+import { useStores } from '../../stores'
 
 export const WalletStatus = ({ connected = false, className }) => {
   const label = connected ? 'connected' : 'connect wallet'
-
+  const { walletStore } = useStores()
   const onClick = () => {
     console.log('click')
     toast(<Wallets />, {
       position: 'top-center',
       closeOnClick: true,
       hideProgressBar: true,
-      autoClose: false,
+      autoClose: 3500,
     })
   }
 
   return (
     <WalletStatusContainer className={className} onClick={onClick}>
-      <WalletStatusCircle connected={connected} />
-      <div style={{ paddingLeft: '4px' }}>{label}</div>
+      <WalletStatusLabel>
+        <WalletStatusCircle connected={connected} />
+        <div style={{ paddingLeft: '4px' }}>{label}</div>
+      </WalletStatusLabel>
+      {walletStore.walletAddress && <span style={{ paddingLeft: '0.5em' }}>{`${truncateAddressString(walletStore.walletAddress, 5)}`}</span>}
     </WalletStatusContainer>
   )
 }
@@ -49,12 +54,12 @@ const Wallets = () => {
   }
 
   return (
-    <FlexColumn style={{ gap: '0.5em', alignItems: 'center' }}>
+    <FlexColumn style={{ gap: '0.5em', alignItems: 'center', maxWidth: '165px' }}>
       {(!isConnected && !isWalletConnected)
         ? (
           <>
             <SmsWalletButton>
-              <button onClick={goToLogin}>SMS WALLET</button>
+              <button onClick={goToLogin}>SMS Wallet</button>
             </SmsWalletButton>
             <Web3Button />
           </>)
