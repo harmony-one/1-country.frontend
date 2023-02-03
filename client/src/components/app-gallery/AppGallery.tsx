@@ -1,18 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, {useEffect, useState} from 'react'
 import {observer} from "mobx-react-lite";
 import AppBlock from '../app-block/AppBlock'
-import { APPS } from './AppGallery.data'
-import { AppGalleryDiv, AppGalleryItem } from './AppGallery.styles'
-import { WidgetDirectSell } from '../../routes/home/components/WidgetSellProduct'
-import { WidgetUserText } from '../../routes/home/components/WidgetUserText'
-import { WidgetNFT } from '../../routes/home/components/WidgetNFT'
-import { WidgetCreator } from '../../routes/home/components/WidgetCreator'
+import {APPS} from './AppGallery.data'
+import {AppGalleryDiv, AppGalleryItem} from './AppGallery.styles'
+import {WidgetDirectSell} from '../../routes/home/components/WidgetSellProduct'
+import {WidgetUserText} from '../../routes/home/components/WidgetUserText'
+import {WidgetNFT} from '../../routes/home/components/WidgetNFT'
+import {WidgetCreator} from '../../routes/home/components/WidgetCreator'
 import {useStores} from "../../stores";
+import {WidgetType} from "../../stores/WidgetsStore";
+import {WidgetText} from "../../routes/home/components/WidgetText";
 
 const AppGallery: React.FC = observer(() => {
   const [appList, setAppList] = useState([])
 
-  const {domainRecordStore} = useStores();
+  const {domainRecordStore, widgetsStore} = useStores();
 
   useEffect(() => {
     setAppList(APPS)
@@ -20,6 +22,13 @@ const AppGallery: React.FC = observer(() => {
 
   return (
     <AppGalleryDiv>
+      {widgetsStore.widgets.map((widget, index) => {
+        if (widget.type === WidgetType.TEXT) {
+          return <WidgetText key={index} widget={widget} />
+        }
+
+        return null;
+      })}
       {domainRecordStore.isOwner && <WidgetCreator />}
       <WidgetDirectSell />
       <WidgetUserText />

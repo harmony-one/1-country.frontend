@@ -1,16 +1,16 @@
 import React from 'react'
-import {Box, Button} from 'grommet'
+import { Box, Button } from 'grommet'
 import { AiOutlineAppstoreAdd } from 'react-icons/ai'
-import {WidgetContainer} from './WidgetContainer'
-import {ModalIds, ModalRegister} from '../../../modules/modals'
-import {useStores} from "../../../stores";
-import {ModalWidgetAdd} from "../../../components/modals/ModalWidgetAdd";
+import { WidgetContainer } from './WidgetContainer'
+import { ModalIds, ModalRegister } from '../../../modules/modals'
+import { useStores } from '../../../stores'
+import { ModalWidgetAdd } from '../../../components/modals/ModalWidgetAdd'
+import { ModalWidgetText } from '../../../components/modals/ModalWidgetText'
 
 interface Props {}
 
 export const WidgetCreator: React.FC<Props> = () => {
-
-  const {modalStore} = useStores();
+  const { modalStore } = useStores()
 
   const handleClickAddWidget = () => {
     modalStore.showModal(ModalIds.PROFILE_ADD_WIDGET)
@@ -23,8 +23,17 @@ export const WidgetCreator: React.FC<Props> = () => {
         <Button plain label="Add widget" />
       </Box>
 
-      <ModalRegister layerProps={{position: 'right', full: 'vertical'}} modalId={ModalIds.PROFILE_ADD_WIDGET}>
+      <ModalRegister
+        layerProps={{ position: 'right', full: 'vertical' }}
+        modalId={ModalIds.PROFILE_ADD_WIDGET}
+      >
         <ModalWidgetAdd />
+      </ModalRegister>
+      <ModalRegister
+        layerProps={{ position: 'bottom', full: 'horizontal' }}
+        modalId={ModalIds.PROFILE_ADD_WIDGET_TEXT}
+      >
+        <ModalWidgetText />
       </ModalRegister>
     </WidgetContainer>
   )
