@@ -14,6 +14,32 @@ interface Props {
 
 type FormData = WidgetContentText;
 
+const colorOptions = [
+  {
+    label: 'White',
+    value: '#FBFBFB',
+  },
+  {
+    label: 'Black',
+    value: '#181818',
+  },
+  {
+    label: 'Red',
+    value: '#D0310E',
+  },
+  {
+    label: 'Green',
+    value: '#2CAF07',
+  },
+  {
+    label: 'Blue',
+    value: '#0053CC'
+  }
+];
+
+const defaultTextColor = colorOptions[1].value;
+const defaultBgColor = colorOptions[0].value;
+
 export const ModalWidgetText: React.FC<Props> = observer(({onClose}) => {
 
   const {widgetsStore} = useStores();
@@ -28,33 +54,9 @@ export const ModalWidgetText: React.FC<Props> = observer(({onClose}) => {
 
   const initialValues: FormData = {
     text: '',
-    bgColor: '#FBFBFB',
-    textColor: '#181818',
+    bgColor: defaultBgColor,
+    textColor: defaultTextColor,
   };
-
-
-  const colorOptions = [
-    {
-      label: 'White',
-      value: '#FBFBFB',
-    },
-    {
-      label: 'Black',
-      value: '#181818',
-    },
-    {
-      label: 'Red',
-      value: '#D0310E',
-    },
-    {
-      label: 'Green',
-      value: '#2CAF07',
-    },
-    {
-      label: 'Blue',
-      value: '#0053CC'
-    }
-  ]
 
   return <ModalContent>
     <Form initialValues={initialValues} onSubmit={handleSubmit} render={({handleSubmit}) => (
@@ -71,9 +73,9 @@ export const ModalWidgetText: React.FC<Props> = observer(({onClose}) => {
             </FormField>
           )}
         </Field>
-        <Field name="bgColor">
+        <Field name="textColor">
           {props => (
-            <FormField name={props.input.name} label="Background color">
+            <FormField name={props.input.name} label="Text Color">
               <Select
                 name={props.input.name}
                 value={props.input.value}
@@ -85,9 +87,9 @@ export const ModalWidgetText: React.FC<Props> = observer(({onClose}) => {
             </FormField>
           )}
         </Field>
-        <Field name="textColor">
+        <Field name="bgColor">
           {props => (
-            <FormField name={props.input.name} label="Text Color">
+            <FormField name={props.input.name} label="Background color">
               <Select
                 name={props.input.name}
                 value={props.input.value}

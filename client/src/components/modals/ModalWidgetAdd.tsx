@@ -2,7 +2,7 @@ import React from "react";
 import {observer} from "mobx-react-lite";
 import {ModalContent} from "./ModalContent";
 import styled from "styled-components";
-import {Box} from "grommet";
+import {Box, BoxProps} from "grommet";
 import {BaseText, Title} from "../Text";
 import {
   AiOutlinePicture,
@@ -18,13 +18,23 @@ import {ModalIds} from "../../modules/modals";
 
 interface CardProps {
   onClick?: () => void;
+  disabled?: boolean;
   children: React.ReactNode | React.ReactNode[]
 }
 
-const Card: React.FC<CardProps> = ({children, onClick}) => {
-  return <Box onClick={onClick} pad="16px" round="8px" elevation="medium" align="center" justify="center" gap="8px">
+const StyledBox = styled(Box)<BoxProps & {disabled?: boolean}>`
+  cursor: pointer;
+  background-color: ${props => props.disabled ? '#ECEDF5' : 'white' };
+  
+  &:hover {
+    background-color: beige;
+  }
+`
+
+const Card: React.FC<CardProps> = ({children, disabled, onClick}) => {
+  return <StyledBox disabled={disabled} onClick={onClick} pad="16px" round="8px" elevation="medium" align="center" justify="center" gap="8px">
     {children}
-  </Box>
+  </StyledBox>
 }
 
 const Grid = styled.div`
@@ -52,23 +62,23 @@ export const ModalWidgetAdd: React.FC<Props> = observer(({onClose}) => {
       <ModalContent>
         <Title>Add widget</Title>
         <Grid>
-          <Card>
-            <AiOutlineTwitter size="40px" />
-            <BaseText>Twitter</BaseText>
-          </Card>
           <Card onClick={handleClick}>
             <IoTextSharp  size="40px"/>
             <BaseText>Text</BaseText>
           </Card>
-          <Card>
+          <Card disabled>
+            <AiOutlineTwitter size="40px" />
+            <BaseText>Twitter</BaseText>
+          </Card>
+          <Card disabled>
             <AiOutlineVideoCamera size="40px" />
             <BaseText>Video</BaseText>
           </Card>
-          <Card>
+          <Card disabled>
             <AiOutlineShoppingCart  size="40px" />
             <BaseText>Merchandise</BaseText>
           </Card>
-          <Card>
+          <Card disabled>
             <AiOutlinePicture  size="40px" />
             <BaseText>NFT</BaseText>
           </Card>
