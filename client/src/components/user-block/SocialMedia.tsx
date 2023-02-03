@@ -24,8 +24,7 @@ const Container = styled.div`
 
 export const SocialMedia: React.FC = observer(() => {
   const { isClientConnected } = useOutletContext<OutletContext>()
-
-  const { domainRecordStore, modalStore } = useStores()
+  const { domainRecordStore, modalStore, walletStore } = useStores()
 
   useEffect(() => {
     domainRecordStore.loadOwnerInfo()
@@ -38,7 +37,7 @@ export const SocialMedia: React.FC = observer(() => {
   const { open } = useWeb3Modal()
 
   const handleTelegramClick = async () => {
-    if (!isClientConnected) {
+    if (!walletStore.isConnected) {
       await open({ route: 'ConnectWallet' })
       return
     }
@@ -84,7 +83,7 @@ export const SocialMedia: React.FC = observer(() => {
         icon={<FaTelegram size="25px" />}
         onClick={handleTelegramClick}
       />
-      {domainRecordStore.isOwner && (
+      {(domainRecordStore.isOwner && walletStore.isConnected) && (
         <SocialMediaElement
           icon={<GrAddCircle size="25px" />}
           onClick={handleAddSocialElement}

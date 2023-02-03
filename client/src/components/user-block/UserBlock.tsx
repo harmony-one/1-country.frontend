@@ -3,16 +3,17 @@
 import React from 'react'
 import {Box} from "grommet";
 import {observer} from "mobx-react-lite";
-import {UserBlockDiv} from './UserBlock.styles'
+
 import {WalletStatus} from '../wallets/Wallets'
 import {ModalRegister} from '../../modules/modals'
 import {ModalIds} from "../../modules/modals";
 import {ModalProfileEditBio} from "../modals/ModalProfileEditBio";
-import {ButtonSmall} from "../Controls";
 import {modalStore} from "../../modules/modals/ModalContext";
 import {useStores} from "../../stores";
 import {SocialMedia} from "./SocialMedia";
 
+import {ButtonSmall} from "../Controls";
+import {UserBlockDiv} from './UserBlock.styles'
 interface Props {
 
 }
@@ -41,7 +42,7 @@ const UserBlock: React.FC<Props> = observer(() => {
         <span>{`${domainRecordStore.domainName}.1`}</span>
         {/*{domainRecordStore.domainRecord?.renter && <span>{`${truncateAddressString(domainRecordStore.domainRecord.renter, 5)}`}</span>}*/}
       </div>
-      {domainRecordStore.isOwner && (
+      {(domainRecordStore.isOwner && walletStore.isConnected) && (
         <Box align="center" pad="4px">
           <ButtonSmall onClick={handleEditProfile}>
             Edit Profile

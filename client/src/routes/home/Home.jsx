@@ -1,15 +1,17 @@
 import React, { useState } from 'react'
+import { useNavigate, useOutletContext } from 'react-router'
 import { useSwipeable } from 'react-swipeable'
 
 import AppGallery from '../../components/app-gallery/AppGallery'
 import config from '../../../config'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
 import UserBlock from '../../components/user-block/UserBlock'
+import { SearchBlock } from '../../components/SearchBlock'
+import useOnAction from '../../hooks/useOnAction'
 
 import {
   Button,
 } from '../../components/Controls'
-
 import { FlexRow, Row } from '../../components/Layout'
 import { BaseText, DescLeft, SmallTextGrey, Title } from '../../components/Text'
 import {
@@ -17,9 +19,6 @@ import {
   HomeLabel,
   DescResponsive,
 } from './Home.styles'
-import { useNavigate, useOutletContext } from 'react-router'
-import { SearchBlock } from '../../components/SearchBlock'
-import useOnAction from '../../hooks/useOnAction'
 
 const Home = ({ subdomain = config.tld }) => {
   const navigate = useNavigate()
@@ -116,35 +115,37 @@ const Home = ({ subdomain = config.tld }) => {
   }
 
   return (
-    <Container {...handlers}>
-      {/* <Helmet>
-        <title>{name}.1 | Harmony</title>
-      </Helmet> */}
-      {record?.renter && (
-        <DescResponsive>
-          <UserBlock isOwner={isOwner} client={client} walletAddress={walletAddress} isClientConnected={isClientConnected} />
-          <AppGallery />
-          {(isOwner && isClientConnected && expired) && (
-            <>
-              <Title>Renew ownership</Title>
-              <Row style={{ justifyContent: 'center' }}>
-                <HomeLabel>renewal price</HomeLabel>
-                <BaseText>{price?.formatted} ONE</BaseText>
-              </Row>
-              <SmallTextGrey>
-                for {humanD(parameters.rentalPeriod)}{' '}
-              </SmallTextGrey>
-              <Button
-                onClick={() => onAction({ isRenewal: true })}
-                disabled={pending}
-              >
-                RENEW
-              </Button>
-            </>
-          )}
+    <Container>
+      <div {...handlers}>
+        {/* <Helmet>
+          <title>{name}.1 | Harmony</title>
+        </Helmet> */}
+        {record?.renter && (
+          <DescResponsive>
+            <UserBlock isOwner={isOwner} client={client} walletAddress={walletAddress} isClientConnected={isClientConnected} />
+            <AppGallery />
+            {(isOwner && isClientConnected && expired) && (
+              <>
+                <Title>Renew ownership</Title>
+                <Row style={{ justifyContent: 'center' }}>
+                  <HomeLabel>renewal price</HomeLabel>
+                  <BaseText>{price?.formatted} ONE</BaseText>
+                </Row>
+                <SmallTextGrey>
+                  for {humanD(parameters.rentalPeriod)}{' '}
+                </SmallTextGrey>
+                <Button
+                  onClick={() => onAction({ isRenewal: true })}
+                  disabled={pending}
+                >
+                  RENEW
+                </Button>
+              </>
+            )}
         </DescResponsive>
       )}
       {/* {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>} */}
+      </div>
       <div style={{ height: 50 }} />
     </Container>
   )
