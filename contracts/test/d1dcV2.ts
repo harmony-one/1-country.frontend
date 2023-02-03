@@ -243,7 +243,7 @@ describe('D1DCV2', () => {
   });
 
   describe("existName", () => {
-    it("Should be able to return the name existance", async () => {
+    it("Should be able to return the name existence", async () => {
       expect(await d1dcV2.existName(dotName)).to.be.false;
 
       // rent the name
