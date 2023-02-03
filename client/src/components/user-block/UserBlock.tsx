@@ -3,7 +3,6 @@
 import React from 'react'
 import {Box} from "grommet";
 import {observer} from "mobx-react-lite";
-import {truncateAddressString} from '../../utils/utils'
 import {UserBlockDiv} from './UserBlock.styles'
 import {WalletStatus} from '../wallets/Wallets'
 import {ModalRegister} from '../../modules/modals'

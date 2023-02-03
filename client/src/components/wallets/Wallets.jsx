@@ -8,16 +8,14 @@ import { toast } from 'react-toastify'
 import { walletLogOut, selectIsWalletConnected } from '../../utils/store/walletSlice'
 import { LogOutButton, SmsWalletButton } from '../Controls'
 
-import { FlexColumn } from '../Layout'
-import { WalletStatusCircle, WalletStatusContainer, WalletStatusLabel } from './Wallets.styles'
+import { WalletsContainer, WalletStatusCircle, WalletStatusContainer, WalletStatusLabel } from './Wallets.styles'
 import { truncateAddressString } from '../../utils/utils'
 import { useStores } from '../../stores'
 
 export const WalletStatus = ({ connected = false, className }) => {
-  const label = connected ? 'connected' : 'connect wallet'
+  const label = connected ? 'connected ' : 'connect wallet'
   const { walletStore } = useStores()
-  const onClick = () => {
-    console.log('click')
+  const onClick = (event) => {
     toast(<Wallets />, {
       position: 'top-center',
       closeOnClick: true,
@@ -30,9 +28,9 @@ export const WalletStatus = ({ connected = false, className }) => {
     <WalletStatusContainer className={className} onClick={onClick}>
       <WalletStatusLabel>
         <WalletStatusCircle connected={connected} />
-        <div style={{ paddingLeft: '4px' }}>{label}</div>
+        <span style={{ paddingLeft: '0.4em', paddingRight: '0.7em' }}>{label}</span>
       </WalletStatusLabel>
-      {walletStore.walletAddress && <span style={{ paddingLeft: '0.5em' }}>{`${truncateAddressString(walletStore.walletAddress, 5)}`}</span>}
+      {walletStore.walletAddress && <span style={{ }}>{`${truncateAddressString(walletStore.walletAddress, 5)}`}</span>}
     </WalletStatusContainer>
   )
 }
@@ -40,6 +38,7 @@ export const WalletStatus = ({ connected = false, className }) => {
 const Wallets = () => {
   const { isConnected } = useAccount()
   const isWalletConnected = useSelector(selectIsWalletConnected)
+  const { walletStore } = useStores()
   const { disconnect } = useDisconnect()
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -51,10 +50,12 @@ const Wallets = () => {
   const logOut = () => {
     isConnected && disconnect()
     isWalletConnected && dispatch(walletLogOut(false))
+    walletStore.isConnected = false
+    walletStore.walletAddress = ''
   }
 
   return (
-    <FlexColumn style={{ gap: '0.5em', alignItems: 'center', maxWidth: '165px' }}>
+    <WalletsContainer>
       {(!isConnected && !isWalletConnected)
         ? (
           <>
@@ -67,7 +68,7 @@ const Wallets = () => {
           <LogOutButton>
             <button onClick={logOut}>Log out</button>
           </LogOutButton>)}
-    </FlexColumn>
+    </WalletsContainer>
   )
 }
 
