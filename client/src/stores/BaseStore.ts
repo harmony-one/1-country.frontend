@@ -1,12 +1,9 @@
-import {RootStore} from "./RootStore";
-
+import { RootStore } from './RootStore'
 
 export class BaseStore {
-
-  public rootStore: RootStore;
+  public rootStore: RootStore
 
   constructor(rootStore: RootStore) {
-    this.rootStore = rootStore;
+    this.rootStore = rootStore
   }
-
 }

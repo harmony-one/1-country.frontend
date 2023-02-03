@@ -1,5 +1,5 @@
-import {RootStore} from "./RootStore";
-import config from "../../config";
+import { RootStore } from './RootStore'
+import config from '../../config'
 
 export const rootStore = new RootStore()
 
@@ -15,5 +15,5 @@ export const useStores = () => {
 
 if (config.debug) {
   // @ts-expect-error
-  window.rootStore = rootStore;
+  window.rootStore = rootStore
 }
