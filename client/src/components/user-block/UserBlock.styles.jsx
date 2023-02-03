@@ -7,8 +7,8 @@ export const UserBlockDiv = styled.div`
   flex-direction: column;
   border: 0.1px solid gray;
   border-radius: 10px;
-  padding-top: 2.0em;
-  background-color: #FEE7E7;
+  padding-top: 2em;
+  background-color: #ffffff;
 
   .status-section {
     position: absolute;
@@ -18,7 +18,7 @@ export const UserBlockDiv = styled.div`
     margin-left: 0.5em;
     font-size: 0.7rem;
   }
-  
+
   .name-section {
     display: flex;
     flex-direction: column;
@@ -30,7 +30,7 @@ export const UserBlockDiv = styled.div`
     margin-top: 0.5em;
     margin-right: 0.5em;
   }
-  
+
   .user-picture {
     margin: 0 auto;
     width: 125px;
