@@ -55,7 +55,6 @@ contract VanityURL is
         string indexed aliasName,
         string oldURL,
         string indexed newURL,
-        uint256 oldPrice,
         uint256 newPrice
     );
     event RevenueAccountChanged(address indexed from, address indexed to);
@@ -165,7 +164,6 @@ contract VanityURL is
             _aliasName,
             vanityURLs[tokenId][_aliasName],
             _url,
-            vanityURLPrices[tokenId][_aliasName],
             _contentPrice
         );
 
@@ -188,17 +186,17 @@ contract VanityURL is
     function getPrice(string calldata _name, string calldata _aliasName)
         external
         view
-        returns (uint256 memory)
+        returns (uint256)
     {
         bytes32 tokenId = keccak256(bytes(_name));
 
         return vanityURLPrices[tokenId][_aliasName];
     }
 
-    function getOwner(string calldata _name, string calldata _aliasName)
+    function getOwner(string calldata _name)
         external
         view
-        returns (string memory)
+        returns (address)
     {
         bytes32 tokenId = keccak256(bytes(_name));
         
