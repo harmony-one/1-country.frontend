@@ -3,7 +3,6 @@
 import React from 'react'
 import {Box} from "grommet";
 import {observer} from "mobx-react-lite";
-import {truncateAddressString} from '../../utils/utils'
 import {UserBlockDiv} from './UserBlock.styles'
 import {WalletStatus} from '../wallets/Wallets'
 import {ModalRegister} from '../../modules/modals'
@@ -40,7 +39,7 @@ const UserBlock: React.FC<Props> = observer(() => {
       <WalletStatus className='status-section' connected={walletStore.isConnected} />
       <div className='name-section'>
         <span>{`${domainRecordStore.domainName}.1`}</span>
-        {domainRecordStore.domainRecord?.renter && <span>{`${truncateAddressString(domainRecordStore.domainRecord.renter, 5)}`}</span>}
+        {/*{domainRecordStore.domainRecord?.renter && <span>{`${truncateAddressString(domainRecordStore.domainRecord.renter, 5)}`}</span>}*/}
       </div>
       {domainRecordStore.isOwner && (
         <Box align="center" pad="4px">

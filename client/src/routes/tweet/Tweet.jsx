@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import BN from 'bn.js'
-// import { FlexColumn } from '../../components/Layout'
-// import { SmallTextGrey, Title } from '../../components/Text'
-// import config from '../../../config'
-
 import { Container, DescResponsive } from '../home/Home.styles'
 import TwitterSection from '../../components/twitter-section/TwitterSection'
 import { useOutletContext } from 'react-router'
@@ -73,12 +69,6 @@ const Tweet = () => {
     <Container>
       <DescResponsive style={{ gap: 2 }}>
         <UserBlock isOwner={isOwner} client={client} walletAddress={walletAddress} isClientConnected={isClientConnected} showSocialMedia={false} />
-        {/* <FlexColumn style={{ marginTop: 50, alignItems: 'center' }}>
-          <Title style={{ margin: 0 }}>{name}</Title>
-          <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
-            <SmallTextGrey>{name}{config.tld}</SmallTextGrey>
-          </a>
-        </FlexColumn> */}
         {tweetId
           ? (<TwitterSection tweetId={tweetId.tweetId} pageName={name} client={client} />)
           : <h3>{message}</h3>}

@@ -19,5 +19,5 @@ export const OwnerFormContainer = styled.div`
   } */
 `
 export const FloatingTextInput = styled(FloatingText)`
-  bottom: 16px !important;
+  bottom: 0.7em !important;
 `

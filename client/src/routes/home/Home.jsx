@@ -1,35 +1,28 @@
-import React, { useRef, useState } from 'react'
-import BN from 'bn.js'
-import { toast } from 'react-toastify'
-import humanizeDuration from 'humanize-duration'
+import React, { useState } from 'react'
+import { useSwipeable } from 'react-swipeable'
+
 import AppGallery from '../../components/app-gallery/AppGallery'
 import config from '../../../config'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
-import OwnerForm from '../../components/owner-form/OwnerForm'
-import { VanityURL } from './VanityURL'
-import { wagmiClient } from '../../modules/wagmi/wagmiClient'
 import UserBlock from '../../components/user-block/UserBlock'
-import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 
 import {
   Button,
-  LinkWrarpper,
 } from '../../components/Controls'
 
-import { Col, FlexRow, Row } from '../../components/Layout'
+import { FlexRow, Row } from '../../components/Layout'
 import { BaseText, DescLeft, SmallTextGrey, Title } from '../../components/Text'
 import {
   Container,
   HomeLabel,
   DescResponsive,
 } from './Home.styles'
-import Wallets from '../../components/wallets/Wallets'
-import { useOutletContext } from 'react-router'
+import { useNavigate, useOutletContext } from 'react-router'
 import { SearchBlock } from '../../components/SearchBlock'
-
-const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
+import useOnAction from '../../hooks/useOnAction'
 
 const Home = ({ subdomain = config.tld }) => {
+  const navigate = useNavigate()
   const {
     record,
     lastRentedRecord,
@@ -40,117 +33,43 @@ const Home = ({ subdomain = config.tld }) => {
     walletAddress,
     isClientConnected,
     isOwner,
-    isHarmonyNetwork
+    isHarmonyNetwork,
+    humanD
   } = useOutletContext()
 
+  const swipePage = (eventData) => {
+    console.log('SWIPEPAGE', eventData)
+    const direction = eventData.dir
+    let url = ''
+    if (direction === 'Left') {
+      url = record.next && `https://${record.next}${config.tld}`
+    } else {
+      url = record.prev && `https://${record.prev}${config.tld}`
+    }
+    if (url) {
+      window.location.assign(url)
+      navigate('/')
+    }
+  }
+
+  const handlers = useSwipeable({
+    onSwipedLeft: (eventData) => swipePage(eventData),
+    onSwipedRight: (eventData) => swipePage(eventData),
+    trackMouse: true,
+    preventScrollOnSwipe: true,
+  })
+
   const [pending, setPending] = useState(false)
-  const toastId = useRef(null)
-  const tweet = 'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
-  const minCentsAmount = 60
 
-  const onActionFiat = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
-    console.log(price)
-    if (!price) {
-      console.error('No domain rental price provided, exit')
-      throw new Error('No domain rental price provided')
-    }
-
-    setPending(true)
-    let amount = 0
-    toast.info('Redirecting to Stripe')
-    try {
-      const oneTokenPriceUsd = await getTokenPrice('harmony')
-      amount = Math.round((+price.formatted * +oneTokenPriceUsd) * 100) // price in cents
-      if (amount < minCentsAmount) {
-        console.log(`Amount ${amount} < min amount ${minCentsAmount} cents, using ${minCentsAmount} cents value. Required by Stripe.`)
-        amount = minCentsAmount
-      }
-
-      if (!amount) {
-        throw new Error(`Invalid USD amount: ${amount}`)
-      }
-
-      const pageUrl = new URL(window.location.href)
-      const { paymentUrl } = await createCheckoutSession({
-        amount: +amount,
-        userAddress: walletAddress,
-        params: {
-          name,
-          url: tweet,
-          telegram,
-          email,
-          phone,
-        },
-        successUrl: `${pageUrl.origin}/success`,
-        cancelUrl: `${pageUrl.origin}/cancel`,
-      })
-      console.log('Stripe checkout link:', paymentUrl)
-      window.open(paymentUrl, '_self')
-    } catch (e) {
-      toast.error(`Cannot complete payment by USD: ${e.toString()}`)
-      console.error('Cannot complete payment by USD:', e)
-    }
-  }
-
-  const onAction = async (params) => {
-    const { isRenewal, telegram = '', email = '', phone = '', paymentType = 'one' } = params
-    console.log(params)
-
-    if (paymentType === 'usd') {
-      onActionFiat(params)
-      return
-    }
-
-    if (!isHarmonyNetwork) {
-      await wagmiClient.connector.connect({ chainId: config.chainParameters.id })
-    }
-
-    setPending(true)
-    try {
-      const f = isOwner && !isRenewal ? client.updateURL : client.rent
-      console.log('onAction', price, name)
-      toastId.current = toast.loading('Processing transaction')
-      await f({
-        name,
-        url: tweet,
-        telegram: telegram,
-        email: email,
-        phone: phone,
-        amount: new BN(price.amount).toString(),
-        onFailed: () => toast.update(toastId.current, {
-          render: 'Failed to purchase',
-          type: 'error',
-          isLoading: false,
-          autoClose: 2000
-        }),
-        onSuccess: (tx) => {
-          console.log(tx)
-          const { transactionHash } = tx
-          toast.update(toastId.current, {
-            render: (
-              <FlexRow>
-                <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
-                <LinkWrarpper
-                  target='_blank'
-                  href={client.getExplorerUri(transactionHash)}
-                >
-                  <BaseText>View transaction</BaseText>
-                </LinkWrarpper>
-              </FlexRow>),
-            type: 'success',
-            isLoading: false,
-            autoClose: 2000
-          })
-          setTimeout(() => location.reload(), 1500)
-        },
-      })
-    } catch (ex) {
-      console.error(ex)
-      toast.error(`Unexpected error: ${ex.toString()}`)
-    } finally {
-      setPending(false)
-    }
-  }
+  const { onAction } = useOnAction({
+    name,
+    setPending,
+    price,
+    walletAddress,
+    isHarmonyNetwork,
+    isOwner,
+    client
+  })
 
   const expired =
     record?.timeUpdated + parameters?.rentalPeriod - Date.now() < 0
@@ -197,7 +116,7 @@ const Home = ({ subdomain = config.tld }) => {
   }
 
   return (
-    <Container>
+    <Container {...handlers}>
       {/* <Helmet>
         <title>{name}.1 | Harmony</title>
       </Helmet> */}
@@ -223,40 +142,6 @@ const Home = ({ subdomain = config.tld }) => {
               </Button>
             </>
           )}
-        </DescResponsive>
-      )}
-      {!record?.renter && (
-        <DescResponsive>
-          <VanityURL record={record} name={name} />
-          <FlexRow style={{ width: '100%', justifyContent: 'center', marginTop: 30 }}>
-            <Title style={{ margin: 0 }}>{name}</Title>
-            <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
-              <BaseText style={{ fontSize: 12, color: 'grey', marginLeft: '16px', textDecoration: 'none' }}>
-                {subdomain}
-              </BaseText>
-            </a>
-          </FlexRow>
-          <Col>
-            <Title>Page Not Yet Claimed</Title>
-            <SmallTextGrey style={{ textAlign: 'center' }}>
-              Claim now
-            </SmallTextGrey>
-            <Col>
-              <Row style={{ justifyContent: 'center' }}>
-                <HomeLabel>price</HomeLabel>
-                <BaseText>{price?.formatted} ONE</BaseText>
-              </Row>
-              <Row style={{ justifyContent: 'center', marginBottom: '1em' }}>
-                <SmallTextGrey>
-                  for {humanD(parameters.rentalPeriod)}{' '}
-                </SmallTextGrey>
-              </Row>
-            </Col>
-          </Col>
-          {isClientConnected && (
-            <OwnerForm onAction={onAction} buttonLabel='Rent' pending={pending} />
-          )}
-          <Wallets />
         </DescResponsive>
       )}
       {/* {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>} */}
