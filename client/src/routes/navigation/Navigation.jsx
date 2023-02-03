@@ -7,7 +7,7 @@ import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { useClient } from '../../hooks/useClient'
 import { useDomainName } from '../../hooks/useDomainName'
 import { useStores } from '../../stores'
-import PageNotClaimed from '../home/PageNotClaimed'
+import DomainNotClaimed from '../home/DomainNotClaimed'
 import { Container } from '../home/Home.styles'
 import { FlexColumn } from '../../components/Layout'
 
@@ -100,7 +100,7 @@ const Navigation = () => {
       {(record && !record?.renter)
         ? (
           <Container>
-            <PageNotClaimed
+            <DomainNotClaimed
               record={record}
               name={name}
               subdomain={config.tld}

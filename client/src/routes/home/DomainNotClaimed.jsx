@@ -10,7 +10,7 @@ import { VanityURL } from './VanityURL'
 import { DescResponsive, HomeLabel } from './Home.styles'
 import config from '../../../config'
 
-const PageNotClaimed = ({
+const DomainNotClaimed = ({
   record,
   name,
   subdomain,
@@ -70,4 +70,4 @@ const PageNotClaimed = ({
   )
 }
 
-export default PageNotClaimed
+export default DomainNotClaimed

@@ -8,7 +8,7 @@ export const UserBlockDiv = styled.div`
   border: 0.1px solid gray;
   border-radius: 10px;
   padding-top: 2em;
-  background-color: #fee7e7;
+  background-color: #ffffff; // #fee7e7;
 
   .status-section {
     position: absolute;
