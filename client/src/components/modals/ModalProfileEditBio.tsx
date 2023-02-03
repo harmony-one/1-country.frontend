@@ -70,17 +70,6 @@ export const ModalProfileEditBio: React.FC<Props> = observer(({ onClose }) => {
                 </FormField>
               )}
             </Field>
-            <Field name="telegram">
-              {(props) => (
-                <FormField name={props.input.name} label="Telegram">
-                  <TextInput
-                    name={props.input.name}
-                    value={props.input.value}
-                    onChange={props.input.onChange}
-                  />
-                </FormField>
-              )}
-            </Field>
             <Field name="bgColor">
               {(props) => (
                 <FormField name={props.input.name} label="Background Color">

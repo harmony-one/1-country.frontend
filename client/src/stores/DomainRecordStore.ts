@@ -9,17 +9,23 @@ export interface ProfileData {
   bio: string
   telegram: string
   bgColor: string
+  youtube: string
+  twitter: string
+  discord: string
   phone: string
   email: string
 }
 
 export class DomainRecordStore extends BaseStore {
   public profile: ProfileData = {
-    telegram: '',
     bio: '',
-    bgColor: '#f8c1b0',
     phone: '',
     email: '',
+    telegram: '',
+    twitter: '',
+    youtube: '',
+    discord: '',
+    bgColor: '#f8c1b0',
   }
   public domainName: string = getDomainName()
   public isOwner: boolean = false
