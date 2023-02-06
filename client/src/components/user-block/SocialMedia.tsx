@@ -9,7 +9,7 @@ import { AiFillYoutube } from 'react-icons/ai'
 import { useWeb3Modal } from '@web3modal/react'
 import { useOutletContext } from 'react-router'
 import { OutletContext } from '../../routes/navigation/OutletContext'
-import { GrAddCircle } from 'react-icons/all'
+import { GrAddCircle } from 'react-icons/gr'
 import { ModalIds, ModalRegister } from '../../modules/modals'
 import { ModalProfileAddSocial } from '../modals/ModalProfileAddSocial'
 
@@ -83,7 +83,7 @@ export const SocialMedia: React.FC = observer(() => {
         icon={<FaTelegram size="25px" />}
         onClick={handleTelegramClick}
       />
-      {(domainRecordStore.isOwner && walletStore.isConnected) && (
+      {domainRecordStore.isOwner && walletStore.isConnected && (
         <SocialMediaElement
           icon={<GrAddCircle size="25px" />}
           onClick={handleAddSocialElement}

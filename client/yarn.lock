@@ -3023,18 +3023,26 @@
     buffer "6.0.3"
     valtio "1.9.0"
 
-"@web3modal/ethereum@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@web3modal/ethereum/-/ethereum-2.0.0.tgz#d8e14c1857447c673567519aac5487b88cfc384d"
-  integrity sha512-Zz+/3Q/1ovZXXKVGbWzdtoZt8X6YD42km4J8L3tPNkkBJZlj0I/xERLeeJg/w4BDcbDmOQ4qqT1TXZ37ol1D0w==
-
-"@web3modal/react@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@web3modal/react/-/react-2.0.0.tgz#5100eda2ad80ae875ab41c1ebdda80e02a0d2991"
-  integrity sha512-tpzfywUmibfr7lquLBSmD8AFIHoqqpeOHlYWIM8gIk801IkbnFa8h6chghCwEtL8xq/ihNrV0v/+5+gj+wLs8Q==
+"@web3modal/core@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@web3modal/core/-/core-2.1.1.tgz#e1ebe8faaae6e4b74df911fd5ac6023f280b12c1"
+  integrity sha512-GAZAvfkPHoX2/fghQmf+y36uDspk9wBJxG7qLPUNTHzvIfRoNHWbTt3iEvRdPmUZwbTGDn1jvz9z0uU67gvZdw==
   dependencies:
-    "@web3modal/core" "2.0.0"
-    "@web3modal/ui" "2.0.0"
+    buffer "6.0.3"
+    valtio "1.9.0"
+
+"@web3modal/ethereum@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@web3modal/ethereum/-/ethereum-2.1.1.tgz#073c1de70bf7d47f12247bee1b1fd04fa06be871"
+  integrity sha512-F5kqPtqOgYt+1S7lZd8nfD59x1+YUkqvhbJrnSMg1uxDPSBtOGnSX33XVTQ7m3Z2/3yeoFkeLipx4i4WVLdAFA==
+
+"@web3modal/react@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@web3modal/react/-/react-2.1.1.tgz#e069ef0ad0011f2830691d2f10783feb9bb0322f"
+  integrity sha512-lij4OxfL8jCmgjQIrqXzNwGXEfXHr6ext/2+MwA12+2TO4SOOtbvkBmmvicHmV7EEo43fCAqyrk6vDhsXZ00Ag==
+  dependencies:
+    "@web3modal/core" "2.1.1"
+    "@web3modal/ui" "2.1.1"
 
 "@web3modal/standalone@^2.0.0-rc.2":
   version "2.0.0"
@@ -3050,6 +3058,16 @@
   integrity sha512-kNSXD/YI+Sl92hxMzsjkRWUj8H+CyV89WDS0Ywy2YV9HxVzC6MzntnsYZ4rti5//IzeDlxPhTKKaiBWE68Gwzw==
   dependencies:
     "@web3modal/core" "2.0.0"
+    lit "2.6.1"
+    motion "10.15.5"
+    qrcode "1.5.1"
+
+"@web3modal/ui@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@web3modal/ui/-/ui-2.1.1.tgz#300dceeee8a54be70aad74fb4a781ac22439eded"
+  integrity sha512-0jRDxgPc/peaE5KgqnzzriXhdVu5xNyCMP5Enqdpd77VkknJIs7h16MYKidxgFexieyHpCOssWySsryWcP2sXA==
+  dependencies:
+    "@web3modal/core" "2.1.1"
     lit "2.6.1"
     motion "10.15.5"
     qrcode "1.5.1"
@@ -10999,7 +11017,7 @@ webpack-dev-middleware@^5.3.1:
     range-parser "^1.2.1"
     schema-utils "^4.0.0"
 
-webpack-dev-server@^4.0.0:
+webpack-dev-server@4.11.1:
   version "4.11.1"
   resolved "https://registry.yarnpkg.com/webpack-dev-server/-/webpack-dev-server-4.11.1.tgz#ae07f0d71ca0438cf88446f09029b92ce81380b5"
   integrity sha512-lILVz9tAUy1zGFwieuaQtYiadImb5M3d+H+L1zDYalYoDl0cksAB1UNyuE5MMWJrG6zR1tXkCP2fitl7yoUJiw==
@@ -11065,10 +11083,10 @@ webpack-sources@^3.2.3:
   resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-3.2.3.tgz#2d4daab8451fd4b240cc27055ff6a0c2ccea0cde"
   integrity sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==
 
-webpack@^5.73.0:
-  version "5.74.0"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.74.0.tgz#02a5dac19a17e0bb47093f2be67c695102a55980"
-  integrity sha512-A2InDwnhhGN4LYctJj6M1JEaGL7Luj6LOmyBHjcI8529cm5p6VXiTIW2sn6ffvEAKmveLzvu4jrihwXtPojlAA==
+webpack@5.75.0:
+  version "5.75.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.75.0.tgz#1e440468647b2505860e94c9ff3e44d5b582c152"
+  integrity sha512-piaIaoVJlqMsPtX/+3KTTO6jfvrSYgauFVdt8cr9LTHKmcq/AMd4mhzsiP7ZF/PGRNPGA8336jldh9l2Kt2ogQ==
   dependencies:
     "@types/eslint-scope" "^3.7.3"
     "@types/estree" "^0.0.51"

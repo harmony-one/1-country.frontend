@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { AiOutlineSearch } from 'react-icons/all'
+import { AiOutlineSearch } from 'react-icons/ai'
 import { Button } from './Controls'
 import { SearchResultItem } from './SearchResultItem'
 
@@ -27,7 +27,7 @@ const StyledInput = styled.input`
   margin: 0;
   padding: 0;
   width: 100%;
-  
+
   &:focus {
     outline: none;
   }
@@ -59,9 +59,12 @@ export const SearchBlock = ({ client }) => {
       return
     }
 
-    setRecordName((search))
+    setRecordName(search)
 
-    client.getRecord({ name: search }).then((r) => setRecord(r)).catch(ex => {})
+    client
+      .getRecord({ name: search })
+      .then((r) => setRecord(r))
+      .catch((ex) => {})
     client.getPrice({ name: search }).then((p) => {
       setPrice(p)
     })
@@ -70,9 +73,15 @@ export const SearchBlock = ({ client }) => {
   return (
     <Container>
       <InputContainer>
-        <AiOutlineSearch size='24px' style={{ margin: '0px 8px 0px 12px' }} />
-        <StyledInput placeholder='Search addresses' value={search} onChange={handleSearchChange} />
-        <Button style={{ marginLeft: 'auto' }} onClick={handleSearch}>Search</Button>
+        <AiOutlineSearch size="24px" style={{ margin: '0px 8px 0px 12px' }} />
+        <StyledInput
+          placeholder="Search addresses"
+          value={search}
+          onChange={handleSearchChange}
+        />
+        <Button style={{ marginLeft: 'auto' }} onClick={handleSearch}>
+          Search
+        </Button>
       </InputContainer>
 
       {/* <SearchResultItem */}
@@ -89,13 +98,14 @@ export const SearchBlock = ({ client }) => {
       {/*  period={86400000} */}
       {/* /> */}
 
-      {record && price &&
+      {record && price && (
         <SearchResultItem
           name={recordName}
           price={price.formatted}
           available={!record.renter}
           period={parameters.rentalPeriod}
-        />}
+        />
+      )}
     </Container>
   )
 }

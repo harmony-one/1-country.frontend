@@ -9,8 +9,8 @@ import {
   AiOutlineShoppingCart,
   AiOutlineTwitter,
   AiOutlineVideoCamera,
-  IoTextSharp,
-} from 'react-icons/all'
+} from 'react-icons/ai'
+import { IoTextSharp } from 'react-icons/io5'
 import { ModalHeader } from './ModalHeader'
 import { useStores } from '../../stores'
 import { ModalIds } from '../../modules/modals'
