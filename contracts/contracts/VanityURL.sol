@@ -23,9 +23,6 @@ contract VanityURL is
     /// @dev D1DCV2 TokenId -> Alias Name -> URL
     mapping(bytes32 => mapping(string => string)) public vanityURLs;
 
-    /// @dev D1DCV2 TokenId -> Alias Name -> Content Price
-    mapping(bytes32 => mapping(string => uint256)) public vanityURLPrices;
-
     /// @dev D1DCV2 Token Id -> Alias Name -> Timestamp the URL was updated
     /// @dev Vanity URL is valid only if nameOwnerUpdateAt <= vanityURLUpdatedAt
     mapping(bytes32 => mapping(string => uint256)) public vanityURLUpdatedAt;
@@ -35,6 +32,11 @@ contract VanityURL is
 
     /// @dev Fee withdrawal address
     address public revenueAccount;
+
+    ///////////////////////////////////////////// Contract Upgrade /////////////////////////////////////////////
+
+    /// @dev D1DCV2 TokenId -> Alias Name -> Content Price
+    mapping(bytes32 => mapping(string => uint256)) public vanityURLPrices;
 
     event NewURLSet(
         address by,
