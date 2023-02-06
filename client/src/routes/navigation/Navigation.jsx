@@ -43,7 +43,6 @@ const Navigation = () => {
   useEffect(() => {
     walletStore.isConnected = isClientConnected
     walletStore.walletAddress = walletAddress
-    console.log('### isClientConnected', isClientConnected)
   }, [walletAddress, isClientConnected])
   // end: sync mobx store start
 

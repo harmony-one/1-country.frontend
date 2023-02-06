@@ -58,8 +58,7 @@ export class DomainRecordStore extends BaseStore {
       return
     }
     try {
-      console.log('### load owner info')
-      console.log('### this.domainName', this.domainName)
+      console.log('### load owner info', this.domainName)
       const info = await this.rootStore.d1dcClient.getAllOwnerInfo({
         name: this.domainName,
       })
