@@ -108,6 +108,7 @@
     "react-redux": "^7.2.2",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
+    "react-social-media-embed": "^2.3.4",
     "react-toastify": "^9.0.8",
     "react-twitter-embed": "^4.0.4",
     "redux": "^4.0.5",

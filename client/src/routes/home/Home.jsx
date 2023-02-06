@@ -7,7 +7,7 @@ import { useAccount } from 'wagmi'
 import { Web3Button } from '@web3modal/react'
 import humanizeDuration from 'humanize-duration'
 
-import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
+// import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 
 import apis from '../../api'
 import config from '../../../config'
@@ -24,7 +24,7 @@ import {
   Container,
   HomeLabel,
   DescResponsive,
-  PageHeader
+  // PageHeader
 } from './Home.styles'
 // import RecordInfo from '../../components/record-info/RecordInfo'
 // import TwitterSection from '../../components/twitter-section/TwitterSection'
@@ -346,18 +346,18 @@ const Home = ({ subdomain = config.tld }) => {
   return (
     <Container>
       <VanityURL record={record} name={name} />
-      <FlexRow style={{ alignItems: 'baseline', marginTop: 70 }}>
+      {/* <FlexRow style={{ alignItems: 'baseline', marginTop: 70 }}>
         <Title style={{ margin: 0 }}>{name}</Title>
         <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
           <BaseText style={{ fontSize: 12, color: 'grey', marginLeft: '16px', textDecoration: 'none' }}>
             {subdomain}
           </BaseText>
         </a>
-      </FlexRow>
+      </FlexRow> */}
       {!record && (<FlexColumn style={{ justifyContent: 'center', alignContent: 'center' }}>Uploading...</FlexColumn>)}
       {(record && record?.renter) && (
         <DescResponsive>
-          <PageHeader>
+          {/* <PageHeader>
             {record.prev &&
               <a href={`https://${record.prev}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
                 <FlexRow style={{ gap: 16, textDecoration: 'none', color: 'black' }}>
@@ -368,20 +368,20 @@ const Home = ({ subdomain = config.tld }) => {
               <Title style={{ textAlign: 'center', margin: '0px auto', paddingBottom: '3em' }}>
                 You own this page
               </Title>
-            )}
-            {/* <OwnerInfo
+            )} */}
+          {/* <OwnerInfo
               client={client}
               isOwner={isOwner}
               pageName={name}
             /> */}
-            {record.next &&
+          {/* {record.next &&
               <a href={`https://${record.next}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
                 <FlexRow style={{ gap: 16, textDecoration: 'none', color: 'black' }}>
                   <AiOutlineDoubleRight />
                 </FlexRow>
               </a>}
-          </PageHeader>
-          <PageWidgets />
+          </PageHeader> */}
+          <PageWidgets isOwner={isOwner} style={{ marginTop: '6em' }} />
           {/* {tweetId && (
             <TwitterSection tweetId={tweetId} pageName={name} client={client} />
           )}
@@ -423,7 +423,7 @@ const Home = ({ subdomain = config.tld }) => {
           </Col>
         </Col>
       )}
-      {!isConnected && <Web3Button />}
+      {/* {!isConnected && <Web3Button />} */}
       {/* {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>} */}
 
       {address && (
