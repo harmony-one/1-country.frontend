@@ -2,7 +2,8 @@
 require('dotenv').config()
 const path = require('path')
 const webpack = require('webpack')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 
@@ -29,6 +30,11 @@ module.exports = {
   },
   module: {
     noParse: /\.wasm$/,
+    parser: {
+      javascript: {
+        importExportsPresence: false,
+      },
+    },
     rules: [
       {
         test: /\.(js|jsx|ts|tsx)$/,
@@ -37,24 +43,29 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: [
-              ['@babel/preset-env',
+              [
+                '@babel/preset-env',
                 {
                   useBuiltIns: 'usage',
                   corejs: 3,
-                  modules: 'cjs'
-                }],
+                  modules: 'cjs',
+                },
+              ],
               '@babel/preset-react',
-              '@babel/preset-typescript'
+              '@babel/preset-typescript',
             ],
             plugins: [
-              ['babel-plugin-styled-components', { displayName: !isProduction }],
-              ['@babel/plugin-proposal-class-properties']
+              [
+                'babel-plugin-styled-components',
+                { displayName: !isProduction },
+              ],
+              ['@babel/plugin-proposal-class-properties'],
             ],
             assumptions: {
-              setPublicClassFields: false
-            }
-          }
-        }
+              setPublicClassFields: false,
+            },
+          },
+        },
       },
       {
         test: /\.svg$/i,
@@ -72,9 +83,7 @@ module.exports = {
       },
       {
         test: /\.(png|jpg|gif)$/,
-        use: [
-          'file-loader',
-        ],
+        use: ['file-loader'],
       },
       {
         test: /\.(scss|css)$/,
@@ -85,18 +94,20 @@ module.exports = {
         use: [
           {
             loader: 'style-loader',
-          }, {
+          },
+          {
             loader: 'css-loader', // translates CSS into CommonJS
-          }, {
+          },
+          {
             loader: 'less-loader',
             options: {
               lessOptions: {
                 javascriptEnabled: true,
-              }
-            }
-          }
-        ]
-      }
+              },
+            },
+          },
+        ],
+      },
     ],
   },
   entry: {
@@ -107,7 +118,7 @@ module.exports = {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
-    publicPath: '/'
+    publicPath: '/',
   },
 
   externals: {
@@ -124,8 +135,8 @@ module.exports = {
       http: require.resolve('stream-http'),
       https: require.resolve('https-browserify'),
       os: require.resolve('os-browserify'),
-      url: require.resolve('url')
-    }
+      url: require.resolve('url'),
+    },
   },
   plugins: [
     new Dotenv({
@@ -141,11 +152,11 @@ module.exports = {
       filename: 'index.html',
       template: 'assets/index.html',
       environment: process.env.NODE_ENV,
-      hash: true
+      hash: true,
     }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
     }),
-    process.env.SIZE_ANALYSIS ? new BundleAnalyzerPlugin({ }) : null
-  ].filter(i => i)
+    process.env.SIZE_ANALYSIS ? new BundleAnalyzerPlugin({}) : null,
+  ].filter((i) => i),
 }
