@@ -6,6 +6,7 @@ import { ModalIds, ModalRegister } from '../../../modules/modals'
 import { useStores } from '../../../stores'
 import { ModalWidgetAdd } from '../../../components/modals/ModalWidgetAdd'
 import { ModalWidgetText } from '../../../components/modals/ModalWidgetText'
+import { ModalWidgetTwitter } from '../../../components/modals/ModalWidgetTwitter'
 
 interface Props {}
 
@@ -30,10 +31,16 @@ export const WidgetCreator: React.FC<Props> = () => {
         <ModalWidgetAdd />
       </ModalRegister>
       <ModalRegister
-        layerProps={{ position: 'bottom', full: 'horizontal' }}
+        layerProps={{ position: 'right', full: 'vertical' }}
         modalId={ModalIds.PROFILE_ADD_WIDGET_TEXT}
       >
         <ModalWidgetText />
+      </ModalRegister>
+      <ModalRegister
+        layerProps={{ position: 'right', full: 'vertical' }}
+        modalId={ModalIds.PROFILE_ADD_WIDGET_TWITTER}
+      >
+        <ModalWidgetTwitter />
       </ModalRegister>
     </WidgetContainer>
   )

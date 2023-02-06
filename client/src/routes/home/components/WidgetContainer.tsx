@@ -7,13 +7,17 @@ const Container = styled.div`
   position: relative;
   min-height: 8.5em;
   height: 100%;
+  background-color: #ffffff;
 `
 
 interface Props {
-  children: React.ReactNode | React.ReactNode[];
-  onClick?: () => void;
+  children: React.ReactNode | React.ReactNode[]
+  onClick?: () => void
 }
 
-export const WidgetContainer: React.FC<Props> = ({ children, onClick = () => undefined }) => {
+export const WidgetContainer: React.FC<Props> = ({
+  children,
+  onClick = () => undefined,
+}) => {
   return <Container onClick={onClick}>{children}</Container>
 }

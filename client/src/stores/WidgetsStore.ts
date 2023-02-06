@@ -18,7 +18,7 @@ export class WidgetsStore extends BaseStore {
   }
 
   addWidget(widget: WidgetUnion) {
-    this.widgets.push(widget)
+    this.widgets = [widget, ...this.widgets]
   }
 }
 
@@ -36,8 +36,8 @@ export interface WidgetContentText {
   textColor: string
 }
 
-interface WidgetContentTwitter {
-  url: string
+export interface WidgetContentTwitter {
+  accountName: string
 }
 
 interface WidgetContentNFT {

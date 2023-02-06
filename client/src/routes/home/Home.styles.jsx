@@ -16,10 +16,6 @@ export const StyledContainer = styled(Main)`
 export const Container = observer(({ children }) => {
   const { domainRecordStore } = useStores()
 
-  console.log(
-    '### domainRecordStore.profile.bgColor',
-    domainRecordStore.profile.bgColor
-  )
   return (
     <StyledContainer bgColor={domainRecordStore.profile.bgColor}>
       {children}
