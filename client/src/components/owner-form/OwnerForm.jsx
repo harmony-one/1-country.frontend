@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
-import { OwnerFormContainer, FloatingTextInput } from './OwnerForm.styles'
+import React, { useEffect, useState } from 'react'
+import { OwnerFormContainer } from './OwnerForm.styles' // FloatingTextInput
 import {
   Button,
-  Input,
+  // Input,
 } from '../Controls'
-import { FlexRow, Row } from '../Layout'
+import { FlexRow } from '../Layout' // Row }
 
 const defaultFormFields = {
   telegram: '',
@@ -14,10 +14,18 @@ const defaultFormFields = {
 const OwnerForm = ({ onAction, buttonLabel, pending }) => {
   const [formFields, setFormFields] = useState(defaultFormFields)
 
-  const onChange = (event) => {
-    const { name, value } = event.target
-    setFormFields({ ...formFields, [name]: value })
-  }
+  // const onChange = (event) => {
+  //   const { name, value } = event.target
+  //   setFormFields({ ...formFields, [name]: value })
+  // }
+
+  useEffect(() => {
+    setFormFields({
+      telegram: 'telegramHandler',
+      email: 'hello@harmony.one',
+      phone: '+12815553321'
+    })
+  }, [])
 
   const handleSubmit = (event) => {
     // get payment type from Submit button
@@ -37,7 +45,7 @@ const OwnerForm = ({ onAction, buttonLabel, pending }) => {
     <>
       <form onSubmit={handleSubmit}>
         <OwnerFormContainer>
-          <span style={{ marginTop: '1em', marginBottom: '1.5em' }}>Please fill the following information</span>
+          {/* <span style={{ marginTop: '1em', marginBottom: '1.5em' }}>Please fill the following information</span>
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
             <Input name='telegram' required onChange={onChange} />
             <FloatingTextInput>Telegram Handle</FloatingTextInput>
@@ -49,7 +57,7 @@ const OwnerForm = ({ onAction, buttonLabel, pending }) => {
           <Row style={{ width: '100%', gap: 0, position: 'relative' }}>
             <Input name='phone' required onChange={onChange} />
             <FloatingTextInput>Phone Number</FloatingTextInput>
-          </Row>
+          </Row> */}
           <FlexRow style={{ gap: 32 }}>
             <Button type='submit' value='one' style={{ marginTop: '1em' }} disabled={pending}>{buttonLabel}</Button>
             <Button type='submit' value='usd' style={{ marginTop: '1em' }} disabled={pending}>Rent (USD)</Button>

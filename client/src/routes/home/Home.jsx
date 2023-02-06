@@ -13,12 +13,12 @@ import apis from '../../api'
 import config from '../../../config'
 import {
   Button,
-  FloatingText,
-  Input,
+  // FloatingText,
+  // Input,
   LinkWrarpper,
 } from '../../components/Controls'
 
-import { Col, FlexRow, Row } from '../../components/Layout'
+import { Col, FlexColumn, FlexRow, Row } from '../../components/Layout'
 import { BaseText, DescLeft, SmallTextGrey, Title } from '../../components/Text'
 import {
   Container,
@@ -26,17 +26,18 @@ import {
   DescResponsive,
   PageHeader
 } from './Home.styles'
-import RecordInfo from '../../components/record-info/RecordInfo'
-import TwitterSection from '../../components/twitter-section/TwitterSection'
+// import RecordInfo from '../../components/record-info/RecordInfo'
+// import TwitterSection from '../../components/twitter-section/TwitterSection'
 // import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
 import { VanityURL } from './VanityURL'
-import OwnerInfo from '../../components/owner-info/OwnerInfo'
+// import OwnerInfo from '../../components/owner-info/OwnerInfo'
 import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
 import { wagmiClient } from '../../modules/wagmi/wagmiClient'
 import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 import { SearchBlock } from '../../components/SearchBlock'
+import PageWidgets from '../../components/page-widgets/PageWidgets'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -89,7 +90,7 @@ const Home = ({ subdomain = config.tld }) => {
     rentalPeriod: 0,
     priceMultiplier: 0,
   })
-  const [tweetId, setTweetId] = useState('')
+  // const [tweetId, setTweetId] = useState('')
   const [pending, setPending] = useState(false)
 
   const toastId = useRef(null)
@@ -124,7 +125,7 @@ const Home = ({ subdomain = config.tld }) => {
       }
       return parts.slice(0, parts.length - 2).join('.')
     }
-
+    setUrl('https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg')
     setName(getSubdomain())
     const web3 = new Web3(config.defaultRPC)
     const api = apis({ web3, address })
@@ -175,16 +176,16 @@ const Home = ({ subdomain = config.tld }) => {
       .then((r) => setLastRentedRecord(r))
   }, [parameters?.lastRented])
 
-  useEffect(() => {
-    if (!record?.url) {
-      return
-    }
-    const id = parseBN(record.url)
-    if (!id) {
-      return
-    }
-    setTweetId(id.toString())
-  }, [record?.url])
+  // useEffect(() => {
+  //   if (!record?.url) {
+  //     return
+  //   }
+  //   const id = parseBN(record.url)
+  //   if (!id) {
+  //     return
+  //   }
+  //   setTweetId(id.toString())
+  // }, [record?.url])
 
   const isHarmonyNetwork = useIsHarmonyNetwork()
 
@@ -353,7 +354,8 @@ const Home = ({ subdomain = config.tld }) => {
           </BaseText>
         </a>
       </FlexRow>
-      {record?.renter && (
+      {!record && (<FlexColumn style={{ justifyContent: 'center', alignContent: 'center' }}>Uploading...</FlexColumn>)}
+      {(record && record?.renter) && (
         <DescResponsive>
           <PageHeader>
             {record.prev &&
@@ -362,11 +364,16 @@ const Home = ({ subdomain = config.tld }) => {
                   <AiOutlineDoubleLeft />
                 </FlexRow>
               </a>}
-            <OwnerInfo
+            {isOwner && (
+              <Title style={{ textAlign: 'center', margin: '0px auto', paddingBottom: '3em' }}>
+                You own this page
+              </Title>
+            )}
+            {/* <OwnerInfo
               client={client}
               isOwner={isOwner}
               pageName={name}
-            />
+            /> */}
             {record.next &&
               <a href={`https://${record.next}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
                 <FlexRow style={{ gap: 16, textDecoration: 'none', color: 'black' }}>
@@ -374,10 +381,10 @@ const Home = ({ subdomain = config.tld }) => {
                 </FlexRow>
               </a>}
           </PageHeader>
-          {tweetId && (
+          <PageWidgets />
+          {/* {tweetId && (
             <TwitterSection tweetId={tweetId} pageName={name} client={client} />
           )}
-          {/* <Row style={{ marginTop: 32, justifyContent: 'center' }}> */}
           <Row>
             {record.url && !tweetId && (
               <Col>
@@ -388,42 +395,20 @@ const Home = ({ subdomain = config.tld }) => {
             {!record.url && (
               <BaseText>Owner hasn't embedded any tweet yet</BaseText>
             )}
-          </Row>
-          <RecordInfo
+          </Row> */}
+          {/* <RecordInfo
             record={record}
             expired={expired}
             parameters={parameters}
             humanD={humanD}
-          />
+          /> */}
         </DescResponsive>
       )}
-      {!isOwner
-        ? (
-          <>
-            <Title style={{ textAlign: 'center' }}>
-              Take over this page, embed a tweet you choose
-            </Title>
-            <Row style={{ marginTop: 16, justifyContent: 'center' }}>
-              <HomeLabel>Price</HomeLabel>
-              <BaseText>{price?.formatted} ONE</BaseText>
-            </Row>
-            <Row style={{ justifyContent: 'center' }}>
-              <SmallTextGrey>
-                for {humanD(parameters.rentalPeriod)}{' '}
-              </SmallTextGrey>
-            </Row>
-          </>
-          )
-        : (
-          <Title style={{ marginTop: 32, textAlign: 'center' }}>
-            You own this page
-          </Title>
-          )}
-      {!record?.renter && (
+      {(record && !record?.renter) && (
         <Col>
           <Title>Page Not Yet Claimed</Title>
           <SmallTextGrey style={{ marginTop: 32, textAlign: 'center' }}>
-            Claim now and embed a tweet you choose
+            Claim now
           </SmallTextGrey>
           <Col>
             <Row style={{ marginTop: 32, justifyContent: 'center' }}>
@@ -443,7 +428,7 @@ const Home = ({ subdomain = config.tld }) => {
 
       {address && (
         <>
-          <SmallTextGrey style={{ marginTop: 32 }}>
+          {/* <SmallTextGrey style={{ marginTop: 32 }}>
             Which tweet do you want this page to embed?
           </SmallTextGrey>
           <Row style={{ width: '80%', gap: 0, position: 'relative' }}>
@@ -454,15 +439,11 @@ const Home = ({ subdomain = config.tld }) => {
               onChange={({ target: { value } }) => setUrl(value)}
             />
             <FloatingText>copy the tweet's URL</FloatingText>
-          </Row>
-          {!isOwner
-            ? (
-              <OwnerForm onAction={onAction} buttonLabel='Rent (ONE)' pending={pending} />
-              )
-            : (
-              <Button onClick={onAction} disabled={pending}>UPDATE URL</Button>
-              )}
-          {isOwner && (
+          </Row> */}
+          {!isOwner && (
+            <OwnerForm onAction={onAction} buttonLabel='Rent (ONE)' pending={pending} />
+          )}
+          {(isOwner && expired) && (
             <>
               <Title style={{ marginTop: 64 }}>Renew ownership</Title>
               <Row style={{ justifyContent: 'center' }}>

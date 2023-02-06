@@ -12,7 +12,8 @@ export const PageHeader = styled.div`
   display: flex;
   direction: row;
   justify-content: space-between;
-  gap: 3em;
+  align-content: center;
+  width: 100%;
   
 `
 export const HomeLabel = styled(SmallTextGrey)`
