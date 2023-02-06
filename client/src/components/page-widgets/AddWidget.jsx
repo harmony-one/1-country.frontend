@@ -32,7 +32,6 @@ const AddWidget = ({ list, setList }) => {
       {!addingWidget
         ? (
           <div className='addWidget'>
-            <h3>Add new Widget</h3>
             <button className='add-button' onClick={buttonHandler}><AiOutlinePlus /></button>
           </div>)
         : (

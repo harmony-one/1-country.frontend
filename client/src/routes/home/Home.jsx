@@ -316,10 +316,10 @@ const Home = ({ subdomain = config.tld }) => {
         <FlexRow style={{ alignItems: 'baseline', marginTop: 120, width: '100%' }}>
           <SearchBlock client={client} />
         </FlexRow>
-        <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
+        {/* <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
           <Title style={{ margin: 0 }}>Claim your {subdomain}</Title>
-        </FlexRow>
-        <DescLeft>
+        </FlexRow> */}
+        {/* <DescLeft>
           <BaseText>How it works:</BaseText>
           <BaseText>
             - go to any *.1.country website (e.g.
@@ -338,7 +338,7 @@ const Home = ({ subdomain = config.tld }) => {
           <BaseText>
             - once claimed, you can embed any tweet on your page!
           </BaseText>
-        </DescLeft>
+        </DescLeft> */}
       </Container>
     )
   }
@@ -465,12 +465,12 @@ const Home = ({ subdomain = config.tld }) => {
         </>
       )}
       <SmallTextGrey>
-        <a
+        {/* <a
           href='https://harmony.one/domains'
           rel='noreferrer'
         >
           <SmallTextGrey> Harmony's Creator Economy & Web3 Nations </SmallTextGrey>
-        </a>
+        </a> */}
       </SmallTextGrey>
       <div style={{ height: 200 }} />
     </Container>
