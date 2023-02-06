@@ -15,16 +15,18 @@ const Navigation = () => {
   const [record, setRecord] = useState(null)
   const [lastRentedRecord, setLastRentedRecord] = useState(null)
   const [price, setPrice] = useState(null)
+  const [loading, setLoading] = useState()
   const [parameters, setParameters] = useState({
     rentalPeriod: 0,
     priceMultiplier: 0,
   })
   const [name] = useDomainName()
   const { client, walletAddress, isClientConnected } = useClient()
-  const isOwner =
-    !!(walletAddress &&
+  const isOwner = !!(
+    walletAddress &&
     record?.renter &&
-    record.renter.toLowerCase() === walletAddress.toLowerCase())
+    record.renter.toLowerCase() === walletAddress.toLowerCase()
+  )
 
   const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -59,12 +61,15 @@ const Navigation = () => {
     if (!client) {
       return
     }
+
+    setLoading(true)
     client.getParameters().then((p) => setParameters(p))
     client.getRecord({ name }).then((r) => {
       setRecord(r)
       domainRecordStore.domainRecord = r
     })
     client.getPrice({ name }).then((p) => setPrice(p))
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -91,30 +96,37 @@ const Navigation = () => {
 
   return (
     <div>
-      {!record && (
+      {loading && (
         <Container>
-          <FlexColumn style={{ height: '90vh', justifyContent: 'center', alignContent: 'center' }}>
+          <FlexColumn
+            style={{
+              height: '90vh',
+              justifyContent: 'center',
+              alignContent: 'center',
+            }}
+          >
             Uploading...
           </FlexColumn>
-        </Container>)}
-      {(record && !record?.renter)
-        ? (
-          <Container>
-            <DomainNotClaimed
-              record={record}
-              name={name}
-              subdomain={config.tld}
-              humanD={humanD}
-              parameters={parameters}
-              price={price}
-              isClientConnected={isClientConnected}
-              walletAddress={walletAddress}
-              isHarmonyNetwork={isHarmonyNetwork}
-              client={client}
-            />
-          </Container>)
-        : (
-          <Outlet context={{
+        </Container>
+      )}
+      {!loading && record && !record?.renter ? (
+        <Container>
+          <DomainNotClaimed
+            record={record}
+            name={name}
+            subdomain={config.tld}
+            humanD={humanD}
+            parameters={parameters}
+            price={price}
+            isClientConnected={isClientConnected}
+            walletAddress={walletAddress}
+            isHarmonyNetwork={isHarmonyNetwork}
+            client={client}
+          />
+        </Container>
+      ) : (
+        <Outlet
+          context={{
             record,
             lastRentedRecord,
             price,
@@ -125,9 +137,10 @@ const Navigation = () => {
             isClientConnected,
             isOwner,
             isHarmonyNetwork,
-            humanD
+            humanD,
           }}
-          />)}
+        />
+      )}
     </div>
   )
 }
