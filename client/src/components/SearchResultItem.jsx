@@ -41,8 +41,8 @@ export const SearchResultItem = ({ name, available = false, price, period }) => 
     <Container>
       <Name>{name}{config.tld}</Name>
       <div>{available ? 'Available' : 'Unavailable'}</div>
-      {available && <div>{price} ONE for {humanD(period)}</div>}
-      {available && <Button onClick={handleClickRent}>RENT</Button>}
+      {available && <div>{price} ONE ($1.20 USD) for {humanD(period)}</div>}
+      {available && <Button onClick={handleClickRent}></Button>}
     </Container>
   )
 }
