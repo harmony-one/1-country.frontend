@@ -4,7 +4,7 @@ import Web3 from 'web3'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
-import { Web3Button } from '@web3modal/react'
+// import { Web3Button } from '@web3modal/react'
 import humanizeDuration from 'humanize-duration'
 
 // import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
@@ -19,7 +19,7 @@ import {
 } from '../../components/Controls'
 
 import { Col, FlexColumn, FlexRow, Row } from '../../components/Layout'
-import { BaseText, DescLeft, SmallTextGrey, Title } from '../../components/Text'
+import { BaseText, SmallTextGrey, Title } from '../../components/Text'
 import {
   Container,
   HomeLabel,
@@ -346,6 +346,7 @@ const Home = ({ subdomain = config.tld }) => {
   return (
     <Container>
       <VanityURL record={record} name={name} />
+      <div style={{ height: '2em' }} />
       {/* <FlexRow style={{ alignItems: 'baseline', marginTop: 70 }}>
         <Title style={{ margin: 0 }}>{name}</Title>
         <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
@@ -354,7 +355,7 @@ const Home = ({ subdomain = config.tld }) => {
           </BaseText>
         </a>
       </FlexRow> */}
-      {!record && (<FlexColumn style={{ justifyContent: 'center', alignContent: 'center' }}>Uploading...</FlexColumn>)}
+      {!record && (<FlexColumn style={{ marginTop: '10em', justifyContent: 'center', alignContent: 'center' }}>Uploading...</FlexColumn>)}
       {(record && record?.renter) && (
         <DescResponsive>
           {/* <PageHeader>

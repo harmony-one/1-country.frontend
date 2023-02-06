@@ -92,6 +92,7 @@
     "@web3modal/ethereum": "^2.0.0",
     "@web3modal/react": "^2.0.0",
     "axios": "^0.21.1",
+    "babel-plugin-styled-components": "^2.0.7",
     "bn.js": "^5.2.1",
     "connected-react-router": "^6.9.1",
     "dotenv-webpack": "^8.0.0",
