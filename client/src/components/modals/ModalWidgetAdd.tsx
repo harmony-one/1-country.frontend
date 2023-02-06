@@ -61,8 +61,12 @@ interface Props {
 export const ModalWidgetAdd: React.FC<Props> = observer(({ onClose }) => {
   const { modalStore } = useStores()
 
-  const handleClick = () => {
+  const handleClickText = () => {
     modalStore.showModal(ModalIds.PROFILE_ADD_WIDGET_TEXT)
+  }
+
+  const handleClickTwitter = () => {
+    modalStore.showModal(ModalIds.PROFILE_ADD_WIDGET_TWITTER)
   }
 
   return (
@@ -71,11 +75,11 @@ export const ModalWidgetAdd: React.FC<Props> = observer(({ onClose }) => {
       <ModalContent>
         <Title>Add widget</Title>
         <Grid>
-          <Card onClick={handleClick}>
+          <Card onClick={handleClickText}>
             <IoTextSharp size="40px" />
             <BaseText>Text</BaseText>
           </Card>
-          <Card disabled>
+          <Card onClick={handleClickTwitter}>
             <AiOutlineTwitter size="40px" />
             <BaseText>Twitter</BaseText>
           </Card>
