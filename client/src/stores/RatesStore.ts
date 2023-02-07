@@ -19,6 +19,8 @@ export class RatesStore extends BaseStore {
       },
       { autoBind: true }
     )
+
+    this.loadRates()
   }
 
   loadRate<ID extends 'harmony'>(id: ID): Promise<number> {

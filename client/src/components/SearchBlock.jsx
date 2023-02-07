@@ -4,6 +4,8 @@ import debounce from 'lodash.debounce'
 import { Button } from './Controls'
 import { SearchResultItem } from './SearchResultItem'
 import { BaseText } from './Text'
+import { useStores } from '../stores'
+import { observer } from 'mobx-react-lite'
 
 const Container = styled.div`
   width: 100%;
@@ -39,7 +41,7 @@ const isValidDomainName = (domainName) => {
   return regx.test(domainName + '.1.country')
 }
 
-export const SearchBlock = ({ client }) => {
+export const SearchBlock = observer(({ client }) => {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState()
   const [price, setPrice] = useState()
@@ -50,6 +52,8 @@ export const SearchBlock = ({ client }) => {
     rentalPeriod: 0,
     priceMultiplier: 0,
   })
+
+  const { ratesStore } = useStores()
 
   useEffect(() => {
     if (!client) {
@@ -141,10 +145,11 @@ export const SearchBlock = ({ client }) => {
         <SearchResultItem
           name={recordName}
           price={price.formatted}
+          rateONE={ratesStore.ONE_USD}
           available={!record.renter}
           period={parameters.rentalPeriod}
         />
       )}
     </Container>
   )
-}
+})

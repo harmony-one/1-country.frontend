@@ -41,14 +41,33 @@ const formatNumber = (num) => {
   return twoDecimalsFormatter.format(Number(num))
 }
 
-export const SearchResultItem = ({ name, available = false, price, period }) => {
+export const SearchResultItem = ({
+  name,
+  available = false,
+  price,
+  period,
+  rateONE,
+}) => {
   const priceUsd = calcDomainUSDPrice(name)
-  const priceOne = calDomainOnePrice(name)
+  const priceOne = calDomainOnePrice(name, rateONE)
 
   return (
     <Container>
       <div>{available ? '' : 'Unavailable'}</div>
-      {available && <div>{formatNumber(priceOne)} ONE = (${formatNumber(priceUsd)} USD) for {humanD(period)} (<a href='https://www.harmony.one/privacy' target='_blank' rel='noreferrer'>terms</a>)</div>}
+      {available && (
+        <div>
+          {formatNumber(priceOne)} ONE = (${formatNumber(priceUsd)} USD) for{' '}
+          {humanD(period)} (
+          <a
+            href="https://www.harmony.one/privacy"
+            target="_blank"
+            rel="noreferrer"
+          >
+            terms
+          </a>
+          )
+        </div>
+      )}
     </Container>
   )
 }
