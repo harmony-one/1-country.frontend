@@ -3,9 +3,17 @@ import ReactDOM from 'react-dom'
 import Routes from './Routes'
 import { ToastContainer } from 'react-toastify'
 import { Helmet } from 'react-helmet'
+// import {
+//   WagmiConfig,
+//   createClient,
+//   defaultChains,
+//   configureChains,
+// } from 'wagmi'
+// import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
+
 import 'react-toastify/dist/ReactToastify.css'
 import './app.scss'
-import { Web3ModalProvider } from './modules/web3modal/Web3ModalProvider'
+// import { Web3ModalProvider } from './modules/web3modal/Web3ModalProvider'
 import { WagmiConfigProvider } from './modules/wagmi/WagmiConfigProvider'
 
 document.body.ontouchstart = function () {}
@@ -19,7 +27,7 @@ ReactDOM.render(
       {/* <link rel='icon' type='image/png' href={favicon} sizes='16x16' /> */}
     </Helmet>
     <Routes />
-    <Web3ModalProvider />
+    {/* <Web3ModalProvider /> */}
     <ToastContainer position='top-left' />
   </WagmiConfigProvider>,
   document.getElementById('root')

@@ -1,6 +1,13 @@
 import styled from 'styled-components'
 import { FloatingText } from '../Controls'
 
+export const PageWidgetContainer = styled.div`
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+`
+
 export const AddWidgetContainter = styled.div`
   display: flex;
   flex-direction: column;
@@ -18,6 +25,7 @@ export const AddWidgetContainter = styled.div`
   }
   
 `
+
 export const AddWidgetForm = styled.div`
   display: flex;
   flex-direction: column;

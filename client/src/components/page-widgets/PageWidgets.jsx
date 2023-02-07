@@ -1,32 +1,64 @@
 import React, { useEffect, useState } from 'react'
-import OwnerWidget from '../owner-widget/OwnerWidget'
-import AddWidget from './AddWidget'
+import { InputContainer, StyledInput } from '../SearchBlock'
+import TwitterWidget from '../widgets/TwitterWidget'
+import { PageWidgetContainer } from './PageWidgets.styles'
 
-const PageWidgets = ({ isOwner }) => {
+const defaultFormFields = {
+  widgetValue: '',
+}
+
+const PageWidgets = ({ isOwner, showAddButton }) => {
   const [widgetList, setWidgetList] = useState([])
-
-  const LIST = [
-    {
-      type: '',
-      value: 'https://www.facebook.com/andrewismusic/posts/451971596293956'
-    },
-    {
-      type: '',
-      value: 'https://www.instagram.com/p/CUbHfhpswxt/'
-    }
-  ]
+  const [addingWidget, setAddingWidget] = useState(false)
+  const [formFields, setFormFields] = useState(defaultFormFields)
+  const [placeHolder, setPlaceHolder] = useState('')
 
   useEffect(() => {
-    setWidgetList(LIST)
+    setPlaceHolder('Twitter name or tweet link')
   }, [])
+  const enterHandler = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      setAddingWidget(true)
+      const value = event.target.value
+      if (value.length > 0) {
+        console.log('enter pressed', event.target.value)
+        widgetList.unshift({
+          type: '',
+          value: event.target.value
+        })
+        setWidgetList([...widgetList])
+        setAddingWidget(false)
+        setFormFields({ ...formFields, widgetValue: '' })
+      }
+    }
+  }
+
+  const onChange = (event) => {
+    const { name, value } = event.target
+    setFormFields({ ...formFields, [name]: value })
+  }
+
   return (
-    <div>
+    <PageWidgetContainer>
+      {showAddButton &&
+        <InputContainer>
+          <StyledInput
+            placeholder={placeHolder}
+            name='widgetValue'
+            value={formFields.widgetValue}
+            required
+            onChange={onChange}
+            onKeyDown={enterHandler}
+            disabled={addingWidget}
+          />
+        </InputContainer>}
+      {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}
       {widgetList.length > 0 && (
         widgetList.map((widget, index) =>
-          <OwnerWidget type={widget.type} value={widget.value} key={index} />)
+          <TwitterWidget value={widget.value} clave={index} key={index} widgetKey={index} />)
       )}
-      {isOwner && <AddWidget list={widgetList} setList={setWidgetList} />}
-    </div>
+    </PageWidgetContainer>
   )
 }
 

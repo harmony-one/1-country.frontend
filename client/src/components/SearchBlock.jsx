@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { AiOutlineSearch } from 'react-icons/all'
+// import { AiOutlineSearch } from 'react-icons/all'
 import { Button } from './Controls'
 import { SearchResultItem } from './SearchResultItem'
 
@@ -8,7 +8,7 @@ const Container = styled.div`
   width: 100%;
 `
 
-const InputContainer = styled.div`
+export const InputContainer = styled.div`
   position: relative;
   box-sizing: border-box;
   border: 1px solid #808080;
@@ -18,12 +18,12 @@ const InputContainer = styled.div`
   margin-bottom: 24px;
 `
 
-const StyledInput = styled.input`
+export const StyledInput = styled.input`
   border: none;
   font-family: 'DecimaMono', system-ui;
   font-size: 1rem;
   margin: 0;
-  padding: 0;
+  padding: 0.5em;
   width: 100%;
   
   &:focus {
@@ -72,7 +72,7 @@ export const SearchBlock = ({ client }) => {
   return (
     <Container>
       <InputContainer>
-        <AiOutlineSearch size='24px' style={{ margin: '0px 8px 0px 12px' }} />
+        {/* <AiOutlineSearch size='24px' style={{ margin: '0px 8px 0px 12px' }} /> */}
         <StyledInput placeholder='harmony.1' value={search} onChange={handleSearchChange} />
         <Button style={{ marginLeft: 'auto' }} onClick={handleSearch}>Search</Button>
       </InputContainer>

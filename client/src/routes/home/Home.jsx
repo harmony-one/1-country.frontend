@@ -3,7 +3,7 @@ import Web3 from 'web3'
 // import detectEthereumProvider from '@metamask/detect-provider'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
-import { useAccount } from 'wagmi'
+import { useAccount, useConnect } from 'wagmi'
 // import { Web3Button } from '@web3modal/react'
 import humanizeDuration from 'humanize-duration'
 
@@ -95,7 +95,8 @@ const Home = ({ subdomain = config.tld }) => {
 
   const toastId = useRef(null)
   const { isConnected, address, connector } = useAccount()
-
+  const { connect, connectors, isLoading } =
+  useConnect()
   // for updating stuff
   const [url, setUrl] = useState('')
 
@@ -155,6 +156,13 @@ const Home = ({ subdomain = config.tld }) => {
     client.getRecord({ name }).then((r) => setRecord(r))
     client.getPrice({ name }).then((p) => setPrice(p))
   }
+
+  useEffect(() => {
+    if (!isConnected && !isLoading && connectors) {
+      const con = connectors
+      connect({ connector: con }) // { connector: connectors[0] })
+    }
+  }, [isConnected, isLoading, connectors])
 
   useEffect(() => {
     if (!client) {
@@ -316,29 +324,6 @@ const Home = ({ subdomain = config.tld }) => {
         <FlexRow style={{ alignItems: 'baseline', marginTop: 120, width: '100%' }}>
           <SearchBlock client={client} />
         </FlexRow>
-        {/* <FlexRow style={{ alignItems: 'baseline', marginTop: 120 }}>
-          <Title style={{ margin: 0 }}>Claim your {subdomain}</Title>
-        </FlexRow> */}
-        {/* <DescLeft>
-          <BaseText>How it works:</BaseText>
-          <BaseText>
-            - go to any *.1.country website (e.g.
-            <a href='https://all.1.country' target='_blank' rel='noreferrer'>
-              all.1.country
-            </a>)
-          </BaseText>
-          <BaseText>
-            - if you are the first, pay{' '}
-            {parameters?.baseRentalPrice?.formatted || '100'} ONE to claim the
-            page for {humanD(parameters?.rentalPeriod) || '3 months'}
-          </BaseText>
-          <BaseText>
-            - otherwise, pay double the last person paid to claim the page
-          </BaseText>
-          <BaseText>
-            - once claimed, you can embed any tweet on your page!
-          </BaseText>
-        </DescLeft> */}
       </Container>
     )
   }
@@ -382,7 +367,7 @@ const Home = ({ subdomain = config.tld }) => {
                 </FlexRow>
               </a>}
           </PageHeader> */}
-          <PageWidgets isOwner={isOwner} style={{ marginTop: '6em' }} />
+          <PageWidgets isOwner={isOwner} style={{ marginTop: '6em' }} showAddButton={isOwner} />
           {/* {tweetId && (
             <TwitterSection tweetId={tweetId} pageName={name} client={client} />
           )}
