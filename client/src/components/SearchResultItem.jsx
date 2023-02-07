@@ -1,6 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 import humanizeDuration from 'humanize-duration'
+import { Box } from 'grommet'
+import { BaseText } from './Text'
 
 const Container = styled.div`
   position: relative;
@@ -41,6 +43,11 @@ const formatNumber = (num) => {
   return twoDecimalsFormatter.format(Number(num))
 }
 
+export const DomainName = styled(BaseText)`
+  font-size: 1.2rem;
+  font-weight: bold;
+`
+
 export const SearchResultItem = ({
   name,
   available = false,
@@ -55,18 +62,21 @@ export const SearchResultItem = ({
     <Container>
       <div>{available ? '' : 'Unavailable'}</div>
       {available && (
-        <div>
-          {formatNumber(priceOne)} ONE = (${formatNumber(priceUsd)} USD) for{' '}
-          {humanD(period)} (
-          <a
-            href="https://www.harmony.one/privacy"
-            target="_blank"
-            rel="noreferrer"
-          >
-            terms
-          </a>
-          )
-        </div>
+        <Box gap="8px" direction="column">
+          <DomainName>{name}.1.country</DomainName>
+          <div>
+            {formatNumber(priceOne)} ONE = (${formatNumber(priceUsd)} USD) for{' '}
+            {humanD(period)} (
+            <a
+              href="https://www.harmony.one/privacy"
+              target="_blank"
+              rel="noreferrer"
+            >
+              terms
+            </a>
+            )
+          </div>
+        </Box>
       )}
     </Container>
   )
