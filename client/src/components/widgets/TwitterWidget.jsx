@@ -2,9 +2,10 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useEffect, useState } from 'react'
 import { TwitterTimelineEmbed, TwitterTweetEmbed } from 'react-twitter-embed'
+import { useInView } from "react-intersection-observer";
+import { IoMdCloseCircle } from 'react-icons/io'
 import isUrl from 'is-url'
 import BN from 'bn.js'
-import { IoMdCloseCircle } from 'react-icons/io'
 
 import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
 
@@ -57,6 +58,12 @@ const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
   const [tweetId, setTweetId] = useState(TwitterWidgetDefault)
   const [userName, setUserName] = useState('')
   const [loading, setLoading] = useState(false)
+  const { ref, inView } = useInView({
+    /* Optional options */
+    rootMargin: "0px",
+    root: null,
+    threshold: 0.1,
+  });
 
   useEffect(() => {
     setLoading(false)
@@ -75,9 +82,9 @@ const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
   }
 
   return (
-    <WidgetsContainer focus={loading}>
+    <WidgetsContainer focus={loading} ref={ref}>
       <div style={{ paddingBottom: '2em' }}>
-        {userName && (
+        {userName && (loading || inView) && (
           <TwitterTimelineEmbed
             sourceType='profile'
             screenName={userName}
@@ -87,7 +94,7 @@ const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
             onLoad={() => setLoading(true)}
           />
         )}
-        {tweetId.tweetId && (
+        {tweetId.tweetId && (loading || inView) && (
           <TwitterTweetEmbed
             tweetId={tweetId.tweetId}
             key={`${tweetId.tweetId}${widgetKey}`}
