@@ -102,6 +102,7 @@
     "is-url": "^1.2.4",
     "localforage": "^1.9.0",
     "lodash": "^4.17.10",
+    "lodash.debounce": "^4.0.8",
     "query-string": "^7.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

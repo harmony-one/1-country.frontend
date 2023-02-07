@@ -1,48 +1,54 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Button } from './Controls'
 import humanizeDuration from 'humanize-duration'
-import { BaseText } from './Text'
-import config from '../../config'
 
 const Container = styled.div`
   position: relative;
-  display: grid;
-  align-items: center;
-  padding-left: 12px;
-  border-left: 2px solid;
-  gap: 8px;
-
-  @media(max-width: 780px){
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
-  }
-
-  @media(min-width: 780px){
-    grid-template-columns: 1fr min-content 1fr 1fr;
-    grid-template-rows: 50px;
-  }
-`
-
-const Name = styled(BaseText)`
-  font-size: 1.2rem;
-  font-weight: bold;
 `
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
-export const SearchResultItem = ({ name, available = false, price, period }) => {
-  const link = `https://${name}${config.tld}`
-  const handleClickRent = () => {
-    window.open(link)
+const calcDomainUSDPrice = (domainName) => {
+  const len = domainName.length
+
+  if (len <= 3) {
+    return 100
   }
+
+  if (len <= 6) {
+    return 10
+  }
+
+  if (len <= 9) {
+    return 1
+  }
+
+  return 0.1
+}
+
+const calDomainOnePrice = (domainName, oneUsdRate = 0.02588853) => {
+  const priceUsd = calcDomainUSDPrice(domainName)
+
+  return priceUsd / oneUsdRate
+}
+
+const formatNumber = (num) => {
+  const twoDecimalsFormatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })
+
+  return twoDecimalsFormatter.format(Number(num))
+}
+
+export const SearchResultItem = ({ name, available = false, price, period }) => {
+  const priceUsd = calcDomainUSDPrice(name)
+  const priceOne = calDomainOnePrice(name)
 
   return (
     <Container>
-      <Name>{name}{config.tld}</Name>
-      <div>{available ? '     ' : 'Unavailable'}</div>
-      {available && <div>{price} ONE ($1.20 USD) for {humanD(period)}</div>}
-      {available && <Button onClick={handleClickRent} />}
+      <div>{available ? '' : 'Unavailable'}</div>
+      {available && <div>{formatNumber(priceOne)} ONE = (${formatNumber(priceUsd)} USD) for {humanD(period)} (<a href='https://www.harmony.one/privacy' target='_blank' rel='noreferrer'>terms</a>)</div>}
     </Container>
   )
 }

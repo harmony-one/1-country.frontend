@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
-// import { AiOutlineSearch } from 'react-icons/all'
+import debounce from 'lodash.debounce'
 import { Button } from './Controls'
 import { SearchResultItem } from './SearchResultItem'
 
@@ -8,7 +8,7 @@ const Container = styled.div`
   width: 100%;
 `
 
-export const InputContainer = styled.div`
+const InputContainer = styled.div`
   position: relative;
   box-sizing: border-box;
   border: 2px solid #CFCFCF;
@@ -18,12 +18,12 @@ export const InputContainer = styled.div`
   margin-bottom: 24px;
 `
 
-export const StyledInput = styled.input`
+const StyledInput = styled.input`
   border: none;
   font-family: 'DecimaMono', system-ui;
   font-size: 1rem;
-  margin: 0;
-  padding: 0.5em;
+  margin: 0 8px 0 12px;
+  padding: 0;
   width: 100%;
   
   &:focus {
@@ -33,6 +33,7 @@ export const StyledInput = styled.input`
 
 export const SearchBlock = ({ client }) => {
   const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState()
   const [price, setPrice] = useState()
   const [record, setRecord] = useState()
   const [recordName, setRecordName] = useState('')
@@ -50,33 +51,39 @@ export const SearchBlock = ({ client }) => {
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value)
+    handleSearch(event.target.value)
   }
 
-  const handleSearch = () => {
-    if (!client) {
-      return
-    }
+  const handleSearch = useMemo(() => {
+    return debounce((search) => {
+      if (!client || !search) {
+        return
+      }
 
-    setRecordName((search))
+      setLoading(true)
 
-    client.getRecord({ name: search }).then((r) => setRecord(r)).catch(ex => {
-      console.log('### ex', ex)
-    })
-    client.getPrice({ name: search }).then((p) => {
-      setPrice(p)
-    })
-  }
+      client.getRecord({ name: search }).then((r) => {
+        setRecord(r)
+        setLoading(false)
+      }).catch(ex => {
+        console.log('### ex', ex)
+      })
+      client.getPrice({ name: search }).then((p) => {
+        setPrice(p)
+      })
 
-  console.log('### parameters', parameters)
+      setRecordName(search)
+    }, 500)
+  }, [client])
 
   return (
     <Container>
       <InputContainer>
         {/* <AiOutlineSearch size='24px' style={{ margin: '0px 8px 0px 12px' }} /> */}
-        <StyledInput style={{ margin: '0px 8px 0px 12px' }} placeholder='harmony.1' value={search} onChange={handleSearchChange} />
-        <Button style={{ marginLeft: 'auto' }} onClick={handleSearch}>Pay</Button>
+        <StyledInput placeholder='harmony.1' value={search} onChange={handleSearchChange} />
+        <Button style={{ marginLeft: 'auto' }} onClick={handleSearchChange}>Pay</Button>
       </InputContainer>
-      {/* <div><a style={{ align: 'center' }}>1 ONE = ($1.20 USD) for 3 months (terms)</a></div> */}
+      {/* <div>1 ONE = ($1.20 USD) for 3 months</div> */}
 
       {/* <SearchResultItem */}
       {/*  name='sergey' */}
@@ -92,7 +99,11 @@ export const SearchBlock = ({ client }) => {
       {/*  period={86400000} */}
       {/* /> */}
 
-      {record && price &&
+      {loading && (
+        <div>Loading...</div>
+      )}
+
+      {!loading && record && price &&
         <SearchResultItem
           name={recordName}
           price={price.formatted}
