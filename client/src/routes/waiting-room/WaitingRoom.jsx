@@ -1,20 +1,19 @@
 import React, { useEffect } from 'react'
 import { useAccount, useConnect } from 'wagmi'
-import { Button } from '../../components/Controls'
 import PageWidgets from '../../components/page-widgets/PageWidgets'
 import { Container, DescResponsive } from '../home/Home.styles'
 
 const WaitingRoom = () => {
-  const { isConnected, address } = useAccount()
+  const { isConnected } = useAccount()
   const { connect, connectors, isLoading } =
   useConnect()
 
   useEffect(() => {
     try {
       if (!isConnected && !isLoading && connectors) {
-      const con = connectors
-      connect({ connector: con }) // { connector: connectors[0] })
-      }
+        const con = connectors
+        connect({ connector: con }) // { connector: connectors[0] })
+      }  
     } catch (e) {
       console.log('Error', e)
     }
