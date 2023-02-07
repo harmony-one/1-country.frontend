@@ -39,10 +39,10 @@ export const SearchResultItem = ({ name, available = false, price, period }) => 
 
   return (
     <Container>
-      {/* <Name>{name}{config.tld}</Name> */}
-      {/* <div>{available ? '     ' : 'Unavailable'}</div> */}
-      {/* {available && <div>{price} ONE ($1.20 USD) for {humanD(period)}</div>} */}
-      {/* {available && <Button onClick={handleClickRent}></Button>} */}
+      <Name>{name}{config.tld}</Name>
+      <div>{available ? '     ' : 'Unavailable'}</div>
+      {available && <div>{price} ONE ($1.20 USD) for {humanD(period)}</div>}
+      {available && <Button onClick={handleClickRent} />}
     </Container>
   )
 }

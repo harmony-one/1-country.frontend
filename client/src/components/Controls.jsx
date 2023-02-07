@@ -13,7 +13,7 @@ export const Button = styled.button`
   padding: 8px 16px;
   text-align: center;
   &:hover{
-    color: #white;
+    color: #fff;
     background: #101042;
     cursor: pointer;
   }

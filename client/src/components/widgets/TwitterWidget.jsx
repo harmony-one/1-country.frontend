@@ -1,7 +1,11 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useEffect, useState } from 'react'
 import { TwitterTimelineEmbed, TwitterTweetEmbed } from 'react-twitter-embed'
 import isUrl from 'is-url'
 import BN from 'bn.js'
+import { IoMdCloseCircle } from 'react-icons/io'
+
 import { WidgetsContainer } from './Widgets.styles'
 
 export const WIDGET_TYPE = {
@@ -49,12 +53,13 @@ const TwitterWidgetDefault = {
   tweetId: '',
   error: ''
 }
-const TwitterWidget = ({ value, widgetKey }) => {
+const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
   const [tweetId, setTweetId] = useState(TwitterWidgetDefault)
   const [userName, setUserName] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    console.log('value', value, userName, tweetId)
+    setLoading(false)
     if (isUrl(value)) {
       setTweetId(parseTweetId(value))
     } else {
@@ -62,8 +67,13 @@ const TwitterWidget = ({ value, widgetKey }) => {
     }
   }, [value])
 
+  const deleteItem = () => {
+    console.log('click')
+    deleteWidget(value)
+  }
+
   return (
-    <WidgetsContainer>
+    <WidgetsContainer hide={loading}>
       <div style={{ paddingBottom: '2em' }}>
         {userName && (
           <TwitterTimelineEmbed
@@ -72,6 +82,7 @@ const TwitterWidget = ({ value, widgetKey }) => {
             options={{ height: 600 }}
             placeholder='Loading...'
             key={`${userName}${widgetKey}`}
+            onLoad={() => setLoading(true)}
           />
         )}
         {tweetId.tweetId && (
@@ -79,7 +90,11 @@ const TwitterWidget = ({ value, widgetKey }) => {
             tweetId={tweetId.tweetId}
             key={`${tweetId.tweetId}${widgetKey}`}
             placeholder='Loading...'
+            onLoad={() => setLoading(true)}
           />)}
+      </div>
+      <div className='widget-delete-button' onClick={deleteItem}>
+        <IoMdCloseCircle />
       </div>
     </WidgetsContainer>
   )

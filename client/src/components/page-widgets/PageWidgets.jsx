@@ -39,6 +39,11 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
     setFormFields({ ...formFields, [name]: value })
   }
 
+  const deleteWidget = (value) => {
+    const newWidgetList = widgetList.filter(w => w.value !== value)
+    setWidgetList(newWidgetList)
+  }
+
   return (
     <PageWidgetContainer>
       {showAddButton &&
@@ -56,7 +61,7 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
       {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}
       {widgetList.length > 0 && (
         widgetList.map((widget, index) =>
-          <TwitterWidget value={widget.value} clave={index} key={index} widgetKey={index} />)
+          <TwitterWidget value={widget.value} clave={index} key={index} widgetKey={index} deleteWidget={deleteWidget} />)
       )}
     </PageWidgetContainer>
   )
