@@ -13,7 +13,7 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
   const [placeHolder, setPlaceHolder] = useState('')
 
   useEffect(() => {
-    setPlaceHolder('Twitter name or tweet link')
+    setPlaceHolder('twitter @ or tweet link')
   }, [])
 
   const enterHandler = (event) => {

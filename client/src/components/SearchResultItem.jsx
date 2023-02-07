@@ -60,7 +60,7 @@ export const SearchResultItem = ({
 
   return (
     <Container>
-      <div>{available ? '' : 'Unavailable'}</div>
+      <div>{available ? '' : 'Domain Name Unavailable'}</div>
       {available && (
         <Box gap="8px" direction="column">
           <DomainName>{name}.1.country</DomainName>
