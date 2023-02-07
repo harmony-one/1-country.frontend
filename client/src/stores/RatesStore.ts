@@ -4,7 +4,7 @@ import { RootStore } from './RootStore'
 import axios from 'axios'
 
 export class RatesStore extends BaseStore {
-  public ONE_USD = 0
+  public ONE_USD = 0.02676995
   public loading = false
 
   constructor(rootStore: RootStore) {
