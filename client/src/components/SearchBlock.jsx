@@ -168,11 +168,11 @@ export const SearchBlock = observer(({ client }) => {
     })
   }
 
-  const valid = record ? !record.renter : true
+  const isAvailable = record ? !record.renter : true
 
   return (
     <Container>
-      <InputContainer valid={isValid && valid}>
+      <InputContainer valid={isValid && isAvailable}>
         {/* <AiOutlineSearch size='24px' style={{ margin: '0px 8px 0px 12px' }} /> */}
         <StyledInput
           placeholder="harmony.1"
@@ -181,7 +181,7 @@ export const SearchBlock = observer(({ client }) => {
           onChange={handleSearchChange}
         />
         <Button
-          disabled={!isValid}
+          disabled={!isValid || !isAvailable}
           style={{ marginLeft: 'auto' }}
           onClick={handlePay}
         >
