@@ -9,6 +9,8 @@ const CopyPlugin = require('copy-webpack-plugin')
 
 console.log(!process.env.HTTP)
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 module.exports = {
   devServer: {
     port: 3100,
@@ -28,9 +30,14 @@ module.exports = {
   },
   module: {
     noParse: /\.wasm$/,
+    parser: {
+      javascript: {
+        importExportsPresence: false,
+      },
+    },
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(js|jsx|ts|tsx)$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
@@ -43,7 +50,15 @@ module.exports = {
                   modules: 'cjs'
                 }],
               '@babel/preset-react',
-            ]
+              '@babel/preset-typescript'
+            ],
+            plugins: [
+              ['babel-plugin-styled-components', { displayName: !isProduction }],
+              ['@babel/plugin-proposal-class-properties']
+            ],
+            assumptions: {
+              setPublicClassFields: false
+            }
           }
         }
       },
@@ -107,7 +122,7 @@ module.exports = {
   },
   resolve: {
     modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
-    extensions: ['.jsx', '.js'],
+    extensions: ['.jsx', '.js', '.ts', '.tsx'],
     fallback: {
       crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
