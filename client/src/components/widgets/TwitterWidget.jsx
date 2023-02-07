@@ -57,7 +57,7 @@ const TwitterWidgetDefault = {
 const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
   const [tweetId, setTweetId] = useState(TwitterWidgetDefault)
   const [userName, setUserName] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const { ref, inView } = useInView({
     /* Optional options */
     rootMargin: "0px",
@@ -66,7 +66,7 @@ const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
   });
 
   useEffect(() => {
-    setLoading(false)
+    setLoading(true)
     if (isUrl(value)) {
       setTweetId(parseTweetId(value))
       setUserName('')
@@ -77,29 +77,28 @@ const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
   }, [value])
 
   const deleteItem = () => {
-    console.log('click')
     deleteWidget(value)
   }
 
   return (
-    <WidgetsContainer focus={loading} ref={ref}>
+    <WidgetsContainer isWidgetLoading={loading} ref={ref}>
       <div style={{ paddingBottom: '2em' }}>
-        {userName && (loading || inView) && (
+        {userName && (!loading || inView) && (
           <TwitterTimelineEmbed
             sourceType='profile'
             screenName={userName}
             options={{ height: 600 }}
             placeholder='Loading...'
             key={`${userName}${widgetKey}`}
-            onLoad={() => setLoading(true)}
+            onLoad={() => setLoading(false)}
           />
         )}
-        {tweetId.tweetId && (loading || inView) && (
+        {tweetId.tweetId && (!loading || inView) && (
           <TwitterTweetEmbed
             tweetId={tweetId.tweetId}
             key={`${tweetId.tweetId}${widgetKey}`}
             placeholder='Loading...'
-            onLoad={() => setLoading(true)}
+            onLoad={() => setLoading(false)}
           />)}
       </div>
       <DeleteWidgetButton onClick={deleteItem}>

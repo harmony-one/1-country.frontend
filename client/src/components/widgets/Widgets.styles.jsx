@@ -24,6 +24,6 @@ export const WidgetsContainer = styled.div`
   position: relative;
 
   &:hover ${DeleteWidgetButton} {
-    opacity: 0.5; 
+    opacity: ${props => (props.isWidgetLoading ? 0 : 0.5)}; 
   }
 `
