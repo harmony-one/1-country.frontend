@@ -162,7 +162,7 @@ const Home = ({ subdomain = config.tld }) => {
       const con = connectors
       connect({ connector: con }) // { connector: connectors[0] })
     }
-  }, [isConnected, isLoading, connectors])
+  }, [])
 
   useEffect(() => {
     if (!client) {
