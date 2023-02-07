@@ -13,5 +13,5 @@ export const wagmiClient = createClient({
   // autoConnect: true,
   connectors: new MetaMaskConnector({ chains }),
   // modalConnectors({ appName: 'web3Modal', chains }),
-  provider
+  provider,
 })

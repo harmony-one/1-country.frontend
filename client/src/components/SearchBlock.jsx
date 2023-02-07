@@ -1,11 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import debounce from 'lodash.debounce'
-import { Button } from './Controls'
+import { Button, LinkWrarpper } from './Controls'
 import { SearchResultItem } from './SearchResultItem'
 import { BaseText } from './Text'
 import { useStores } from '../stores'
 import { observer } from 'mobx-react-lite'
+import { useAccount, useConnect } from 'wagmi'
+import { wagmiClient } from '../modules/wagmi/wagmiClient'
+import BN from 'bn.js'
+import config from '../../config'
+import { toast } from 'react-toastify'
+import { FlexRow } from './Layout'
 
 const Container = styled.div`
   width: 100%;
@@ -97,10 +103,69 @@ export const SearchBlock = observer(({ client }) => {
     }, 500)
   }, [client])
 
-  const handlePay = () => {
+  const { isConnected } = useAccount()
+
+  const toastId = useRef(null)
+
+  const handlePay = async () => {
     if (!record || !isValid) {
       return false
     }
+
+    setLoading(true)
+
+    toastId.current = toast.loading('Processing transaction')
+
+    try {
+      if (!isConnected) {
+        await wagmiClient.connectors.connect()
+      }
+    } catch (e) {
+      console.log('Error', e)
+      return
+    }
+
+    console.log('### recordName', recordName)
+
+    client.rent({
+      name: recordName,
+      url: '',
+      telegram: '',
+      phone: '',
+      email: '',
+      amount: new BN(price.amount).toString(),
+      onSuccess: (tx) => {
+        setLoading(false)
+        const { transactionHash } = tx
+        toast.update(toastId.current, {
+          render: (
+            <FlexRow>
+              <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
+              <LinkWrarpper
+                target="_blank"
+                href={client.getExplorerUri(transactionHash)}
+              >
+                <BaseText>View transaction</BaseText>
+              </LinkWrarpper>
+            </FlexRow>
+          ),
+          type: 'success',
+          isLoading: false,
+          autoClose: 2000,
+        })
+
+        window.location.href = `https://${recordName}${config.tld}`
+      },
+      onFailed: () => {
+        setLoading(false)
+        toast.update(toastId.current, {
+          render: 'Failed to purchase',
+          type: 'error',
+          isLoading: false,
+          autoClose: 2000,
+        })
+      },
+    })
   }
 
   const valid = record ? !record.renter : true
@@ -123,26 +188,21 @@ export const SearchBlock = observer(({ client }) => {
           Pay
         </Button>
       </InputContainer>
-
       {!isValid && <BaseText>Invalid domain name</BaseText>}
       {/* <div>1 ONE = ($1.20 USD) for 3 months</div> */}
-
       {/* <SearchResultItem */}
       {/*  name='sergey' */}
       {/*  price={1} */}
       {/*  available */}
       {/*  period={86400000} */}
       {/* /> */}
-
       {/* <SearchResultItem */}
       {/*  name='jon' */}
       {/*  price={1} */}
       {/*  available={false} */}
       {/*  period={86400000} */}
       {/* /> */}
-
       {loading && <div>Loading...</div>}
-
       {isValid && !loading && record && price && (
         <SearchResultItem
           name={recordName}
