@@ -28,6 +28,11 @@ module.exports = {
   },
   module: {
     noParse: /\.wasm$/,
+    parser: {
+      javascript: {
+        importExportsPresence: false,
+      },
+    },
     rules: [
       {
         test: /\.(js|jsx)$/,
