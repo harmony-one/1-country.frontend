@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { InputContainer, StyledInput } from '../SearchBlock'
 import TwitterWidget from '../widgets/TwitterWidget'
-import { PageWidgetContainer } from './PageWidgets.styles'
+import { PageWidgetContainer, WidgetInputContainer, WidgetStyledInput } from './PageWidgets.styles'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -16,13 +15,23 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
   useEffect(() => {
     setPlaceHolder('Twitter name or tweet link')
   }, [])
+
   const enterHandler = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault()
       setAddingWidget(true)
       const value = event.target.value
+      if (value === '1') {
+        widgetList.unshift({
+          type: '',
+          value: 'http://twitter.com/stse/status/1477342465774342145'
+        })
+        setWidgetList([...widgetList])
+        setAddingWidget(false)
+        setFormFields({ ...formFields, widgetValue: '' })
+        return
+      }
       if (value.length > 0) {
-        console.log('enter pressed', event.target.value)
         widgetList.unshift({
           type: '',
           value: event.target.value
@@ -47,8 +56,8 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
   return (
     <PageWidgetContainer>
       {showAddButton &&
-        <InputContainer>
-          <StyledInput
+        <WidgetInputContainer>
+          <WidgetStyledInput
             placeholder={placeHolder}
             name='widgetValue'
             value={formFields.widgetValue}
@@ -57,7 +66,7 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
             onKeyDown={enterHandler}
             disabled={addingWidget}
           />
-        </InputContainer>}
+        </WidgetInputContainer>}
       {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}
       {widgetList.length > 0 && (
         widgetList.map((widget, index) =>

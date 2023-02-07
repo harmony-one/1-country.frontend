@@ -6,7 +6,7 @@ import isUrl from 'is-url'
 import BN from 'bn.js'
 import { IoMdCloseCircle } from 'react-icons/io'
 
-import { WidgetsContainer } from './Widgets.styles'
+import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
 
 export const WIDGET_TYPE = {
   feed: 0,
@@ -62,8 +62,10 @@ const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
     setLoading(false)
     if (isUrl(value)) {
       setTweetId(parseTweetId(value))
+      setUserName('')
     } else {
       setUserName(value)
+      setTweetId(TwitterWidgetDefault)
     }
   }, [value])
 
@@ -73,7 +75,7 @@ const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
   }
 
   return (
-    <WidgetsContainer hide={loading}>
+    <WidgetsContainer focus={loading}>
       <div style={{ paddingBottom: '2em' }}>
         {userName && (
           <TwitterTimelineEmbed
@@ -93,9 +95,9 @@ const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
             onLoad={() => setLoading(true)}
           />)}
       </div>
-      <div className='widget-delete-button' onClick={deleteItem}>
+      <DeleteWidgetButton onClick={deleteItem}>
         <IoMdCloseCircle />
-      </div>
+      </DeleteWidgetButton>
     </WidgetsContainer>
   )
 }

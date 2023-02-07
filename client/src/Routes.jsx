@@ -1,16 +1,17 @@
 import React from 'react'
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Home from './routes/home/Home'
+import OpenWidgets from './routes/open-widgets/OpenWidgets'
+import WaitingRoom from './routes/waiting-room/WaitingRoom'
 
-const Routes = () => {
+const AppRoutes = () => {
   return (
-    <BrowserRouter>
-      <Switch>
-        <Route exact path='/' render={() => <Home />} />
-        <Redirect to='/' />
-      </Switch>
-    </BrowserRouter>
+    <Routes>
+      <Route path='/' element={<Home />} />
+      <Route path='new/' element={<WaitingRoom />} />
+      <Route path='home/' element={<OpenWidgets />} />
+    </Routes>
   )
 }
 
-export default Routes
+export default AppRoutes

@@ -1,5 +1,21 @@
 import styled from 'styled-components'
 
+export const DeleteWidgetButton = styled.button`
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 1em;
+  /* left: 0; */
+  /* margin-left: 0.3em; */
+  margin-top: 0.3em;
+  font-size: 3em;
+  opacity: 0; 
+  color: #4c4c4c;
+  z-index: 99;
+  background-color: transparent;
+  border: 0px;
+`
 export const WidgetsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -7,16 +23,7 @@ export const WidgetsContainer = styled.div`
   gap: 1em;
   position: relative;
 
-  .widget-delete-button {
-    cursor: pointer;
-    position: absolute;
-    left: 0;
-    top: 0;
-    margin-top: 0.3em;
-    margin-left: 0.3em;
-    font-size: 3em;
-    opacity: ${props => props.hide ? 0.55 : 0};
-    color: red;
-    z-index: 99;
+  &:hover ${DeleteWidgetButton} {
+    opacity: 0.5; 
   }
 `

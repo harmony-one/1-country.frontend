@@ -11,7 +11,7 @@ const Container = styled.div`
   width: 100%;
 `
 
-const InputContainer = styled.div`
+export const InputContainer = styled.div`
   position: relative;
   box-sizing: border-box;
   border: 2px solid ${(props) => (props.valid ? '#cfcfcf' : '#ff8c8c')};
@@ -21,7 +21,7 @@ const InputContainer = styled.div`
   margin-bottom: 24px;
 `
 
-const StyledInput = styled.input`
+export const StyledInput = styled.input`
   border: none;
   font-family: 'DecimaMono', system-ui;
   font-size: 1rem;

@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { FloatingText } from '../Controls'
+import { InputContainer, StyledInput } from '../SearchBlock'
 
 export const PageWidgetContainer = styled.div`
   width: 500px;
@@ -40,4 +41,13 @@ export const AddWidgetForm = styled.div`
 `
 export const FloatingTextInput = styled(FloatingText)`
   bottom: 16px !important;
+`
+
+export const WidgetStyledInput = styled(StyledInput)`
+  padding: 0.5em;
+  border: 1px solid black;
+` 
+
+export const WidgetInputContainer = styled(InputContainer)`
+  border: 0px;
 `
