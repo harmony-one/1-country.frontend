@@ -11,7 +11,7 @@ const Container = styled.div`
 const InputContainer = styled.div`
   position: relative;
   box-sizing: border-box;
-  border: 1px solid #808080;
+  border: 2px solid #CFCFCF;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -76,6 +76,7 @@ export const SearchBlock = ({ client }) => {
         <StyledInput style={{ margin: '0px 8px 0px 12px' }} placeholder='harmony.1' value={search} onChange={handleSearchChange} />
         <Button style={{ marginLeft: 'auto' }} onClick={handleSearch}>Pay</Button>
       </InputContainer>
+      {<div> <a style={{align: 'center'}}> </a>1 ONE = ($1.20 USD) for 3 months (terms)</div>}
 
       {/* <SearchResultItem */}
       {/*  name='sergey' */}
