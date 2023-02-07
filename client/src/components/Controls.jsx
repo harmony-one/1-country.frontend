@@ -9,12 +9,12 @@ export const Button = styled.button`
   
   width: ${props => props.$width || '128px'};
   color: white;
-  background: black;
+  background: #00AEE9;
   padding: 8px 16px;
   text-align: center;
   &:hover{
-    color: #dddddd;
-    background: #444444;
+    color: #white;
+    background: #101042;
     cursor: pointer;
   }
   &:disabled{
