@@ -72,9 +72,9 @@ export const SearchBlock = ({ client }) => {
   return (
     <Container>
       <InputContainer>
-        <AiOutlineSearch size='24px' style={{ margin: '0px 8px 0px 12px' }} />
-        <StyledInput placeholder='harmony.1' value={search} onChange={handleSearchChange} />
-        <Button style={{ marginLeft: 'auto' }} onClick={handleSearch}>Search</Button>
+        {/* <AiOutlineSearch size='24px' style={{ margin: '0px 8px 0px 12px' }} /> */}
+        <StyledInput style={{ margin: '0px 8px 0px 12px' }} placeholder='harmony.1' value={search} onChange={handleSearchChange} />
+        <Button style={{ marginLeft: 'auto' }} onClick={handleSearch}>Pay</Button>
       </InputContainer>
 
       {/* <SearchResultItem */}
