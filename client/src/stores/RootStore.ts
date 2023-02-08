@@ -26,9 +26,8 @@ export class RootStore {
     )
 
     const web3 = new Web3(config.defaultRPC)
-    const api = apis({ web3, address: Constants.EmptyAddress })
 
-    this.d1dcClient = api
+    this.d1dcClient = apis({ web3, address: Constants.EmptyAddress })
     this.modalStore = modalStore
     this.ratesStore = new RatesStore(this)
     this.walletStore = new WalletStore(this)
