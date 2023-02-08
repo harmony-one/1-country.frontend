@@ -1,6 +1,7 @@
 import { BaseStore } from './BaseStore'
 import { RootStore } from './RootStore'
 import { makeObservable, observable } from 'mobx'
+import { wagmiClient } from '../modules/wagmi/wagmiClient'
 
 export class WalletStore extends BaseStore {
   isConnected: boolean = false
@@ -16,5 +17,11 @@ export class WalletStore extends BaseStore {
       },
       { autoBind: true }
     )
+  }
+
+  connect() {
+    // TODO: fix wagmi connectors
+    // @ts-expect-error
+    return wagmiClient.connectors.connect()
   }
 }
