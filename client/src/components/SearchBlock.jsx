@@ -58,11 +58,10 @@ export const StyledInput = styled.input`
   }
 `
 
-const regx =
-  /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/
+const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
 
 const isValidDomainName = (domainName) => {
-  return regx.test(domainName + '.1.country')
+  return regx.test(domainName)
 }
 
 export const SearchBlock = observer(({ client }) => {
