@@ -37,7 +37,7 @@ const calDomainOnePrice = (domainName, oneUsdRate = 0.02588853) => {
 const formatNumber = (num) => {
   const twoDecimalsFormatter = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 0,
   })
 
   return twoDecimalsFormatter.format(Number(num))
@@ -63,12 +63,13 @@ export const SearchResultItem = ({
       <div>{available ? '' : 'Domain Name Unavailable'}</div>
       {available && (
         <Box gap="8px" direction="column">
-          <DomainName>{name}.1.country</DomainName>
+          {/* <DomainName>{name}.1.country</DomainName>  */} 
           <div>
-            {formatNumber(priceOne)} ONE = (${formatNumber(priceUsd)} USD) for{' '}
+            {formatNumber(priceOne)} ONE = ${formatNumber(priceUsd)}.00 USD for{' '}
             {humanD(period)} (
             <a
-              href="https://www.harmony.one/privacy"
+              style={{ color: '#758796' }}
+              href="https://harmony.one/1country-terms"
               target="_blank"
               rel="noreferrer"
             >
