@@ -2,6 +2,7 @@ const debug = process.env.DEBUG
 
 const config = {
   debug,
+  backendHost: process.env.BACKEND_HOST || 'http://localhost:8080',
   contract:
     process.env.CONTRACT || '0x3cC3C5F98AC3FF544279919DfceBfb7aFe03A2cA', // (debug ? '0x9BC52FBcCcde8cEADAEde51a25dBeD489b201e53' : '0x476e14D956dca898C33262aecC81407242f8431A'),
   contractVanityURL:
