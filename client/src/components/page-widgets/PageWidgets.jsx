@@ -13,7 +13,7 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
   const [placeHolder, setPlaceHolder] = useState('')
 
   useEffect(() => {
-    setPlaceHolder('twitter @ or tweet link')
+    setPlaceHolder('twitter handle or tweet link')
   }, [])
 
   const enterHandler = (event) => {
@@ -21,7 +21,7 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
       event.preventDefault()
       setAddingWidget(true)
       const value = event.target.value
-      if (value === '1') {
+      if (value === '1' || value === 's') {
         widgetList.unshift({
           type: '',
           value: 'http://twitter.com/stse/status/1477342465774342145'

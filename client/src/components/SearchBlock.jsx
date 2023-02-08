@@ -22,7 +22,7 @@ const Container = styled.div`
 export const InputContainer = styled.div`
   position: relative;
   box-sizing: border-box;
-  border: 2px solid ${(props) => (props.valid ? '#cfcfcf' : '#ff8c8c')};
+  border: 2px solid ${(props) => (props.valid ? '#758796' : '#ff8c8c')};
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -177,7 +177,7 @@ export const SearchBlock = observer(({ client }) => {
       <InputContainer valid={isValid && isAvailable}>
         {/* <AiOutlineSearch size='24px' style={{ margin: '0px 8px 0px 12px' }} /> */}
         <StyledInput
-          placeholder="harmony.1"
+          placeholder="Search for your .1 and .country domain name"
           value={search}
           valid={isValid}
           onChange={handleSearchChange}
