@@ -4,7 +4,7 @@ import { SmallTextGrey, Desc } from '../../components/Text'
 
 export const Container = styled(Main)`
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 0px;
   width: 100%;
   max-width: 800px;
   display: flex;
@@ -18,7 +18,6 @@ export const PageHeader = styled.div`
   justify-content: space-between;
   align-content: center;
   width: 100%;
-  
 `
 
 export const RecordRenewalContainer = styled.div`

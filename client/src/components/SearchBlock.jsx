@@ -15,6 +15,7 @@ import Logo from '../../assets/images/1countryLogo.jpg'
 import { Button, LinkWrarpper } from './Controls'
 import { BaseText } from './Text'
 import { FlexRow, FlexColumn } from './Layout'
+import { useSearchParams } from 'react-router-dom'
 
 const SearchBoxContainer = styled.div`
   width: 80%;
@@ -45,28 +46,27 @@ export const StyledInput = styled.input`
     outline: none;
   }
 
-  &::placeholder{
+  &::placeholder {
     font-size: 0.7em;
     text-align: center;
   }
 
-  @media(min-width: 640px){
-    &::placeholder{
+  @media (min-width: 640px) {
+    &::placeholder {
       font-size: 1em;
     }
-
   }
 `
 
-const regx =
-  /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/
+const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
 
 const isValidDomainName = (domainName) => {
-  return regx.test(domainName + '.1.country')
+  return regx.test(domainName)
 }
 
 export const SearchBlock = observer(({ client }) => {
-  const [search, setSearch] = useState('')
+  const [searchParams] = useSearchParams()
+  const [search, setSearch] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState()
   const [price, setPrice] = useState()
   const [record, setRecord] = useState()
@@ -77,6 +77,8 @@ export const SearchBlock = observer(({ client }) => {
     priceMultiplier: 0,
   })
 
+  console.log('### a', searchParams.get('domain'))
+
   const { ratesStore } = useStores()
 
   useEffect(() => {
@@ -86,17 +88,29 @@ export const SearchBlock = observer(({ client }) => {
     client.getParameters().then((p) => setParameters(p))
   }, [client])
 
-  const handleSearchChange = (event) => {
-    setSearch(event.target.value)
-    const _isValid = isValidDomainName(event.target.value)
+  const updateSearch = (domainName) => {
+    const _isValid = isValidDomainName(domainName.toLowerCase())
     setIsValid(_isValid)
 
     if (_isValid) {
-      handleSearch(event.target.value)
+      loadDomainRecord(domainName)
     }
   }
 
-  const handleSearch = useMemo(() => {
+  // setup form from query string
+  useEffect(() => {
+    console.log('### search', search)
+    if (search) {
+      updateSearch(search)
+    }
+  }, [])
+
+  const handleSearchChange = (event) => {
+    setSearch(event.target.value)
+    updateSearch(event.target.value)
+  }
+
+  const loadDomainRecord = useMemo(() => {
     return debounce((search) => {
       if (!client || !search) {
         return
@@ -190,9 +204,22 @@ export const SearchBlock = observer(({ client }) => {
 
   return (
     <SearchBoxContainer>
-      <FlexColumn style={{ width: '100%', justifyContent: 'center', alignItems: 'center', alignContent: 'center', marginBottom: '24px', gap: '1.5em' }}>
+      <FlexColumn
+        style={{
+          width: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          alignContent: 'center',
+          marginBottom: '24px',
+          gap: '1.5em',
+        }}
+      >
         <div style={{ width: '4em', height: '4em', flexGrow: 0 }}>
-          <img style={{ objectFit: 'cover', width: '100%' }} src={Logo} alt='1.country' />
+          <img
+            style={{ objectFit: 'cover', width: '100%' }}
+            src={Logo}
+            alt="1.country"
+          />
         </div>
         <InputContainer valid={isValid && isAvailable} style={{ flexGrow: 0 }}>
           {/* <AiOutlineSearch size='24px' style={{ margin: '0px 8px 0px 12px' }} /> */}
@@ -204,8 +231,13 @@ export const SearchBlock = observer(({ client }) => {
           />
         </InputContainer>
       </FlexColumn>
-      
+
       {!isValid && <BaseText>Invalid domain name</BaseText>}
+      {!isValid && (
+        <BaseText>
+          Domain can use a mix of letters (English A-Z), numbers and dash
+        </BaseText>
+      )}
       {/* <div>1 ONE = ($1.20 USD) for 3 months</div> */}
       {/* <SearchResultItem */}
       {/*  name='sergey' */}
@@ -238,7 +270,6 @@ export const SearchBlock = observer(({ client }) => {
           </Button>
         </>
       )}
-
     </SearchBoxContainer>
   )
 })

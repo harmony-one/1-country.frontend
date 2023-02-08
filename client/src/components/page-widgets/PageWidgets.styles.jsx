@@ -39,7 +39,6 @@ export const AddWidgetForm = styled.div`
     width: 100%;
     margin-top: 0em !important;
   }
-
 `
 export const FloatingTextInput = styled(FloatingText)`
   bottom: 16px !important;
@@ -49,7 +48,7 @@ export const WidgetStyledInput = styled(StyledInput)`
   /* padding: 0.5em; */
   border: 2px solid ${(props) => (props.valid ? '#758796' : '#ff8c8c')};
   border-radius: 5px;
-` 
+`
 
 export const WidgetInputContainer = styled(InputContainer)`
   border: 0px;
