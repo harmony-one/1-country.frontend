@@ -2,18 +2,16 @@ import { RootStore } from './RootStore'
 import { BaseStore } from './BaseStore'
 import { action, computed, makeObservable, observable } from 'mobx'
 import { getDomainName } from '../utils/getDomainName'
-import { DomainRecord } from '../api'
+import { DCParams, DomainPrice, DomainRecord } from '../api'
 
 export class DomainStore extends BaseStore {
   public domainName: string = ''
-  public domainPrice: unknown
-  public domainParams: unknown
+  public domainPrice: DomainPrice | null = null
+  public domainParams: DCParams | null = null
   public domainRecord: DomainRecord | null = null
 
   constructor(rootStore: RootStore) {
     super(rootStore)
-
-    this.domainName = getDomainName()
 
     makeObservable(
       this,
@@ -25,6 +23,8 @@ export class DomainStore extends BaseStore {
       },
       { autoBind: true }
     )
+
+    this.domainName = getDomainName()
   }
 
   get isOwner() {
@@ -36,14 +36,21 @@ export class DomainStore extends BaseStore {
   }
 
   async loadDomainRecord() {
-    this.domainRecord = await this.rootStore.d1dcClient.getRecord({
-      name: this.domainName,
-    })
+    if (!this.domainName) {
+      return
+    }
 
-    this.domainPrice = await this.rootStore.d1dcClient.getPrice({
-      name: this.domainName,
-    })
+    try {
+      this.domainRecord = await this.rootStore.d1dcClient.getRecord({
+        name: this.domainName,
+      })
+      this.domainPrice = await this.rootStore.d1dcClient.getPrice({
+        name: this.domainName,
+      })
 
-    this.domainParams = await this.rootStore.d1dcClient.getParameters()
+      this.domainParams = await this.rootStore.d1dcClient.getParameters()
+    } catch (ex) {
+      console.log('### error', ex)
+    }
   }
 }

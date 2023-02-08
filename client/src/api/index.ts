@@ -18,6 +18,18 @@ export interface DomainRecord {
   next: string
 }
 
+export interface DomainPrice {
+  amount: string
+  formatted: string
+}
+
+export interface DCParams {
+  baseRentalPrice: DomainPrice
+  lastRented: string // domainName
+  priceMultiplier: number
+  rentalPeriod: number
+}
+
 export enum EMOJI_TYPE {
   ONE_ABOVE = 0,
   FIRST_PRIZE = 1,
@@ -256,7 +268,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         email,
       }
     },
-    getParameters: async () => {
+    getParameters: async (): Promise<DCParams> => {
       const [baseRentalPrice, rentalPeriod, priceMultiplier, lastRented] =
         await Promise.all([
           contract.methods.baseRentalPrice().call(),
@@ -274,7 +286,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         lastRented,
       }
     },
-    getPrice: async ({ name }: { name: string }) => {
+    getPrice: async ({ name }: { name: string }): Promise<DomainPrice> => {
       const nameBytes = web3.utils.keccak256(name)
       const price = await contract.methods
         .getPrice(nameBytes)

@@ -95,12 +95,14 @@ const Home = ({ subdomain = config.tld }) => {
   // for updating stuff
   const [url, setUrl] = useState('')
 
-  const { rootStore, walletStore } = useStores()
+  const { rootStore, domainStore, walletStore } = useStores()
 
   // TODO remove
   // TODO sync stores
   useEffect(() => {
-    rootStore.updateD1DCClient(client)
+    if (client) {
+      rootStore.updateD1DCClient(client)
+    }
   }, [client])
 
   useEffect(() => {
@@ -108,6 +110,10 @@ const Home = ({ subdomain = config.tld }) => {
     walletStore.walletAddress = address
   }, [isConnected, address])
   //
+
+  useEffect(() => {
+    domainStore.loadDomainRecord()
+  }, [])
 
   // const name = getSubdomain()
 
