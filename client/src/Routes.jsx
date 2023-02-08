@@ -1,7 +1,7 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Home from './routes/home/Home'
-import OpenWidgets from './routes/open-widgets/OpenWidgets'
+import { OpenWidgetsPage } from './routes/open-widgets/OpenWidgetsPage'
 import WaitingRoom from './routes/waiting-room/WaitingRoom'
 
 const AppRoutes = () => {
@@ -9,7 +9,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path='/' element={<Home />} />
       <Route path='new/:name' element={<WaitingRoom />} />
-      <Route path='home/' element={<OpenWidgets />} />
+      <Route path='home/' element={<OpenWidgetsPage />} />
     </Routes>
   )
 }
