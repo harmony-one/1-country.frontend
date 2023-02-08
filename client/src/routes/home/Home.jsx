@@ -20,11 +20,7 @@ import {
 
 import { Col, FlexColumn, FlexRow, Row } from '../../components/Layout'
 import { BaseText, SmallTextGrey, Title } from '../../components/Text'
-import {
-  Container,
-  HomeLabel,
-  RecordRenewalContainer,
-} from './Home.styles'
+import { Container, HomeLabel, RecordRenewalContainer } from './Home.styles'
 // import RecordInfo from '../../components/record-info/RecordInfo'
 // import TwitterSection from '../../components/twitter-section/TwitterSection'
 // import OwnerInfo from '../../components/owner-info/OwnerInfo'
@@ -94,8 +90,7 @@ const Home = ({ subdomain = config.tld }) => {
 
   const toastId = useRef(null)
   const { isConnected, address, connector } = useAccount()
-  const { connect, connectors, isLoading } =
-  useConnect()
+  const { connect, connectors, isLoading } = useConnect()
   // for updating stuff
   const [url, setUrl] = useState('')
 
@@ -120,12 +115,15 @@ const Home = ({ subdomain = config.tld }) => {
       if (parts.length <= 2) {
         return ''
       }
-      if (parts.length <= 4) { // 3 CHANGE FOR PRODUCTION
+      if (parts.length <= 4) {
+        // 3 CHANGE FOR PRODUCTION
         return parts[0]
       }
       return parts.slice(0, parts.length - 2).join('.')
     }
-    setUrl('https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg')
+    setUrl(
+      'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
+    )
     setName(getSubdomain())
     const web3 = new Web3(config.defaultRPC)
     const api = apis({ web3, address })
@@ -196,7 +194,12 @@ const Home = ({ subdomain = config.tld }) => {
 
   const isHarmonyNetwork = useIsHarmonyNetwork()
 
-  const onActionFiat = async ({ isRenewal, telegram = '', email = '', phone = '' }) => {
+  const onActionFiat = async ({
+    isRenewal,
+    telegram = '',
+    email = '',
+    phone = '',
+  }) => {
     if (!price) {
       console.error('No domain rental price provided, exit')
       return
@@ -207,9 +210,11 @@ const Home = ({ subdomain = config.tld }) => {
 
     try {
       const oneTokenPriceUsd = await getTokenPrice('harmony')
-      amount = (+price.formatted * +oneTokenPriceUsd) * 100 // price in cents
+      amount = +price.formatted * +oneTokenPriceUsd * 100 // price in cents
       if (amount < minCentsAmount) {
-        console.log(`Amount ${amount} < min amount ${minCentsAmount} cents, using ${minCentsAmount} cents value. Required by Stripe.`)
+        console.log(
+          `Amount ${amount} < min amount ${minCentsAmount} cents, using ${minCentsAmount} cents value. Required by Stripe.`
+        )
         amount = minCentsAmount
       }
 
@@ -241,13 +246,21 @@ const Home = ({ subdomain = config.tld }) => {
   }
 
   const onAction = async (params) => {
-    const { isRenewal, telegram = '', email = '', phone = '', paymentType = 'one' } = params
+    const {
+      isRenewal,
+      telegram = '',
+      email = '',
+      phone = '',
+      paymentType = 'one',
+    } = params
     if (!url && !isRenewal) {
       return toast.error('Invalid URL to embed')
     }
 
     if (!isHarmonyNetwork) {
-      await wagmiClient.connector.connect({ chainId: config.chainParameters.id })
+      await wagmiClient.connector.connect({
+        chainId: config.chainParameters.id,
+      })
     }
 
     if (paymentType === 'usd') {
@@ -271,12 +284,13 @@ const Home = ({ subdomain = config.tld }) => {
         email: email,
         phone: phone,
         amount: new BN(price.amount).toString(),
-        onFailed: () => toast.update(toastId.current, {
-          render: 'Failed to purchase',
-          type: 'error',
-          isLoading: false,
-          autoClose: 2000
-        }),
+        onFailed: () =>
+          toast.update(toastId.current, {
+            render: 'Failed to purchase',
+            type: 'error',
+            isLoading: false,
+            autoClose: 2000,
+          }),
         onSuccess: (tx) => {
           console.log(tx)
           const { transactionHash } = tx
@@ -285,15 +299,16 @@ const Home = ({ subdomain = config.tld }) => {
               <FlexRow>
                 <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
                 <LinkWrarpper
-                  target='_blank'
+                  target="_blank"
                   href={client.getExplorerUri(transactionHash)}
                 >
                   <BaseText>View transaction</BaseText>
                 </LinkWrarpper>
-              </FlexRow>),
+              </FlexRow>
+            ),
             type: 'success',
             isLoading: false,
-            autoClose: 2000
+            autoClose: 2000,
           })
           setTimeout(() => location.reload(), 1500)
         },
@@ -305,6 +320,12 @@ const Home = ({ subdomain = config.tld }) => {
       setPending(false)
     }
   }
+
+  useEffect(() => {
+    if (record && !record.render) {
+      window.location.href = `https://${config.tldLink}?domain=${name}`
+    }
+  }, [record])
 
   const expired =
     record?.timeUpdated + parameters?.rentalPeriod - Date.now() < 0
@@ -320,9 +341,13 @@ const Home = ({ subdomain = config.tld }) => {
             humanD={humanD}
           />
         )}
-        <FlexRow style={{ alignItems: 'baseline', marginTop: 80, width: '100%' }}>
-          <SearchBlock client={client} />
-        </FlexRow>
+        {client && (
+          <FlexRow
+            style={{ alignItems: 'baseline', marginTop: 80, width: '100%' }}
+          >
+            <SearchBlock client={client} />
+          </FlexRow>
+        )}
       </Container>
     )
   }
@@ -331,11 +356,25 @@ const Home = ({ subdomain = config.tld }) => {
     <Container>
       <VanityURL record={record} name={name} />
       <div style={{ height: '2em' }} />
-      {!record && (<FlexColumn style={{ marginTop: '10em', justifyContent: 'center', alignContent: 'center' }}>Uploading...</FlexColumn>)}
-      {(record && record?.renter) && (
-        <PageWidgets isOwner={isOwner} style={{ marginTop: '6em' }} showAddButton={isOwner} />
+      {!record && (
+        <FlexColumn
+          style={{
+            marginTop: '10em',
+            justifyContent: 'center',
+            alignContent: 'center',
+          }}
+        >
+          Uploading...
+        </FlexColumn>
       )}
-      {(record && !record?.renter) && (
+      {record && record?.renter && (
+        <PageWidgets
+          isOwner={isOwner}
+          style={{ marginTop: '6em' }}
+          showAddButton={isOwner}
+        />
+      )}
+      {record && !record?.renter && (
         <Col>
           <Title>Page Not Yet Claimed</Title>
           <SmallTextGrey style={{ marginTop: 32, textAlign: 'center' }}>
@@ -357,9 +396,13 @@ const Home = ({ subdomain = config.tld }) => {
       {address && (
         <>
           {!isOwner && (
-            <OwnerForm onAction={onAction} buttonLabel='Rent (ONE)' pending={pending} />
+            <OwnerForm
+              onAction={onAction}
+              buttonLabel="Rent (ONE)"
+              pending={pending}
+            />
           )}
-          {(isOwner && expired) && (
+          {isOwner && expired && (
             <RecordRenewalContainer>
               <Title style={{ marginTop: 16 }}>Renew ownership</Title>
               <Row style={{ justifyContent: 'center' }}>
@@ -381,11 +424,11 @@ const Home = ({ subdomain = config.tld }) => {
         </>
       )}
       <SmallTextGrey>
-        <a
-          href='https://harmony.one/domains'
-          rel='noreferrer'
-        >
-          <SmallTextGrey> Harmony's Creator Economy & Web3 Nations </SmallTextGrey>
+        <a href="https://harmony.one/domains" rel="noreferrer">
+          <SmallTextGrey>
+            {' '}
+            Harmony's Creator Economy & Web3 Nations{' '}
+          </SmallTextGrey>
         </a>
       </SmallTextGrey>
       <div style={{ height: 200 }} />
