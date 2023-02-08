@@ -19,7 +19,8 @@ export const DeleteWidgetButton = styled.button`
 export const WidgetsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 500px;
+  max-width: 500px;
+  width: 100%;
   gap: 1em;
   position: relative;
 

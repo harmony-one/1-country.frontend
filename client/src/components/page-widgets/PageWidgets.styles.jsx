@@ -8,6 +8,7 @@ export const PageWidgetContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-content: center;
+  align-items: center;
 `
 
 export const AddWidgetContainter = styled.div`
@@ -51,4 +52,5 @@ export const WidgetStyledInput = styled(StyledInput)`
 
 export const WidgetInputContainer = styled(InputContainer)`
   border: 0px;
+  margin-bottom: 1.5em;
 `

@@ -47,6 +47,14 @@ export const StyledInput = styled.input`
 
   &::placeholder{
     font-size: 0.7em;
+    text-align: center;
+  }
+
+  @media(min-width: 640px){
+    &::placeholder{
+      font-size: 1em;
+    }
+
   }
 `
 
