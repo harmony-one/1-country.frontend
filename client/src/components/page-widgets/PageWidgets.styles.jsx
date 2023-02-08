@@ -25,7 +25,6 @@ export const AddWidgetContainter = styled.div`
       font-size: 4rem;
     }
   }
-  
 `
 
 export const AddWidgetForm = styled.div`
@@ -46,7 +45,7 @@ export const FloatingTextInput = styled(FloatingText)`
 
 export const WidgetStyledInput = styled(StyledInput)`
   padding: 0.5em;
-  border: 1px solid black;
+  border: 1px solid #758796;
   border-radius: 5px;
 ` 
 

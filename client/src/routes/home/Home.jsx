@@ -320,7 +320,7 @@ const Home = ({ subdomain = config.tld }) => {
             humanD={humanD}
           />
         )}
-        <FlexRow style={{ alignItems: 'baseline', marginTop: 120, width: '100%' }}>
+        <FlexRow style={{ alignItems: 'baseline', marginTop: 80, width: '100%' }}>
           <SearchBlock client={client} />
         </FlexRow>
       </Container>

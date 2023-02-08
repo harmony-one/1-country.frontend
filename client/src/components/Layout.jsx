@@ -56,7 +56,7 @@ const ModalBody = styled(FlexColumn)`
   width: 100%;
   height: auto;
   background: white;
-  color: black;
+  color: #758796;
   overflow: auto;
 `
 
