@@ -6,7 +6,7 @@ import { SearchResultItem } from './SearchResultItem'
 import { BaseText } from './Text'
 import { useStores } from '../stores'
 import { observer } from 'mobx-react-lite'
-import { useAccount, useConnect } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { wagmiClient } from '../modules/wagmi/wagmiClient'
 import BN from 'bn.js'
 import config from '../../config'
@@ -14,7 +14,9 @@ import { toast } from 'react-toastify'
 import { FlexRow } from './Layout'
 
 const Container = styled.div`
-  width: 100%;
+  width: 80%;
+  max-width: 800px;
+  margin: 0 auto;
 `
 
 export const InputContainer = styled.div`
@@ -29,7 +31,7 @@ export const InputContainer = styled.div`
 
 export const StyledInput = styled.input`
   border: none;
-  font-family: 'DecimaMono', system-ui;
+  font-family: 'NunitoRegular', system-ui;
   font-size: 1rem;
   margin: 0 8px 0 12px;
   padding: 0;
@@ -182,7 +184,7 @@ export const SearchBlock = observer(({ client }) => {
         />
         <Button
           disabled={!isValid || !isAvailable}
-          style={{ marginLeft: 'auto' }}
+          style={{ marginLeft: 'auto', borderRadius: '0px' }}
           onClick={handlePay}
         >
           Pay

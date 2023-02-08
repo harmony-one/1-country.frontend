@@ -2,14 +2,15 @@ import styled from 'styled-components'
 import { SmallText } from './Text'
 
 export const Button = styled.button`
-  font-family: 'DecimaMono', system-ui;
-  font-size: 16px;
+  font-family: 'NunitoRegular', system-ui;
+  font-size: 1rem;
   font-weight: 200;
   border: none;
   
   width: ${props => props.$width || '128px'};
   color: white;
   background: #00AEE9;
+  border-radius: 5px;
   padding: 8px 16px;
   text-align: center;
   &:hover{

@@ -22,7 +22,7 @@ export const Address = styled(BaseText)`
 `
 
 export const Title = styled.div`
-  font-size: 20px;
+  font-size: 1.5rem;
   margin: 16px auto;
   text-align: center;
   text-transform: uppercase;
@@ -68,11 +68,11 @@ export const LinkText = styled(BaseText)`
 
 export const Hint = styled.div`
   font-size: 10px;
-  color: ${props => props.$color ?? '#888888'};
+  color: ${props => props.$color ?? '#758796'};
 `
 
 export const SmallTextGrey = styled(SmallText)`
-  color: grey;
+  color: #758796;
 `
 
 export const OnwerLabel = styled(SmallTextGrey)`

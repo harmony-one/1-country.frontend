@@ -23,8 +23,7 @@ import { BaseText, SmallTextGrey, Title } from '../../components/Text'
 import {
   Container,
   HomeLabel,
-  DescResponsive,
-  // PageHeader
+  RecordRenewalContainer,
 } from './Home.styles'
 // import RecordInfo from '../../components/record-info/RecordInfo'
 // import TwitterSection from '../../components/twitter-section/TwitterSection'
@@ -332,63 +331,9 @@ const Home = ({ subdomain = config.tld }) => {
     <Container>
       <VanityURL record={record} name={name} />
       <div style={{ height: '2em' }} />
-      {/* <FlexRow style={{ alignItems: 'baseline', marginTop: 70 }}>
-        <Title style={{ margin: 0 }}>{name}</Title>
-        <a href={`https://${config.tldLink}`} target='_blank' rel='noreferrer' style={{ textDecoration: 'none' }}>
-          <BaseText style={{ fontSize: 12, color: 'grey', marginLeft: '16px', textDecoration: 'none' }}>
-            {subdomain}
-          </BaseText>
-        </a>
-      </FlexRow> */}
       {!record && (<FlexColumn style={{ marginTop: '10em', justifyContent: 'center', alignContent: 'center' }}>Uploading...</FlexColumn>)}
       {(record && record?.renter) && (
-        <DescResponsive>
-          {/* <PageHeader>
-            {record.prev &&
-              <a href={`https://${record.prev}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
-                <FlexRow style={{ gap: 16, textDecoration: 'none', color: 'black' }}>
-                  <AiOutlineDoubleLeft />
-                </FlexRow>
-              </a>}
-            {isOwner && (
-              <Title style={{ textAlign: 'center', margin: '0px auto', paddingBottom: '3em' }}>
-                You own this page
-              </Title>
-            )} */}
-          {/* <OwnerInfo
-              client={client}
-              isOwner={isOwner}
-              pageName={name}
-            /> */}
-          {/* {record.next &&
-              <a href={`https://${record.next}${config.tld}`} rel='noreferrer' style={{ textDecoration: 'none' }}>
-                <FlexRow style={{ gap: 16, textDecoration: 'none', color: 'black' }}>
-                  <AiOutlineDoubleRight />
-                </FlexRow>
-              </a>}
-          </PageHeader> */}
-          <PageWidgets isOwner={isOwner} style={{ marginTop: '6em' }} showAddButton={isOwner} />
-          {/* {tweetId && (
-            <TwitterSection tweetId={tweetId} pageName={name} client={client} />
-          )}
-          <Row>
-            {record.url && !tweetId && (
-              <Col>
-                <BaseText>Owner embedded an unsupported link:</BaseText>
-                <SmallTextGrey> {record.url}</SmallTextGrey>
-              </Col>
-            )}
-            {!record.url && (
-              <BaseText>Owner hasn't embedded any tweet yet</BaseText>
-            )}
-          </Row> */}
-          {/* <RecordInfo
-            record={record}
-            expired={expired}
-            parameters={parameters}
-            humanD={humanD}
-          /> */}
-        </DescResponsive>
+        <PageWidgets isOwner={isOwner} style={{ marginTop: '6em' }} showAddButton={isOwner} />
       )}
       {(record && !record?.renter) && (
         <Col>
@@ -409,29 +354,14 @@ const Home = ({ subdomain = config.tld }) => {
           </Col>
         </Col>
       )}
-      {/* {!isConnected && <Web3Button />} */}
-      {/* {!address && <Button onClick={connect} style={{ width: 'auto' }}>CONNECT METAMASK</Button>} */}
-
       {address && (
         <>
-          {/* <SmallTextGrey style={{ marginTop: 32 }}>
-            Which tweet do you want this page to embed?
-          </SmallTextGrey>
-          <Row style={{ width: '80%', gap: 0, position: 'relative' }}>
-            <Input
-              $width='100%'
-              $margin='8px'
-              value={url}
-              onChange={({ target: { value } }) => setUrl(value)}
-            />
-            <FloatingText>copy the tweet's URL</FloatingText>
-          </Row> */}
           {!isOwner && (
             <OwnerForm onAction={onAction} buttonLabel='Rent (ONE)' pending={pending} />
           )}
           {(isOwner && expired) && (
-            <>
-              <Title style={{ marginTop: 64 }}>Renew ownership</Title>
+            <RecordRenewalContainer>
+              <Title style={{ marginTop: 16 }}>Renew ownership</Title>
               <Row style={{ justifyContent: 'center' }}>
                 <HomeLabel>renewal price</HomeLabel>
                 <BaseText>{price?.formatted} ONE</BaseText>
@@ -445,18 +375,18 @@ const Home = ({ subdomain = config.tld }) => {
               >
                 RENEW
               </Button>
-            </>
+            </RecordRenewalContainer>
           )}
           <SmallTextGrey>Your address: {address}</SmallTextGrey>
         </>
       )}
       <SmallTextGrey>
-        {/* <a
+        <a
           href='https://harmony.one/domains'
           rel='noreferrer'
         >
           <SmallTextGrey> Harmony's Creator Economy & Web3 Nations </SmallTextGrey>
-        </a> */}
+        </a>
       </SmallTextGrey>
       <div style={{ height: 200 }} />
     </Container>
