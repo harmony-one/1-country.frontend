@@ -33,6 +33,7 @@ import { wagmiClient } from '../../modules/wagmi/wagmiClient'
 import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 import { SearchBlock } from '../../components/SearchBlock'
 import PageWidgets from '../../components/page-widgets/PageWidgets'
+import { useStores } from '../../stores'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -93,6 +94,20 @@ const Home = ({ subdomain = config.tld }) => {
   const { connect, connectors, isLoading } = useConnect()
   // for updating stuff
   const [url, setUrl] = useState('')
+
+  const { rootStore, walletStore } = useStores()
+
+  // TODO remove
+  // TODO sync stores
+  useEffect(() => {
+    rootStore.updateD1DCClient(client)
+  }, [client])
+
+  useEffect(() => {
+    walletStore.isConnected = isConnected
+    walletStore.walletAddress = address
+  }, [isConnected, address])
+  //
 
   // const name = getSubdomain()
 
