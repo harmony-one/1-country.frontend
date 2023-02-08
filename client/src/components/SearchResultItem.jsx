@@ -63,7 +63,7 @@ export const SearchResultItem = ({
       <div>{available ? '' : 'Domain Name Unavailable'}</div>
       {available && (
         <Box gap="8px" direction="column">
-          {/* <DomainName>{name}.1.country</DomainName>  */} 
+          <DomainName>{name}.1.country</DomainName>  
           <div>
             {formatNumber(priceOne)} ONE = ${formatNumber(priceUsd)}.00 USD for{' '}
             {humanD(period)} (
