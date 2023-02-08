@@ -322,7 +322,7 @@ const Home = ({ subdomain = config.tld }) => {
   }
 
   useEffect(() => {
-    if (record && !record.render) {
+    if (record && !record.renter) {
       window.location.href = `https://${config.tldLink}?domain=${name}`
     }
   }, [record])
