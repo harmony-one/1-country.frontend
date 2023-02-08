@@ -21,7 +21,8 @@ export const WidgetsContainer = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 500px;
-  width: 100%;
+  width: 90%;
+  max-width: 500px;
   gap: 1em;
   position: relative;
 

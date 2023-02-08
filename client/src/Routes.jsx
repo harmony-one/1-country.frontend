@@ -8,7 +8,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path='/' element={<Home />} />
-      <Route path='new/' element={<WaitingRoom />} />
+      <Route path='new/:name' element={<WaitingRoom />} />
       <Route path='home/' element={<OpenWidgets />} />
     </Routes>
   )

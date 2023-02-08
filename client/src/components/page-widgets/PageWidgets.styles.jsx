@@ -53,5 +53,5 @@ export const WidgetStyledInput = styled(StyledInput)`
 export const WidgetInputContainer = styled(InputContainer)`
   border: 0px;
   margin-bottom: 1.5em;
-  width: 100%;
+  width: 80%;
 `
