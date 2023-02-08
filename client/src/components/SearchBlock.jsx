@@ -89,7 +89,7 @@ export const SearchBlock = observer(({ client }) => {
   }, [client])
 
   const updateSearch = (domainName) => {
-    const _isValid = isValidDomainName(domainName)
+    const _isValid = isValidDomainName(domainName.toLowerCase())
     setIsValid(_isValid)
 
     if (_isValid) {
@@ -233,6 +233,11 @@ export const SearchBlock = observer(({ client }) => {
       </FlexColumn>
 
       {!isValid && <BaseText>Invalid domain name</BaseText>}
+      {!isValid && (
+        <BaseText>
+          Domain can use a mix of letters (English A-Z), numbers and dash
+        </BaseText>
+      )}
       {/* <div>1 ONE = ($1.20 USD) for 3 months</div> */}
       {/* <SearchResultItem */}
       {/*  name='sergey' */}
