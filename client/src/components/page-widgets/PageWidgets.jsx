@@ -65,6 +65,7 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
             onChange={onChange}
             onKeyDown={enterHandler}
             disabled={addingWidget}
+            valid // ={isValid && isAvailable}
           />
         </WidgetInputContainer>}
       {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}

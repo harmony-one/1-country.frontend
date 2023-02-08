@@ -3,7 +3,8 @@ import { FloatingText } from '../Controls'
 import { InputContainer, StyledInput } from '../SearchBlock'
 
 export const PageWidgetContainer = styled.div`
-  width: 80%;
+  width: 100%;
+  margin: 0 auto;
   max-width: 800px;
   display: flex;
   flex-direction: column;
@@ -45,12 +46,13 @@ export const FloatingTextInput = styled(FloatingText)`
 `
 
 export const WidgetStyledInput = styled(StyledInput)`
-  padding: 0.5em;
-  border: 1px solid #758796;
+  /* padding: 0.5em; */
+  border: 2px solid ${(props) => (props.valid ? '#758796' : '#ff8c8c')};
   border-radius: 5px;
 ` 
 
 export const WidgetInputContainer = styled(InputContainer)`
   border: 0px;
   margin-bottom: 1.5em;
+  width: 100%;
 `

@@ -5,14 +5,14 @@ export const BaseText = styled.div`
   font-size: 0.9rem;
 `
 export const SmallText = styled(BaseText)`
-  font-size: 12px;
+  font-size: 0.9rem;
 `
 export const Label = styled(BaseText)`
   width: ${props => props.$width || '64px'};
 `
 export const LabelSmall = styled(BaseText)`
   width: ${props => props.$width || '48px'};
-  font-size: 12px;
+  font-size: 1rem;
 `
 
 export const Address = styled(BaseText)`
@@ -22,6 +22,7 @@ export const Address = styled(BaseText)`
 `
 
 export const Title = styled.div`
+  font-family: 'NunitoBold', system-ui;
   font-size: 1.5rem;
   margin: 16px auto;
   text-align: center;
@@ -45,7 +46,7 @@ export const Heading = styled.div`
 export const Desc = styled.div`
   box-sizing: border-box;
   padding: 16px;
-  color: ${props => props.$color || 'black'};
+  color: ${props => props.$color || '#758796'};
   width: 100%;
   display: flex;
   flex-direction: column;
