@@ -24,7 +24,7 @@ const WaitingRoom = () => {
     <Container>
       {isConnected && (
         <DescResponsive>
-          <h3>While your domain is being generated... <br />please start personalizing your space</h3>
+          <h3 style={{color: "#758796"}}>Setting s.country (5min)</h3>
           <PageWidgets isOwner style={{ marginTop: '6em' }} showAddButton />
         </DescResponsive>)}
       {!isConnected && (
