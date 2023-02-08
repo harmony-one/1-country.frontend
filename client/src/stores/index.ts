@@ -8,6 +8,8 @@ export const useStores = () => {
     rootStore: rootStore,
     modalStore: rootStore.modalStore,
     ratesStore: rootStore.ratesStore,
+    walletStore: rootStore.walletStore,
+    domainStore: rootStore.domainStore,
   }
 }
 
