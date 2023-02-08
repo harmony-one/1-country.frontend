@@ -10212,6 +10212,11 @@ thread-stream@^0.15.1:
   dependencies:
     real-require "^0.1.0"
 
+three-dots@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/three-dots/-/three-dots-0.3.2.tgz#02ec1193d60d9cf4901cb3918b483459da0b3d8d"
+  integrity sha512-N7JMhoCX+4mhgGWy4Hqy4PZ27shKwLRvaADn3YsK9+bImK5U/xA/woCUavehoHGrkNG3yyAzwQ6UnuFH0/yLVQ==
+
 "through@>=2.2.7 <3":
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"

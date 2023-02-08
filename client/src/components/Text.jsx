@@ -5,7 +5,7 @@ export const BaseText = styled.div`
   font-size: 0.9rem;
 `
 export const SmallText = styled(BaseText)`
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 `
 export const Label = styled(BaseText)`
   width: ${props => props.$width || '64px'};
