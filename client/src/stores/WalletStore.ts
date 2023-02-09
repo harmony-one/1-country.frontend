@@ -1,8 +1,15 @@
+import { computed, makeObservable, observable } from 'mobx'
+import {
+  connect,
+  watchAccount,
+  watchNetwork,
+  GetNetworkResult,
+  GetAccountResult,
+} from '@wagmi/core'
 import { BaseStore } from './BaseStore'
 import { RootStore } from './RootStore'
-import { computed, makeObservable, observable } from 'mobx'
-import { connect, GetAccountResult, watchAccount } from '@wagmi/core'
 import { metamaskConnector } from '../modules/wagmi/wagmiClient'
+import config from '../../config'
 
 export class WalletStore extends BaseStore {
   _account: GetAccountResult = {
@@ -15,11 +22,17 @@ export class WalletStore extends BaseStore {
     status: 'disconnected',
   }
 
+  _network: GetNetworkResult = {
+    chain: undefined,
+    chains: [],
+  }
+
   constructor(rootStore: RootStore) {
     super(rootStore)
     makeObservable(
       this,
       {
+        _network: observable,
         _account: observable,
         isConnected: computed,
         walletAddress: computed,
@@ -30,6 +43,14 @@ export class WalletStore extends BaseStore {
     watchAccount((account) => {
       this._account = account
     })
+
+    watchNetwork((network) => {
+      this._network = network
+    })
+  }
+
+  get isConnecting() {
+    return this._account.isConnecting
   }
 
   get isConnected() {
@@ -40,8 +61,13 @@ export class WalletStore extends BaseStore {
     return this._account.address
   }
 
+  get isHarmonyNetwork() {
+    return this._network.chain && this._network.chain.id
+  }
+
   connect() {
     return connect({
+      chainId: config.chainParameters.id,
       connector: metamaskConnector,
     })
   }

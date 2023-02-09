@@ -3,7 +3,7 @@ import Web3 from 'web3'
 // import detectEthereumProvider from '@metamask/detect-provider'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
-import { useAccount, useConnect } from 'wagmi'
+import { useAccount } from 'wagmi'
 // import { Web3Button } from '@web3modal/react'
 import humanizeDuration from 'humanize-duration'
 
@@ -27,13 +27,12 @@ import { Container, HomeLabel, RecordRenewalContainer } from './Home.styles'
 import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
 import { VanityURL } from './VanityURL'
-// import OwnerInfo from '../../components/owner-info/OwnerInfo'
-import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
-import { wagmiClient } from '../../modules/wagmi/wagmiClient'
+import { useDefaultNetwork } from '../../hooks/network'
 import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 import { SearchBlock } from '../../components/SearchBlock'
 import PageWidgets from '../../components/page-widgets/PageWidgets'
 import { useStores } from '../../stores'
+import { observer } from 'mobx-react-lite'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -76,7 +75,7 @@ const parseTweetId = (urlInput) => {
   }
 }
 
-const Home = () => {
+const Home = observer(() => {
   const [name, setName] = useState('')
   const [client, setClient] = useState(apis({}))
   const [record, setRecord] = useState(null)
@@ -90,8 +89,7 @@ const Home = () => {
   const [pending, setPending] = useState(false)
 
   const toastId = useRef(null)
-  const { isConnected, address, connector } = useAccount()
-  const { connect, connectors, isLoading } = useConnect()
+  const { address, connector } = useAccount()
   // for updating stuff
   const [url, setUrl] = useState('')
 
@@ -104,11 +102,6 @@ const Home = () => {
       rootStore.updateD1DCClient(client)
     }
   }, [client])
-
-  useEffect(() => {
-    walletStore.isConnected = isConnected
-    walletStore.walletAddress = address
-  }, [isConnected, address])
   //
 
   useEffect(() => {
@@ -117,10 +110,7 @@ const Home = () => {
 
   // const name = getSubdomain()
 
-  const isOwner =
-    address &&
-    record?.renter &&
-    record.renter.toLowerCase() === address.toLowerCase()
+  const isOwner = domainStore.isOwner
 
   useDefaultNetwork()
 
@@ -176,9 +166,8 @@ const Home = () => {
   }
 
   useEffect(() => {
-    if (!isConnected && !isLoading && connectors) {
-      const con = connectors
-      connect({ connector: con }) // { connector: connectors[0] })
+    if (!walletStore.isConnected && !walletStore.isConnecting) {
+      walletStore.connect()
     }
   }, [])
 
@@ -212,8 +201,6 @@ const Home = () => {
   //   }
   //   setTweetId(id.toString())
   // }, [record?.url])
-
-  const isHarmonyNetwork = useIsHarmonyNetwork()
 
   const onActionFiat = async ({
     isRenewal,
@@ -278,10 +265,8 @@ const Home = () => {
       return toast.error('Invalid URL to embed')
     }
 
-    if (!isHarmonyNetwork) {
-      await wagmiClient.connector.connect({
-        chainId: config.chainParameters.id,
-      })
+    if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
+      await walletStore.connect()
     }
 
     if (paymentType === 'usd') {
@@ -455,6 +440,6 @@ const Home = () => {
       <div style={{ height: 200 }} />
     </Container>
   )
-}
+})
 
 export default Home
