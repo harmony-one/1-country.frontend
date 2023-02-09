@@ -1,15 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Web3 from 'web3'
 // import detectEthereumProvider from '@metamask/detect-provider'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
-import { useAccount, useConnect } from 'wagmi'
+import { useAccount } from 'wagmi'
 // import { Web3Button } from '@web3modal/react'
 import humanizeDuration from 'humanize-duration'
 
 // import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 
-import apis from '../../api'
 import config from '../../../config'
 import {
   Button,
@@ -24,16 +22,15 @@ import { Container, HomeLabel, RecordRenewalContainer } from './Home.styles'
 // import RecordInfo from '../../components/record-info/RecordInfo'
 // import TwitterSection from '../../components/twitter-section/TwitterSection'
 // import OwnerInfo from '../../components/owner-info/OwnerInfo'
-import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
 import { VanityURL } from './VanityURL'
-// import OwnerInfo from '../../components/owner-info/OwnerInfo'
-import { useDefaultNetwork, useIsHarmonyNetwork } from '../../hooks/network'
-import { wagmiClient } from '../../modules/wagmi/wagmiClient'
+import { useDefaultNetwork } from '../../hooks/network'
 import { createCheckoutSession, getTokenPrice } from '../../api/payments'
-import { SearchBlock } from '../../components/SearchBlock'
 import PageWidgets from '../../components/page-widgets/PageWidgets'
 import { useStores } from '../../stores'
+import { observer } from 'mobx-react-lite'
+import { HomeSearchPage } from './components/HomeSearchPage'
+import { getDomainName } from '../../utils/getDomainName'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -76,11 +73,9 @@ const parseTweetId = (urlInput) => {
   }
 }
 
-const Home = () => {
-  const [name, setName] = useState('')
-  const [client, setClient] = useState(apis({}))
+const Home = observer(() => {
+  const [name] = useState(getDomainName())
   const [record, setRecord] = useState(null)
-  const [lastRentedRecord, setLastRentedRecord] = useState(null)
   const [price, setPrice] = useState(null)
   const [parameters, setParameters] = useState({
     rentalPeriod: 0,
@@ -90,26 +85,16 @@ const Home = () => {
   const [pending, setPending] = useState(false)
 
   const toastId = useRef(null)
-  const { isConnected, address, connector } = useAccount()
-  const { connect, connectors, isLoading } = useConnect()
+  const { address } = useAccount()
+
   // for updating stuff
-  const [url, setUrl] = useState('')
+  const [url] = useState(
+    'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
+  )
 
   const { rootStore, domainStore, walletStore } = useStores()
 
-  // TODO remove
-  // TODO sync stores
-  useEffect(() => {
-    if (client) {
-      rootStore.updateD1DCClient(client)
-    }
-  }, [client])
-
-  useEffect(() => {
-    walletStore.isConnected = isConnected
-    walletStore.walletAddress = address
-  }, [isConnected, address])
-  //
+  const client = rootStore.d1dcClient
 
   useEffect(() => {
     domainStore.loadDomainRecord()
@@ -117,54 +102,9 @@ const Home = () => {
 
   // const name = getSubdomain()
 
-  const isOwner =
-    address &&
-    record?.renter &&
-    record.renter.toLowerCase() === address.toLowerCase()
+  const isOwner = domainStore.isOwner
 
   useDefaultNetwork()
-
-  useEffect(() => {
-    const getSubdomain = () => {
-      if (!window) {
-        return null
-      }
-      console.log('getSubDomain()', window.location.host)
-      const host = window.location.host
-      const parts = host.split('.')
-      console.log(host, parts, parts.length)
-      if (parts.length <= 2) {
-        return ''
-      }
-      if (parts.length <= 4) {
-        // 3 CHANGE FOR PRODUCTION
-        return parts[0]
-      }
-      return parts.slice(0, parts.length - 2).join('.')
-    }
-    setUrl(
-      'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
-    )
-    setName(getSubdomain())
-    const web3 = new Web3(config.defaultRPC)
-    const api = apis({ web3, address })
-    setClient(api)
-  }, [])
-
-  useEffect(() => {
-    const callApi = async () => {
-      const provider = await connector.getProvider()
-      const web3 = new Web3(provider)
-      const api = apis({ web3, address })
-      setClient(api)
-      api.getPrice({ name }).then((p) => {
-        setPrice(p)
-      })
-    }
-    if (connector && address) {
-      callApi()
-    }
-  }, [connector, address])
 
   const pollParams = () => {
     if (!client) {
@@ -176,9 +116,8 @@ const Home = () => {
   }
 
   useEffect(() => {
-    if (!isConnected && !isLoading && connectors) {
-      const con = connectors
-      connect({ connector: con }) // { connector: connectors[0] })
+    if (!walletStore.isConnected && !walletStore.isConnecting) {
+      walletStore.connect()
     }
   }, [])
 
@@ -195,11 +134,7 @@ const Home = () => {
         console.log('Poll params')
         pollParams()
       }, 12000)
-      return
     }
-    client
-      .getRecord({ name: parameters.lastRented })
-      .then((r) => setLastRentedRecord(r))
   }, [parameters?.lastRented])
 
   // useEffect(() => {
@@ -212,8 +147,6 @@ const Home = () => {
   //   }
   //   setTweetId(id.toString())
   // }, [record?.url])
-
-  const isHarmonyNetwork = useIsHarmonyNetwork()
 
   const onActionFiat = async ({
     isRenewal,
@@ -278,10 +211,8 @@ const Home = () => {
       return toast.error('Invalid URL to embed')
     }
 
-    if (!isHarmonyNetwork) {
-      await wagmiClient.connector.connect({
-        chainId: config.chainParameters.id,
-      })
+    if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
+      await walletStore.connect()
     }
 
     if (paymentType === 'usd') {
@@ -348,29 +279,8 @@ const Home = () => {
     }
   }, [record])
 
-  const expired =
-    record?.timeUpdated + parameters?.rentalPeriod - Date.now() < 0
-
   if (name === '') {
-    return (
-      <Container>
-        {lastRentedRecord && (
-          <LastPurchase
-            parameters={parameters}
-            tld={config.tld}
-            lastRentedRecord={lastRentedRecord}
-            humanD={humanD}
-          />
-        )}
-        {client && (
-          <FlexRow
-            style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}
-          >
-            <SearchBlock client={client} />
-          </FlexRow>
-        )}
-      </Container>
-    )
+    return <HomeSearchPage />
   }
 
   return (
@@ -423,7 +333,7 @@ const Home = () => {
               pending={pending}
             />
           )}
-          {isOwner && expired && (
+          {isOwner && domainStore.isExpired && (
             <RecordRenewalContainer>
               <Title style={{ marginTop: 16 }}>Renew ownership</Title>
               <Row style={{ justifyContent: 'center' }}>
@@ -455,6 +365,6 @@ const Home = () => {
       <div style={{ height: 200 }} />
     </Container>
   )
-}
+})
 
 export default Home
