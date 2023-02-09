@@ -51,7 +51,6 @@ export const DomainName = styled(BaseText)`
 export const SearchResultItem = ({
   name,
   available = false,
-  price,
   period,
   rateONE,
 }) => {
@@ -63,8 +62,8 @@ export const SearchResultItem = ({
       <div>{available ? '' : 'Domain Name Unavailable'}</div>
       {available && (
         <Box gap="8px" direction="column">
-          <DomainName>{name}.1.country</DomainName>  
-          <div>
+          <DomainName>{name}.1.country</DomainName>
+          <BaseText>
             {formatNumber(priceOne)} ONE = ${formatNumber(priceUsd)}.00 USD for{' '}
             {humanD(period)} (
             <a
@@ -76,7 +75,7 @@ export const SearchResultItem = ({
               terms
             </a>
             )
-          </div>
+          </BaseText>
         </Box>
       )}
     </Container>

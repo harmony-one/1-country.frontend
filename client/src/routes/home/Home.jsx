@@ -76,7 +76,7 @@ const parseTweetId = (urlInput) => {
   }
 }
 
-const Home = ({ subdomain = config.tld }) => {
+const Home = () => {
   const [name, setName] = useState('')
   const [client, setClient] = useState(apis({}))
   const [record, setRecord] = useState(null)
@@ -364,7 +364,7 @@ const Home = ({ subdomain = config.tld }) => {
         )}
         {client && (
           <FlexRow
-            style={{ alignItems: 'baseline', marginTop: 80, width: '100%' }}
+            style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}
           >
             <SearchBlock client={client} />
           </FlexRow>

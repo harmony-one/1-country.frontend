@@ -77,8 +77,6 @@ export const SearchBlock = observer(({ client }) => {
     priceMultiplier: 0,
   })
 
-  console.log('### a', searchParams.get('domain'))
-
   const { ratesStore } = useStores()
 
   useEffect(() => {
@@ -99,7 +97,6 @@ export const SearchBlock = observer(({ client }) => {
 
   // setup form from query string
   useEffect(() => {
-    console.log('### search', search)
     if (search) {
       updateSearch(search)
     }

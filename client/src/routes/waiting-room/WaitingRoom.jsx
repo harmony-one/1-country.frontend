@@ -10,9 +10,8 @@ import { Container, DescResponsive } from '../home/Home.styles'
 const WaitingRoom = () => {
   const [name, setName] = useState('')
   const { isConnected } = useAccount()
-  const { connect, connectors, isLoading } =
-  useConnect()
-  const params = useParams();
+  const { connect, connectors, isLoading } = useConnect()
+  const params = useParams()
 
   useEffect(() => {
     try {
@@ -29,22 +28,23 @@ const WaitingRoom = () => {
     }
   }, [])
 
-
   return (
     <Container>
-      <div style={{ height: '2em' }} />
       {isConnected && (
         <FlexColumn style={{ width: '100%', alignItems: 'center' }}>
           <h3>{`Setting ${name}.1.country`}</h3>
-          <span className='dot-flashing' style={{ marginBottom: '1em' }}/>
-          <BaseText style={{ marginBottom: '0.5em', width: '70%' }}>While you wait, you can start personalizing your page</BaseText>
+          <span className="dot-flashing" style={{ marginBottom: '1em' }} />
+          <BaseText style={{ marginBottom: '0.5em', width: '70%' }}>
+            While you wait, you can start personalizing your page
+          </BaseText>
           <PageWidgets isOwner style={{ marginTop: '6em' }} showAddButton />
         </FlexColumn>
-        )}
+      )}
       {!isConnected && (
         <DescResponsive>
           <h3>Please connect your MetaMask wallet</h3>
-        </DescResponsive>)}
+        </DescResponsive>
+      )}
     </Container>
   )
 }
