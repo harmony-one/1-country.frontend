@@ -3,19 +3,19 @@ import styled from 'styled-components'
 import debounce from 'lodash.debounce'
 import { toast } from 'react-toastify'
 import { observer } from 'mobx-react-lite'
-import { useAccount } from 'wagmi'
 import BN from 'bn.js'
 
 import { SearchResultItem } from './SearchResultItem'
-import { wagmiClient } from '../modules/wagmi/wagmiClient'
-import { useStores } from '../stores'
-import config from '../../config'
+import { useStores } from '../../../stores'
+import config from '../../../../config'
 
-import Logo from '../../assets/images/1countryLogo.jpg'
-import { Button, LinkWrarpper } from './Controls'
-import { BaseText } from './Text'
-import { FlexRow, FlexColumn } from './Layout'
+// @ts-ignore
+import Logo from '../../../../assets/images/1countryLogo.jpg'
+import { Button, LinkWrarpper } from '../../../components/Controls'
+import { BaseText } from '../../../components/Text'
+import { FlexRow, FlexColumn } from '../../../components/Layout'
 import { useSearchParams } from 'react-router-dom'
+import { DomainPrice, DomainRecord } from '../../../api'
 
 const SearchBoxContainer = styled.div`
   width: 80%;
@@ -23,7 +23,7 @@ const SearchBoxContainer = styled.div`
   margin: 0 auto;
 `
 
-export const InputContainer = styled.div`
+export const InputContainer = styled.div<{ valid: boolean }>`
   position: relative;
   border-radius: 5px;
   box-sizing: border-box;
@@ -60,33 +60,25 @@ export const StyledInput = styled.input`
 
 const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
 
-const isValidDomainName = (domainName) => {
+const isValidDomainName = (domainName: string) => {
   return regx.test(domainName)
 }
 
-export const SearchBlock = observer(({ client }) => {
+export const SearchBlock = observer(() => {
   const [searchParams] = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('domain') || '')
-  const [loading, setLoading] = useState()
-  const [price, setPrice] = useState()
-  const [record, setRecord] = useState()
+  const [loading, setLoading] = useState(false)
+  const [price, setPrice] = useState<DomainPrice | undefined>()
+  const [record, setRecord] = useState<DomainRecord | undefined>()
   const [isValid, setIsValid] = useState(true)
   const [recordName, setRecordName] = useState('')
-  const [parameters, setParameters] = useState({
-    rentalPeriod: 0,
-    priceMultiplier: 0,
-  })
+  const toastId = useRef(null)
 
-  const { ratesStore } = useStores()
+  const { rootStore, ratesStore, domainStore, walletStore } = useStores()
 
-  useEffect(() => {
-    if (!client) {
-      return
-    }
-    client.getParameters().then((p) => setParameters(p))
-  }, [client])
+  const client = rootStore.d1dcClient
 
-  const updateSearch = (domainName) => {
+  const updateSearch = (domainName: string) => {
     const _isValid = isValidDomainName(domainName.toLowerCase())
     setIsValid(_isValid)
 
@@ -102,7 +94,7 @@ export const SearchBlock = observer(({ client }) => {
     }
   }, [])
 
-  const handleSearchChange = (event) => {
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value)
     updateSearch(event.target.value)
   }
@@ -132,10 +124,6 @@ export const SearchBlock = observer(({ client }) => {
     }, 500)
   }, [client])
 
-  const { isConnected } = useAccount()
-
-  const toastId = useRef(null)
-
   const handlePay = async () => {
     if (!record || !isValid) {
       return false
@@ -146,8 +134,8 @@ export const SearchBlock = observer(({ client }) => {
     toastId.current = toast.loading('Processing transaction')
 
     try {
-      if (!isConnected) {
-        await wagmiClient.connectors.connect()
+      if (!walletStore.isConnected) {
+        await walletStore.connect()
       }
     } catch (e) {
       console.log('Error', e)
@@ -219,11 +207,9 @@ export const SearchBlock = observer(({ client }) => {
           />
         </div>
         <InputContainer valid={isValid && isAvailable} style={{ flexGrow: 0 }}>
-          {/* <AiOutlineSearch size='24px' style={{ margin: '0px 8px 0px 12px' }} /> */}
           <StyledInput
             placeholder="Search for your .1 and .country domain name"
             value={search}
-            valid={isValid}
             onChange={handleSearchChange}
           />
         </InputContainer>
@@ -235,28 +221,14 @@ export const SearchBlock = observer(({ client }) => {
           Domain can use a mix of letters (English A-Z), numbers and dash
         </BaseText>
       )}
-      {/* <div>1 ONE = ($1.20 USD) for 3 months</div> */}
-      {/* <SearchResultItem */}
-      {/*  name='sergey' */}
-      {/*  price={1} */}
-      {/*  available */}
-      {/*  period={86400000} */}
-      {/* /> */}
-      {/* <SearchResultItem */}
-      {/*  name='jon' */}
-      {/*  price={1} */}
-      {/*  available={false} */}
-      {/*  period={86400000} */}
-      {/* /> */}
       {loading && <div>Loading...</div>}
       {isValid && !loading && record && price && (
         <>
           <SearchResultItem
             name={recordName}
-            price={price.formatted}
             rateONE={ratesStore.ONE_USD}
             available={!record.renter}
-            period={parameters.rentalPeriod}
+            period={domainStore.domainParams.rentalPeriod}
           />
           <Button
             disabled={!isValid || !isAvailable}

@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import humanizeDuration from 'humanize-duration'
 import { Box } from 'grommet'
-import { BaseText } from './Text'
+import { BaseText } from '../../../components/Text'
 
 const Container = styled.div`
   position: relative;

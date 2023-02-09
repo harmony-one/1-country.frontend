@@ -24,15 +24,14 @@ import { Container, HomeLabel, RecordRenewalContainer } from './Home.styles'
 // import RecordInfo from '../../components/record-info/RecordInfo'
 // import TwitterSection from '../../components/twitter-section/TwitterSection'
 // import OwnerInfo from '../../components/owner-info/OwnerInfo'
-import LastPurchase from '../../components/last-purchase/LastPurchase'
 import OwnerForm from '../../components/owner-form/OwnerForm'
 import { VanityURL } from './VanityURL'
 import { useDefaultNetwork } from '../../hooks/network'
 import { createCheckoutSession, getTokenPrice } from '../../api/payments'
-import { SearchBlock } from '../../components/SearchBlock'
 import PageWidgets from '../../components/page-widgets/PageWidgets'
 import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
+import { HomeSearchPage } from './components/HomeSearchPage'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -79,7 +78,6 @@ const Home = observer(() => {
   const [name, setName] = useState('')
   const [client, setClient] = useState(apis({}))
   const [record, setRecord] = useState(null)
-  const [lastRentedRecord, setLastRentedRecord] = useState(null)
   const [price, setPrice] = useState(null)
   const [parameters, setParameters] = useState({
     rentalPeriod: 0,
@@ -184,11 +182,7 @@ const Home = observer(() => {
         console.log('Poll params')
         pollParams()
       }, 12000)
-      return
     }
-    client
-      .getRecord({ name: parameters.lastRented })
-      .then((r) => setLastRentedRecord(r))
   }, [parameters?.lastRented])
 
   // useEffect(() => {
@@ -337,25 +331,7 @@ const Home = observer(() => {
     record?.timeUpdated + parameters?.rentalPeriod - Date.now() < 0
 
   if (name === '') {
-    return (
-      <Container>
-        {lastRentedRecord && (
-          <LastPurchase
-            parameters={parameters}
-            tld={config.tld}
-            lastRentedRecord={lastRentedRecord}
-            humanD={humanD}
-          />
-        )}
-        {client && (
-          <FlexRow
-            style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}
-          >
-            <SearchBlock client={client} />
-          </FlexRow>
-        )}
-      </Container>
-    )
+    return <HomeSearchPage />
   }
 
   return (

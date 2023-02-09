@@ -7,7 +7,15 @@ import { DCParams, DomainPrice, DomainRecord } from '../api'
 export class DomainStore extends BaseStore {
   public domainName: string = ''
   public domainPrice: DomainPrice | null = null
-  public domainParams: DCParams | null = null
+  public domainParams: DCParams = {
+    baseRentalPrice: {
+      amount: '0',
+      formatted: '0',
+    },
+    lastRented: '',
+    rentalPeriod: 0,
+    priceMultiplier: 0,
+  }
   public domainRecord: DomainRecord | null = null
 
   constructor(rootStore: RootStore) {
@@ -28,11 +36,14 @@ export class DomainStore extends BaseStore {
   }
 
   get isOwner() {
-    if (!this.domainRecord) {
+    if (!this.domainRecord || !this.rootStore.walletStore.isConnected) {
       return false
     }
 
-    return this.domainRecord.renter === this.rootStore.walletStore.walletAddress
+    return (
+      this.domainRecord.renter.toLowerCase() ===
+      this.rootStore.walletStore.walletAddress.toLowerCase()
+    )
   }
 
   async loadDomainRecord() {

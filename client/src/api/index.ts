@@ -42,11 +42,15 @@ export enum OWNER_INFO_FIELDS {
   PHONE = 'phone',
 }
 
+interface Transaction {
+  transactionHash: string
+}
+
 interface CallProps {
   amount?: string
   onFailed?: (error: Error, flag?: boolean) => void
   onSubmitted?: () => void
-  onSuccess?: (tx: unknown) => void
+  onSuccess?: (tx: Transaction) => void
   methodName: string
   parameters: unknown[]
 }
