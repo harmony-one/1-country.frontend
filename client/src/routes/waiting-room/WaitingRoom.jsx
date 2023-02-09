@@ -1,28 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useParams } from 'react-router'
-// import { toast } from 'react-toastify'
-import { useAccount, useConnect } from 'wagmi'
 import { FlexColumn } from '../../components/Layout'
 import PageWidgets from '../../components/page-widgets/PageWidgets'
 import { BaseText } from '../../components/Text'
 import { Container, DescResponsive } from '../home/Home.styles'
+import { useStores } from '../../stores'
+import { observer } from 'mobx-react-lite'
 
-const WaitingRoom = () => {
-  const [name, setName] = useState('')
-  const { isConnected } = useAccount()
-  const { connect, connectors, isLoading } = useConnect()
-  const params = useParams()
+const WaitingRoom = observer(() => {
+  const { name = '' } = useParams()
+  const { walletStore } = useStores()
 
   useEffect(() => {
     try {
-      if (!isConnected && !isLoading && connectors) {
-        const con = connectors
-        connect({ connector: con }) // { connector: connectors[0] })
+      if (!walletStore.isConnected) {
+        walletStore.connect()
       }
       // toast.info('Your page is being deployed')
-      if (params.name) {
-        setName(params.name)
-      }
     } catch (e) {
       console.log('Error', e)
     }
@@ -30,7 +24,7 @@ const WaitingRoom = () => {
 
   return (
     <Container>
-      {isConnected && (
+      {walletStore.isConnected && (
         <FlexColumn style={{ width: '100%', alignItems: 'center' }}>
           <h3>{`Setting ${name}.1.country`}</h3>
           <span className="dot-flashing" style={{ marginBottom: '1em' }} />
@@ -40,13 +34,13 @@ const WaitingRoom = () => {
           <PageWidgets isOwner style={{ marginTop: '6em' }} showAddButton />
         </FlexColumn>
       )}
-      {!isConnected && (
+      {!walletStore.isConnected && (
         <DescResponsive>
           <h3>Please connect your MetaMask wallet</h3>
         </DescResponsive>
       )}
     </Container>
   )
-}
+})
 
 export default WaitingRoom
