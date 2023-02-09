@@ -6,9 +6,10 @@ import {
   GetNetworkResult,
   GetAccountResult,
 } from '@wagmi/core'
+import Web3 from 'web3'
 import { BaseStore } from './BaseStore'
 import { RootStore } from './RootStore'
-import { metamaskConnector } from '../modules/wagmi/wagmiClient'
+import { metamaskConnector, wagmiClient } from '../modules/wagmi/wagmiClient'
 import config from '../../config'
 
 export class WalletStore extends BaseStore {
@@ -66,9 +67,15 @@ export class WalletStore extends BaseStore {
   }
 
   connect() {
-    return connect({
+    return connect<typeof wagmiClient.provider>({
       chainId: config.chainParameters.id,
       connector: metamaskConnector,
+    }).then((result) => {
+      const provider = result.provider
+
+      // @ts-expect-error
+      const web3 = new Web3(provider)
+      this.rootStore.updateD1DCClient(web3, result.account)
     })
   }
 }

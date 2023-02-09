@@ -228,7 +228,7 @@ export const SearchBlock = observer(() => {
             name={recordName}
             rateONE={ratesStore.ONE_USD}
             available={!record.renter}
-            period={domainStore.domainParams.rentalPeriod}
+            period={domainStore.d1cParams.rentalPeriod}
           />
           <Button
             disabled={!isValid || !isAvailable}

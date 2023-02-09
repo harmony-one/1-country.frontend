@@ -7,7 +7,7 @@ import { DCParams, DomainPrice, DomainRecord } from '../api'
 export class DomainStore extends BaseStore {
   public domainName: string = ''
   public domainPrice: DomainPrice | null = null
-  public domainParams: DCParams = {
+  public d1cParams: DCParams = {
     baseRentalPrice: {
       amount: '0',
       formatted: '0',
@@ -46,6 +46,17 @@ export class DomainStore extends BaseStore {
     )
   }
 
+  get isExpired() {
+    if (!this.domainRecord) {
+      return false
+    }
+
+    return (
+      this.domainRecord.timeUpdated + this.d1cParams.rentalPeriod - Date.now() <
+      0
+    )
+  }
+
   async loadDomainRecord() {
     if (!this.domainName) {
       return
@@ -59,7 +70,7 @@ export class DomainStore extends BaseStore {
         name: this.domainName,
       })
 
-      this.domainParams = await this.rootStore.d1dcClient.getParameters()
+      this.d1cParams = await this.rootStore.d1dcClient.getParameters()
     } catch (ex) {
       console.log('### error', ex)
     }

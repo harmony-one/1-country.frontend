@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Web3 from 'web3'
 // import detectEthereumProvider from '@metamask/detect-provider'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
@@ -9,7 +8,6 @@ import humanizeDuration from 'humanize-duration'
 
 // import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 
-import apis from '../../api'
 import config from '../../../config'
 import {
   Button,
@@ -32,6 +30,7 @@ import PageWidgets from '../../components/page-widgets/PageWidgets'
 import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import { HomeSearchPage } from './components/HomeSearchPage'
+import { getDomainName } from '../../utils/getDomainName'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -75,8 +74,7 @@ const parseTweetId = (urlInput) => {
 }
 
 const Home = observer(() => {
-  const [name, setName] = useState('')
-  const [client, setClient] = useState(apis({}))
+  const [name] = useState(getDomainName())
   const [record, setRecord] = useState(null)
   const [price, setPrice] = useState(null)
   const [parameters, setParameters] = useState({
@@ -87,20 +85,16 @@ const Home = observer(() => {
   const [pending, setPending] = useState(false)
 
   const toastId = useRef(null)
-  const { address, connector } = useAccount()
+  const { address } = useAccount()
+
   // for updating stuff
-  const [url, setUrl] = useState('')
+  const [url] = useState(
+    'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
+  )
 
   const { rootStore, domainStore, walletStore } = useStores()
 
-  // TODO remove
-  // TODO sync stores
-  useEffect(() => {
-    if (client) {
-      rootStore.updateD1DCClient(client)
-    }
-  }, [client])
-  //
+  const client = rootStore.d1dcClient
 
   useEffect(() => {
     domainStore.loadDomainRecord()
@@ -111,48 +105,6 @@ const Home = observer(() => {
   const isOwner = domainStore.isOwner
 
   useDefaultNetwork()
-
-  useEffect(() => {
-    const getSubdomain = () => {
-      if (!window) {
-        return null
-      }
-      console.log('getSubDomain()', window.location.host)
-      const host = window.location.host
-      const parts = host.split('.')
-      console.log(host, parts, parts.length)
-      if (parts.length <= 2) {
-        return ''
-      }
-      if (parts.length <= 4) {
-        // 3 CHANGE FOR PRODUCTION
-        return parts[0]
-      }
-      return parts.slice(0, parts.length - 2).join('.')
-    }
-    setUrl(
-      'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
-    )
-    setName(getSubdomain())
-    const web3 = new Web3(config.defaultRPC)
-    const api = apis({ web3, address })
-    setClient(api)
-  }, [])
-
-  useEffect(() => {
-    const callApi = async () => {
-      const provider = await connector.getProvider()
-      const web3 = new Web3(provider)
-      const api = apis({ web3, address })
-      setClient(api)
-      api.getPrice({ name }).then((p) => {
-        setPrice(p)
-      })
-    }
-    if (connector && address) {
-      callApi()
-    }
-  }, [connector, address])
 
   const pollParams = () => {
     if (!client) {
@@ -327,9 +279,6 @@ const Home = observer(() => {
     }
   }, [record])
 
-  const expired =
-    record?.timeUpdated + parameters?.rentalPeriod - Date.now() < 0
-
   if (name === '') {
     return <HomeSearchPage />
   }
@@ -384,7 +333,7 @@ const Home = observer(() => {
               pending={pending}
             />
           )}
-          {isOwner && expired && (
+          {isOwner && domainStore.isExpired && (
             <RecordRenewalContainer>
               <Title style={{ marginTop: 16 }}>Renew ownership</Title>
               <Row style={{ justifyContent: 'center' }}>
