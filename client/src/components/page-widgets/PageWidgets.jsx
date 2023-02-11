@@ -22,27 +22,29 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
       setAddingWidget(true)
       const value = event.target.value
       if (value === '1' || value === 's') {
-        widgetList.unshift({
+        setWidgetList([{
           type: '',
           value: 'http://twitter.com/stse/status/1477342465774342145'
-        })
-        setWidgetList([...widgetList])
+        }, ...widgetList])
         setAddingWidget(false)
         setFormFields({ ...formFields, widgetValue: '' })
         return
       }
       if (value.length > 0) {
-        widgetList.unshift({
-          type: '',
-          value: event.target.value
-        })
-        setWidgetList([...widgetList])
+        if (!widgetList.find(e => e.value === value)) {
+          setWidgetList([{
+            type: '',
+            value: event.target.value
+          }, ...widgetList])
+        }
         setAddingWidget(false)
         setFormFields({ ...formFields, widgetValue: '' })
+      } else {
+        setAddingWidget(false)
       }
     }
   }
-
+  console.log(widgetList)
   const onChange = (event) => {
     const { name, value } = event.target
     setFormFields({ ...formFields, [name]: value })
@@ -68,11 +70,12 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
             valid // ={isValid && isAvailable}
           />
         </WidgetInputContainer>}
-      {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}
-      {widgetList.length > 0 && (
-        widgetList.map((widget, index) =>
-          <TwitterWidget value={widget.value} clave={index} key={index} widgetKey={index} deleteWidget={deleteWidget} />)
-      )}
+      {widgetList.map((widget, index) =>
+        <TwitterWidget 
+          value={widget.value} 
+          key={widget.value} 
+          widgetKey={index} 
+          deleteWidget={deleteWidget} />)}
     </PageWidgetContainer>
   )
 }

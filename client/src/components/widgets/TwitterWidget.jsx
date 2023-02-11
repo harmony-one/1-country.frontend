@@ -89,14 +89,14 @@ const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
             screenName={userName}
             options={{ height: 600 }}
             placeholder='Loading...'
-            key={`${userName}${widgetKey}`}
+            key={`${userName}`}
             onLoad={() => setLoading(false)}
           />
         )}
         {tweetId.tweetId && (!loading || inView) && (
           <TwitterTweetEmbed
             tweetId={tweetId.tweetId}
-            key={`${tweetId.tweetId}${widgetKey}`}
+            key={`${tweetId.tweetId}`}
             placeholder='Loading...'
             onLoad={() => setLoading(false)}
           />)}

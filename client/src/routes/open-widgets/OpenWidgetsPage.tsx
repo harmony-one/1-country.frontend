@@ -88,8 +88,6 @@ export const OpenWidgetsPage = observer(() => {
         widgetList.map((widget, index) => (
           <TwitterWidget
             value={widget.value}
-            // @ts-expect-error
-            clave={index}
             key={widget.id}
             widgetKey={widget.id}
             deleteWidget={() => deleteWidget(widget.id)}
