@@ -47,14 +47,20 @@ export const FloatingTextInput = styled(FloatingText)`
   bottom: 16px !important;
 `
 
-export const WidgetStyledInput = styled(StyledInput)`
+export const WidgetStyledInput = styled(StyledInput)<{ valid: boolean }>`
   /* padding: 0.5em; */
   border: 2px solid ${(props) => (props.valid ? '#758796' : '#ff8c8c')};
   border-radius: 5px;
 `
 
-export const WidgetInputContainer = styled(InputContainer)`
+export const WidgetInputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  overflow: hidden;
   border: 0px;
   margin-bottom: 1.5em;
   width: 80%;
+  /* position: relative; */
+  border-radius: 5px;
+  box-sizing: border-box;
 `

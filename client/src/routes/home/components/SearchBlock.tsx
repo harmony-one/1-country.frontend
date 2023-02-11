@@ -211,6 +211,7 @@ export const SearchBlock = observer(() => {
             placeholder="Search for your .1 and .country domain name"
             value={search}
             onChange={handleSearchChange}
+            autoFocus
           />
         </InputContainer>
       </FlexColumn>

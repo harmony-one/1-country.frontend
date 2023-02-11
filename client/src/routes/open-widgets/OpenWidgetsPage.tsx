@@ -79,6 +79,7 @@ export const OpenWidgetsPage = observer(() => {
             onChange={onChange}
             onKeyDown={enterHandler}
             disabled={addingWidget}
+            autoFocus
             valid // ={isValid && isAvailable}
           />
         </WidgetInputContainer>

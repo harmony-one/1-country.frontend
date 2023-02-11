@@ -68,6 +68,8 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
             onKeyDown={enterHandler}
             disabled={addingWidget}
             valid // ={isValid && isAvailable}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
           />
         </WidgetInputContainer>}
       {widgetList.map((widget, index) =>
