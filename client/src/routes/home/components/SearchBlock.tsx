@@ -23,7 +23,7 @@ const SearchBoxContainer = styled.div`
   margin: 0 auto;
 `
 
-export const InputContainer = styled.div<{ valid: boolean }>`
+export const InputContainer = styled.div<{ valid?: boolean }>`
   position: relative;
   border-radius: 5px;
   box-sizing: border-box;

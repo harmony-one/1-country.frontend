@@ -6,7 +6,12 @@ const defaultFormFields = {
   widgetValue: '',
 }
 
-const PageWidgets = ({ isOwner, showAddButton }) => {
+type PageWidgetsProps = {
+  isOwner: boolean, 
+  showAddButton: boolean
+}
+
+const PageWidgets = ({ isOwner, showAddButton }: PageWidgetsProps) => {
   const [widgetList, setWidgetList] = useState([])
   const [addingWidget, setAddingWidget] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
@@ -16,11 +21,10 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
     setPlaceHolder('twitter handle or tweet link')
   }, [])
 
-  const enterHandler = (event) => {
+  const enterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      event.preventDefault()
       setAddingWidget(true)
-      const value = event.target.value
+      const value = (event.target as HTMLInputElement).value
       if (value === '1' || value === 's') {
         setWidgetList([{
           type: '',
@@ -34,7 +38,7 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
         if (!widgetList.find(e => e.value === value)) {
           setWidgetList([{
             type: '',
-            value: event.target.value
+            value: value
           }, ...widgetList])
         }
         setAddingWidget(false)
@@ -45,12 +49,12 @@ const PageWidgets = ({ isOwner, showAddButton }) => {
     }
   }
   console.log(widgetList)
-  const onChange = (event) => {
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
     setFormFields({ ...formFields, [name]: value })
   }
 
-  const deleteWidget = (value) => {
+  const deleteWidget = (value: string) => {
     const newWidgetList = widgetList.filter(w => w.value !== value)
     setWidgetList(newWidgetList)
   }

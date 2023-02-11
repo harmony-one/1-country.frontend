@@ -54,13 +54,7 @@ export const WidgetStyledInput = styled(StyledInput)<{ valid: boolean }>`
 `
 
 export const WidgetInputContainer = styled.div`
-  display: flex;
-  align-items: center;
-  overflow: hidden;
   border: 0px;
   margin-bottom: 1.5em;
   width: 80%;
-  /* position: relative; */
-  border-radius: 5px;
-  box-sizing: border-box;
 `
