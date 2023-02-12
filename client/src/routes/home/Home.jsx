@@ -251,7 +251,7 @@ const Home = observer(() => {
   }
 
   useEffect(() => {
-    if (record && !record.renter && name) {
+    if (Object.keys(record).length > 0 && !record.renter && name) {
       window.location.href = `${config.hostname}?domain=${name}`
     }
   }, [record])
