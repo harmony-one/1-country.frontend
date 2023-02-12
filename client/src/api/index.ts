@@ -304,7 +304,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     getRecord: async ({ name }: { name: string }): Promise<DomainRecord> => {
       const nameBytes = web3.utils.keccak256(name)
       const result = await contract.methods.nameRecords(nameBytes).call()
-      // console.log('RESULT', result)
+      console.log('RESULT', result)
       const [renter, timeUpdated, lastPrice, url, prev, next] = Object.keys(
         result
       ).map((k) => result[k])

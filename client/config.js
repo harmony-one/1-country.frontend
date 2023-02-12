@@ -11,8 +11,9 @@ const config = {
   explorer:
     process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
   defaultRPC: process.env.DEFAULT_RPC || 'https://api.harmony.one',
-  tld: process.env.TLD || '.dev.1.country', // '.1.country',
-  tldLink: process.env.TLD_LINK || 'dev.1.country', // '1.country',
+  hostname: process.env.REACT_APP_BASE_URL || 'https://localhost:3100',
+  tld: process.env.TLD || '.dev.1.localhost:3100', // '.1.country',
+  tldLink: process.env.TLD_LINK || 'dev.1.localhost:3100', // '1.country',
   walletConnect: {
     projectId: process.env.WALLETCONNECT_PROJECTID || '',
   },

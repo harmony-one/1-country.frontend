@@ -36,10 +36,10 @@ export class DomainStore extends BaseStore {
   }
 
   get isOwner() {
-    if (!this.domainRecord || !this.rootStore.walletStore.isConnected) {
+    if (!this.domainRecord || !this.domainRecord.renter || !this.rootStore.walletStore.isConnected) {
       return false
     }
-
+    
     return (
       this.domainRecord.renter.toLowerCase() ===
       this.rootStore.walletStore.walletAddress.toLowerCase()

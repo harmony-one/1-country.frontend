@@ -1,28 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react'
-// import detectEthereumProvider from '@metamask/detect-provider'
 import BN from 'bn.js'
 import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
-// import { Web3Button } from '@web3modal/react'
 import humanizeDuration from 'humanize-duration'
-
-// import { AiOutlineDoubleRight, AiOutlineDoubleLeft } from 'react-icons/ai'
 
 import config from '../../../config'
 import {
   Button,
-  // FloatingText,
-  // Input,
   LinkWrarpper,
 } from '../../components/Controls'
 
-import { Col, FlexColumn, FlexRow, Row } from '../../components/Layout'
+import { FlexColumn, FlexRow, Row } from '../../components/Layout'
 import { BaseText, SmallTextGrey, Title } from '../../components/Text'
 import { Container, HomeLabel, RecordRenewalContainer } from './Home.styles'
-// import RecordInfo from '../../components/record-info/RecordInfo'
-// import TwitterSection from '../../components/twitter-section/TwitterSection'
-// import OwnerInfo from '../../components/owner-info/OwnerInfo'
-import OwnerForm from '../../components/owner-form/OwnerForm'
 import { VanityURL } from './VanityURL'
 import { useDefaultNetwork } from '../../hooks/network'
 import { createCheckoutSession, getTokenPrice } from '../../api/payments'
@@ -75,18 +65,16 @@ const parseTweetId = (urlInput) => {
 
 const Home = observer(() => {
   const [name] = useState(getDomainName())
-  const [record, setRecord] = useState(null)
+  const [record, setRecord] = useState({})
   const [price, setPrice] = useState(null)
   const [parameters, setParameters] = useState({
     rentalPeriod: 0,
     priceMultiplier: 0,
   })
-  // const [tweetId, setTweetId] = useState('')
   const [pending, setPending] = useState(false)
 
   const toastId = useRef(null)
   const { address } = useAccount()
-
   // for updating stuff
   const [url] = useState(
     'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
@@ -111,7 +99,7 @@ const Home = observer(() => {
       return
     }
     client.getParameters().then((p) => setParameters(p))
-    client.getRecord({ name }).then((r) => setRecord(r))
+    client.getRecord({ name }).then((r) => { console.log('sksksk', r); setRecord(r) })
     client.getPrice({ name }).then((p) => setPrice(p))
   }
 
@@ -136,17 +124,6 @@ const Home = observer(() => {
       }, 12000)
     }
   }, [parameters?.lastRented])
-
-  // useEffect(() => {
-  //   if (!record?.url) {
-  //     return
-  //   }
-  //   const id = parseBN(record.url)
-  //   if (!id) {
-  //     return
-  //   }
-  //   setTweetId(id.toString())
-  // }, [record?.url])
 
   const onActionFiat = async ({
     isRenewal,
@@ -211,7 +188,7 @@ const Home = observer(() => {
       return toast.error('Invalid URL to embed')
     }
 
-    if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
+    if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) { 
       await walletStore.connect()
     }
 
@@ -274,8 +251,8 @@ const Home = observer(() => {
   }
 
   useEffect(() => {
-    if (record && !record.renter) {
-      window.location.href = `https://${config.tldLink}?domain=${name}`
+    if (record && !record.renter && name) {
+      window.location.href = `${config.hostname}?domain=${name}`
     }
   }, [record])
 
@@ -305,34 +282,8 @@ const Home = observer(() => {
           showAddButton={isOwner}
         />
       )}
-      {record && !record?.renter && (
-        <Col>
-          <Title>Page Not Yet Claimed</Title>
-          <SmallTextGrey style={{ marginTop: 32, textAlign: 'center' }}>
-            Claim now
-          </SmallTextGrey>
-          <Col>
-            <Row style={{ marginTop: 32, justifyContent: 'center' }}>
-              <HomeLabel>price</HomeLabel>
-              <BaseText>{price?.formatted} ONE</BaseText>
-            </Row>
-            <Row style={{ justifyContent: 'center' }}>
-              <SmallTextGrey>
-                for {humanD(parameters.rentalPeriod)}{' '}
-              </SmallTextGrey>
-            </Row>
-          </Col>
-        </Col>
-      )}
       {address && (
         <>
-          {!isOwner && (
-            <OwnerForm
-              onAction={onAction}
-              buttonLabel="Rent (ONE)"
-              pending={pending}
-            />
-          )}
           {isOwner && domainStore.isExpired && (
             <RecordRenewalContainer>
               <Title style={{ marginTop: 16 }}>Renew ownership</Title>
