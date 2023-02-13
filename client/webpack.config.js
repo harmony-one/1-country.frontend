@@ -186,7 +186,22 @@ module.exports = {
       process: 'process/browser',
     }),
     process.env.SIZE_ANALYSIS ? new BundleAnalyzerPlugin({}) : null,
-    // new CopyPlugin(),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: 'assets/manifest.json',
+          to: 'manifest.json',
+        },
+        {
+          from: 'assets/favicon.ico',
+          to: 'favicon.ico',
+        },
+        {
+          from: 'assets/images',
+          to: 'images',
+        },
+      ],
+    }),
     isProduction && new CompressionPlugin({ test: /\.js(\?.*)?$/i }),
     isProduction && new HtmlWebpackChangeAssetsExtensionPlugin(),
   ].filter((i) => i),
