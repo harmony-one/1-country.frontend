@@ -291,6 +291,9 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
     },
     getPrice: async ({ name }: { name: string }): Promise<DomainPrice> => {
+      if (!name) {
+        throw new Error('name is empty')
+      }
       const nameBytes = web3.utils.keccak256(name)
       const price = await contract.methods
         .getPrice(nameBytes)
@@ -302,6 +305,9 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
     },
     getRecord: async ({ name }: { name: string }): Promise<DomainRecord> => {
+      if (!name) {
+        throw new Error('name is empty')
+      }
       const nameBytes = web3.utils.keccak256(name)
       const result = await contract.methods.nameRecords(nameBytes).call()
       // console.log('RESULT', result)
