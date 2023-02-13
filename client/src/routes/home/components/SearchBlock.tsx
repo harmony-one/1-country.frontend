@@ -208,7 +208,7 @@ export const SearchBlock = observer(() => {
         </div>
         <InputContainer valid={isValid && isAvailable} style={{ flexGrow: 0 }}>
           <StyledInput
-            placeholder="Search for your .1 and .country domain name"
+            placeholder="Register your .country domain"
             value={search}
             onChange={handleSearchChange}
             autoFocus
@@ -236,7 +236,7 @@ export const SearchBlock = observer(() => {
             style={{ marginTop: '1em' }}
             onClick={handlePay}
           >
-            Pay
+            Register
           </Button>
         </>
       )}

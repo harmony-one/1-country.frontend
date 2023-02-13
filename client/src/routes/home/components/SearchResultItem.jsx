@@ -1,14 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
-import humanizeDuration from 'humanize-duration'
-import { Box } from 'grommet'
+import { Box } from 'grommet/components/Box'
 import { BaseText } from '../../../components/Text'
 
 const Container = styled.div`
   position: relative;
 `
-
-const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
 const calcDomainUSDPrice = (domainName) => {
   const len = domainName.length
@@ -25,7 +22,7 @@ const calcDomainUSDPrice = (domainName) => {
     return 1
   }
 
-  return 0.1
+  return 0.01
 }
 
 const calDomainOnePrice = (domainName, oneUsdRate = 0.02588853) => {
@@ -34,10 +31,19 @@ const calDomainOnePrice = (domainName, oneUsdRate = 0.02588853) => {
   return priceUsd / oneUsdRate
 }
 
-const formatNumber = (num) => {
+const formatONEAmount = (num) => {
   const twoDecimalsFormatter = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: num < 1 ? 2 : 0,
+  })
+
+  return twoDecimalsFormatter.format(Number(num))
+}
+
+const formatUSDAmount = (num) => {
+  const twoDecimalsFormatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
   })
 
   return twoDecimalsFormatter.format(Number(num))
@@ -48,12 +54,7 @@ export const DomainName = styled(BaseText)`
   font-weight: bold;
 `
 
-export const SearchResultItem = ({
-  name,
-  available = false,
-  period,
-  rateONE,
-}) => {
+export const SearchResultItem = ({ name, available = false, rateONE }) => {
   const priceUsd = calcDomainUSDPrice(name)
   const priceOne = calDomainOnePrice(name, rateONE)
 
@@ -62,17 +63,17 @@ export const SearchResultItem = ({
       <div>{available ? '' : 'Domain Name Unavailable'}</div>
       {available && (
         <Box gap="8px" direction="column">
-          <DomainName>{name}.1.country</DomainName>
+          <DomainName>{name}.country</DomainName>
           <BaseText>
-            {formatNumber(priceOne)} ONE = ${formatNumber(priceUsd)}.00 USD for{' '}
-            {humanD(period)} (
+            {formatONEAmount(priceOne)} ONE = ${formatUSDAmount(priceUsd)} USD
+            for 6 months (
             <a
               style={{ color: '#758796' }}
               href="https://harmony.one/1country-terms"
               target="_blank"
               rel="noreferrer"
             >
-              terms
+              Terms
             </a>
             )
           </BaseText>

@@ -99,8 +99,10 @@ const Home = observer(() => {
       return
     }
     client.getParameters().then((p) => setParameters(p))
-    client.getRecord({ name }).then((r) => setRecord(r))
-    client.getPrice({ name }).then((p) => setPrice(p))
+    if (name) {
+      client.getRecord({ name }).then((r) => setRecord(r))
+      client.getPrice({ name }).then((p) => setPrice(p))
+    }
   }
 
   useEffect(() => {
