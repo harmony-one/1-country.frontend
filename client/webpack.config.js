@@ -12,7 +12,9 @@ const HtmlWebpackChangeAssetsExtensionPlugin = require('html-webpack-change-asse
 
 console.log(!process.env.HTTP)
 
-const isProduction = process.env.NODE_ENV === 'production'
+const isProduction = process.argv.indexOf('--mode=production') > -1
+
+console.log('### isProduction', isProduction)
 
 module.exports = {
   devServer: {
