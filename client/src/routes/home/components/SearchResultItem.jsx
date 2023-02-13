@@ -62,17 +62,16 @@ export const SearchResultItem = ({
       <div>{available ? '' : 'Domain Name Unavailable'}</div>
       {available && (
         <Box gap="8px" direction="column">
-          <DomainName>{name}.1.country</DomainName>
+          <DomainName>{name}.country</DomainName>
           <BaseText>
-            {formatNumber(priceOne)} ONE = ${formatNumber(priceUsd)}.00 USD for{' '}
-            {humanD(period)} (
+            {formatNumber(priceOne)} ONE = ${formatNumber(priceUsd)}.00 USD for 6 months (
             <a
               style={{ color: '#758796' }}
               href="https://harmony.one/1country-terms"
               target="_blank"
               rel="noreferrer"
             >
-              terms
+              Terms
             </a>
             )
           </BaseText>
