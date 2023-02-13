@@ -7,13 +7,10 @@ const BundleAnalyzerPlugin =
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const CopyPlugin = require('copy-webpack-plugin')
-const CompressionPlugin = require('compression-webpack-plugin')
-const HtmlWebpackChangeAssetsExtensionPlugin = require('html-webpack-change-assets-extension-plugin')
 
 console.log(!process.env.HTTP)
 
-// const isProduction = process.argv.indexOf('--mode=production') > -1
-const isProduction = false
+const isProduction = process.argv.indexOf('--mode=production') > -1
 
 console.log('### isProduction', isProduction)
 
@@ -177,7 +174,6 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       inject: true,
-      jsExtension: isProduction ? '.gz' : '.js',
       filename: 'index.html',
       template: 'assets/index.html',
       environment: process.env.NODE_ENV,
@@ -202,7 +198,5 @@ module.exports = {
         },
       ],
     }),
-    isProduction && new CompressionPlugin({ test: /\.js(\?.*)?$/i }),
-    isProduction && new HtmlWebpackChangeAssetsExtensionPlugin(),
   ].filter((i) => i),
 }
