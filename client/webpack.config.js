@@ -116,7 +116,7 @@ module.exports = {
   },
   devtool: process.env.DEBUG && 'source-map',
   output: {
-    filename: '[name].js',
+    filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
     publicPath: '/',
@@ -139,7 +139,25 @@ module.exports = {
       url: require.resolve('url'),
     },
   },
-
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        web3: {
+          test: /[\\/]node_modules[\\/](web3)[\\/]/,
+          name: 'web3',
+        },
+        icons: {
+          test: /[\\/]node_modules[\\/](react-icons)[\\/]/,
+          name: 'icons',
+        },
+        vendors: {
+          test: /[\\/]node_modules[\\/]((?!react-icons|web3).*)[\\/]/,
+          name: 'vendors',
+        },
+      },
+    },
+  },
   plugins: [
     new Dotenv({
       allowEmptyValues: true,
