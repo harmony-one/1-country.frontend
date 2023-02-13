@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import TwitterWidget from '../widgets/TwitterWidget'
+import { useParams } from 'react-router'
+import TwitterWidget, { checkTweet } from '../widgets/TwitterWidget'
 import { PageWidgetContainer, WidgetInputContainer, WidgetStyledInput } from './PageWidgets.styles'
 
 const defaultFormFields = {
@@ -13,13 +14,17 @@ type PageWidgetsProps = {
 
 const PageWidgets = ({ isOwner, showAddButton }: PageWidgetsProps) => {
   const [widgetList, setWidgetList] = useState([])
+  const [isValid, setIsValid] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
   const [addingWidget, setAddingWidget] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
   const [placeHolder, setPlaceHolder] = useState('')
+  const { domainName } = useParams()
 
   useEffect(() => {
     setPlaceHolder('twitter handle or tweet link')
   }, [])
+
 
   const enterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -36,19 +41,28 @@ const PageWidgets = ({ isOwner, showAddButton }: PageWidgetsProps) => {
       }
       if (value.length > 0) {
         if (!widgetList.find(e => e.value === value)) {
-          setWidgetList([{
-            type: '',
-            value: value
-          }, ...widgetList])
+          const result = checkTweet(value)
+          setIsValid(result.error ? false : true)
+          if (result.value) {
+            setWidgetList([{
+              type: result.type,
+              value: value
+            }, ...widgetList])
+          } else {
+            setErrorMessage(result.error)
+          }
         }
         setAddingWidget(false)
         setFormFields({ ...formFields, widgetValue: '' })
+        errorMessage && setErrorMessage('')
       } else {
         setAddingWidget(false)
+        setIsValid(false)
+        setErrorMessage('Please type a tweet link or a twitter handle')
       }
     }
   }
-  console.log(widgetList)
+  console.log(errorMessage)
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
     setFormFields({ ...formFields, [name]: value })
@@ -71,16 +85,17 @@ const PageWidgets = ({ isOwner, showAddButton }: PageWidgetsProps) => {
             onChange={onChange}
             onKeyDown={enterHandler}
             disabled={addingWidget}
-            valid // ={isValid && isAvailable}
+            valid={isValid}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
           />
+          <span>{errorMessage}</span>
         </WidgetInputContainer>}
       {widgetList.map((widget, index) =>
-        <TwitterWidget 
+        <TwitterWidget
+          type={1}
           value={widget.value} 
-          key={widget.value} 
-          widgetKey={index} 
+          key={widget.value}
           deleteWidget={deleteWidget} />)}
     </PageWidgetContainer>
   )

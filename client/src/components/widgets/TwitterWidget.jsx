@@ -54,7 +54,36 @@ const TwitterWidgetDefault = {
   tweetId: '',
   error: ''
 }
-const TwitterWidget = ({ value, widgetKey, deleteWidget }) => {
+
+export const checkTweet = (value) => {
+  try {
+    if (isUrl(value)) {
+      const result = parseTweetId(value)
+      return result.tweetId ? {
+        value: result.tweetId,
+        type: WIDGET_TYPE.post,
+        error: null
+      } :
+      {
+        value: null,
+        error: result.error
+      }
+    } else {
+      return {
+        value: value,
+        type: WIDGET_TYPE.feed
+      }
+    }
+  } catch(e) {
+    console.log(e)
+    return {
+      value: null,
+      error: e
+    }
+  }
+}
+
+const TwitterWidget = ({ value, type, deleteWidget }) => {
   const [tweetId, setTweetId] = useState(TwitterWidgetDefault)
   const [userName, setUserName] = useState('')
   const [loading, setLoading] = useState(true)

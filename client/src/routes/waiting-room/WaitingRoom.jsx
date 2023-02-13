@@ -8,7 +8,7 @@ import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 
 const WaitingRoom = observer(() => {
-  const { name = '' } = useParams()
+  const { domainName = '' } = useParams()
   const { walletStore } = useStores()
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const WaitingRoom = observer(() => {
     <Container>
       {walletStore.isConnected && (
         <FlexColumn style={{ width: '100%', alignItems: 'center' }}>
-          <h3>{`Setting ${name}.1.country`}</h3>
+          <h3>{`Setting ${domainName}.1.country`}</h3>
           <span className="dot-flashing" style={{ marginBottom: '1em' }} />
           <BaseText style={{ marginBottom: '0.5em', width: '70%' }}>
             While you wait, you can start personalizing your page

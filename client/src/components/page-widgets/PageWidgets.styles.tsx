@@ -57,4 +57,9 @@ export const WidgetInputContainer = styled.div`
   border: 0px;
   margin-bottom: 1.5em;
   width: 80%;
+  text-align: center;
+
+  span {
+    color: red;
+  }
 `
