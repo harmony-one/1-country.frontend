@@ -7,6 +7,8 @@ const BundleAnalyzerPlugin =
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const CopyPlugin = require('copy-webpack-plugin')
+const CompressionPlugin = require('compression-webpack-plugin')
+const HtmlWebpackChangeAssetsExtensionPlugin = require('html-webpack-change-assets-extension-plugin')
 
 console.log(!process.env.HTTP)
 
@@ -114,7 +116,7 @@ module.exports = {
   entry: {
     main: ['./src/index.js'],
   },
-  devtool: process.env.DEBUG && 'source-map',
+  devtool: isProduction ? false : 'source-map',
   output: {
     filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'dist'),
@@ -139,7 +141,10 @@ module.exports = {
       url: require.resolve('url'),
     },
   },
+
   optimization: {
+    concatenateModules: true,
+    minimize: true,
     splitChunks: {
       chunks: 'all',
       cacheGroups: {
@@ -169,10 +174,10 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       inject: true,
+      jsExtension: isProduction ? '.gz' : '.js',
       filename: 'index.html',
       template: 'assets/index.html',
       environment: process.env.NODE_ENV,
-      hash: true,
     }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
@@ -181,5 +186,7 @@ module.exports = {
     new CopyPlugin({
       patterns: ['assets/_redirects'],
     }),
+    isProduction && new CompressionPlugin({ test: /\.js(\?.*)?$/i }),
+    isProduction && new HtmlWebpackChangeAssetsExtensionPlugin(),
   ].filter((i) => i),
 }

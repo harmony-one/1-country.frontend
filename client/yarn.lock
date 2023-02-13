@@ -4468,6 +4468,14 @@ compressible@~2.0.16:
   dependencies:
     mime-db ">= 1.43.0 < 2"
 
+compression-webpack-plugin@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/compression-webpack-plugin/-/compression-webpack-plugin-10.0.0.tgz#3496af1b0dc792e13efc474498838dbff915c823"
+  integrity sha512-wLXLIBwpul/ALcm7Aj+69X0pYT3BYt6DdPn3qrgBIh9YejV9Bju9ShhlAsjujLyWMo6SAweFIWaUoFmXZNuNrg==
+  dependencies:
+    schema-utils "^4.0.0"
+    serialize-javascript "^6.0.0"
+
 compression@^1.7.4:
   version "1.7.4"
   resolved "https://registry.yarnpkg.com/compression/-/compression-1.7.4.tgz#95523eff170ca57c29a0ca41e6fe131f41e5bb8f"
@@ -6741,6 +6749,11 @@ html-minifier-terser@^6.0.2:
     param-case "^3.0.4"
     relateurl "^0.2.7"
     terser "^5.10.0"
+
+html-webpack-change-assets-extension-plugin@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/html-webpack-change-assets-extension-plugin/-/html-webpack-change-assets-extension-plugin-1.3.1.tgz#7a8f727d72424eea38fd1af1dc0cbb3d6315ca66"
+  integrity sha512-jzbUO3fhNyRaIBeUkG1VQ18QZ0Wgn8JnSvkcSVDGTnAIHJvigGJz7wR1WupoV0Sj0c8SAEzsGO9LZbXi2zwvmA==
 
 html-webpack-plugin@^5.3.1:
   version "5.5.0"
