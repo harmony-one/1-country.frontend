@@ -79,6 +79,56 @@
 
 </head>
 <body>
-<div id="root"></div>
+<style>
+    .preload {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        flex-direction: column;
+    }
+
+    .preload-img {
+        object-fit: cover;
+        width: 200px;
+    }
+
+    .preload-loader {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        display: block;
+        margin:15px auto;
+        position: relative;
+        background: #FFF;
+        box-shadow: -24px 0 #FFF, 24px 0 #FFF;
+        box-sizing: border-box;
+        animation: shadowPulse 2s linear infinite;
+    }
+
+    @keyframes shadowPulse {
+        33% {
+            background: #FFF;
+            box-shadow: -24px 0 #f17175, 24px 0 #FFF;
+        }
+        66% {
+            background: #f17175;
+            box-shadow: -24px 0 #FFF, 24px 0 #FFF;
+        }
+        100% {
+            background: #FFF;
+            box-shadow: -24px 0 #FFF, 24px 0 #f17175;
+        }
+    }
+
+</style>
+<div id="root">
+    <div class="preload">
+        <img class="preload-img" src="/images/1countryLogo.jpg" />
+        <div class="preload-loader"></div>
+    </div>
+</div>
 </body>
 </html>
