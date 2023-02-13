@@ -2,10 +2,13 @@
 require('dotenv').config()
 const path = require('path')
 const webpack = require('webpack')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const CopyPlugin = require('copy-webpack-plugin')
+const CompressionPlugin = require('compression-webpack-plugin')
+const HtmlWebpackChangeAssetsExtensionPlugin = require('html-webpack-change-assets-extension-plugin')
 
 console.log(!process.env.HTTP)
 
@@ -43,24 +46,29 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: [
-              ['@babel/preset-env',
+              [
+                '@babel/preset-env',
                 {
                   useBuiltIns: 'usage',
                   corejs: 3,
-                  modules: 'cjs'
-                }],
+                  modules: 'cjs',
+                },
+              ],
               '@babel/preset-react',
-              '@babel/preset-typescript'
+              '@babel/preset-typescript',
             ],
             plugins: [
-              ['babel-plugin-styled-components', { displayName: !isProduction }],
-              ['@babel/plugin-proposal-class-properties']
+              [
+                'babel-plugin-styled-components',
+                { displayName: !isProduction },
+              ],
+              ['@babel/plugin-proposal-class-properties'],
             ],
             assumptions: {
-              setPublicClassFields: false
-            }
-          }
-        }
+              setPublicClassFields: false,
+            },
+          },
+        },
       },
       {
         test: /\.svg$/i,
@@ -78,9 +86,7 @@ module.exports = {
       },
       {
         test: /\.(png|jpg|gif)$/,
-        use: [
-          'file-loader',
-        ],
+        use: ['file-loader'],
       },
       {
         test: /\.(scss|css)$/,
@@ -91,29 +97,31 @@ module.exports = {
         use: [
           {
             loader: 'style-loader',
-          }, {
+          },
+          {
             loader: 'css-loader', // translates CSS into CommonJS
-          }, {
+          },
+          {
             loader: 'less-loader',
             options: {
               lessOptions: {
                 javascriptEnabled: true,
-              }
-            }
-          }
-        ]
-      }
+              },
+            },
+          },
+        ],
+      },
     ],
   },
   entry: {
     main: ['./src/index.js'],
   },
-  devtool: process.env.DEBUG && 'source-map',
+  devtool: isProduction ? false : 'source-map',
   output: {
-    filename: '[name].js',
+    filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
-    publicPath: '/'
+    publicPath: '/',
   },
 
   externals: {
@@ -130,8 +138,30 @@ module.exports = {
       http: require.resolve('stream-http'),
       https: require.resolve('https-browserify'),
       os: require.resolve('os-browserify'),
-      url: require.resolve('url')
-    }
+      url: require.resolve('url'),
+    },
+  },
+
+  optimization: {
+    concatenateModules: true,
+    minimize: true,
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        web3: {
+          test: /[\\/]node_modules[\\/](web3)[\\/]/,
+          name: 'web3',
+        },
+        icons: {
+          test: /[\\/]node_modules[\\/](react-icons)[\\/]/,
+          name: 'icons',
+        },
+        vendors: {
+          test: /[\\/]node_modules[\\/]((?!react-icons|web3).*)[\\/]/,
+          name: 'vendors',
+        },
+      },
+    },
   },
   plugins: [
     new Dotenv({
@@ -144,19 +174,19 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       inject: true,
+      jsExtension: isProduction ? '.gz' : '.js',
       filename: 'index.html',
       template: 'assets/index.html',
       environment: process.env.NODE_ENV,
-      hash: true
     }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
     }),
-    process.env.SIZE_ANALYSIS ? new BundleAnalyzerPlugin({ }) : null,
+    process.env.SIZE_ANALYSIS ? new BundleAnalyzerPlugin({}) : null,
     new CopyPlugin({
-      patterns: [
-        'assets/_redirects'
-      ],
+      patterns: ['assets/_redirects'],
     }),
-  ].filter(i => i)
+    isProduction && new CompressionPlugin({ test: /\.js(\?.*)?$/i }),
+    isProduction && new HtmlWebpackChangeAssetsExtensionPlugin(),
+  ].filter((i) => i),
 }
