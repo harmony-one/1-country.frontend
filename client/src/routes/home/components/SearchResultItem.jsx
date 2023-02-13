@@ -64,7 +64,7 @@ export const SearchResultItem = ({
         <Box gap="8px" direction="column">
           <DomainName>{name}.country</DomainName>
           <BaseText>
-            {formatNumber(priceOne)} ONE = ${formatNumber(priceUsd)}.00 USD for 6 months (
+            {formatNumber(priceOne)} ONE = ${formatNumber(priceUsd)}.01 USD for 6 months (
             <a
               style={{ color: '#758796' }}
               href="https://harmony.one/1country-terms"
