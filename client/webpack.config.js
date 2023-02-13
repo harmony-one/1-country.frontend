@@ -186,9 +186,7 @@ module.exports = {
       process: 'process/browser',
     }),
     process.env.SIZE_ANALYSIS ? new BundleAnalyzerPlugin({}) : null,
-    new CopyPlugin({
-      patterns: ['assets/_redirects'],
-    }),
+    // new CopyPlugin(),
     isProduction && new CompressionPlugin({ test: /\.js(\?.*)?$/i }),
     isProduction && new HtmlWebpackChangeAssetsExtensionPlugin(),
   ].filter((i) => i),
