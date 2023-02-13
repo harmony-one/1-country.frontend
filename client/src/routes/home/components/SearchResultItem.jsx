@@ -1,14 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
-import humanizeDuration from 'humanize-duration'
 import { Box } from 'grommet/components/Box'
 import { BaseText } from '../../../components/Text'
 
 const Container = styled.div`
   position: relative;
 `
-
-const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
 const calcDomainUSDPrice = (domainName) => {
   const len = domainName.length
@@ -48,12 +45,7 @@ export const DomainName = styled(BaseText)`
   font-weight: bold;
 `
 
-export const SearchResultItem = ({
-  name,
-  available = false,
-  period,
-  rateONE,
-}) => {
+export const SearchResultItem = ({ name, available = false, rateONE }) => {
   const priceUsd = calcDomainUSDPrice(name)
   const priceOne = calDomainOnePrice(name, rateONE)
 
@@ -64,7 +56,7 @@ export const SearchResultItem = ({
         <Box gap="8px" direction="column">
           <DomainName>{name}.country</DomainName>
           <BaseText>
-            {formatNumber(priceOne)} ONE = ${formatNumber(priceUsd)}.01 USD for 6 months (
+            {formatNumber(priceOne)} ONE = ${priceUsd} USD for 6 months (
             <a
               style={{ color: '#758796' }}
               href="https://harmony.one/1country-terms"
