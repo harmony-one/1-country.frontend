@@ -22,7 +22,7 @@ const calcDomainUSDPrice = (domainName) => {
     return 1
   }
 
-  return 0.1
+  return 0.01
 }
 
 const calDomainOnePrice = (domainName, oneUsdRate = 0.02588853) => {
@@ -31,10 +31,19 @@ const calDomainOnePrice = (domainName, oneUsdRate = 0.02588853) => {
   return priceUsd / oneUsdRate
 }
 
-const formatNumber = (num) => {
+const formatONEAmount = (num) => {
   const twoDecimalsFormatter = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: num < 1 ? 2 : 0,
+  })
+
+  return twoDecimalsFormatter.format(Number(num))
+}
+
+const formatUSDAmount = (num) => {
+  const twoDecimalsFormatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
   })
 
   return twoDecimalsFormatter.format(Number(num))
@@ -56,7 +65,8 @@ export const SearchResultItem = ({ name, available = false, rateONE }) => {
         <Box gap="8px" direction="column">
           <DomainName>{name}.country</DomainName>
           <BaseText>
-            {formatNumber(priceOne)} ONE = ${priceUsd} USD for 6 months (
+            {formatONEAmount(priceOne)} ONE = ${formatUSDAmount(priceUsd)} USD
+            for 6 months (
             <a
               style={{ color: '#758796' }}
               href="https://harmony.one/1country-terms"
