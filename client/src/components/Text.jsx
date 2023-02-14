@@ -1,17 +1,28 @@
 import styled from 'styled-components'
 
 export const BaseText = styled.div`
-  color: ${props => props.$color || 'inherit'};
+  color: ${(props) => props.$color || 'inherit'};
   font-size: 0.9rem;
 `
+
+export const GradientText = styled.div`
+  font-size: 24px;
+  font-family: NunitoBold, system-ui;
+  font-weight: bold;
+  background: linear-gradient(0.75turn, #69fabd, #00aee9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(1px 1px 2px #0000000f);
+`
+
 export const SmallText = styled(BaseText)`
   font-size: 0.8rem;
 `
 export const Label = styled(BaseText)`
-  width: ${props => props.$width || '64px'};
+  width: ${(props) => props.$width || '64px'};
 `
 export const LabelSmall = styled(BaseText)`
-  width: ${props => props.$width || '48px'};
+  width: ${(props) => props.$width || '48px'};
   font-size: 1rem;
 `
 
@@ -46,7 +57,7 @@ export const Heading = styled.div`
 export const Desc = styled.div`
   box-sizing: border-box;
   padding: 16px;
-  color: ${props => props.$color || '#758796'};
+  color: ${(props) => props.$color || '#758796'};
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -69,7 +80,7 @@ export const LinkText = styled(BaseText)`
 
 export const Hint = styled.div`
   font-size: 10px;
-  color: ${props => props.$color ?? '#758796'};
+  color: ${(props) => props.$color ?? '#758796'};
 `
 
 export const SmallTextGrey = styled(SmallText)`

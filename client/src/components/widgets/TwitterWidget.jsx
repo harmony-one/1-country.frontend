@@ -2,83 +2,48 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useEffect, useState } from 'react'
 import { TwitterTimelineEmbed, TwitterTweetEmbed } from 'react-twitter-embed'
-import { useInView } from "react-intersection-observer";
+import { useInView } from 'react-intersection-observer'
 import { IoMdCloseCircle } from 'react-icons/io'
 import isUrl from 'is-url'
-import BN from 'bn.js'
 
 import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
+import { parseTweetId } from '../../utils/parseTweetId'
 
 export const WIDGET_TYPE = {
   feed: 0,
-  post: 1
+  post: 1,
 }
 
-const parseBN = (n) => {
-  try {
-    return new BN(n)
-  } catch (ex) {
-    console.error(ex)
-    return null
-  }
-}
-
-const parseTweetId = (urlInput) => {
-  try {
-    const url = new URL(urlInput)
-    if (url.host !== 'twitter.com') {
-      return { error: 'URL must be from https://twitter.com' }
-    }
-    const parts = url.pathname.split('/')
-    const BAD_FORM = {
-      error:
-        'URL has bad form. It must be https://twitter.com/[some_account]/status/[tweet_id]',
-    }
-    if (parts.length < 2) {
-      return BAD_FORM
-    }
-    if (parts[parts.length - 2] !== 'status') {
-      return BAD_FORM
-    }
-    const tweetId = parseBN(parts[parts.length - 1])
-    if (!tweetId) {
-      return { error: 'cannot parse tweet id' }
-    }
-    return { tweetId: tweetId.toString() }
-  } catch (ex) {
-    console.error(ex)
-    return { error: ex.toString() }
-  }
-}
 const TwitterWidgetDefault = {
   tweetId: '',
-  error: ''
+  error: '',
 }
 
 export const checkTweet = (value) => {
   try {
     if (isUrl(value)) {
       const result = parseTweetId(value)
-      return result.tweetId ? {
-        value: result.tweetId,
-        type: WIDGET_TYPE.post,
-        error: null
-      } :
-      {
-        value: null,
-        error: result.error
-      }
+      return result.tweetId
+        ? {
+            value: result.tweetId,
+            type: WIDGET_TYPE.post,
+            error: null,
+          }
+        : {
+            value: null,
+            error: result.error,
+          }
     } else {
       return {
         value: value,
-        type: WIDGET_TYPE.feed
+        type: WIDGET_TYPE.feed,
       }
     }
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     return {
       value: null,
-      error: e
+      error: e,
     }
   }
 }
@@ -89,10 +54,10 @@ const TwitterWidget = ({ value, type, deleteWidget }) => {
   const [loading, setLoading] = useState(true)
   const { ref, inView } = useInView({
     /* Optional options */
-    rootMargin: "0px",
+    rootMargin: '0px',
     root: null,
     threshold: 0.1,
-  });
+  })
 
   useEffect(() => {
     setLoading(true)
@@ -114,10 +79,10 @@ const TwitterWidget = ({ value, type, deleteWidget }) => {
       <div style={{ paddingBottom: '2em' }}>
         {userName && (!loading || inView) && (
           <TwitterTimelineEmbed
-            sourceType='profile'
+            sourceType="profile"
             screenName={userName}
             options={{ height: 600 }}
-            placeholder='Loading...'
+            placeholder="Loading..."
             key={`${userName}`}
             onLoad={() => setLoading(false)}
           />
@@ -126,9 +91,10 @@ const TwitterWidget = ({ value, type, deleteWidget }) => {
           <TwitterTweetEmbed
             tweetId={tweetId.tweetId}
             key={`${tweetId.tweetId}`}
-            placeholder='Loading...'
+            placeholder="Loading..."
             onLoad={() => setLoading(false)}
-          />)}
+          />
+        )}
       </div>
       <DeleteWidgetButton onClick={deleteItem}>
         <IoMdCloseCircle />
