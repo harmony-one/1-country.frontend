@@ -5,13 +5,15 @@ import { useAccount } from 'wagmi'
 import humanizeDuration from 'humanize-duration'
 
 import config from '../../../config'
-import {
-  Button,
-  LinkWrarpper,
-} from '../../components/Controls'
+import { Button, LinkWrarpper } from '../../components/Controls'
 
-import { FlexColumn, FlexRow, Row } from '../../components/Layout'
-import { BaseText, SmallTextGrey, Title } from '../../components/Text'
+import { FlexRow, Row } from '../../components/Layout'
+import {
+  BaseText,
+  GradientText,
+  SmallTextGrey,
+  Title,
+} from '../../components/Text'
 import { Container, HomeLabel, RecordRenewalContainer } from './Home.styles'
 import { VanityURL } from './VanityURL'
 import { useDefaultNetwork } from '../../hooks/network'
@@ -21,6 +23,7 @@ import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import { HomeSearchPage } from './components/HomeSearchPage'
 import { getDomainName } from '../../utils/getDomainName'
+import { HomePageLoader } from './components/HomePageLoader'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -190,7 +193,7 @@ const Home = observer(() => {
       return toast.error('Invalid URL to embed')
     }
 
-    if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) { 
+    if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
       await walletStore.connect()
     }
 
@@ -262,21 +265,18 @@ const Home = observer(() => {
     return <HomeSearchPage />
   }
 
+  if (!record) {
+    return <HomePageLoader />
+  }
+
   return (
     <Container>
       <VanityURL record={record} name={name} />
       <div style={{ height: '2em' }} />
-      {!record && (
-        <FlexColumn
-          style={{
-            marginTop: '10em',
-            justifyContent: 'center',
-            alignContent: 'center',
-          }}
-        >
-          Uploading...
-        </FlexColumn>
-      )}
+      <GradientText>
+        {name}
+        {config.tld}
+      </GradientText>
       {record && record?.renter && (
         <PageWidgets
           isOwner={isOwner}
