@@ -8,6 +8,7 @@ import {
 import TwitterWidget from '../../components/widgets/TwitterWidget'
 import { observer } from 'mobx-react-lite'
 import { openWidgetsPageStore, Widget } from './OpenWidgetsPageStore'
+import { GradientText } from '../../components/Text'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -69,6 +70,10 @@ export const OpenWidgetsPage = observer(() => {
   return (
     <PageWidgetContainer>
       <div style={{ height: '2em' }} />
+
+      <GradientText>{domainStore.domainName}.country</GradientText>
+
+      <div style={{ height: '1em' }} />
       {showAddButton && (
         <WidgetInputContainer>
           <WidgetStyledInput
