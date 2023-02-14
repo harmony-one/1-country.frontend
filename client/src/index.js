@@ -17,21 +17,23 @@ import './app.scss'
 import { WagmiConfigProvider } from './modules/wagmi/WagmiConfigProvider'
 import { BrowserRouter } from 'react-router-dom'
 
-
 document.body.ontouchstart = function () {}
 
 ReactDOM.render(
   <BrowserRouter>
     <WagmiConfigProvider>
       <Helmet>
-        <meta charSet='utf-8' />
-        <title>.1.country | Harmony</title>
-        <meta name='description' content='Harmony’s .1.country unifies Internet domains and crypto names as Web3 identities. Short, onchain names like s.1 store your wallet addresses, digitial collectibles, social reputation – on Harmony across multiple blockchains. Proper, browsable domains like s.country displays your career metrics, vanity links, embedded content – for fans to tips with emojis or pay for work. Yet, s.1 is magically the same as s.country – your creator economy with ONE!' />
+        <meta charSet="utf-8" />
+        <title>.country | Harmony</title>
+        <meta
+          name="description"
+          content="Harmony’s .1.country unifies Internet domains and crypto names as Web3 identities. Short, onchain names like s.1 store your wallet addresses, digitial collectibles, social reputation – on Harmony across multiple blockchains. Proper, browsable domains like s.country displays your career metrics, vanity links, embedded content – for fans to tips with emojis or pay for work. Yet, s.1 is magically the same as s.country – your creator economy with ONE!"
+        />
         {/* <link rel='icon' type='image/png' href={favicon} sizes='16x16' /> */}
       </Helmet>
       <Routes />
       {/* <Web3ModalProvider /> */}
-      <ToastContainer position='top-left' />
+      <ToastContainer position="top-left" />
     </WagmiConfigProvider>
   </BrowserRouter>,
   document.getElementById('root')
