@@ -237,10 +237,7 @@ const Home = observer(() => {
     <Container>
       <VanityURL record={record} name={name} />
       <div style={{ height: '2em' }} />
-      <GradientText>
-        {name}
-        {config.tld}
-      </GradientText>
+      <GradientText>{name}.country</GradientText>
       {record && record?.renter && (
         <PageWidgets
           isOwner={isOwner}
