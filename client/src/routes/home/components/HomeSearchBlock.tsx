@@ -4,15 +4,15 @@ import debounce from 'lodash.debounce'
 import { toast } from 'react-toastify'
 import { observer } from 'mobx-react-lite'
 import BN from 'bn.js'
+import { useSearchParams } from 'react-router-dom'
 
-import { SearchResultItem } from './SearchResultItem'
+import { HomeSearchResultItem } from './HomeSearchResultItem'
 import { useStores } from '../../../stores'
 import config from '../../../../config'
 
 import { Button, LinkWrarpper } from '../../../components/Controls'
 import { BaseText } from '../../../components/Text'
 import { FlexRow, FlexColumn } from '../../../components/Layout'
-import { useSearchParams } from 'react-router-dom'
 import { DomainPrice, DomainRecord } from '../../../api'
 
 const SearchBoxContainer = styled.div`
@@ -62,7 +62,7 @@ const isValidDomainName = (domainName: string) => {
   return regx.test(domainName)
 }
 
-export const SearchBlock = observer(() => {
+export const HomeSearchBlock: React.FC = observer(() => {
   const [searchParams] = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
@@ -72,7 +72,7 @@ export const SearchBlock = observer(() => {
   const [recordName, setRecordName] = useState('')
   const toastId = useRef(null)
 
-  const { rootStore, ratesStore, domainStore, walletStore } = useStores()
+  const { rootStore, ratesStore, walletStore } = useStores()
 
   const client = rootStore.d1dcClient
 
@@ -122,7 +122,7 @@ export const SearchBlock = observer(() => {
     }, 500)
   }, [client])
 
-  const handlePay = async () => {
+  const handleRentDomain = async () => {
     if (!record || !isValid) {
       return false
     }
@@ -222,7 +222,7 @@ export const SearchBlock = observer(() => {
       {loading && <div>Loading...</div>}
       {isValid && !loading && record && price && (
         <>
-          <SearchResultItem
+          <HomeSearchResultItem
             name={recordName}
             rateONE={ratesStore.ONE_USD}
             available={!record.renter}
@@ -230,7 +230,7 @@ export const SearchBlock = observer(() => {
           <Button
             disabled={!isValid || !isAvailable}
             style={{ marginTop: '1em' }}
-            onClick={handlePay}
+            onClick={handleRentDomain}
           >
             Register
           </Button>
