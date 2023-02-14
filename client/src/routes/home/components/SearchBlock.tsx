@@ -9,8 +9,6 @@ import { SearchResultItem } from './SearchResultItem'
 import { useStores } from '../../../stores'
 import config from '../../../../config'
 
-// @ts-ignore
-import Logo from '../../../../assets/images/1countryLogo.jpg'
 import { Button, LinkWrarpper } from '../../../components/Controls'
 import { BaseText } from '../../../components/Text'
 import { FlexRow, FlexColumn } from '../../../components/Layout'
@@ -196,14 +194,13 @@ export const SearchBlock = observer(() => {
           alignItems: 'center',
           alignContent: 'center',
           marginBottom: '24px',
-          gap: '1.5em',
         }}
       >
-        <div style={{ width: '4em', height: '4em', flexGrow: 0 }}>
+        <div style={{ width: '14em', flexGrow: 0 }}>
           <img
             style={{ objectFit: 'cover', width: '100%' }}
-            src={Logo}
-            alt="1.country"
+            src="/images/countryLogo.png"
+            alt=".country"
           />
         </div>
         <InputContainer valid={isValid && isAvailable} style={{ flexGrow: 0 }}>
@@ -229,7 +226,6 @@ export const SearchBlock = observer(() => {
             name={recordName}
             rateONE={ratesStore.ONE_USD}
             available={!record.renter}
-            period={domainStore.d1cParams.rentalPeriod}
           />
           <Button
             disabled={!isValid || !isAvailable}
