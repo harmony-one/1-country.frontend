@@ -14,24 +14,14 @@ const Stats = observer(() => {
           <iframe
             src="https://www.footprint.network/public/dashboard/Domain-Sales-fp-989a5037-a18e-4851-b68c-e38fcb006a74"
             frameborder="0"
-            width="800"
-            height="600"
+            width="1000"
+            height="650"
             allowtransparency>
           </iframe>
         
+        
           <br></br>
           <br></br>
-          <br></br>
-          
-          <iframe
-            src="https://www.footprint.network/public/dashboard/Domain-Sales-fp-989a5037-a18e-4851-b68c-e38fcb006a74"
-            frameborder="0"
-            width="800"
-            height="600"
-            allowtransparency>
-          </iframe>
-            <br></br>
-            <br></br>
           </div>
         </FlexColumn>
       )}
