@@ -164,6 +164,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
 
   return {
     address,
+    contract,
     web3,
     getExplorerUri: (txHash: string) => {
       return config.explorer.replace('{{txId}}', txHash)

@@ -36,7 +36,7 @@ export const StyledInput = styled.input`
   border: none;
   font-family: 'NunitoRegular', system-ui;
   font-size: 1rem;
-  margin: 0 8px 0 8px;
+  box-sizing: border-box;
   padding: 0.4em;
   width: 100%;
 

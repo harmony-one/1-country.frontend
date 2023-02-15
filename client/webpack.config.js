@@ -196,6 +196,10 @@ module.exports = {
           from: 'assets/images',
           to: 'images',
         },
+        {
+          from: 'assets/tokens',
+          to: 'tokens',
+        },
       ],
     }),
   ].filter((i) => i),

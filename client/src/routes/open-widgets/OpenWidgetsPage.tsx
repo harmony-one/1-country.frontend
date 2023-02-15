@@ -8,6 +8,8 @@ import {
 import TwitterWidget from '../../components/widgets/TwitterWidget'
 import { observer } from 'mobx-react-lite'
 import { openWidgetsPageStore, Widget } from './OpenWidgetsPageStore'
+import { GradientText } from '../../components/Text'
+import { TransactionWidget } from '../../components/widgets/TransactionWidget'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -26,8 +28,9 @@ export const OpenWidgetsPage = observer(() => {
   const [placeHolder, setPlaceHolder] = useState('')
 
   useEffect(() => {
-    openWidgetsPageStore.loadWidgetList()
-  }, [])
+    openWidgetsPageStore.loadWidgetList(domainStore.domainName)
+    openWidgetsPageStore.loadDomainTx(domainStore.domainName)
+  }, [domainStore.domainName])
 
   useEffect(() => {
     setWidgetList(openWidgetsPageStore.widgetList)
@@ -69,6 +72,10 @@ export const OpenWidgetsPage = observer(() => {
   return (
     <PageWidgetContainer>
       <div style={{ height: '2em' }} />
+
+      <GradientText>{domainStore.domainName}.country</GradientText>
+
+      <div style={{ height: '1em' }} />
       {showAddButton && (
         <WidgetInputContainer>
           <WidgetStyledInput
@@ -85,6 +92,17 @@ export const OpenWidgetsPage = observer(() => {
         </WidgetInputContainer>
       )}
       {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}
+
+      {domainStore.domainRecord && (
+        <TransactionWidget
+          name={domainStore.domainName}
+          loading={openWidgetsPageStore.txDomainLoading}
+          domainRecord={domainStore.domainRecord}
+          txHash={openWidgetsPageStore.txDomain}
+        />
+      )}
+      <div style={{ height: '2em' }} />
+
       {widgetList.length > 0 &&
         widgetList.map((widget, index) => (
           <TwitterWidget
