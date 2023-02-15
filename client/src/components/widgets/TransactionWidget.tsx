@@ -16,6 +16,7 @@ const Container = styled(WidgetsContainer)`
 
 const dateFormat = new Intl.DateTimeFormat('en-US', {
   dateStyle: 'medium',
+  timeStyle: 'short',
 })
 
 interface Props {
