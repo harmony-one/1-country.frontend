@@ -94,6 +94,7 @@
     ]
   },
   "dependencies": {
+    "@amplication/react-compound-timer": "^2.1.0",
     "@metamask/detect-provider": "^2.0.0",
     "@reduxjs/toolkit": "^1.6.0",
     "@stripe/react-stripe-js": "^1.16.4",

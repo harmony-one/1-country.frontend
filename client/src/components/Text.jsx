@@ -6,10 +6,11 @@ export const BaseText = styled.div`
 `
 
 export const GradientText = styled.div`
-  font-size: 24px;
+  font-size: ${(props) => props.$size || '24px'};
   font-family: NunitoBold, system-ui;
   font-weight: bold;
   background: linear-gradient(0.75turn, #69fabd, #00aee9);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(1px 1px 2px #0000000f);

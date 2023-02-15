@@ -72,7 +72,6 @@ export const OpenWidgetsPage = observer(() => {
   return (
     <PageWidgetContainer>
       <div style={{ height: '2em' }} />
-
       <GradientText>{domainStore.domainName}.country</GradientText>
 
       <div style={{ height: '1em' }} />
@@ -108,7 +107,8 @@ export const OpenWidgetsPage = observer(() => {
           <TwitterWidget
             value={widget.value}
             key={widget.id}
-            widgetKey={widget.id}
+            type={1}
+            // widgetKey={widget.id}
             deleteWidget={() => deleteWidget(widget.id)}
           />
         ))}
