@@ -11,25 +11,25 @@ const Stats = observer(() => {
         <FlexColumn style={{ width: '100%', alignItems: 'center' }}>
           <h2>{`Domain Stats`}</h2>
           <div id="main_block">
-            <iframe id="left_frame"
-              src="https://www.footprint.network/public/chart/Sales-Number-fp-79e271df-20cd-4b1a-a9a1-5cc5bd0a7197"    
-              frameborder="0"    
-              width="800"    
-              height="600"    
-              allowtransparency>
-            </iframe>
-          
+          <iframe
+            src="https://www.footprint.network/public/dashboard/Domain-Sales-fp-989a5037-a18e-4851-b68c-e38fcb006a74"
+            frameborder="0"
+            width="800"
+            height="600"
+            allowtransparency>
+          </iframe>
+        
           <br></br>
           <br></br>
           <br></br>
           
-            <iframe id="right_frame"
-              src="https://www.footprint.network/public/chart/Sales-Line-Chart-fp-b00f9184-c350-4ca1-b790-b1cd49410463"
-              frameborder="0"
-              width="800"
-              height="600"
-              allowtransparency>
-            </iframe>
+          <iframe
+            src="https://www.footprint.network/public/dashboard/Domain-Sales-fp-989a5037-a18e-4851-b68c-e38fcb006a74"
+            frameborder="0"
+            width="800"
+            height="600"
+            allowtransparency>
+          </iframe>
             <br></br>
             <br></br>
           </div>
