@@ -240,6 +240,7 @@ const Home = observer(() => {
       <GradientText>{name}.country</GradientText>
       {record && record?.renter && (
         <PageWidgets
+          name={name}
           isOwner={isOwner}
           style={{ marginTop: '6em' }}
           showAddButton={isOwner}

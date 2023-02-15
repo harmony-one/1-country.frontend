@@ -17,11 +17,12 @@ const defaultFormFields = {
 }
 
 type PageWidgetsProps = {
+  name?: string,
   isOwner: boolean
   showAddButton: boolean
 }
 
-const PageWidgets = observer(({ isOwner, showAddButton }: PageWidgetsProps) => {
+const PageWidgets = observer(({ name, isOwner, showAddButton }: PageWidgetsProps) => {
   const [widgetList, setWidgetList] = useState([])
   const [isValid, setIsValid] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
@@ -33,11 +34,11 @@ const PageWidgets = observer(({ isOwner, showAddButton }: PageWidgetsProps) => {
   const [domainRecord, setDomainRecord] = useState<DomainRecord | null>()
 
   useEffect(() => {
-    openWidgetsPageStore.loadDomainTx(domainName)
+    openWidgetsPageStore.loadDomainTx(domainName || name)
   }, [])
 
   useEffect(() => {
-    rootStore.d1dcClient.getRecord({ name: domainName }).then((record) => {
+    rootStore.d1dcClient.getRecord({ name: domainName || name }).then((record) => {
       setDomainRecord(record)
     })
   }, [])
@@ -98,7 +99,7 @@ const PageWidgets = observer(({ isOwner, showAddButton }: PageWidgetsProps) => {
     const newWidgetList = widgetList.filter((w) => w.value !== value)
     setWidgetList(newWidgetList)
   }
-
+  console.log('DOMAIN RECORD', domainRecord)
   return (
     <PageWidgetContainer>
       {showAddButton && (
@@ -120,7 +121,7 @@ const PageWidgets = observer(({ isOwner, showAddButton }: PageWidgetsProps) => {
       )}
       {domainRecord && (
         <TransactionWidget
-          name={domainName}
+          name={domainName || name}
           loading={openWidgetsPageStore.txDomainLoading}
           domainRecord={domainRecord}
           txHash={openWidgetsPageStore.txDomain}
