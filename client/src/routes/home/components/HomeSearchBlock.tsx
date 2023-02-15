@@ -14,6 +14,7 @@ import { Button, LinkWrarpper } from '../../../components/Controls'
 import { BaseText } from '../../../components/Text'
 import { FlexRow, FlexColumn } from '../../../components/Layout'
 import { DomainPrice, DomainRecord } from '../../../api'
+import TermsCheckbox from '../../../components/term-checkbox/TermCheckbox'
 
 const SearchBoxContainer = styled.div`
   width: 80%;
@@ -69,6 +70,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
   const [price, setPrice] = useState<DomainPrice | undefined>()
   const [record, setRecord] = useState<DomainRecord | undefined>()
   const [isValid, setIsValid] = useState(true)
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false)
   const [recordName, setRecordName] = useState('')
   const toastId = useRef(null)
 
@@ -184,7 +186,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
   }
 
   const isAvailable = record ? !record.renter : true
-
+  console.log(isTermsAccepted, isValid, isAvailable)
   return (
     <SearchBoxContainer>
       <FlexColumn
@@ -227,8 +229,9 @@ export const HomeSearchBlock: React.FC = observer(() => {
             rateONE={ratesStore.ONE_USD}
             available={!record.renter}
           />
+          <TermsCheckbox checked={isTermsAccepted} onChange={setIsTermsAccepted}/>
           <Button
-            disabled={!isValid || !isAvailable}
+            disabled={!isTermsAccepted || !isValid || !isAvailable}
             style={{ marginTop: '1em' }}
             onClick={handleRentDomain}
           >

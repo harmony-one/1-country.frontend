@@ -1,30 +1,38 @@
-import React from 'react';
+import React from 'react'
 
 export enum ModalIds {
-  PROFILE_EDIT_SOCIAL = 'PROFILE_EDIT_SOCIAL',
-  PROFILE_EDIT_BIO = 'PROFILE_EDIT_BIO',
+  PROFILE_EDIT = 'PROFILE_EDIT',
+  PROFILE_ADD_SOCIAL = 'PROFILE_ADD_SOCIAL',
+  PROFILE_ADD_WIDGET = 'PROFILE_ADD_WIDGET',
+  PROFILE_ADD_WIDGET_TEXT = 'PROFILE_ADD_WIDGET_TEXT',
+  PROFILE_ADD_WIDGET_TWITTER = 'PROFILE_ADD_WIDGET_TWITTER',
 }
 
 export interface LayerProps {
-  full?: boolean | 'vertical' | 'horizontal';
-  position?: 'center' | 'top';
+  full?: boolean | 'vertical' | 'horizontal'
+  position?: 'center' | 'top' | 'right' | 'left' | 'bottom'
 }
 
 export type InferModalProps<T> = T extends { [key: string]: infer U }
   ? U
-  : never;
+  : never
 
 export type ModalMap = {
-  [ModalIds.PROFILE_EDIT_BIO]: {
-    params: { data: string };
-    layerProps?: LayerProps;
-    component: React.ReactNode;
-  };
-  [ModalIds.PROFILE_EDIT_SOCIAL]: {
-    params: { data: string };
-    layerProps?: LayerProps;
-    component: React.ReactNode;
-  };
-};
+  [ModalIds.PROFILE_ADD_WIDGET]: {
+    params: { data: string }
+    layerProps?: LayerProps
+    component: React.ReactNode
+  }
+  [ModalIds.PROFILE_ADD_WIDGET_TEXT]: {
+    params: { data: string }
+    layerProps?: LayerProps
+    component: React.ReactNode
+  }
+  [ModalIds.PROFILE_EDIT]: {
+    params: { data: string }
+    layerProps?: LayerProps
+    component: React.ReactNode
+  }
+}
 
-export type Modals = InferModalProps<ModalMap>;
+export type Modals = InferModalProps<ModalMap>

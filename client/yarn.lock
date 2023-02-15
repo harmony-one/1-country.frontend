@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@amplication/react-compound-timer@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@amplication/react-compound-timer/-/react-compound-timer-2.1.0.tgz#67817df6ba0bb3ee22a00e11e460d154b657a5eb"
+  integrity sha512-Wgbe0YFYTolq1PqIYxaRNqZL6LkpS7Ih6SmJbSb21cCOaVyFFGQHKeYXnITtaAhcOfukpkscwJtsK+fTlbjrLA==
+
 "@ampproject/remapping@^2.1.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz#56c133824780de3174aed5ab6834f3026790154d"
