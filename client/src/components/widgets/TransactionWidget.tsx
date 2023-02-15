@@ -37,7 +37,7 @@ export const TransactionWidget: React.FC<Props> = ({
       <Box gap="4px" align="center">
         <BaseText>{name}.country</BaseText>
         <BaseText>
-          Rented at: {dateFormat.format(domainRecord.timeUpdated)}{' '}
+          Rented on: {dateFormat.format(domainRecord.timeUpdated)}{' '}
         </BaseText>
         {loading && <Spinner color="#00AEEA" />}
         {!loading && txHash && <HarmonyLink type="tx" hash={txHash} />}
