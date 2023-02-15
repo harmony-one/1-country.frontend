@@ -171,7 +171,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
           autoClose: 2000,
         })
 
-        window.location.href = `https://${recordName}${config.tld}`
+        window.location.href = `${config.hostname}/new/${recordName}`
       },
       onFailed: () => {
         setLoading(false)
