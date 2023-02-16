@@ -4,10 +4,10 @@ export const nameUtils = {
   RESTRICTED_VALID_NAME: /[a-z0-9]+/,
   VALID_NAME: /[a-z0-9-]+/,
   SPECIAL_NAMES: ['s', '0', '1', 'li', 'ml', 'ba'],
-  isValidName: (name) => {
+  isValidName: (name: string) => {
     return nameUtils.VALID_NAME.test(name)
   },
-  isReservedName: (name) => {
+  isReservedName: (name: string) => {
     name = name.toLowerCase()
     return (
       name.length <= 2 &&
