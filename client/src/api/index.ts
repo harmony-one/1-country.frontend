@@ -93,9 +93,7 @@ export const getEmojiPrice = (emojiType: EMOJI_TYPE) => {
 }
 
 const base = axios.create({
-  baseURL:
-    process.env.REGISTRAR_RELAYER ||
-    'https://1ns-registrar-relayer.hiddenstate.xyz',
+  baseURL: process.env.REGISTRAR_RELAYER,
 })
 
 export const relayApi = () => {
