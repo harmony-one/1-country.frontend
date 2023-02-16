@@ -18,6 +18,7 @@ import { WagmiConfigProvider } from './modules/wagmi/WagmiConfigProvider'
 import { BrowserRouter } from 'react-router-dom'
 import { ModalProvider } from './modules/modals/ModalProvider'
 
+console.log('### git commit hash', process.env.GIT_COMMIT_HASH)
 document.body.ontouchstart = function () {}
 
 ReactDOM.render(

@@ -395,11 +395,8 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
       const nameBytes = web3.utils.keccak256(name)
       const result = await contract.methods.nameRecords(nameBytes).call()
-      console.log('RESULT', result)
-
       const [renter, rentTime, expirationTime, lastPrice, url, prev, next] =
         Object.keys(result).map((k) => result[k])
-
       return {
         renter: renter === Constants.EmptyAddress ? null : renter,
         rentTime: new BN(rentTime).toNumber() * 1000,
@@ -412,6 +409,10 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         prev,
         next,
       }
+    },
+    checkAvailable: async ({ name }: { name: string }) => {
+      const isAvailable = await contract.methods.available(name).call()
+      return isAvailable?.toString()?.toLowerCase() === 'true'
     },
     getEmojisCounter: async ({ name }: { name: string }) => {
       const byte32Name = web3.utils.soliditySha3(getFullName(name))
