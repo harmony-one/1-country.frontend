@@ -5,7 +5,7 @@ const config = {
   backendHost: process.env.BACKEND_HOST || 'http://localhost:8080',
   contract:
     process.env.CONTRACT || '0x3cC3C5F98AC3FF544279919DfceBfb7aFe03A2cA', // (debug ? '0x9BC52FBcCcde8cEADAEde51a25dBeD489b201e53' : '0x476e14D956dca898C33262aecC81407242f8431A'),
-  contractVanityURL:
+    contractVanityURL:
     process.env.CONTRACT_VANITY_URL ||
     '0x88a1afC4134f385337Dd5F530D452079fC9E14CC', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
   explorer:
@@ -56,6 +56,9 @@ const config = {
   payments: {
     apiUrl: process.env.PAYMENTS_API_URL || 'http://localhost:3001',
   },
+  embedly: {
+    apiUrl: process.env.EMBEDLY_API_URL || 'http://localhost:3001',
+    key: process.env.EMBEDLY_API_KEY || 'APIKEY'
+  }
 }
-
 export default config

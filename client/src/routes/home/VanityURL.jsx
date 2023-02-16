@@ -41,12 +41,12 @@ export const VanityURL = ({
     if (!isOwner || !isConnected) {
       return
     }
-
+    
     const call = async () => {
       if (!keys) {
         return
       }
-
+     
       const key = keys[0]
       const value = keys[1]
       const currentAlias = await api.checkURLValidity(name, key)

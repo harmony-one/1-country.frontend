@@ -11,6 +11,7 @@ import { TransactionWidget } from '../widgets/TransactionWidget'
 import { useStores } from '../../stores'
 import { DomainRecord } from '../../api'
 import { observer } from 'mobx-react-lite'
+import MediaWidget from '../widgets/MediaWidget'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -47,6 +48,7 @@ const PageWidgets = observer(({ name, isOwner, showAddButton }: PageWidgetsProps
     setPlaceHolder('twitter handle or tweet link')
   }, [])
 
+  
   const enterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       setAddingWidget(true)
@@ -65,19 +67,27 @@ const PageWidgets = observer(({ name, isOwner, showAddButton }: PageWidgetsProps
       }
       if (value.length > 0) {
         if (!widgetList.find((e) => e.value === value)) {
-          const result = checkTweet(value)
-          setIsValid(result.error ? false : true)
-          if (result.value) {
-            setWidgetList([
-              {
-                type: result.type,
-                value: value,
-              },
-              ...widgetList,
-            ])
-          } else {
-            setErrorMessage(result.error)
-          }
+          setWidgetList([
+            {
+              type: 1,
+              value: value,
+            },
+            ...widgetList,
+          ])
+
+          // const result = checkTweet(value)
+          // setIsValid(result.error ? false : true)
+          // if (result.value) {
+          //   setWidgetList([
+          //     {
+          //       type: result.type,
+          //       value: value,
+          //     },
+          //     ...widgetList,
+          //   ])
+          // } else {
+          //   setErrorMessage(result.error)
+          // }
         }
         setAddingWidget(false)
         setFormFields({ ...formFields, widgetValue: '' })
@@ -89,7 +99,7 @@ const PageWidgets = observer(({ name, isOwner, showAddButton }: PageWidgetsProps
       }
     }
   }
-  console.log(errorMessage)
+
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
     setFormFields({ ...formFields, [name]: value })
@@ -99,7 +109,7 @@ const PageWidgets = observer(({ name, isOwner, showAddButton }: PageWidgetsProps
     const newWidgetList = widgetList.filter((w) => w.value !== value)
     setWidgetList(newWidgetList)
   }
-  console.log('DOMAIN RECORD', domainRecord)
+  // console.log('DOMAIN RECORD', domainRecord)
   return (
     <PageWidgetContainer>
       {showAddButton && (
@@ -128,7 +138,7 @@ const PageWidgets = observer(({ name, isOwner, showAddButton }: PageWidgetsProps
         />
       )}
       {widgetList.map((widget, index) => (
-        <TwitterWidget
+        <MediaWidget
           type={1}
           value={widget.value}
           key={widget.value}
