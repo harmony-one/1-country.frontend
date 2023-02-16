@@ -64,6 +64,10 @@ const { tweetId } = parseTweetId(
   'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'
 )
 
+const sleep = (ms: number) => {
+  return new Promise((resolve) => setTimeout(() => resolve(1), ms))
+}
+
 const isValidDomainName = (domainName: string) => {
   return regx.test(domainName)
 }
@@ -153,7 +157,6 @@ export const HomeSearchBlock: React.FC = observer(() => {
     if (success) {
       toast.success('Web2 domain acquired')
       setWeb2Acquired(true)
-      window.location.href = `${config.hostname}/new/${recordName}`
     } else {
       console.log(`failure reason: ${responseText}`)
       toast.error(`Unable to acquire web2 domain. Reason: ${responseText}`)
@@ -163,6 +166,13 @@ export const HomeSearchBlock: React.FC = observer(() => {
   const handleRentDomain = async () => {
     if (!record || !isValid) {
       return false
+    }
+
+    if (
+      domainName.length <= 2 &&
+      nameUtils.SPECIAL_NAMES.includes(domainName.toLowerCase())
+    ) {
+      return toast.error('This domain name is reserved for special purpose')
     }
 
     toastId.current = toast.loading('Processing transaction')
@@ -211,7 +221,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
     })
 
     console.log('waiting for 5 seconds...')
-    await new Promise((resolve) => setTimeout(() => resolve(1), 5000))
+    await sleep(5000)
 
     const tx = await client.rent({
       name: recordName,
@@ -251,18 +261,13 @@ export const HomeSearchBlock: React.FC = observer(() => {
 
     const txHash = tx.transactionHash
     setRegTxHash(txHash)
-    try {
-      await claimWeb2Domain(txHash)
-    } catch (ex) {
-      console.error(ex)
-      toast.error(
-        'Failed to setup web2 domain. Please contact us on GitHub and create an issue.'
-      )
-    }
+    claimWeb2Domain(txHash)
+
+    await sleep(1500)
+    window.location.href = `${config.hostname}/new/${recordName}`
   }
 
   const isAvailable = record ? !record.renter : true
-  console.log(isValid, isAvailable)
   return (
     <SearchBoxContainer>
       <FlexColumn
@@ -317,11 +322,11 @@ export const HomeSearchBlock: React.FC = observer(() => {
           >
             Register
           </Button>
-          {!loading && regTxHash && !web2Acquired && (
-            <Button onClick={claimWeb2DomainWrapper} disabled={loading}>
-              TRY AGAIN
-            </Button>
-          )}
+          {/*{!loading && regTxHash && !web2Acquired && (*/}
+          {/*  <Button onClick={claimWeb2DomainWrapper} disabled={loading}>*/}
+          {/*    TRY AGAIN*/}
+          {/*  </Button>*/}
+          {/*)}*/}
         </>
       )}
     </SearchBoxContainer>
