@@ -3,7 +3,7 @@ const createKeccakHash = require('keccak')
 export const nameUtils = {
   RESTRICTED_VALID_NAME: /[a-z0-9]+/,
   VALID_NAME: /[a-z0-9-]+/,
-  SPECIAL_NAMES: ['s', '0', '1', 'li', 'ml', 'ba'],
+  SPECIAL_NAMES: ['s', '0', '1', 'li', 'ml', 'ba', 'names'],
   isValidName: (name: string) => {
     return nameUtils.VALID_NAME.test(name)
   },
