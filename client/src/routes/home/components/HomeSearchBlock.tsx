@@ -13,8 +13,10 @@ import config from '../../../../config'
 import { Button, LinkWrarpper } from '../../../components/Controls'
 import { BaseText } from '../../../components/Text'
 import { FlexRow, FlexColumn } from '../../../components/Layout'
-import { DomainPrice, DomainRecord } from '../../../api'
+import { DomainPrice, DomainRecord, relayApi } from '../../../api'
 import TermsCheckbox from '../../../components/term-checkbox/TermCheckbox'
+import { nameUtils } from '../../../api/utils'
+import { parseTweetId } from '../../../utils/parseTweetId'
 
 const SearchBoxContainer = styled.div`
   width: 80%;
@@ -58,6 +60,9 @@ export const StyledInput = styled.input`
 `
 
 const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
+const { tweetId } = parseTweetId(
+  'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'
+)
 
 const isValidDomainName = (domainName: string) => {
   return regx.test(domainName)
@@ -65,14 +70,18 @@ const isValidDomainName = (domainName: string) => {
 
 export const HomeSearchBlock: React.FC = observer(() => {
   const [searchParams] = useSearchParams()
-  const [search, setSearch] = useState(searchParams.get('domain') || '')
+  const [domainName, setDomainName] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
   const [price, setPrice] = useState<DomainPrice | undefined>()
+
   const [record, setRecord] = useState<DomainRecord | undefined>()
   const [isValid, setIsValid] = useState(true)
   const [isTermsAccepted, setIsTermsAccepted] = useState(false)
   const [recordName, setRecordName] = useState('')
   const toastId = useRef(null)
+  const [secret] = useState<string>(Math.random().toString(26).slice(2))
+  const [regTxHash, setRegTxHash] = useState<string>('')
+  const [web2Acquired, setWeb2Acquired] = useState(false)
 
   const { rootStore, ratesStore, walletStore } = useStores()
 
@@ -89,26 +98,26 @@ export const HomeSearchBlock: React.FC = observer(() => {
 
   // setup form from query string
   useEffect(() => {
-    if (search) {
-      updateSearch(search)
+    if (domainName) {
+      updateSearch(domainName)
     }
   }, [])
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(event.target.value)
+    setDomainName(event.target.value)
     updateSearch(event.target.value)
   }
 
   const loadDomainRecord = useMemo(() => {
-    return debounce((search) => {
-      if (!client || !search) {
+    return debounce((_domainName) => {
+      if (!client || !_domainName) {
         return
       }
 
       setLoading(true)
 
       client
-        .getRecord({ name: search })
+        .getRecord({ name: _domainName })
         .then((r) => {
           setRecord(r)
           setLoading(false)
@@ -116,22 +125,58 @@ export const HomeSearchBlock: React.FC = observer(() => {
         .catch((ex) => {
           console.log('### ex', ex)
         })
-      client.getPrice({ name: search }).then((p) => {
+      client.getPrice({ name: _domainName }).then((p) => {
         setPrice(p)
       })
 
-      setRecordName(search)
+      setRecordName(_domainName)
     }, 500)
   }, [client])
+
+  const claimWeb2DomainWrapper = async () => {
+    setLoading(true)
+    try {
+      await claimWeb2Domain(regTxHash)
+    } catch (ex) {
+      console.error(ex)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const claimWeb2Domain = async (txHash: string) => {
+    const { success, responseText } = await relayApi().purchaseDomain({
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      txHash,
+      address: walletStore.walletAddress,
+    })
+    if (success) {
+      toast.success('Web2 domain acquired')
+      setWeb2Acquired(true)
+      window.location.href = `${config.hostname}/new/${recordName}`
+    } else {
+      console.log(`failure reason: ${responseText}`)
+      toast.error(`Unable to acquire web2 domain. Reason: ${responseText}`)
+    }
+  }
 
   const handleRentDomain = async () => {
     if (!record || !isValid) {
       return false
     }
 
-    setLoading(true)
-
     toastId.current = toast.loading('Processing transaction')
+
+    if (!domainName) {
+      return toast.error('Invalid domain')
+    }
+    if (!nameUtils.isValidName(domainName)) {
+      return toast.error(
+        'Domain must be alphanumerical characters or hyphen (-)'
+      )
+    }
+
+    setLoading(true)
 
     try {
       if (!walletStore.isConnected) {
@@ -142,14 +187,36 @@ export const HomeSearchBlock: React.FC = observer(() => {
       return
     }
 
-    console.log('### recordName', recordName)
+    await client.commit({
+      name: domainName.toLowerCase(),
+      secret,
+      onFailed: () => toast.error('Failed to commit purchase'),
+      onSuccess: (tx) => {
+        console.log(tx)
+        const { transactionHash } = tx
+        toast.success(
+          <FlexRow>
+            <BaseText style={{ marginRight: 8 }}>
+              Reserved domain for purchase
+            </BaseText>
+            <LinkWrarpper
+              target="_blank"
+              href={client.getExplorerUri(transactionHash)}
+            >
+              <BaseText>View transaction</BaseText>
+            </LinkWrarpper>
+          </FlexRow>
+        )
+      },
+    })
 
-    client.rent({
+    console.log('waiting for 5 seconds...')
+    await new Promise((resolve) => setTimeout(() => resolve(1), 5000))
+
+    const tx = await client.rent({
       name: recordName,
-      url: '',
-      telegram: '',
-      phone: '',
-      email: '',
+      secret,
+      url: tweetId.toString(),
       amount: new BN(price.amount).toString(),
       onSuccess: (tx) => {
         setLoading(false)
@@ -170,8 +237,6 @@ export const HomeSearchBlock: React.FC = observer(() => {
           isLoading: false,
           autoClose: 2000,
         })
-
-        window.location.href = `${config.hostname}/new/${recordName}`
       },
       onFailed: () => {
         setLoading(false)
@@ -183,6 +248,17 @@ export const HomeSearchBlock: React.FC = observer(() => {
         })
       },
     })
+
+    const txHash = tx.transactionHash
+    setRegTxHash(txHash)
+    try {
+      await claimWeb2Domain(txHash)
+    } catch (ex) {
+      console.error(ex)
+      toast.error(
+        'Failed to setup web2 domain. Please contact us on GitHub and create an issue.'
+      )
+    }
   }
 
   const isAvailable = record ? !record.renter : true
@@ -208,7 +284,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
         <InputContainer valid={isValid && isAvailable} style={{ flexGrow: 0 }}>
           <StyledInput
             placeholder="Register your .country domain"
-            value={search}
+            value={domainName}
             onChange={handleSearchChange}
             autoFocus
           />
@@ -227,9 +303,13 @@ export const HomeSearchBlock: React.FC = observer(() => {
           <HomeSearchResultItem
             name={recordName}
             rateONE={ratesStore.ONE_USD}
+            price={price.formatted}
             available={!record.renter}
           />
-          {/* <TermsCheckbox checked={isTermsAccepted} onChange={setIsTermsAccepted}/> */}
+          {/* <TermsCheckbox
+            checked={isTermsAccepted}
+            onChange={setIsTermsAccepted}
+          /> */}
           <Button
             disabled={!isValid || !isAvailable}
             style={{ marginTop: '1em' }}
@@ -237,6 +317,11 @@ export const HomeSearchBlock: React.FC = observer(() => {
           >
             Register
           </Button>
+          {!loading && regTxHash && !web2Acquired && (
+            <Button onClick={claimWeb2DomainWrapper} disabled={loading}>
+              TRY AGAIN
+            </Button>
+          )}
         </>
       )}
     </SearchBoxContainer>

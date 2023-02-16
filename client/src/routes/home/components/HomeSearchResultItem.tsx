@@ -4,7 +4,6 @@ import { Box } from 'grommet/components/Box'
 import { BaseText } from '../../../components/Text'
 import {
   calcDomainUSDPrice,
-  calDomainOnePrice,
   formatONEAmount,
   formatUSDAmount,
 } from '../../../utils/domain'
@@ -21,16 +20,18 @@ export const DomainName = styled(BaseText)`
 interface Props {
   name: string
   available?: boolean
+  price: string
   rateONE: number
 }
 
 export const HomeSearchResultItem: React.FC<Props> = ({
   name,
   available = false,
+  price,
   rateONE,
 }) => {
-  const priceUsd = calcDomainUSDPrice(name)
-  const priceOne = calDomainOnePrice(name, rateONE)
+  const priceUsd = calcDomainUSDPrice(Number(price), rateONE)
+  const priceOne = price
 
   return (
     <Container>

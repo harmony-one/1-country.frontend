@@ -13,8 +13,7 @@ export class DomainStore extends BaseStore {
       formatted: '0',
     },
     lastRented: '',
-    rentalPeriod: 0,
-    priceMultiplier: 0,
+    duration: 0,
   }
   public domainRecord: DomainRecord | null = null
 
@@ -55,10 +54,7 @@ export class DomainStore extends BaseStore {
       return false
     }
 
-    return (
-      this.domainRecord.timeUpdated + this.d1cParams.rentalPeriod - Date.now() <
-      0
-    )
+    return this.domainRecord.expirationTime - Date.now() < 0
   }
 
   async loadDomainRecord() {

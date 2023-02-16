@@ -1,28 +1,5 @@
-export const calcDomainUSDPrice = (domainName: string) => {
-  const len = domainName.length
-
-  if (len <= 3) {
-    return 100
-  }
-
-  if (len <= 6) {
-    return 10
-  }
-
-  if (len <= 9) {
-    return 1
-  }
-
-  return 0.01
-}
-
-export const calDomainOnePrice = (
-  domainName: string,
-  oneUsdRate = 0.02588853
-) => {
-  const priceUsd = calcDomainUSDPrice(domainName)
-
-  return priceUsd / oneUsdRate
+export const calcDomainUSDPrice = (price: number, oneRate: number) => {
+  return price * oneRate
 }
 
 export const formatONEAmount = (num: number | string) => {
