@@ -9,15 +9,11 @@ export const getDomainName = () => {
     ignoreQueryPrefix: true,
   })
 
-  // console.log('getSubDomain()', window.location.host)
   const host = (_domain as string) || window.location.host
   const parts = host.split('.')
-  if (parts.length <= 2) {
+  if (parts.length < 2) {
     return ''
   }
-  if (parts.length <= 4) {
-    // 3 CHANGE FOR PRODUCTION
-    return parts[0]
-  }
-  return parts.slice(0, parts.length - 2).join('.')
+
+  return parts[0]
 }
