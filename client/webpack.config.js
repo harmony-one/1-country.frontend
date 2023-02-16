@@ -8,6 +8,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const CopyPlugin = require('copy-webpack-plugin')
 
+const commitHash = require('child_process')
+  .execSync('git rev-parse --short HEAD')
+  .toString()
+  .trim()
+
 console.log(!process.env.HTTP)
 
 const isProduction = process.argv.indexOf('--mode=production') > -1
@@ -168,7 +173,9 @@ module.exports = {
       allowEmptyValues: true,
       systemvars: true,
     }),
-
+    new webpack.EnvironmentPlugin({
+      GIT_COMMIT_HASH: commitHash,
+    }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
     }),

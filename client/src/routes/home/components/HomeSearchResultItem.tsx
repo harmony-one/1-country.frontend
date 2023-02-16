@@ -41,7 +41,7 @@ export const HomeSearchResultItem: React.FC<Props> = ({
           <DomainName>{name}.country</DomainName>
           <BaseText>
             {formatONEAmount(priceOne)} ONE = ${formatUSDAmount(priceUsd)} USD
-            for 6 months (
+            for 3 months (
             <a
               style={{ color: '#758796' }}
               href="https://harmonyone.notion.site/harmonyone/Terms-Conditions-6096dbaf43f6402fb4719efaace47a5e"
