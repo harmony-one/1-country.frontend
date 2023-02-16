@@ -186,7 +186,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
   }
 
   const isAvailable = record ? !record.renter : true
-  console.log(isTermsAccepted, isValid, isAvailable)
+  console.log(isValid, isAvailable)
   return (
     <SearchBoxContainer>
       <FlexColumn
@@ -229,9 +229,9 @@ export const HomeSearchBlock: React.FC = observer(() => {
             rateONE={ratesStore.ONE_USD}
             available={!record.renter}
           />
-          <TermsCheckbox checked={isTermsAccepted} onChange={setIsTermsAccepted}/>
+          {/* <TermsCheckbox checked={isTermsAccepted} onChange={setIsTermsAccepted}/> */}
           <Button
-            disabled={!isTermsAccepted || !isValid || !isAvailable}
+            disabled={!isValid || !isAvailable}
             style={{ marginTop: '1em' }}
             onClick={handleRentDomain}
           >

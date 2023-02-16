@@ -43,7 +43,7 @@ export const HomeSearchResultItem: React.FC<Props> = ({
             for 6 months (
             <a
               style={{ color: '#758796' }}
-              href="https://harmony.one/1country-terms"
+              href="https://harmonyone.notion.site/harmonyone/Terms-Conditions-6096dbaf43f6402fb4719efaace47a5e"
               target="_blank"
               rel="noreferrer"
             >
