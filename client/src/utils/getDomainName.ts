@@ -16,7 +16,7 @@ export const getDomainName = () => {
   }
 
   // reserved domains for landing pages
-  if (['names', '0'].includes(parts[0])) {
+  if (['names', '0', '1'].includes(parts[0])) {
     return ''
   }
 
