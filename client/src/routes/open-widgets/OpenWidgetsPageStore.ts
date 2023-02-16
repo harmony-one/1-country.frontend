@@ -110,7 +110,7 @@ class OpenWidgetsPageStore extends BaseStore {
     try {
       const record = await this.rootStore.d1dcClient.getRecord({ name })
 
-      const block = await this.findBlock(record.timeUpdated / 1000)
+      const block = await this.findBlock(record.rentTime / 1000)
 
       const eventList = await this.rootStore.d1dcClient.contract.getPastEvents(
         'NameRented',
