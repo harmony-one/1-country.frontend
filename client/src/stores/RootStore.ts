@@ -1,4 +1,4 @@
-import { action, makeObservable } from 'mobx'
+import { action, makeObservable, observable } from 'mobx'
 import { modalStore } from '../modules/modals/ModalContext'
 import { ModalStore } from '../modules/modals/ModalStore'
 import { RatesStore } from './RatesStore'
@@ -20,6 +20,7 @@ export class RootStore {
     makeObservable(
       this,
       {
+        d1dcClient: observable,
         updateD1DCClient: action,
       },
       { autoBind: true }

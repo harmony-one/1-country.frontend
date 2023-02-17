@@ -6,4 +6,8 @@ export class BaseStore {
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore
   }
+
+  getDCClient() {
+    return this.rootStore.d1dcClient
+  }
 }
