@@ -32,7 +32,6 @@ export const TransactionWidget: React.FC<Props> = ({
   txHash,
   domainRecord,
 }) => {
-  console.log('TIME', domainRecord.rentTime)
   return (
     <Container>
       <Box gap="4px" align="center">
