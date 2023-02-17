@@ -11,11 +11,11 @@ export interface Widget {
 }
 
 const parseRawUrl = (url: string): Widget => {
-  const [type, value] = url.split(':')
+  const [type, ...rest] = url.split(':')
 
   return {
     type,
-    value,
+    value: rest.join(':'),
   }
 }
 
@@ -178,4 +178,4 @@ class WidgetListStore extends BaseStore {
   }
 }
 
-export const openWidgetsPageStore = new WidgetListStore(rootStore)
+export const widgetListStore = new WidgetListStore(rootStore)
