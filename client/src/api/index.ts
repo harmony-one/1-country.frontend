@@ -44,36 +44,46 @@ export enum OWNER_INFO_FIELDS {
   PHONE = 'phone',
 }
 
-interface Transaction {
+export interface Transaction {
   transactionHash: string
 }
 
-interface CallProps {
-  amount?: string
+export interface CallbackProps {
   onFailed?: (error: Error, flag?: boolean) => void
   onSubmitted?: () => void
   onSuccess?: (tx: Transaction) => void
+}
+
+export interface CallProps extends CallbackProps {
+  amount?: string
   methodName: string
   parameters: unknown[]
 }
 
-interface RentProps
-  extends Pick<CallProps, 'amount' | 'onFailed' | 'onSubmitted' | 'onSuccess'> {
+interface RentProps extends CallbackProps {
   name: string
   url: string
   secret: string
 }
 
-interface UpdateUrlProps
-  extends Pick<CallProps, 'onFailed' | 'onSubmitted' | 'onSuccess'> {
+interface UpdateUrlProps extends CallbackProps {
   name: string
   url: string
 }
 
-interface CommitProps
-  extends Pick<CallProps, 'onFailed' | 'onSubmitted' | 'onSuccess'> {
+interface CommitProps extends CallbackProps {
   name: string
   secret: string
+}
+
+interface AddUrlProps extends CallbackProps {
+  name: string
+  url: string
+}
+
+interface RemoveUrlProps extends CallbackProps {
+  name: string
+  pos: number
 }
 
 export const getFullName = (name: string) => {
@@ -410,6 +420,42 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         next,
       }
     },
+
+    addRecordUrl: ({
+      name,
+      url,
+      onFailed,
+      onSubmitted,
+      onSuccess,
+    }: AddUrlProps) => {
+      return call({
+        parameters: [name, url],
+        methodName: 'addURL',
+        onFailed,
+        onSubmitted,
+        onSuccess,
+      })
+    },
+
+    removeRecordUrl: ({
+      name,
+      pos,
+      onFailed,
+      onSubmitted,
+      onSuccess,
+    }: RemoveUrlProps) => {
+      return call({
+        parameters: [name, pos],
+        methodName: 'removeUrl',
+        onFailed,
+        onSubmitted,
+        onSuccess,
+      })
+    },
+    getRecordUrlList: async ({ name }: { name: string }) => {
+      return contract.methods.getAllUrls(name).call()
+    },
+
     checkAvailable: async ({ name }: { name: string }) => {
       const isAvailable = await contract.methods.available(name).call()
       return isAvailable?.toString()?.toLowerCase() === 'true'
