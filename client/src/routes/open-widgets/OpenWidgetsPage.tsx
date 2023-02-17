@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useStores } from '../../stores'
+import React, { useEffect, useRef, useState } from 'react'
+import { rootStore, useStores } from '../../stores'
 import {
   PageWidgetContainer,
   WidgetInputContainer,
@@ -8,8 +8,12 @@ import {
 import TwitterWidget from '../../components/widgets/TwitterWidget'
 import { observer } from 'mobx-react-lite'
 import { openWidgetsPageStore, Widget } from './OpenWidgetsPageStore'
-import { GradientText } from '../../components/Text'
+import { BaseText, GradientText } from '../../components/Text'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
+import { Transaction } from '../../api'
+import { toast } from 'react-toastify'
+import { FlexRow } from '../../components/Layout'
+import { LinkWrarpper } from '../../components/Controls'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -17,6 +21,10 @@ const defaultFormFields = {
 
 export const OpenWidgetsPage = observer(() => {
   const { domainStore } = useStores()
+
+  const domainName = domainStore.domainName
+
+  const toastId = useRef(null)
 
   useEffect(() => {
     domainStore.loadDomainRecord()
@@ -40,22 +48,56 @@ export const OpenWidgetsPage = observer(() => {
     setPlaceHolder('twitter handle or tweet link')
   }, [])
 
+  const onSuccess = (tx: Transaction) => {
+    const { transactionHash } = tx
+    toast.update(toastId.current, {
+      render: (
+        <FlexRow>
+          <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
+          <LinkWrarpper
+            target="_blank"
+            href={rootStore.d1dcClient.getExplorerUri(transactionHash)}
+          >
+            <BaseText>View transaction</BaseText>
+          </LinkWrarpper>
+        </FlexRow>
+      ),
+      type: 'success',
+      isLoading: false,
+      autoClose: 2000,
+    })
+  }
+  const onFailed = () => {
+    toast.update(toastId.current, {
+      render: 'Failed',
+      type: 'error',
+      isLoading: false,
+      autoClose: 2000,
+    })
+  }
+
   const enterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault()
-      setAddingWidget(true)
-      const value = event.currentTarget.value
+    if (event.key !== 'Enter') {
+      return
+    }
 
-      const widget = {
-        type: 'twitter',
-        value,
-      }
+    event.preventDefault()
+    setAddingWidget(true)
+    const value = event.currentTarget.value
 
-      openWidgetsPageStore.createWidget(widget).then(() => {
+    const widget: Widget = {
+      type: 'twitter',
+      value,
+    }
+
+    toastId.current = toast.loading('Processing transaction')
+
+    openWidgetsPageStore
+      .createWidget({ widget, domainName, onSuccess, onFailed })
+      .then(() => {
         setAddingWidget(false)
         setFormFields({ ...formFields, widgetValue: '' })
       })
-    }
   }
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,8 +105,16 @@ export const OpenWidgetsPage = observer(() => {
     setFormFields({ ...formFields, [name]: value })
   }
 
-  const deleteWidget = (widgetId: string) => {
-    openWidgetsPageStore.deleteWidget(widgetId)
+  const deleteWidget = (widgetId: number) => {
+    console.log('### domainName', domainName)
+    console.log('### widgetId', widgetId)
+    toastId.current = toast.loading('Processing transaction')
+    openWidgetsPageStore.deleteWidget({
+      domainName,
+      widgetId,
+      onSuccess,
+      onFailed,
+    })
   }
 
   const showAddButton = true
@@ -106,7 +156,7 @@ export const OpenWidgetsPage = observer(() => {
         widgetList.map((widget, index) => (
           <TwitterWidget
             value={widget.value}
-            key={widget.id}
+            key={index}
             type={1}
             // widgetKey={widget.id}
             deleteWidget={() => deleteWidget(widget.id)}
