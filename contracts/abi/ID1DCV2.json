@@ -1,3 +1,0 @@
-[
-  "function nameRecords(bytes32) view returns (address, uint32, uint256, string, string, string)"
-]
