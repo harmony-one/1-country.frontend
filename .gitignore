@@ -1,5 +1,5 @@
 backend
 .DS_Store
-.idea/
+.idea
 # Local Netlify folder
 .netlify

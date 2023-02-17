@@ -5,3 +5,4 @@ script.env
 accumulate.env
 node_modules
 .env
+.yarn-error.log
