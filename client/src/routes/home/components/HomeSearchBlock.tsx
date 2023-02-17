@@ -4,7 +4,7 @@ import debounce from 'lodash.debounce'
 import { toast } from 'react-toastify'
 import { observer } from 'mobx-react-lite'
 import BN from 'bn.js'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { HomeSearchResultItem } from './HomeSearchResultItem'
 import { useStores } from '../../../stores'
@@ -86,9 +86,9 @@ export const HomeSearchBlock: React.FC = observer(() => {
   const [secret] = useState<string>(Math.random().toString(26).slice(2))
   const [regTxHash, setRegTxHash] = useState<string>('')
   const [web2Acquired, setWeb2Acquired] = useState(false)
-
   const { rootStore, ratesStore, walletStore } = useStores()
 
+  const navigate = useNavigate()
   const client = rootStore.d1dcClient
 
   const updateSearch = (domainName: string) => {
@@ -163,7 +163,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
     }
   }
 
-  const handleRentDomain = async () => {
+  const handleRentDomain = async () => {    
     if (!record || !isValid) {
       return false
     }
@@ -264,7 +264,9 @@ export const HomeSearchBlock: React.FC = observer(() => {
     claimWeb2Domain(txHash)
 
     await sleep(1500)
-    window.location.href = `${config.hostname}/new/${recordName}`
+    // to avoid metamask popup
+    window.location.assign(`https://${domainName.toLowerCase()}${config.tld}`)
+    navigate('/')
   }
 
   const isAvailable = record ? !record.renter : true
@@ -303,7 +305,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
         </BaseText>
       )}
       {loading && <div>Loading...</div>}
-      {isValid && !loading && record && price && (
+      {isValid && !loading && record && price && !web2Acquired &&(
         <>
           <HomeSearchResultItem
             name={recordName}

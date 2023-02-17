@@ -32,12 +32,16 @@ export const TransactionWidget: React.FC<Props> = ({
   txHash,
   domainRecord,
 }) => {
+  console.log('TIME', domainRecord.rentTime)
   return (
     <Container>
       <Box gap="4px" align="center">
         {/* <BaseText>{name}.country</BaseText> */}
         <BaseText>
-          Rented on: {dateFormat.format(domainRecord.expirationTime)}{' '}
+          Rented on: {dateFormat.format(domainRecord.rentTime)}{' '}
+        </BaseText>
+        <BaseText>
+          Rented until: {dateFormat.format(domainRecord.expirationTime)}{' '}
         </BaseText>
         {loading && <Spinner color="#00AEEA" />}
         {!loading && txHash && <HarmonyLink type="tx" hash={txHash} />}
