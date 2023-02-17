@@ -5,24 +5,29 @@ import {
   WidgetInputContainer,
   WidgetStyledInput,
 } from '../../components/page-widgets/PageWidgets.styles'
-import TwitterWidget from '../../components/widgets/TwitterWidget'
+import TwitterWidget, {
+  checkTweet,
+} from '../../components/widgets/TwitterWidget'
 import { observer } from 'mobx-react-lite'
-import { openWidgetsPageStore, Widget } from './OpenWidgetsPageStore'
-import { BaseText, GradientText } from '../../components/Text'
+import { widgetListStore, Widget } from './WidgetListStore'
+import { BaseText } from '../../components/Text'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
 import { Transaction } from '../../api'
 import { toast } from 'react-toastify'
 import { FlexRow } from '../../components/Layout'
 import { LinkWrarpper } from '../../components/Controls'
+import isUrl from 'is-url'
 
 const defaultFormFields = {
   widgetValue: '',
 }
 
-export const OpenWidgetsPage = observer(() => {
-  const { domainStore } = useStores()
+interface Props {
+  domainName: string
+}
 
-  const domainName = domainStore.domainName
+export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
+  const { domainStore } = useStores()
 
   const toastId = useRef(null)
 
@@ -36,13 +41,13 @@ export const OpenWidgetsPage = observer(() => {
   const [placeHolder, setPlaceHolder] = useState('')
 
   useEffect(() => {
-    openWidgetsPageStore.loadWidgetList(domainStore.domainName)
-    openWidgetsPageStore.loadDomainTx(domainStore.domainName)
-  }, [domainStore.domainName])
+    widgetListStore.loadWidgetList(domainName)
+    widgetListStore.loadDomainTx(domainName)
+  }, [domainName])
 
   useEffect(() => {
-    setWidgetList(openWidgetsPageStore.widgetList)
-  }, [openWidgetsPageStore.widgetList])
+    setWidgetList(widgetListStore.widgetList)
+  }, [widgetListStore.widgetList])
 
   useEffect(() => {
     setPlaceHolder('twitter handle or tweet link')
@@ -83,16 +88,31 @@ export const OpenWidgetsPage = observer(() => {
 
     event.preventDefault()
     setAddingWidget(true)
-    const value = event.currentTarget.value
+    toastId.current = toast.loading('Processing transaction')
+
+    const tweet = checkTweet(event.currentTarget.value)
+
+    if (tweet.error) {
+      toast.update(toastId.current, {
+        render: tweet.error,
+        type: 'error',
+        isLoading: false,
+        autoClose: 2000,
+      })
+      setAddingWidget(false)
+      return
+    }
+
+    const value = isUrl(event.currentTarget.value)
+      ? event.currentTarget.value
+      : tweet.value
 
     const widget: Widget = {
       type: 'twitter',
-      value,
+      value: value,
     }
 
-    toastId.current = toast.loading('Processing transaction')
-
-    openWidgetsPageStore
+    widgetListStore
       .createWidget({ widget, domainName, onSuccess, onFailed })
       .then(() => {
         setAddingWidget(false)
@@ -106,10 +126,8 @@ export const OpenWidgetsPage = observer(() => {
   }
 
   const deleteWidget = (widgetId: number) => {
-    console.log('### domainName', domainName)
-    console.log('### widgetId', widgetId)
     toastId.current = toast.loading('Processing transaction')
-    openWidgetsPageStore.deleteWidget({
+    widgetListStore.deleteWidget({
       domainName,
       widgetId,
       onSuccess,
@@ -121,10 +139,6 @@ export const OpenWidgetsPage = observer(() => {
 
   return (
     <PageWidgetContainer>
-      <div style={{ height: '2em' }} />
-      <GradientText>{domainStore.domainName}.country</GradientText>
-
-      <div style={{ height: '1em' }} />
       {showAddButton && (
         <WidgetInputContainer>
           <WidgetStyledInput
@@ -145,9 +159,9 @@ export const OpenWidgetsPage = observer(() => {
       {domainStore.domainRecord && (
         <TransactionWidget
           name={domainStore.domainName}
-          loading={openWidgetsPageStore.txDomainLoading}
+          loading={widgetListStore.txDomainLoading}
           domainRecord={domainStore.domainRecord}
-          txHash={openWidgetsPageStore.txDomain}
+          txHash={widgetListStore.txDomain}
         />
       )}
       <div style={{ height: '2em' }} />

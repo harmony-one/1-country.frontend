@@ -18,13 +18,13 @@ import { Container, HomeLabel, RecordRenewalContainer } from './Home.styles'
 import { VanityURL } from './VanityURL'
 import { useDefaultNetwork } from '../../hooks/network'
 import { createCheckoutSession, getTokenPrice } from '../../api/payments'
-import PageWidgets from '../../components/page-widgets/PageWidgets'
 import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import { HomeSearchPage } from './components/HomeSearchPage'
 import { getDomainName } from '../../utils/getDomainName'
 import { HomePageLoader } from './components/HomePageLoader'
 import { parseTweetId } from '../../utils/parseTweetId'
+import { WidgetModule } from '../open-widgets/WidgetModule'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
@@ -238,14 +238,7 @@ const Home = observer(() => {
       <VanityURL record={record} name={name} />
       <div style={{ height: '2em' }} />
       <GradientText>{name}.country</GradientText>
-      {record && record?.renter && (
-        <PageWidgets
-          name={name}
-          isOwner={isOwner}
-          style={{ marginTop: '6em' }}
-          showAddButton={isOwner}
-        />
-      )}
+      {record && record?.renter && <WidgetModule domainName={name} />}
       {address && (
         <>
           {isOwner && domainStore.isExpired && (
