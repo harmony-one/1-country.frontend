@@ -228,7 +228,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
       secret,
       url: tweetId.toString(),
       amount: new BN(price.amount).toString(),
-      onSuccess: (tx) => {
+      onSuccess: (tx: any) => {
         setLoading(false)
         const { transactionHash } = tx
         toast.update(toastId.current, {
@@ -259,14 +259,23 @@ export const HomeSearchBlock: React.FC = observer(() => {
       },
     })
 
-    const txHash = tx.transactionHash
-    setRegTxHash(txHash)
-    claimWeb2Domain(txHash)
-
-    await sleep(1500)
-    // to avoid metamask popup
-    window.location.assign(`https://${domainName.toLowerCase()}${config.tld}`)
-    navigate('/')
+    try {
+      const txHash = tx.transactionHash
+      setRegTxHash(txHash)
+      claimWeb2Domain(txHash)
+      await sleep(1500)
+      // to avoid metamask popup
+      window.location.assign(`https://${domainName.toLowerCase()}${config.tld}`)
+      navigate('/')
+    } catch (e) {
+      console.log('Error claimWeb2Domain: ', e)
+      toast.update(toastId.current, {
+        render: 'Failed to registrer domain',
+        type: 'error',
+        isLoading: false,
+        autoClose: 2000,
+      })
+    }
   }
 
   const isAvailable = record ? !record.renter : true

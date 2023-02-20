@@ -64,6 +64,10 @@ interface RentProps extends CallbackProps {
   name: string
   url: string
   secret: string
+  amount?: string,
+  onFailed?: () => void,
+  onSubmitted?: () => void,
+  onSuccess?: (tx: any) => void
 }
 
 interface UpdateUrlProps extends CallbackProps {
