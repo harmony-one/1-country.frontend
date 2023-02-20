@@ -32,22 +32,17 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const toastId = useRef(null)
 
   useEffect(() => {
-    domainStore.loadDomainRecord()
+    domainStore.loadDomainRecord(domainName)
   }, [])
-
-  const [widgetList, setWidgetList] = useState<Widget[]>([])
-  const [addingWidget, setAddingWidget] = useState(false)
-  const [formFields, setFormFields] = useState(defaultFormFields)
-  const [placeHolder, setPlaceHolder] = useState('')
 
   useEffect(() => {
     widgetListStore.loadWidgetList(domainName)
     widgetListStore.loadDomainTx(domainName)
   }, [domainName])
 
-  useEffect(() => {
-    setWidgetList(widgetListStore.widgetList)
-  }, [widgetListStore.widgetList])
+  const [addingWidget, setAddingWidget] = useState(false)
+  const [formFields, setFormFields] = useState(defaultFormFields)
+  const [placeHolder, setPlaceHolder] = useState('')
 
   useEffect(() => {
     setPlaceHolder('twitter handle or tweet link')
@@ -72,12 +67,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       autoClose: 2000,
     })
   }
-  const onFailed = () => {
+  const onFailed = (ex: Error) => {
     toast.update(toastId.current, {
-      render: 'Failed',
+      render: `Failed ${ex.message}`,
       type: 'error',
       isLoading: false,
-      autoClose: 2000,
+      autoClose: 10000,
     })
   }
 
@@ -166,16 +161,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       )}
       <div style={{ height: '2em' }} />
 
-      {widgetList.length > 0 &&
-        widgetList.map((widget, index) => (
-          <TwitterWidget
-            value={widget.value}
-            key={index}
-            type={1}
-            // widgetKey={widget.id}
-            deleteWidget={() => deleteWidget(widget.id)}
-          />
-        ))}
+      {widgetListStore.widgetList.map((widget, index) => (
+        <TwitterWidget
+          value={widget.value}
+          key={index}
+          type={1}
+          // widgetKey={widget.id}
+          deleteWidget={() => deleteWidget(widget.id)}
+        />
+      ))}
     </PageWidgetContainer>
   )
 })

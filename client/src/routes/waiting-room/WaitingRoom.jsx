@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router'
 import { FlexColumn } from '../../components/Layout'
-import PageWidgets from '../../components/page-widgets/PageWidgets'
 import { GradientText } from '../../components/Text'
 import { Container, DescResponsive } from '../home/Home.styles'
 import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import Timer from '@amplication/react-compound-timer'
+import { WidgetModule } from '../widgetModule/WidgetModule'
 
 const WaitingRoom = observer(() => {
   const { domainName = '' } = useParams()
@@ -36,11 +36,18 @@ const WaitingRoom = observer(() => {
               </Timer>)
             </GradientText>
           </Row> */}
-          <h3 style={{ marginTop: '1em', marginBottom: '0.1em' }}>{`Setting ${domainName}.country`}</h3>
-          <GradientText $size='1.17rem' style={{ marginBottom: '0.2em' }}>
+          <h3
+            style={{ marginTop: '1em', marginBottom: '0.1em' }}
+          >{`Setting ${domainName}.country`}</h3>
+          <GradientText $size="1.17rem" style={{ marginBottom: '0.2em' }}>
             <Timer>
-              <Timer.Minutes formatValue={(value) => `${(value < 10 ? `0${value}` : value)}`}/>:
-              <Timer.Seconds formatValue={(value) => `${(value < 10 ? `0${value}` : value)}`}/>
+              <Timer.Minutes
+                formatValue={(value) => `${value < 10 ? `0${value}` : value}`}
+              />
+              :
+              <Timer.Seconds
+                formatValue={(value) => `${value < 10 ? `0${value}` : value}`}
+              />
             </Timer>
           </GradientText>
           {/* <h3>{`Setting ${domainName}.country`}</h3> */}
@@ -48,7 +55,7 @@ const WaitingRoom = observer(() => {
           <BaseText style={{ marginBottom: '0.5em', width: '70%' }}>
             While you wait, you can start personalizing your page
           </BaseText> */}
-          <PageWidgets isOwner style={{ marginTop: '6em' }} showAddButton />
+          <WidgetModule domainName={domainName} />
         </FlexColumn>
       )}
       {!walletStore.isConnected && (

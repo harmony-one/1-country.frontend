@@ -24,7 +24,7 @@ import { HomeSearchPage } from './components/HomeSearchPage'
 import { getDomainName } from '../../utils/getDomainName'
 import { HomePageLoader } from './components/HomePageLoader'
 import { parseTweetId } from '../../utils/parseTweetId'
-import { WidgetModule } from '../open-widgets/WidgetModule'
+import { WidgetModule } from '../widgetModule/WidgetModule'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
