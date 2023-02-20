@@ -62,6 +62,7 @@ export interface CallProps extends CallbackProps {
 
 interface RentProps extends CallbackProps {
   name: string
+  amount: string
   url: string
   secret: string
   amount?: string,
