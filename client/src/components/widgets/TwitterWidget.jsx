@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from 'react'
 import { TwitterTimelineEmbed, TwitterTweetEmbed } from 'react-twitter-embed'
 import { useInView } from 'react-intersection-observer'
-import { IoMdCloseCircle } from 'react-icons/io'
 import isUrl from 'is-url'
 
 import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
 import { parseTweetId } from '../../utils/parseTweetId'
+import { IconClose } from '../icons/Close'
 
 export const WIDGET_TYPE = {
   feed: 0,
@@ -97,7 +97,7 @@ const TwitterWidget = ({ value, type, deleteWidget }) => {
         )}
       </div>
       <DeleteWidgetButton onClick={deleteItem}>
-        <IoMdCloseCircle />
+        <IconClose />
       </DeleteWidgetButton>
     </WidgetsContainer>
   )
