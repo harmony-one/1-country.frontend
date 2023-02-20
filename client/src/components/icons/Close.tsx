@@ -19,5 +19,3 @@ export const IconClose: React.FC = () => {
     </svg>
   )
 }
-
-Close.displayName = 'Close'
