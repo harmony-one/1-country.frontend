@@ -57,20 +57,21 @@ export class DomainStore extends BaseStore {
     return this.domainRecord.expirationTime - Date.now() < 0
   }
 
-  async loadDomainRecord() {
-    if (!this.domainName) {
-      return
-    }
-
+  async loadDomainRecord(domainName: string = getDomainName()) {
     try {
-      this.domainRecord = await this.rootStore.d1dcClient.getRecord({
-        name: this.domainName,
-      })
-      this.domainPrice = await this.rootStore.d1dcClient.getPrice({
-        name: this.domainName,
-      })
+      const [d1cParams, domainRecord, domainPrice] = await Promise.all([
+        this.rootStore.d1dcClient.getParameters(),
+        this.rootStore.d1dcClient.getRecord({
+          name: domainName,
+        }),
+        this.rootStore.d1dcClient.getPrice({
+          name: domainName,
+        }),
+      ])
 
-      this.d1cParams = await this.rootStore.d1dcClient.getParameters()
+      this.domainPrice = domainPrice
+      this.domainRecord = domainRecord
+      this.d1cParams = d1cParams
     } catch (ex) {
       console.log('### error', ex)
     }

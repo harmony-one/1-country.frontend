@@ -119,7 +119,7 @@ module.exports = {
     ],
   },
   entry: {
-    main: ['./src/index.js'],
+    main: ['./src/index.tsx'],
   },
   devtool: isProduction ? false : 'source-map',
   output: {

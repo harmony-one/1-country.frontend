@@ -3,17 +3,8 @@ import ReactDOM from 'react-dom'
 import Routes from './Routes'
 import { ToastContainer } from 'react-toastify'
 import { Helmet } from 'react-helmet'
-// import {
-//   WagmiConfig,
-//   createClient,
-//   defaultChains,
-//   configureChains,
-// } from 'wagmi'
-// import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
-
 import 'react-toastify/dist/ReactToastify.css'
 import './app.scss'
-// import { Web3ModalProvider } from './modules/web3modal/Web3ModalProvider'
 import { WagmiConfigProvider } from './modules/wagmi/WagmiConfigProvider'
 import { BrowserRouter } from 'react-router-dom'
 import { ModalProvider } from './modules/modals/ModalProvider'
