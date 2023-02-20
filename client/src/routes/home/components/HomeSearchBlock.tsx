@@ -14,7 +14,6 @@ import { Button, LinkWrarpper } from '../../../components/Controls'
 import { BaseText } from '../../../components/Text'
 import { FlexRow, FlexColumn } from '../../../components/Layout'
 import { DomainPrice, DomainRecord, relayApi } from '../../../api'
-import TermsCheckbox from '../../../components/term-checkbox/TermCheckbox'
 import { nameUtils } from '../../../api/utils'
 import { parseTweetId } from '../../../utils/parseTweetId'
 
@@ -80,7 +79,6 @@ export const HomeSearchBlock: React.FC = observer(() => {
 
   const [record, setRecord] = useState<DomainRecord | undefined>()
   const [isValid, setIsValid] = useState(true)
-  const [isTermsAccepted, setIsTermsAccepted] = useState(false)
   const [recordName, setRecordName] = useState('')
   const toastId = useRef(null)
   const [secret] = useState<string>(Math.random().toString(26).slice(2))
@@ -163,7 +161,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
     }
   }
 
-  const handleRentDomain = async () => {    
+  const handleRentDomain = async () => {
     if (!record || !isValid) {
       return false
     }
@@ -261,7 +259,17 @@ export const HomeSearchBlock: React.FC = observer(() => {
 
     const txHash = tx.transactionHash
     setRegTxHash(txHash)
-    claimWeb2Domain(txHash)
+
+    try {
+      await claimWeb2Domain(txHash)
+    } catch (ex) {
+      toast.update(toastId.current, {
+        render: 'Failed to claim',
+        type: 'error',
+        isLoading: false,
+        autoClose: 2000,
+      })
+    }
 
     await sleep(1500)
     // to avoid metamask popup
@@ -305,7 +313,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
         </BaseText>
       )}
       {loading && <div>Loading...</div>}
-      {isValid && !loading && record && price && !web2Acquired &&(
+      {isValid && !loading && record && price && !web2Acquired && (
         <>
           <HomeSearchResultItem
             name={recordName}
