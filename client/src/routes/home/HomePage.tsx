@@ -8,7 +8,7 @@ import { getDomainName } from '../../utils/getDomainName'
 import { HomePageLoader } from './components/HomePageLoader'
 import { HomeDomainPage } from './components/HomeDomainPage'
 
-const Home = observer(() => {
+export const HomePage = observer(() => {
   const [domainName] = useState(getDomainName())
 
   const { domainStore, walletStore } = useStores()
@@ -43,5 +43,3 @@ const Home = observer(() => {
 
   return <HomeDomainPage />
 })
-
-export default Home
