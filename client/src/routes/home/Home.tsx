@@ -1,88 +1,28 @@
-import React, { useEffect, useRef, useState } from 'react'
-import BN from 'bn.js'
-import { toast } from 'react-toastify'
-import { useAccount } from 'wagmi'
-import humanizeDuration from 'humanize-duration'
-
+import React, { useEffect, useState } from 'react'
 import config from '../../../config'
-import { Button, LinkWrarpper } from '../../components/Controls'
-
-import { FlexRow, Row } from '../../components/Layout'
-import {
-  BaseText,
-  GradientText,
-  SmallTextGrey,
-  Title,
-} from '../../components/Text'
-import { Container, HomeLabel, RecordRenewalContainer } from './Home.styles'
+import { GradientText, SmallTextGrey } from '../../components/Text'
+import { Container } from './Home.styles'
 import { VanityURL } from './VanityURL'
 import { useDefaultNetwork } from '../../hooks/network'
-import { createCheckoutSession, getTokenPrice } from '../../api/payments'
 import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import { HomeSearchPage } from './components/HomeSearchPage'
 import { getDomainName } from '../../utils/getDomainName'
 import { HomePageLoader } from './components/HomePageLoader'
-import { parseTweetId } from '../../utils/parseTweetId'
 import { WidgetModule } from '../widgetModule/WidgetModule'
 import { HomePageFooter } from './components/HomePageFooter'
-import { DCParams, DomainRecord } from '../../api'
+import { DomainRecordRenewal } from './components/DomainRecordRenewal'
 
-const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
-
-const minCentsAmount = 60
-
-interface OnActionParams {
-  isRenewal: boolean
-  telegram?: string
-  email?: string
-  phone?: string
-}
 const Home = observer(() => {
-  const [name] = useState(getDomainName())
-  const [record, setRecord] = useState<DomainRecord>({})
-  const [price, setPrice] = useState(null)
-  const [parameters, setParameters] = useState<DCParams>({
-    baseRentalPrice: {
-      formatted: '0',
-      amount: '0',
-    },
-    duration: 0,
-    lastRented: '',
-  })
-  const [pending, setPending] = useState(false)
+  const [domainName] = useState(getDomainName())
 
-  const toastId = useRef(null)
-  const { address } = useAccount()
-  // for updating stuff
-  const [url] = useState(
-    'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
-  )
-
-  const { rootStore, domainStore, walletStore } = useStores()
-
-  const client = rootStore.d1dcClient
+  const { domainStore, walletStore } = useStores()
 
   useEffect(() => {
-    domainStore.loadDomainRecord()
-  }, [])
-
-  // const name = getSubdomain()
-
-  const isOwner = domainStore.isOwner
+    domainStore.loadDomainRecord(domainName)
+  }, [domainName])
 
   useDefaultNetwork()
-
-  const pollParams = () => {
-    if (!client) {
-      return
-    }
-    client.getParameters().then((p) => setParameters(p))
-    if (name) {
-      client.getRecord({ name }).then((r) => setRecord(r))
-      client.getPrice({ name }).then((p) => setPrice(p))
-    }
-  }
 
   useEffect(() => {
     if (!walletStore.isConnected && !walletStore.isConnecting) {
@@ -91,189 +31,37 @@ const Home = observer(() => {
   }, [])
 
   useEffect(() => {
-    if (!client) {
-      return
+    const isNewDomain =
+      domainName && domainStore.domainRecord && !domainStore.domainRecord.renter
+    if (isNewDomain) {
+      window.location.href = `${config.hostname}?domain=${domainName}`
     }
-    pollParams()
-  }, [client])
+  }, [domainStore.domainRecord])
 
-  useEffect(() => {
-    if (!parameters?.lastRented) {
-      setTimeout(() => {
-        console.log('Poll params')
-        pollParams()
-      }, 12000)
-    }
-  }, [parameters?.lastRented])
-
-  const onActionFiat = async ({
-    isRenewal,
-    telegram = '',
-    email = '',
-    phone = '',
-  }: OnActionParams) => {
-    if (!price) {
-      console.error('No domain rental price provided, exit')
-      return
-    }
-
-    setPending(true)
-    let amount = 0
-
-    try {
-      const oneTokenPriceUsd = await getTokenPrice('harmony')
-      amount = +price.formatted * +oneTokenPriceUsd * 100 // price in cents
-      if (amount < minCentsAmount) {
-        console.log(
-          `Amount ${amount} < min amount ${minCentsAmount} cents, using ${minCentsAmount} cents value. Required by Stripe.`
-        )
-        amount = minCentsAmount
-      }
-
-      if (!amount) {
-        throw new Error(`Invalid USD amount: ${amount}`)
-      }
-
-      const tweetId = isRenewal ? { tweetId: '' } : parseTweetId(url)
-
-      const pageUrl = new URL(window.location.href)
-      const { paymentUrl } = await createCheckoutSession({
-        amount: +amount,
-        userAddress: address,
-        params: {
-          name,
-          url: isRenewal ? '' : tweetId.tweetId.toString(),
-          telegram,
-          email,
-          phone,
-        },
-        successUrl: `${pageUrl.origin}/success`,
-        cancelUrl: `${pageUrl.origin}/cancel`,
-      })
-      console.log('Stripe checkout link:', paymentUrl)
-      window.open(paymentUrl, '_self')
-    } catch (e) {
-      console.error('Cannot complete payment by USD:', e)
-    }
-  }
-
-  const onAction = async (
-    params: OnActionParams & { paymentType: 'one' | 'usd' }
-  ) => {
-    const {
-      isRenewal,
-      telegram = '',
-      email = '',
-      phone = '',
-      paymentType = 'one',
-    } = params
-    if (!url && !isRenewal) {
-      return toast.error('Invalid URL to embed')
-    }
-
-    if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
-      await walletStore.connect()
-    }
-
-    if (paymentType === 'usd') {
-      onActionFiat(params)
-      return
-    }
-
-    setPending(true)
-    try {
-      const tweetId = isRenewal ? { tweetId: '' } : parseTweetId(url)
-      if (tweetId.error) {
-        return toast.error(tweetId.error)
-      }
-      const f = isOwner && !isRenewal ? client.updateURL : client.rent
-      console.log('onAction', price, name)
-      toastId.current = toast.loading('Processing transaction')
-      await f({
-        name,
-        url: isRenewal ? '' : tweetId.tweetId.toString(),
-        telegram: telegram,
-        email: email,
-        phone: phone,
-        amount: new BN(price.amount).toString(),
-        onFailed: () =>
-          toast.update(toastId.current, {
-            render: 'Failed to purchase',
-            type: 'error',
-            isLoading: false,
-            autoClose: 2000,
-          }),
-        onSuccess: (tx) => {
-          console.log(tx)
-          const { transactionHash } = tx
-          toast.update(toastId.current, {
-            render: (
-              <FlexRow>
-                <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
-                <LinkWrarpper
-                  target="_blank"
-                  href={client.getExplorerUri(transactionHash)}
-                >
-                  <BaseText>View transaction</BaseText>
-                </LinkWrarpper>
-              </FlexRow>
-            ),
-            type: 'success',
-            isLoading: false,
-            autoClose: 2000,
-          })
-          setTimeout(() => location.reload(), 1500)
-        },
-      })
-    } catch (ex) {
-      console.error(ex)
-      toast.error(`Unexpected error: ${ex.toString()}`)
-    } finally {
-      setPending(false)
-    }
-  }
-
-  useEffect(() => {
-    if (Object.keys(record).length > 0 && !record.renter && name) {
-      window.location.href = `${config.hostname}?domain=${name}`
-    }
-  }, [record])
-
-  if (name === '') {
+  if (domainName === '') {
     return <HomeSearchPage />
   }
 
-  if (!record) {
+  if (domainName && !domainStore.domainRecord) {
     return <HomePageLoader />
   }
 
   return (
     <Container>
-      <VanityURL record={record} name={name} />
+      <VanityURL record={domainStore.domainRecord} name={domainName} />
       <div style={{ height: '2em' }} />
-      <GradientText>{name}.country</GradientText>
-      {record && record?.renter && <WidgetModule domainName={name} />}
-      {address && (
+      <GradientText>{domainName}.country</GradientText>
+      {domainStore.domainRecord && domainStore.domainRecord.renter && (
+        <WidgetModule domainName={domainName} />
+      )}
+      {walletStore.walletAddress && (
         <>
-          {isOwner && domainStore.isExpired && (
-            <RecordRenewalContainer>
-              <Title style={{ marginTop: 16 }}>Renew ownership</Title>
-              <Row style={{ justifyContent: 'center' }}>
-                <HomeLabel>renewal price</HomeLabel>
-                <BaseText>{price?.formatted} ONE</BaseText>
-              </Row>
-              <SmallTextGrey>for {humanD(parameters.duration)} </SmallTextGrey>
-              <Button
-                onClick={() =>
-                  onAction({ isRenewal: true, paymentType: 'one' })
-                }
-                disabled={pending}
-              >
-                RENEW
-              </Button>
-            </RecordRenewalContainer>
+          {domainStore.isOwner && domainStore.isExpired && (
+            <DomainRecordRenewal />
           )}
-          <SmallTextGrey>Your address: {address}</SmallTextGrey>
+          <SmallTextGrey>
+            Your address: {walletStore.walletAddress}
+          </SmallTextGrey>
         </>
       )}
       <HomePageFooter />
