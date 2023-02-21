@@ -1,8 +1,8 @@
 import Contract from 'web3-eth-contract'
 import config from '../../config'
 import VanityURLABI from '../../abi/vanityURL.json'
-import Constants from '../constants'
-import BN from 'bn.js'
+// import Constants from '../constants'
+// import BN from 'bn.js'
 import Web3 from 'web3'
 
 

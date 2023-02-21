@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 
 import { AiOutlineUp, AiOutlineDown } from 'react-icons/ai'
-import { BaseText, SmallText, SmallTextGrey, OnwerLabel } from '../../components/Text'
+import { BaseText, SmallText, SmallTextGrey, OnwerLabel } from '../Text'
 import { Row } from '../../components/Layout'
 import { RecordRevealContainer } from './RecordInfo.styles'
 // import { OnwerLabel, PersonalInfoRevealContainer } from '../owner-info/OwnerInfo.styles'

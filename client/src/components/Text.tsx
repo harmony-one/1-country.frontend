@@ -1,11 +1,11 @@
 import styled from 'styled-components'
 
-export const BaseText = styled.div`
+export const BaseText = styled.div<{ $color?: string }>`
   color: ${(props) => props.$color || 'inherit'};
   font-size: 0.9rem;
 `
 
-export const GradientText = styled.div`
+export const GradientText = styled.div<{ $size?: string }>`
   font-size: ${(props) => props.$size || '24px'};
   font-family: NunitoBold, system-ui;
   font-weight: bold;
@@ -19,10 +19,10 @@ export const GradientText = styled.div`
 export const SmallText = styled(BaseText)`
   font-size: 0.8rem;
 `
-export const Label = styled(BaseText)`
+export const Label = styled(BaseText)<{ $width: string }>`
   width: ${(props) => props.$width || '64px'};
 `
-export const LabelSmall = styled(BaseText)`
+export const LabelSmall = styled(BaseText)<{ $width: string }>`
   width: ${(props) => props.$width || '48px'};
   font-size: 1rem;
 `
@@ -55,7 +55,7 @@ export const Heading = styled.div`
   width: 100%;
 `
 
-export const Desc = styled.div`
+export const Desc = styled.div<{ $color?: string }>`
   box-sizing: border-box;
   padding: 16px;
   color: ${(props) => props.$color || '#758796'};
@@ -79,7 +79,7 @@ export const LinkText = styled(BaseText)`
   margin-top: 32px;
 `
 
-export const Hint = styled.div`
+export const Hint = styled.div<{ $color: string }>`
   font-size: 10px;
   color: ${(props) => props.$color ?? '#758796'};
 `

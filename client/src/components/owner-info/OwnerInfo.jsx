@@ -9,7 +9,7 @@ import { AiOutlineUp, AiOutlineDown } from 'react-icons/ai'
 
 import config from '../../../config'
 import { FlexRow } from '../../components/Layout'
-import { OnwerLabel } from '../../components/Text'
+import { OnwerLabel } from '../Text'
 import { PersonalInfoRevealContainer } from './OwnerInfo.styles'
 const defaultOwnerInfo = {
   telegram: '',

@@ -68,6 +68,7 @@ const sleep = (ms: number) => {
 }
 
 const isValidDomainName = (domainName: string) => {
+  console.log('isValidDomain', domainName)
   return regx.test(domainName)
 }
 
@@ -80,6 +81,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
   const [record, setRecord] = useState<DomainRecord | undefined>()
   const [isValid, setIsValid] = useState(true)
   const [recordName, setRecordName] = useState('')
+  const [web2Error, setWeb2Error] = useState(false)
   const toastId = useRef(null)
   const [secret] = useState<string>(Math.random().toString(26).slice(2))
   const [regTxHash, setRegTxHash] = useState<string>('')
@@ -104,6 +106,13 @@ export const HomeSearchBlock: React.FC = observer(() => {
       updateSearch(domainName)
     }
   }, [])
+
+  useEffect(() => {
+    if (web2Acquired) {
+      // window.location.assign(`https://${domainName.toLowerCase()}${config.tld}`)
+      navigate(`new/${domainName}`)
+    }
+  }, [web2Acquired])
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDomainName(event.target.value)
@@ -139,7 +148,11 @@ export const HomeSearchBlock: React.FC = observer(() => {
     setLoading(true)
     try {
       await claimWeb2Domain(regTxHash)
+      setWeb2Error(false)
+      setWeb2Acquired(true)
     } catch (ex) {
+      setWeb2Error(true)
+      toast.error('Unable to acquire web2 domain')
       console.error(ex)
     } finally {
       setLoading(false)
@@ -157,7 +170,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
       setWeb2Acquired(true)
     } else {
       console.log(`failure reason: ${responseText}`)
-      toast.error(`Unable to acquire web2 domain. Reason: ${responseText}`)
+      throw new Error(`Unable to acquire web2 domain. Reason: ${responseText}`)
     }
   }
 
@@ -202,32 +215,36 @@ export const HomeSearchBlock: React.FC = observer(() => {
       onSuccess: (tx) => {
         console.log(tx)
         const { transactionHash } = tx
-        toast.success(
-          <FlexRow>
-            <BaseText style={{ marginRight: 8 }}>
-              Reserved domain for purchase
-            </BaseText>
-            <LinkWrarpper
-              target="_blank"
-              href={client.getExplorerUri(transactionHash)}
-            >
-              <BaseText>View transaction</BaseText>
-            </LinkWrarpper>
-          </FlexRow>
-        )
+        toast.update(toastId.current, {
+          render: (
+            <FlexRow>
+              <BaseText style={{ marginRight: 8 }}>
+                Reserved domain for purchase
+              </BaseText>
+              <LinkWrarpper
+                target="_blank"
+                href={client.getExplorerUri(transactionHash)}
+              >
+                <BaseText>View transaction</BaseText>
+              </LinkWrarpper>
+            </FlexRow>),
+          type: toast.TYPE.SUCCESS,
+        })
       },
     })
 
     console.log('waiting for 5 seconds...')
     await sleep(5000)
-
+    toast.update(toastId.current, {
+      render: 'Proceeding to purchase',
+      type: toast.TYPE.INFO
+    })
     const tx = await client.rent({
       name: recordName,
       secret,
       url: tweetId.toString(),
       amount: new BN(price.amount).toString(),
       onSuccess: (tx: any) => {
-        setLoading(false)
         const { transactionHash } = tx
         toast.update(toastId.current, {
           render: (
@@ -241,16 +258,14 @@ export const HomeSearchBlock: React.FC = observer(() => {
               </LinkWrarpper>
             </FlexRow>
           ),
-          type: 'success',
-          isLoading: false,
-          autoClose: 2000,
+          type: toast.TYPE.SUCCESS
         })
       },
       onFailed: () => {
         setLoading(false)
         toast.update(toastId.current, {
           render: 'Failed to purchase',
-          type: 'error',
+          type: toast.TYPE.ERROR,
           isLoading: false,
           autoClose: 2000,
         })
@@ -262,19 +277,25 @@ export const HomeSearchBlock: React.FC = observer(() => {
 
     try {
       await claimWeb2Domain(txHash)
-    } catch (ex) {
+      await sleep(1500)
       toast.update(toastId.current, {
-        render: 'Failed to claim',
+        render: 'Proceeding to register',
+        type: toast.TYPE.INFO
+      })
+      setLoading(false)
+      setWeb2Acquired(true)
+    } catch (ex) {
+      console.log('claimWeb2Domain error:', ex)
+      setWeb2Error(true)
+      toast.update(toastId.current, {
+        render: 'Failed to claim the domain',
         type: 'error',
         isLoading: false,
         autoClose: 2000,
       })
+    } finally {
+      setLoading(false)
     }
-
-    await sleep(1500)
-    // to avoid metamask popup
-    window.location.assign(`https://${domainName.toLowerCase()}${config.tld}`)
-    navigate('/')
   }
 
   const isAvailable = record ? !record.renter : true
@@ -313,7 +334,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
         </BaseText>
       )}
       {loading && <div>Loading...</div>}
-      {isValid && !loading && record && price && !web2Acquired && (
+      {isValid && !loading && record && price && !web2Acquired && !web2Error && (
         <>
           <HomeSearchResultItem
             name={recordName}
@@ -332,12 +353,12 @@ export const HomeSearchBlock: React.FC = observer(() => {
           >
             Register
           </Button>
-          {/*{!loading && regTxHash && !web2Acquired && (*/}
-          {/*  <Button onClick={claimWeb2DomainWrapper} disabled={loading}>*/}
-          {/*    TRY AGAIN*/}
-          {/*  </Button>*/}
-          {/*)}*/}
         </>
+      )}
+      {web2Error && ( 
+        <Button onClick={claimWeb2DomainWrapper} disabled={loading}>
+          TRY AGAIN
+        </Button>
       )}
     </SearchBoxContainer>
   )

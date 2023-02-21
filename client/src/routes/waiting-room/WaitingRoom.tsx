@@ -23,6 +23,7 @@ const WaitingRoom = observer(() => {
     }
   }, [])
 
+
   return (
     <Container>
       {walletStore.isConnected && (
@@ -38,7 +39,8 @@ const WaitingRoom = observer(() => {
           </Row> */}
           <h3
             style={{ marginTop: '1em', marginBottom: '0.1em' }}
-          >{`Setting ${domainName}.country`}</h3>
+          >Waiting for domain propagation</h3>
+          <GradientText>{`${domainName}.country`}</GradientText>
           <GradientText $size="1.17rem" style={{ marginBottom: '0.2em' }}>
             <Timer>
               <Timer.Minutes
