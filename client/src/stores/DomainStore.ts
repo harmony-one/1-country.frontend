@@ -32,6 +32,10 @@ export class DomainStore extends BaseStore {
     )
 
     this.domainName = getDomainName()
+
+    this.rootStore.d1dcClient.getParameters().then((d1cParams) => {
+      this.d1cParams = d1cParams
+    })
   }
 
   get isOwner() {
@@ -57,10 +61,21 @@ export class DomainStore extends BaseStore {
     return this.domainRecord.expirationTime - Date.now() < 0
   }
 
-  async loadDomainRecord(domainName: string = getDomainName()) {
+  async loadDCParams() {
     try {
-      const [d1cParams, domainRecord, domainPrice] = await Promise.all([
-        this.rootStore.d1dcClient.getParameters(),
+      this.d1cParams = await this.getDCClient().getParameters()
+    } catch (ex) {
+      console.error('### ex load dc params', ex)
+    }
+  }
+
+  async loadDomainRecord(domainName: string = getDomainName()) {
+    if (!domainName) {
+      return
+    }
+
+    try {
+      const [domainRecord, domainPrice] = await Promise.all([
         this.rootStore.d1dcClient.getRecord({
           name: domainName,
         }),
@@ -71,9 +86,8 @@ export class DomainStore extends BaseStore {
 
       this.domainPrice = domainPrice
       this.domainRecord = domainRecord
-      this.d1cParams = d1cParams
     } catch (ex) {
-      console.log('### error', ex)
+      console.log('### error loadDomainRecord', ex)
     }
   }
 }
