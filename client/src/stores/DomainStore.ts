@@ -33,23 +33,25 @@ export class DomainStore extends BaseStore {
 
     this.domainName = getDomainName()
 
-    this.rootStore.d1dcClient.getParameters().then((d1cParams) => {
-      this.d1cParams = d1cParams
-    })
+    this.getDCClient()
+      .getParameters()
+      .then((d1cParams) => {
+        this.d1cParams = d1cParams
+      })
   }
 
   get isOwner() {
     if (
       !this.domainRecord ||
       !this.domainRecord.renter ||
-      !this.rootStore.walletStore.isConnected
+      !this.stores.walletStore.isConnected
     ) {
       return false
     }
 
     return (
       this.domainRecord.renter.toLowerCase() ===
-      this.rootStore.walletStore.walletAddress.toLowerCase()
+      this.stores.walletStore.walletAddress.toLowerCase()
     )
   }
 
@@ -76,10 +78,10 @@ export class DomainStore extends BaseStore {
 
     try {
       const [domainRecord, domainPrice] = await Promise.all([
-        this.rootStore.d1dcClient.getRecord({
+        this.getDCClient().getRecord({
           name: domainName,
         }),
-        this.rootStore.d1dcClient.getPrice({
+        this.getDCClient().getPrice({
           name: domainName,
         }),
       ])
