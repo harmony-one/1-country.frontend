@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import config from '../../../config'
-import { GradientText, SmallTextGrey } from '../../components/Text'
-import { Container } from './Home.styles'
-import { VanityURL } from './VanityURL'
 import { useDefaultNetwork } from '../../hooks/network'
 import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import { HomeSearchPage } from './components/HomeSearchPage'
 import { getDomainName } from '../../utils/getDomainName'
 import { HomePageLoader } from './components/HomePageLoader'
-import { WidgetModule } from '../widgetModule/WidgetModule'
-import { HomePageFooter } from './components/HomePageFooter'
-import { DomainRecordRenewal } from './components/DomainRecordRenewal'
+import { HomeDomainPage } from './components/HomeDomainPage'
 
 const Home = observer(() => {
   const [domainName] = useState(getDomainName())
@@ -46,28 +41,7 @@ const Home = observer(() => {
     return <HomePageLoader />
   }
 
-  return (
-    <Container>
-      <VanityURL record={domainStore.domainRecord} name={domainName} />
-      <div style={{ height: '2em' }} />
-      <GradientText>{domainName}.country</GradientText>
-      {domainStore.domainRecord && domainStore.domainRecord.renter && (
-        <WidgetModule domainName={domainName} />
-      )}
-      {walletStore.walletAddress && (
-        <>
-          {domainStore.isOwner && domainStore.isExpired && (
-            <DomainRecordRenewal />
-          )}
-          <SmallTextGrey>
-            Your address: {walletStore.walletAddress}
-          </SmallTextGrey>
-        </>
-      )}
-      <HomePageFooter />
-      <div style={{ height: 200 }} />
-    </Container>
-  )
+  return <HomeDomainPage />
 })
 
 export default Home
