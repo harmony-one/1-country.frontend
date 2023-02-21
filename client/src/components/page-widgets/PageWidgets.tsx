@@ -6,7 +6,8 @@ import {
   WidgetInputContainer,
   WidgetStyledInput,
 } from './PageWidgets.styles'
-import { openWidgetsPageStore } from '../../routes/open-widgets/OpenWidgetsPageStore'
+import { widgetListStore } from '../../routes/widgetModule/WidgetListStore'
+// import { openWidgetsPageStore } from '../../routes/open-widgets/OpenWidgetsPageStore'
 import { TransactionWidget } from '../widgets/TransactionWidget'
 import { useStores } from '../../stores'
 import { DomainRecord } from '../../api'
@@ -34,7 +35,8 @@ const PageWidgets = observer(({ name, isOwner, showAddButton }: PageWidgetsProps
   const [domainRecord, setDomainRecord] = useState<DomainRecord | null>()
 
   useEffect(() => {
-    openWidgetsPageStore.loadDomainTx(domainName || name)
+    widgetListStore.loadDomainTx(domainName || name)
+    // openWidgetsPageStore.loadDomainTx(domainName || name)
   }, [])
 
   useEffect(() => {
@@ -122,9 +124,9 @@ const PageWidgets = observer(({ name, isOwner, showAddButton }: PageWidgetsProps
       {domainRecord && (
         <TransactionWidget
           name={domainName || name}
-          loading={openWidgetsPageStore.txDomainLoading}
+          loading={widgetListStore.txDomainLoading} // {openWidgetsPageStore.txDomainLoading}
           domainRecord={domainRecord}
-          txHash={openWidgetsPageStore.txDomain}
+          txHash={widgetListStore.txDomain} // {openWidgetsPageStore.txDomain}
         />
       )}
       {widgetList.map((widget, index) => (
