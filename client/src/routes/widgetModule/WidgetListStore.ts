@@ -58,8 +58,8 @@ class WidgetListStore extends BaseStore {
     const { widget, domainName, onSubmitted, onSuccess, onFailed } = props
 
     try {
-      if (!this.rootStore.walletStore.isConnected) {
-        await this.rootStore.walletStore.connect()
+      if (!this.stores.walletStore.isConnected) {
+        await this.stores.walletStore.connect()
       }
 
       const dcClient = this.getDCClient()
@@ -84,8 +84,8 @@ class WidgetListStore extends BaseStore {
     const { domainName, widgetId, onSuccess, onSubmitted, onFailed } = props
 
     try {
-      if (!this.rootStore.walletStore.isConnected) {
-        await this.rootStore.walletStore.connect()
+      if (!this.stores.walletStore.isConnected) {
+        await this.stores.walletStore.connect()
       }
       const dcClient = this.getDCClient()
       await dcClient.removeRecordUrl({

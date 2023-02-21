@@ -10,4 +10,8 @@ export class BaseStore {
   getDCClient() {
     return this.rootStore.d1dcClient
   }
+
+  get stores() {
+    return this.rootStore.stores
+  }
 }

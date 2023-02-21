@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { FloatingText } from '../Controls'
-import { StyledInput } from '../../routes/home/components/HomeSearchBlock'
+import { StyledInput } from '../Inputs'
 
 export const PageWidgetContainer = styled.div`
   width: 100%;
