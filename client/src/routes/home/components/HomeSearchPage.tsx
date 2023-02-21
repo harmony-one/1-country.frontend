@@ -110,7 +110,6 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   useEffect(() => {
     if (web2Acquired) {
-      toast.success('Domain registered')
       navigate(`new/${domainName}`)
     }
   }, [web2Acquired])
@@ -280,8 +279,8 @@ export const HomeSearchPage: React.FC = observer(() => {
       await claimWeb2Domain(txHash)
       await sleep(1500)
       toast.update(toastId.current, {
-        render: 'Domain registration...',
-        type: toast.TYPE.INFO,
+        render: 'Domain registered',
+        type: toast.TYPE.SUCCESS,
         isLoading: false,
         autoClose: 2000,
       })

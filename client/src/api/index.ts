@@ -171,7 +171,7 @@ export const relayApi = () => {
 }
 
 const apis = ({ web3, address }: { web3: Web3; address: string }) => {
-  console.log('apis', web3, address)
+  // console.log('apis', web3, address)
   if (!web3) {
     return
   }
