@@ -25,18 +25,30 @@ import { getDomainName } from '../../utils/getDomainName'
 import { HomePageLoader } from './components/HomePageLoader'
 import { parseTweetId } from '../../utils/parseTweetId'
 import { WidgetModule } from '../widgetModule/WidgetModule'
+import { HomePageFooter } from './components/HomePageFooter'
+import { DCParams, DomainRecord } from '../../api'
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
 const minCentsAmount = 60
 
+interface OnActionParams {
+  isRenewal: boolean
+  telegram?: string
+  email?: string
+  phone?: string
+}
 const Home = observer(() => {
   const [name] = useState(getDomainName())
-  const [record, setRecord] = useState({})
+  const [record, setRecord] = useState<DomainRecord>({})
   const [price, setPrice] = useState(null)
-  const [parameters, setParameters] = useState({
-    rentalPeriod: 0,
-    priceMultiplier: 0,
+  const [parameters, setParameters] = useState<DCParams>({
+    baseRentalPrice: {
+      formatted: '0',
+      amount: '0',
+    },
+    duration: 0,
+    lastRented: '',
   })
   const [pending, setPending] = useState(false)
 
@@ -99,7 +111,7 @@ const Home = observer(() => {
     telegram = '',
     email = '',
     phone = '',
-  }) => {
+  }: OnActionParams) => {
     if (!price) {
       console.error('No domain rental price provided, exit')
       return
@@ -122,7 +134,7 @@ const Home = observer(() => {
         throw new Error(`Invalid USD amount: ${amount}`)
       }
 
-      const tweetId = isRenewal ? {} : parseTweetId(url)
+      const tweetId = isRenewal ? { tweetId: '' } : parseTweetId(url)
 
       const pageUrl = new URL(window.location.href)
       const { paymentUrl } = await createCheckoutSession({
@@ -145,7 +157,9 @@ const Home = observer(() => {
     }
   }
 
-  const onAction = async (params) => {
+  const onAction = async (
+    params: OnActionParams & { paymentType: 'one' | 'usd' }
+  ) => {
     const {
       isRenewal,
       telegram = '',
@@ -168,7 +182,7 @@ const Home = observer(() => {
 
     setPending(true)
     try {
-      const tweetId = isRenewal ? {} : parseTweetId(url)
+      const tweetId = isRenewal ? { tweetId: '' } : parseTweetId(url)
       if (tweetId.error) {
         return toast.error(tweetId.error)
       }
@@ -248,11 +262,11 @@ const Home = observer(() => {
                 <HomeLabel>renewal price</HomeLabel>
                 <BaseText>{price?.formatted} ONE</BaseText>
               </Row>
-              <SmallTextGrey>
-                for {humanD(parameters.rentalPeriod)}{' '}
-              </SmallTextGrey>
+              <SmallTextGrey>for {humanD(parameters.duration)} </SmallTextGrey>
               <Button
-                onClick={() => onAction({ isRenewal: true })}
+                onClick={() =>
+                  onAction({ isRenewal: true, paymentType: 'one' })
+                }
                 disabled={pending}
               >
                 RENEW
@@ -262,14 +276,7 @@ const Home = observer(() => {
           <SmallTextGrey>Your address: {address}</SmallTextGrey>
         </>
       )}
-      <SmallTextGrey>
-        <a href="https://harmony.one/domains" rel="noreferrer">
-          <SmallTextGrey>
-            {' '}
-            Harmony's Creator Economy & Web3 Nations{' '}
-          </SmallTextGrey>
-        </a>
-      </SmallTextGrey>
+      <HomePageFooter />
       <div style={{ height: 200 }} />
     </Container>
   )
