@@ -109,7 +109,7 @@ export const HomeSearchBlock: React.FC = observer(() => {
 
   useEffect(() => {
     if (web2Acquired) {
-      // window.location.assign(`https://${domainName.toLowerCase()}${config.tld}`)
+      toast.success('Domain registered')
       navigate(`new/${domainName}`)
     }
   }, [web2Acquired])
@@ -166,7 +166,6 @@ export const HomeSearchBlock: React.FC = observer(() => {
       address: walletStore.walletAddress,
     })
     if (success) {
-      toast.success('Web2 domain acquired')
       setWeb2Acquired(true)
     } else {
       console.log(`failure reason: ${responseText}`)
@@ -279,8 +278,10 @@ export const HomeSearchBlock: React.FC = observer(() => {
       await claimWeb2Domain(txHash)
       await sleep(1500)
       toast.update(toastId.current, {
-        render: 'Proceeding to register',
-        type: toast.TYPE.INFO
+        render: 'Domain registration...',
+        type: toast.TYPE.INFO,
+        isLoading: false,
+        autoClose: 2000,
       })
       setLoading(false)
       setWeb2Acquired(true)

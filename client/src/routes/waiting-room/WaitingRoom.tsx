@@ -34,14 +34,16 @@ const WaitingRoom = observer(() => {
 
   useEffect(() => {
     const checkUrl = async () => {
-      if (urlExists(fullUrl)) {
+      if (await urlExists(fullUrl)) {
         setIsDomainAvailable(true)
+      } else {
+        console.log('not available')
       }
     }
     
     const interval = setInterval(() => {
       checkUrl()
-    }, 4000); //for testing purposes
+    }, 30000); //for testing purposes
     setIntervalId(interval)
     
     return () => clearInterval(interval);
