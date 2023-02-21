@@ -1,11 +1,10 @@
 import React from 'react'
 
 export enum ModalIds {
+  UI_TRANSACTION = 'UI_TRANSACTION',
   PROFILE_EDIT = 'PROFILE_EDIT',
-  PROFILE_ADD_SOCIAL = 'PROFILE_ADD_SOCIAL',
   PROFILE_ADD_WIDGET = 'PROFILE_ADD_WIDGET',
   PROFILE_ADD_WIDGET_TEXT = 'PROFILE_ADD_WIDGET_TEXT',
-  PROFILE_ADD_WIDGET_TWITTER = 'PROFILE_ADD_WIDGET_TWITTER',
 }
 
 export interface LayerProps {
@@ -18,6 +17,11 @@ export type InferModalProps<T> = T extends { [key: string]: infer U }
   : never
 
 export type ModalMap = {
+  [ModalIds.UI_TRANSACTION]: {
+    params: { data: string }
+    layerProps?: LayerProps
+    component: React.ReactNode
+  }
   [ModalIds.PROFILE_ADD_WIDGET]: {
     params: { data: string }
     layerProps?: LayerProps
