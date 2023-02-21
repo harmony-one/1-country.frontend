@@ -49,6 +49,7 @@ export interface Transaction {
 }
 
 export interface CallbackProps {
+  onTransactionHash?: (txHash: string) => void
   onFailed?: (error: Error, flag?: boolean) => void
   onSubmitted?: () => void
   onSuccess?: (tx: Transaction) => void
@@ -64,10 +65,7 @@ interface RentProps extends CallbackProps {
   name: string
   url: string
   secret: string
-  amount: string,
-  onFailed?: () => void,
-  onSubmitted?: () => void,
-  onSuccess?: (tx: any) => void
+  amount: string
 }
 
 interface UpdateUrlProps extends CallbackProps {
@@ -212,6 +210,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     amount,
     onFailed,
     onSubmitted,
+    onTransactionHash = () => {},
     onSuccess,
     methodName,
     parameters,
@@ -232,11 +231,14 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       return null
     }
     onSubmitted && onSubmitted()
+
     try {
-      const tx = await contract.methods[methodName](...parameters).send({
-        from: address,
-        value: amount,
-      })
+      const tx = await contract.methods[methodName](...parameters)
+        .send({
+          from: address,
+          value: amount,
+        })
+        .on('transactionHash', onTransactionHash)
       if (config.debug) {
         console.log(methodName, JSON.stringify(tx))
       }
