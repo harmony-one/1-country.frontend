@@ -186,6 +186,12 @@ export const HomeSearchPage: React.FC = observer(() => {
       return toast.error('This domain name is reserved for special purpose')
     }
 
+    const { isAvailable } = await relayApi().checkDomain({ sld: domainName })
+
+    if (!isAvailable) {
+      return toast.error('This domain name is reserved or registered')
+    }
+
     toastId.current = toast.loading('Processing transaction')
 
     if (!domainName) {
@@ -352,7 +358,7 @@ export const HomeSearchPage: React.FC = observer(() => {
                   name={recordName}
                   rateONE={ratesStore.ONE_USD}
                   price={price.formatted}
-                  available={!record.renter}
+                  available={isAvailable}
                 />
                 {/* <TermsCheckbox
             checked={isTermsAccepted}
