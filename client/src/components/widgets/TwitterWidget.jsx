@@ -81,7 +81,7 @@ const TwitterWidget = ({ value, type, deleteWidget }) => {
           <TwitterTimelineEmbed
             sourceType="profile"
             screenName={userName}
-            options={{ height: 600 }}
+            options={{ height: 600, width: 550 }}
             placeholder="Loading..."
             key={`${userName}`}
             onLoad={() => setLoading(false)}
@@ -92,6 +92,7 @@ const TwitterWidget = ({ value, type, deleteWidget }) => {
             tweetId={tweetId.tweetId}
             key={`${tweetId.tweetId}`}
             placeholder="Loading..."
+            options={{ height: 600, width: 550 }}
             onLoad={() => setLoading(false)}
           />
         )}

@@ -52,9 +52,10 @@ export const WidgetStyledInput = styled(StyledInput)<{ valid: boolean }>`
 `
 
 export const WidgetInputContainer = styled.div`
-  border: 0px;
+  border: 0;
   margin-bottom: 1.5em;
-  width: 80%;
+  width: 100%;
+  max-width: 550px;
   text-align: center;
 
   span {

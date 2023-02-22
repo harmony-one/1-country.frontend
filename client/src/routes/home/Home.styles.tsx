@@ -4,7 +4,7 @@ import { SmallTextGrey, Desc } from '../../components/Text'
 
 export const Container = styled(Main)`
   margin: 0 auto;
-  padding: 0 0px;
+  padding: 0 24px;
   width: 100%;
   max-width: 800px;
   display: flex;
