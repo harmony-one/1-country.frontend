@@ -4,11 +4,12 @@ import { StyledInput } from '../Inputs'
 
 export const PageWidgetContainer = styled.div`
   width: 100%;
-  margin: 0 auto;
+  margin: 0 auto 1em auto;
   max-width: 800px;
   display: flex;
   flex-direction: column;
   align-content: center;
+  gap: 12px;
   align-items: center;
 `
 
