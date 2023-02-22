@@ -150,17 +150,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         </WidgetInputContainer>
       )}
       {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}
-
-      {domainStore.domainRecord && (
-        <TransactionWidget
-          name={domainStore.domainName}
-          loading={widgetListStore.txDomainLoading}
-          domainRecord={domainStore.domainRecord}
-          txHash={widgetListStore.txDomain}
-        />
-      )}
-      <div style={{ height: '2em' }} />
-
       {widgetListStore.widgetList.map((widget, index) => (
         <TwitterWidget
           value={widget.value}
@@ -170,6 +159,14 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           deleteWidget={() => deleteWidget(widget.id)}
         />
       ))}
+      {domainStore.domainRecord && (
+        <TransactionWidget
+          name={domainStore.domainName}
+          loading={widgetListStore.txDomainLoading}
+          domainRecord={domainStore.domainRecord}
+          txHash={widgetListStore.txDomain}
+        />
+      )}
     </PageWidgetContainer>
   )
 })
