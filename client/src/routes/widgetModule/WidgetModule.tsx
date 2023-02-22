@@ -45,7 +45,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const [placeHolder, setPlaceHolder] = useState('')
 
   useEffect(() => {
-    setPlaceHolder('twitter handle or tweet link')
+    setPlaceHolder('Twitter handle or tweet link')
   }, [])
 
   const onSuccess = (tx: Transaction) => {
