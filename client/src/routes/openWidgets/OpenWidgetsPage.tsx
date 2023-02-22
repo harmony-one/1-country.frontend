@@ -14,8 +14,8 @@ export const OpenWidgetsPage: React.FC = observer(() => {
 
   return (
     <Container>
-      <div style={{ height: '2em' }} />
-      <GradientText>{domainStore.domainName}.country</GradientText>
+      <div style={{ height: '0.2em' }} />
+      {/* <GradientText>{domainStore.domainName}Home</GradientText> */}
       <div style={{ height: '1em' }} />
       <WidgetModule domainName={domainStore.domainName} />
     </Container>

@@ -36,11 +36,14 @@ export const TransactionWidget: React.FC<Props> = ({
     <Container>
       <Box gap="4px" align="center">
         {/* <BaseText>{name}.country</BaseText> */}
-        <BaseText>
+        {/* <BaseText>
           Rented on: {dateFormat.format(domainRecord.rentTime)}{' '}
         </BaseText>
         <BaseText>
           Rented until: {dateFormat.format(domainRecord.expirationTime)}{' '}
+        </BaseText> */}
+        <BaseText>
+          69:11:11:42
         </BaseText>
         {loading && <Spinner color="#00AEEA" />}
         {!loading && txHash && <HarmonyLink type="tx" hash={txHash} />}

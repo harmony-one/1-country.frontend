@@ -76,10 +76,10 @@ const WaitingRoom = observer(() => {
           </Row> */}
          
             <h3 style={{ marginTop: '1em', marginBottom: '0.1em' }}>
-              {!isDomainAvailable ? 'Waiting for domain propagation' : 'Domain available!'}
-            </h3> 
-          <GradientText>{`${domainName}.country`}</GradientText>
-          {!isDomainAvailable && <GradientText $size="1.17rem" style={{ marginBottom: '0.2em' }}>
+              {!isDomainAvailable ? `${domainName}.country` : `${domainName}.country ready!`}
+            </h3>
+          {/* <GradientText>{`${domainName}.country`}</GradientText> */}
+          {!isDomainAvailable && <GradientText $size="1.17rem" style={{ marginBottom: '0.6em' }}>
             <Timer>
               <Timer.Minutes
                 formatValue={(value) => `${value < 10 ? `0${value}` : value}`}
