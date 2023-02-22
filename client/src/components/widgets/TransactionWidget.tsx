@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Box } from 'grommet/components/Box'
 import { Spinner } from 'grommet/components/Spinner'
+import Timer from '@amplication/react-compound-timer'
 import { BaseText } from '../Text'
 import { DomainRecord } from '../../api'
 import { HarmonyLink } from '../HarmonyLink'
@@ -26,6 +27,8 @@ interface Props {
   domainRecord: DomainRecord
 }
 
+const formatTime = (value: number) => `${value < 10 ? `0${value}` : value}`
+
 export const TransactionWidget: React.FC<Props> = ({
   loading,
   name,
@@ -43,7 +46,16 @@ export const TransactionWidget: React.FC<Props> = ({
           Rented until: {dateFormat.format(domainRecord.expirationTime)}{' '}
         </BaseText> */}
         <BaseText>
-          69:11:11:42
+          <Timer
+            formatValue={formatTime}
+            initialTime={domainRecord.expirationTime - Date.now()}
+            direction="backward"
+          >
+            <Timer.Days />:
+            <Timer.Hours />:
+            <Timer.Minutes />:
+            <Timer.Seconds />
+          </Timer>
         </BaseText>
         {loading && <Spinner color="#00AEEA" />}
         {!loading && txHash && <HarmonyLink type="tx" hash={txHash} />}
