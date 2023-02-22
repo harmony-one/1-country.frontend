@@ -17,6 +17,7 @@ import { toast } from 'react-toastify'
 import { FlexRow } from '../../components/Layout'
 import { LinkWrarpper } from '../../components/Controls'
 import isUrl from 'is-url'
+import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -27,7 +28,7 @@ interface Props {
 }
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
-  const { domainStore } = useStores()
+  const { domainStore, walletStore } = useStores()
 
   const toastId = useRef(null)
 
@@ -130,11 +131,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     })
   }
 
-  const showAddButton = true
+  const showInput = walletStore.isConnected && domainStore.isOwner
 
   return (
     <PageWidgetContainer>
-      {showAddButton && (
+      {showInput && (
         <WidgetInputContainer>
           <WidgetStyledInput
             placeholder={placeHolder}
@@ -149,6 +150,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           />
         </WidgetInputContainer>
       )}
+
       {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}
       {widgetListStore.widgetList.map((widget, index) => (
         <TwitterWidget
@@ -167,6 +169,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           txHash={widgetListStore.txDomain}
         />
       )}
+      {!walletStore.isConnected && <MetamaskWidget />}
     </PageWidgetContainer>
   )
 })

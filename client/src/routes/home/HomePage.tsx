@@ -11,19 +11,13 @@ import { HomeDomainPage } from './components/HomeDomainPage'
 export const HomePage = observer(() => {
   const [domainName] = useState(getDomainName())
 
-  const { domainStore, walletStore } = useStores()
+  const { domainStore } = useStores()
 
   useEffect(() => {
     domainStore.loadDomainRecord(domainName)
   }, [domainName])
 
   useDefaultNetwork()
-
-  useEffect(() => {
-    if (!walletStore.isConnected && !walletStore.isConnecting) {
-      walletStore.connect()
-    }
-  }, [])
 
   useEffect(() => {
     const isNewDomain =
