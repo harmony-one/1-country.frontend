@@ -64,6 +64,8 @@ const TwitterWidget = ({ value, type, deleteWidget }) => {
     if (isUrl(value)) {
       setTweetId(parseTweetId(value))
       setUserName('')
+    } else if (/^[0-9]+$/.test(value)) {
+      setTweetId({ tweetId: value })
     } else {
       setUserName(value)
       setTweetId(TwitterWidgetDefault)

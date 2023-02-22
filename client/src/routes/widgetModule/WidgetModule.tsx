@@ -161,6 +161,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           deleteWidget={() => deleteWidget(widget.id)}
         />
       ))}
+
+      {domainStore.domainRecord.url && (
+        <TwitterWidget
+          value={domainStore.domainRecord.url}
+          type={1}
+          // widgetKey={widget.id}
+          deleteWidget={() => false}
+        />
+      )}
+
       {domainStore.domainRecord && (
         <TransactionWidget
           name={domainStore.domainName}
