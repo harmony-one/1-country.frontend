@@ -20,7 +20,7 @@ import { Container } from '../Home.styles'
 import { cutString } from '../../../utils/string'
 
 const SearchBoxContainer = styled.div`
-  width: 80%;
+  width: 100%;
   max-width: 800px;
   margin: 0 auto;
 `
