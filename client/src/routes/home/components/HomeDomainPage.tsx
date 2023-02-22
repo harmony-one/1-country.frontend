@@ -1,7 +1,7 @@
 import React from 'react'
 import { Container } from '../Home.styles'
 import { VanityURL } from '../VanityURL'
-import { GradientText, SmallTextGrey } from '../../../components/Text'
+import { GradientText } from '../../../components/Text'
 import { WidgetModule } from '../../widgetModule/WidgetModule'
 import { DomainRecordRenewal } from './DomainRecordRenewal'
 import { HomePageFooter } from './HomePageFooter'
@@ -29,9 +29,6 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
           {domainStore.isOwner && domainStore.isExpired && (
             <DomainRecordRenewal />
           )}
-          <SmallTextGrey>
-            Your address: {walletStore.walletAddress}
-          </SmallTextGrey>
         </>
       )}
       <HomePageFooter />
