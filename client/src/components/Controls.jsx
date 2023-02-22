@@ -6,19 +6,19 @@ export const Button = styled.button`
   font-size: 1rem;
   font-weight: 200;
   border: none;
-  
-  width: ${props => props.$width || '128px'};
+
+  width: ${(props) => props.$width || '128px'};
   color: white;
-  background: #00AEE9;
+  background: #00aee9;
   border-radius: 5px;
   padding: 8px 16px;
   text-align: center;
-  &:hover{
+  &:hover {
     color: #fff;
     background: #101042;
     cursor: pointer;
   }
-  &:disabled{
+  &:disabled {
     background: #cccccc;
     cursor: not-allowed;
   }
@@ -28,29 +28,32 @@ export const CancelButton = styled(Button)`
   background: transparent;
   color: red;
   border: 1px solid red;
-  &:hover{
+  &:hover {
     color: indianred;
     background: #ccc;
     cursor: pointer;
   }
-  &:disabled{
+  &:disabled {
     color: grey;
     cursor: not-allowed;
   }
 `
 
 export const Input = styled.input`
-  width: ${props => typeof props.$width === 'number' ? `${props.$width || 400}px` : (props.$width || 'auto')};
-  margin-top: ${props => props.$marginTop || props.$margin || '32px'};
-  margin-bottom: ${props => props.$marginBottom || props.$margin || '32px'};
+  width: ${(props) =>
+    typeof props.$width === 'number'
+      ? `${props.$width || 400}px`
+      : props.$width || 'auto'};
+  margin-top: ${(props) => props.$marginTop || props.$margin || '32px'};
+  margin-bottom: ${(props) => props.$marginBottom || props.$margin || '32px'};
   border: none;
   border-bottom: 1px solid black;
   font-size: 16px;
   padding: 4px;
-  &:hover{
+  &:hover {
     border-bottom: 1px solid black;
   }
-  &:disabled{
+  &:disabled {
     color: grey;
     background: lightgrey;
   }
@@ -62,15 +65,20 @@ export const LinkWrarpper = styled.a`
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  &:hover{
+  color: ${(props) =>
+    props.type === 'text' ? 'var(--text-color)' : 'inherit'};
+  text-decoration: ${(props) =>
+    props.type === 'text' ? 'underline' : undefined};
+  &:hover {
     color: red;
   }
-  ${props => props.$disabled
-? `
+  ${(props) =>
+    props.$disabled
+      ? `
     color: lightgrey;
     cursor: not-allowed;
   `
-: ''}
+      : ''}
 `
 
 export const FloatingSwitch = styled(LinkWrarpper)`

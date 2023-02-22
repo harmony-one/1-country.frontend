@@ -7,12 +7,14 @@ import { BaseText } from '../Text'
 import { DomainRecord } from '../../api'
 import { HarmonyLink } from '../HarmonyLink'
 import { WidgetsContainer } from './Widgets.styles'
+import { buildTxUri } from '../../utils/explorer'
 
 const Container = styled(WidgetsContainer)`
   border: 1px solid rgb(207, 217, 222);
   border-radius: 12px;
   padding: 12px;
   box-sizing: border-box;
+  cursor: pointer;
 `
 
 const dateFormat = new Intl.DateTimeFormat('en-US', {
@@ -35,8 +37,12 @@ export const TransactionWidget: React.FC<Props> = ({
   txHash,
   domainRecord,
 }) => {
+  const handleClick = () => {
+    window.open(buildTxUri(txHash), '_blank')
+  }
+
   return (
-    <Container>
+    <Container onClick={handleClick}>
       <Box gap="4px" align="center">
         {/* <BaseText>{name}.country</BaseText> */}
         {/* <BaseText>
