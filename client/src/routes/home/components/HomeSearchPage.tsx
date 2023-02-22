@@ -17,6 +17,7 @@ import { DomainPrice, DomainRecord, relayApi } from '../../../api'
 import { nameUtils } from '../../../api/utils'
 import { parseTweetId } from '../../../utils/parseTweetId'
 import { Container } from '../Home.styles'
+import { cutString } from '../../../utils/string'
 
 const SearchBoxContainer = styled.div`
   width: 80%;
@@ -218,17 +219,20 @@ export const HomeSearchPage: React.FC = observer(() => {
           render: (
             <FlexRow>
               <BaseText style={{ marginRight: 8 }}>
-                Reserved domain for purchase
+                Reserved {`${domainName}${config.tld}`}
               </BaseText>
+              (
               <LinkWrarpper
                 target="_blank"
+                type="text"
                 href={client.getExplorerUri(transactionHash)}
               >
-                <BaseText>View transaction</BaseText>
+                <BaseText>{cutString(transactionHash)}</BaseText>
               </LinkWrarpper>
+              )
             </FlexRow>
           ),
-          type: toast.TYPE.SUCCESS,
+          type: toast.TYPE.INFO,
         })
       },
     })
@@ -249,13 +253,9 @@ export const HomeSearchPage: React.FC = observer(() => {
         toast.update(toastId.current, {
           render: (
             <FlexRow>
-              <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
-              <LinkWrarpper
-                target="_blank"
-                href={client.getExplorerUri(transactionHash)}
-              >
-                <BaseText>View transaction</BaseText>
-              </LinkWrarpper>
+              <BaseText style={{ marginRight: 8 }}>
+                Registered {`${recordName}${config.tld}`}
+              </BaseText>
             </FlexRow>
           ),
           type: toast.TYPE.SUCCESS,
