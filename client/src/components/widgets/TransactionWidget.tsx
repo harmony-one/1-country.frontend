@@ -14,7 +14,7 @@ const Container = styled(WidgetsContainer)`
   border-radius: 12px;
   padding: 12px;
   box-sizing: border-box;
-  cursor: pointer;
+  cursor: ${(props) => (props.onClick ? 'pointer' : undefined)};
 `
 
 const dateFormat = new Intl.DateTimeFormat('en-US', {
@@ -42,7 +42,7 @@ export const TransactionWidget: React.FC<Props> = ({
   }
 
   return (
-    <Container onClick={handleClick}>
+    <Container onClick={txHash ? handleClick : undefined}>
       <Box gap="4px" align="center">
         {/* <BaseText>{name}.country</BaseText> */}
         {/* <BaseText>
