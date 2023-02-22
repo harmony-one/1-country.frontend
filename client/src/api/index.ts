@@ -255,7 +255,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     contract,
     web3,
     getExplorerUri: (txHash: string) => {
-      return config.explorer.replace('{{txId}}', txHash)
+      return config.explorer.explorerUrl.replace('{{txId}}', txHash)
     },
     call,
     commit: async ({

@@ -2,6 +2,7 @@ import React, { MouseEventHandler, useMemo } from 'react'
 import { Box } from 'grommet/components/Box'
 import styled from 'styled-components'
 import { cutString } from '../utils/string'
+import config from '../../config'
 
 interface Props {
   hash: string
@@ -14,9 +15,9 @@ interface Props {
 }
 
 const typeMap = {
-  address: 'https://explorer.harmony.one/address/',
-  tx: 'https://explorer.harmony.one/tx/',
-  block: 'https://explorer.harmony.one/block/',
+  address: config.explorer.address,
+  tx: config.explorer.tx,
+  block: config.explorer.block,
 }
 
 const StyledImg = styled.img`

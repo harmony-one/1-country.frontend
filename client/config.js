@@ -8,8 +8,12 @@ const config = {
   contractVanityURL:
     process.env.CONTRACT_VANITY_URL ||
     '0x88a1afC4134f385337Dd5F530D452079fC9E14CC', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
-  explorer:
-    process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
+  explorer: {
+    explorerUrl: process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
+    address: 'https://explorer.harmony.one/address/',
+    tx: 'https://explorer.harmony.one/tx/',
+    block: 'https://explorer.harmony.one/block/'
+  },
   defaultRPC: process.env.DEFAULT_RPC || 'https://api.harmony.one',
   hostname: process.env.REACT_APP_BASE_URL || 'https://localhost:3100',
   tld: process.env.TLD || '.dev.1.localhost:3100', // '.1.country',
