@@ -1,4 +1,13 @@
+import { parseTweetId } from '../utils/parseTweetId'
+
 const createKeccakHash = require('keccak')
+
+const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
+
+const isValidDomainName = (domainName: string) => {
+  console.log('isValidDomain', domainName)
+  return regx.test(domainName)
+}
 
 export const nameUtils = {
   RESTRICTED_VALID_NAME: /[a-z0-9]+/,
@@ -6,6 +15,9 @@ export const nameUtils = {
   SPECIAL_NAMES: ['s', '0', '1', 'li', 'ml', 'ba', 'names'],
   isValidName: (name: string) => {
     return nameUtils.VALID_NAME.test(name)
+  },
+  isValidDomainName: (domainName: string) => {
+    return regx.test(domainName)
   },
   isReservedName: (name: string) => {
     name = name.toLowerCase()
