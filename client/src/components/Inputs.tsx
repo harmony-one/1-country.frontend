@@ -15,7 +15,7 @@ export const StyledInput = styled.input`
 
   &::placeholder {
     font-size: 0.7em;
-    text-align: center;
+    text-align: left;
   }
 
   @media (min-width: 640px) {
