@@ -13,7 +13,8 @@ const AppRoutes = () => {
       <Route path="new/:domainName" element={<WaitingRoom />} />
       <Route path="home/" element={<OpenWidgetsPage />} />
       <Route path="stats/" element={<Stats />} />
-      <Route path="*" element={<PageNotFound />} />
+      <Route path="*" element={<HomePage />} />
+      {/*<Route path="*" element={<PageNotFound />} />*/}
     </Routes>
   )
 }
