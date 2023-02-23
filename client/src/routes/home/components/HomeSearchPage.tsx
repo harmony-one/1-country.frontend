@@ -70,7 +70,6 @@ const sleep = (ms: number) => {
 }
 
 const validateDomainName = (domainName: string) => {
-  console.log('isValidDomain', domainName)
 
   if (nameUtils.isReservedName(domainName.toLowerCase())) {
     return {
@@ -144,8 +143,8 @@ export const HomeSearchPage: React.FC = observer(() => {
     updateSearch(event.target.value)
   }
 
-  const terminateProcess = async () => {
-    await sleep(5000)
+  const terminateProcess = async (timer: number = 5000) => {
+    await sleep(timer)
     setLoading(false)
   }
   
@@ -154,8 +153,12 @@ export const HomeSearchPage: React.FC = observer(() => {
       if (!client || !_domainName) {
         return
       }
-
-      setLoading(true)
+      
+      setStatus({
+        type: statusTypes.INFO,
+        render: ''
+      })
+      setLoading(true) //will show three dots
 
       const [record, price, relayCheckDomain, isAvailable2] = await Promise.all(
         [
@@ -185,15 +188,21 @@ export const HomeSearchPage: React.FC = observer(() => {
     setLoading(true)
     try {
       await claimWeb2Domain(regTxHash)
-      setWeb2Error(false)
+      await sleep(1500)
+      setStatus({
+        type: statusTypes.SUCCESS,
+        render: 'Web2 domain acquire'
+      })
+      terminateProcess()
       setWeb2Acquired(true)
     } catch (ex) {
       setWeb2Error(true)
-      toast.error('Unable to acquire web2 domain')
+      setStatus({
+        type: statusTypes.ERROR,
+        render: 'Unable to acquire web2 domain'
+      }),
       console.error(ex)
-    } finally {
       terminateProcess()
-      // setLoading(false)
     }
   }
 
@@ -203,9 +212,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       txHash,
       address: walletStore.walletAddress,
     })
-    if (success) {
-      setWeb2Acquired(true)
-    } else {
+    if (!success) {
       console.log(`failure reason: ${responseText}`)
       throw new Error(`Unable to acquire web2 domain. Reason: ${responseText}`)
     }
@@ -245,7 +252,11 @@ export const HomeSearchPage: React.FC = observer(() => {
     if (!nameUtils.isValidName(searchResult.domainName)) {
       return toast.error('Domain must be alphanumerical characters')
     }
-
+    
+    setStatus({
+      type: statusTypes.INFO,
+      render: ''
+    })
     setLoading(true)
 
     try {
@@ -257,14 +268,17 @@ export const HomeSearchPage: React.FC = observer(() => {
       return
     }
 
-    await client.commit({
+    const commitResult = await client.commit({
       name: searchResult.domainName.toLowerCase(),
       secret,
-      onFailed: () => setStatus({
-        type: statusTypes.ERROR,
-        render: 'Failed to commit purchase'
-      }),
-      // toast.error('Failed to commit purchase'),
+      onFailed: () => {
+        setStatus({
+          type: statusTypes.ERROR,
+          render: 'Failed to reserve the domain'
+        })
+        terminateProcess(3000)
+        return
+      },
       onSuccess: (tx) => {
         console.log(tx)
         const { transactionHash } = tx
@@ -288,7 +302,10 @@ export const HomeSearchPage: React.FC = observer(() => {
         })
       },
     })
-
+    console.log('COMMIT RESULT', commitResult)
+    if (!commitResult) {
+      return
+    }
     console.log('waiting for 5 seconds...')
     await sleep(5000)
     
@@ -320,10 +337,13 @@ export const HomeSearchPage: React.FC = observer(() => {
           type: statusTypes.ERROR,
           render: 'Failed to purchase'
         })
-        terminateProcess()
+        terminateProcess(3000)
       },
     })
-
+    console.log('RRENT', tx)
+    if (!tx) {
+      return
+    }
     const txHash = tx.transactionHash
     setRegTxHash(txHash)
 
@@ -332,21 +352,18 @@ export const HomeSearchPage: React.FC = observer(() => {
       await sleep(1500)
       setStatus({
         type: statusTypes.SUCCESS,
-        render: 'Domain registered'
+        render: 'Web2 domain acquire'
       })
       terminateProcess()
-      // setLoading(false)
       setWeb2Acquired(true)
     } catch (ex) {
       console.log('claimWeb2Domain error:', ex)
       setWeb2Error(true)
       setStatus({
         type: statusTypes.ERROR,
-        render: 'Failed to claim the domain'
+        render: 'Unable to acquire web2 domain'
       })
-    } finally {
       terminateProcess()
-
     }
   }
 
