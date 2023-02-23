@@ -162,7 +162,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         />
       ))}
 
-      {domainStore.domainRecord.url && (
+      {(domainStore.domainRecord && domainStore.domainRecord.url) && (
         <TwitterWidget
           value={domainStore.domainRecord.url}
           type={1}
