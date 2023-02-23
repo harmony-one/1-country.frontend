@@ -22,7 +22,7 @@ export const nameUtils = {
   },
   isReservedName: (name: string) => {
     return (
-      name.length <= 2 && nameUtils.SPECIAL_NAMES.includes(name.toLowerCase())
+      name.length <= 2 && nameUtils.SPECIAL_NAMES.includes(name.toLowerCase()) || nameUtils.CROSS_CHAIN_NAMES1.includes(name.toLowerCase()) || nameUtils.CROSS_CHAIN_NAMES2.includes(name.toLowerCase()) || nameUtils.COUNTRY_NAMES.includes(name.toLowerCase())
     )
   },
 }
