@@ -224,7 +224,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       name: searchResult.domainName,
     })
     if (!_available) {
-      return toast.error('This domain name is reserved or registered')
+      return toast.error('This domain name is already registered')
     }
 
     toastId.current = toast.loading('Processing transaction')
