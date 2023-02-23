@@ -9,7 +9,7 @@ import {
 import Web3 from 'web3'
 import { BaseStore } from './BaseStore'
 import { RootStore } from './RootStore'
-import { metamaskConnector, wagmiClient } from '../modules/wagmi/wagmiClient'
+import {metamaskConnector, wagmiClient, walletConnectConnector} from '../modules/wagmi/wagmiClient'
 import config from '../../config'
 
 export class WalletStore extends BaseStore {
@@ -67,9 +67,12 @@ export class WalletStore extends BaseStore {
   }
 
   connect() {
+    const connector = metamaskConnector && metamaskConnector.ready
+      ? metamaskConnector
+      : walletConnectConnector
     return connect<typeof wagmiClient.provider>({
       chainId: config.chainParameters.id,
-      connector: metamaskConnector,
+      connector,
     }).then((result) => {
       const provider = result.provider
 
