@@ -60,7 +60,6 @@ export const StyledInput = styled.input`
   }
 `
 
-const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
 const { tweetId } = parseTweetId(
   'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'
 )
@@ -69,79 +68,109 @@ const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(() => resolve(1), ms))
 }
 
-const isValidDomainName = (domainName: string) => {
+const validateDomainName = (domainName: string) => {
   console.log('isValidDomain', domainName)
-  return regx.test(domainName)
+
+  if (nameUtils.isReservedName(domainName.toLowerCase())) {
+    return {
+      valid: false,
+      error: 'This domain name is reserved for special purpose',
+    }
+  }
+
+  if (!nameUtils.isValidName(domainName.toLowerCase())) {
+    return {
+      valid: false,
+      error: 'Domains can use a mix of letters and numbers',
+    }
+  }
+
+  return {
+    valid: true,
+    error: '',
+  }
+}
+
+interface SearchResult {
+  domainName: string
+  domainRecord: DomainRecord
+  price: DomainPrice
+  isAvailable: boolean
 }
 
 export const HomeSearchPage: React.FC = observer(() => {
   const [searchParams] = useSearchParams()
-  const [domainName, setDomainName] = useState(searchParams.get('domain') || '')
+  const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
-  const [price, setPrice] = useState<DomainPrice | undefined>()
-
-  const [record, setRecord] = useState<DomainRecord | undefined>()
-  const [isValid, setIsValid] = useState(true)
-  const [recordName, setRecordName] = useState('')
+  const [validation, setValidation] = useState({ valid: true, error: '' })
   const [web2Error, setWeb2Error] = useState(false)
   const toastId = useRef(null)
   const [secret] = useState<string>(Math.random().toString(26).slice(2))
   const [regTxHash, setRegTxHash] = useState<string>('')
   const [web2Acquired, setWeb2Acquired] = useState(false)
+  const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
   const { rootStore, ratesStore, walletStore } = useStores()
 
   const navigate = useNavigate()
   const client = rootStore.d1dcClient
 
   const updateSearch = (domainName: string) => {
-    const _isValid = isValidDomainName(domainName.toLowerCase())
-    setIsValid(_isValid)
+    setSearchResult(null)
+    const result = validateDomainName(domainName.toLowerCase())
+    setValidation(result)
 
-    if (_isValid) {
+    if (result.valid) {
       loadDomainRecord(domainName)
     }
   }
 
   // setup form from query string
   useEffect(() => {
-    if (domainName) {
-      updateSearch(domainName)
+    if (inputValue) {
+      updateSearch(inputValue)
     }
   }, [])
 
   useEffect(() => {
     if (web2Acquired) {
-      navigate(`new/${domainName}`)
+      navigate(`new/${searchResult.domainName}`)
     }
   }, [web2Acquired])
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDomainName(event.target.value)
+    setInputValue(event.target.value)
     updateSearch(event.target.value)
   }
 
   const loadDomainRecord = useMemo(() => {
-    return debounce((_domainName) => {
+    return debounce(async (_domainName) => {
       if (!client || !_domainName) {
         return
       }
 
       setLoading(true)
 
-      client
-        .getRecord({ name: _domainName })
-        .then((r) => {
-          setRecord(r)
-          setLoading(false)
-        })
-        .catch((ex) => {
-          console.log('### ex', ex)
-        })
-      client.getPrice({ name: _domainName }).then((p) => {
-        setPrice(p)
+      const [record, price, relayCheckDomain, isAvailable2] = await Promise.all(
+        [
+          client.getRecord({ name: _domainName }),
+          client.getPrice({ name: _domainName }),
+          relayApi().checkDomain({
+            sld: _domainName,
+          }),
+          client.checkAvailable({
+            name: _domainName,
+          }),
+        ]
+      )
+
+      setSearchResult({
+        domainName: _domainName,
+        domainRecord: record,
+        price: price,
+        isAvailable: relayCheckDomain.isAvailable && isAvailable2,
       })
 
-      setRecordName(_domainName)
+      setLoading(false)
     }, 500)
   }, [client])
 
@@ -162,7 +191,7 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   const claimWeb2Domain = async (txHash: string) => {
     const { success, responseText } = await relayApi().purchaseDomain({
-      domain: `${domainName.toLowerCase()}${config.tld}`,
+      domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
       txHash,
       address: walletStore.walletAddress,
     })
@@ -175,32 +204,36 @@ export const HomeSearchPage: React.FC = observer(() => {
   }
 
   const handleRentDomain = async () => {
-    if (!record || !isValid) {
+    if (!searchResult.domainRecord || !validation.valid) {
       return false
     }
 
-    if (
-      domainName.length <= 2 &&
-      nameUtils.SPECIAL_NAMES.includes(domainName.toLowerCase())
-    ) {
-      return toast.error('This domain name is reserved')
-    }
+    console.log('### searchResult', searchResult)
 
-    const { isAvailable } = await relayApi().checkDomain({ sld: domainName })
+    const { isAvailable } = await relayApi().checkDomain({
+      sld: searchResult.domainName,
+    })
+
+    console.log('### isAvailable', isAvailable)
 
     if (!isAvailable) {
       return toast.error('This domain name is already registered')
     }
 
+    const _available = await client.checkAvailable({
+      name: searchResult.domainName,
+    })
+    if (!_available) {
+      return toast.error('This domain name is reserved or registered')
+    }
+
     toastId.current = toast.loading('Processing transaction')
 
-    if (!domainName) {
+    if (!searchResult.domainName) {
       return toast.error('Invalid domain')
     }
-    if (!nameUtils.isValidName(domainName)) {
-      return toast.error(
-        'Domain must be alphanumerical characters'
-      )
+    if (!nameUtils.isValidName(searchResult.domainName)) {
+      return toast.error('Domain must be alphanumerical characters')
     }
 
     setLoading(true)
@@ -215,7 +248,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     }
 
     await client.commit({
-      name: domainName.toLowerCase(),
+      name: searchResult.domainName.toLowerCase(),
       secret,
       onFailed: () => toast.error('Failed to commit purchase'),
       onSuccess: (tx) => {
@@ -225,7 +258,7 @@ export const HomeSearchPage: React.FC = observer(() => {
           render: (
             <FlexRow>
               <BaseText style={{ marginRight: 8 }}>
-                Reserved {`${domainName}${config.tld}`}
+                Reserved {`${searchResult.domainName}${config.tld}`}
               </BaseText>
               (
               <LinkWrarpper
@@ -250,17 +283,17 @@ export const HomeSearchPage: React.FC = observer(() => {
       type: toast.TYPE.INFO,
     })
     const tx = await client.rent({
-      name: recordName,
+      name: searchResult.domainName,
       secret,
       url: tweetId.toString(),
-      amount: new BN(price.amount).toString(),
+      amount: new BN(searchResult.price.amount).toString(),
       onSuccess: (tx: any) => {
         const { transactionHash } = tx
         toast.update(toastId.current, {
           render: (
             <FlexRow>
               <BaseText style={{ marginRight: 8 }}>
-                Registered {`${recordName}${config.tld}`}
+                Registered {`${searchResult.domainName}${config.tld}`}
               </BaseText>
             </FlexRow>
           ),
@@ -306,7 +339,6 @@ export const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
-  const isAvailable = record ? !record.renter : true
   return (
     <Container>
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
@@ -328,44 +360,42 @@ export const HomeSearchPage: React.FC = observer(() => {
               />
             </div>
             <InputContainer
-              valid={isValid && isAvailable}
+              valid={
+                validation.valid &&
+                (searchResult ? searchResult.isAvailable : true)
+              }
               style={{ flexGrow: 0 }}
             >
               <StyledInput
                 placeholder="Register your .country domain"
-                value={domainName}
+                value={inputValue}
                 onChange={handleSearchChange}
                 autoFocus
               />
             </InputContainer>
           </FlexColumn>
 
-          {!isValid && <BaseText>Invalid domain name</BaseText>}
-          {!isValid && (
-            <BaseText>
-              Domains can use a mix of letters and numbers
-            </BaseText>
-          )}
+          {!validation.valid && <BaseText>Invalid domain name</BaseText>}
+          {!validation.valid && <BaseText>{validation.error}</BaseText>}
           {loading && <div>Loading...</div>}
-          {isValid &&
+          {validation.valid &&
             !loading &&
-            record &&
-            price &&
+            searchResult &&
             !web2Acquired &&
             !web2Error && (
               <>
                 <HomeSearchResultItem
-                  name={recordName}
+                  name={searchResult.domainName}
                   rateONE={ratesStore.ONE_USD}
-                  price={price.formatted}
-                  available={isAvailable}
+                  price={searchResult.price.formatted}
+                  available={searchResult.isAvailable}
                 />
                 {/* <TermsCheckbox
             checked={isTermsAccepted}
             onChange={setIsTermsAccepted}
           /> */}
                 <Button
-                  disabled={!isValid || !isAvailable}
+                  disabled={!validation.valid || !searchResult.isAvailable}
                   style={{ marginTop: '1em' }}
                   onClick={handleRentDomain}
                 >

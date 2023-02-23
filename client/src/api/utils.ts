@@ -11,20 +11,14 @@ const isValidDomainName = (domainName: string) => {
 
 export const nameUtils = {
   RESTRICTED_VALID_NAME: /[a-z0-9]+/,
-  VALID_NAME: /[a-z0-9-]+/,
+  VALID_NAME: /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/,
   SPECIAL_NAMES: ['s', '0', '1', 'li', 'ml', 'ba', 'names'],
   isValidName: (name: string) => {
     return nameUtils.VALID_NAME.test(name)
   },
-  isValidDomainName: (domainName: string) => {
-    return regx.test(domainName)
-  },
   isReservedName: (name: string) => {
-    name = name.toLowerCase()
     return (
-      name.length <= 2 &&
-      nameUtils.RESTRICTED_VALID_NAME.test(name) &&
-      !nameUtils.SPECIAL_NAMES.includes(name)
+      name.length <= 2 && nameUtils.SPECIAL_NAMES.includes(name.toLowerCase())
     )
   },
 }
