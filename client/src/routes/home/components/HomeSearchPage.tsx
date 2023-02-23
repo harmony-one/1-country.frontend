@@ -343,7 +343,7 @@ export const HomeSearchPage: React.FC = observer(() => {
           {!isValid && <BaseText>Invalid domain name</BaseText>}
           {!isValid && (
             <BaseText>
-              Domain can use a mix of letters (English A-Z), numbers and dash
+              Domains can use a mix of letters and numbers
             </BaseText>
           )}
           {loading && <div>Loading...</div>}
