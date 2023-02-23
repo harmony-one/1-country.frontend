@@ -19,6 +19,7 @@ import { parseTweetId } from '../../../utils/parseTweetId'
 import { Container } from '../Home.styles'
 import { cutString } from '../../../utils/string'
 import ProcessStatus, { ProcessStatusProps, statusTypes } from '../../../components/process-status/ProcessStatus'
+import { buildTxUri } from '../../../utils/explorer'
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -113,7 +114,6 @@ export const HomeSearchPage: React.FC = observer(() => {
   const { rootStore, ratesStore, walletStore } = useStores()
 
   const navigate = useNavigate()
-  const client = rootStore.d1dcClient
 
   const updateSearch = (domainName: string) => {
     setSearchResult(null)
@@ -147,13 +147,13 @@ export const HomeSearchPage: React.FC = observer(() => {
     await sleep(timer)
     setLoading(false)
   }
-  
+
   const loadDomainRecord = useMemo(() => {
     return debounce(async (_domainName) => {
-      if (!client || !_domainName) {
+      if (!_domainName) {
         return
       }
-      
+
       setStatus({
         type: statusTypes.INFO,
         render: ''
@@ -162,12 +162,12 @@ export const HomeSearchPage: React.FC = observer(() => {
 
       const [record, price, relayCheckDomain, isAvailable2] = await Promise.all(
         [
-          client.getRecord({ name: _domainName }),
-          client.getPrice({ name: _domainName }),
+          rootStore.d1dcClient.getRecord({ name: _domainName }),
+          rootStore.d1dcClient.getPrice({ name: _domainName }),
           relayApi().checkDomain({
             sld: _domainName,
           }),
-          client.checkAvailable({
+          rootStore.d1dcClient.checkAvailable({
             name: _domainName,
           }),
         ]
@@ -182,7 +182,7 @@ export const HomeSearchPage: React.FC = observer(() => {
 
       setLoading(false)
     }, 500)
-  }, [client])
+  }, [rootStore.d1dcClient])
 
   const claimWeb2DomainWrapper = async () => {
     setLoading(true)
@@ -235,7 +235,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       return toast.error('This domain name is already registered')
     }
 
-    const _available = await client.checkAvailable({
+    const _available = await rootStore.d1dcClient.checkAvailable({
       name: searchResult.domainName,
     })
     if (!_available) {
@@ -252,7 +252,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     if (!nameUtils.isValidName(searchResult.domainName)) {
       return toast.error('Domain must be alphanumerical characters')
     }
-    
+
     setStatus({
       type: statusTypes.INFO,
       render: ''
@@ -268,7 +268,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       return
     }
 
-    const commitResult = await client.commit({
+    const commitResult = await rootStore.d1dcClient.commit({
       name: searchResult.domainName.toLowerCase(),
       secret,
       onFailed: () => {
@@ -282,7 +282,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       onSuccess: (tx) => {
         console.log(tx)
         const { transactionHash } = tx
-        
+
         setStatus({
           type: statusTypes.INFO,
           render: <FlexRow>
@@ -293,7 +293,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             <LinkWrarpper
               target="_blank"
               type="text"
-              href={client.getExplorerUri(transactionHash)}
+              href={buildTxUri(transactionHash)}
             >
               <BaseText>{cutString(transactionHash)}</BaseText>
             </LinkWrarpper>
@@ -308,13 +308,13 @@ export const HomeSearchPage: React.FC = observer(() => {
     }
     console.log('waiting for 5 seconds...')
     await sleep(5000)
-    
+
     setStatus({
       type: statusTypes.INFO,
       render: 'Purchasing Domain',
     })
-    
-    const tx = await client.rent({
+
+    const tx = await rootStore.d1dcClient.rent({
       name: searchResult.domainName,
       secret,
       url: tweetId.toString(),

@@ -58,6 +58,8 @@ export class RootStore {
   }
 
   updateD1DCClient(web3: Web3, address: string) {
+    console.log('### dc client updated', address)
+
     this.d1dcClient = apis({ web3, address })
   }
 }
