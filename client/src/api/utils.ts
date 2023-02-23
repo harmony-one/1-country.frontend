@@ -11,7 +11,7 @@ const isValidDomainName = (domainName: string) => {
 
 export const nameUtils = {
   RESTRICTED_VALID_NAME: /[a-z0-9]+/,
-  VALID_NAME: /[a-z0-9-]+/,
+  VALID_NAME: /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/,
   SPECIAL_NAMES: ['s', '0', '1', 'li', 'ml', 'ba', 'names'],
   CROSS_CHAIN_NAMES1: ['btc', 'eth', 'usdt', 'bnb', 'sol', 'ada', 'xrp', 'doge', 'dot', 'usdc', 'uni', 'link', 'luna', 'matic', 'axs', 'shib', 'avax', 'ltc', 'algo', 'fil', 'atom', 'icp', 'cake', 'ftt', 'vet', 'xlm', 'wbtc', 'eos', 'trx', 'xtz', 'aave', 'egld', 'bch', 'ust', 'near', 'dash', 'chz', 'hnt', 'xec', 'bat', 'crv', 'enj', 'grt', 'zec', 'tfuel', 'sushi', 'snx', 'solve', 'ankr', 'hot', 'rvn', 'nexo', 'dai', 'zil', 'celo', 'mana', 'amp', 'one', 'hbar', 'icx', 'mkr', 'flow', 'ren', 'omg', 'iost', 'lrc', 'tel', 'dgb', 'pax', 'srm', 'vgx', 'comp', 'waves', 'ctsi', 'qtum', 'zrx', 'band', 'cvc', 'rev', 'ksm', 'ar', 'tlm', 'bal', 'nano', 'lsk', 'skl', 'farm', 'mir', 'leo', 'etc', 'okb', 'ton', 'xmr', 'ldo', 'apt', 'cro', 'ape', 'qnt', 'ftm', 'theta', 'sand', 'stx', 'tusd', 'lunc', 'rpl', 'neo', 'klay', 'ht', 'usdp', 'kcs', 'mina', 'imx', 'fxs', 'usdd', 'miota', 'cfx', 'gmx', 'op', 'gusd', 'twt', 'rune', 'gt', '1inch', 'osmo', 'agix', 'flr', 'paxg', 'cvx', 'bone', 'fei', 'ethw', 'cspr', 'rose', 'dydx', 'btg', 'fet', 'ens', 'magic', 'ach'],
   CROSS_CHAIN_NAMES2: ['btc1', 'eth1', 'usdt1', 'bnb1', 'sol1', 'ada1', 'xrp1', 'doge1', 'dot1', 'usdc1', 'uni1', 'link1', 'luna1', 'matic1', 'axs1', 'shib1', 'avax1', 'ltc1', 'algo1', 'fil1', 'atom1', 'icp1', 'cake1', 'ftt1', 'vet1', 'xlm1', 'wbtc1', 'eos1', 'trx1', 'xtz1', 'aave1', 'egld1', 'bch1', 'ust1', 'near1', 'dash1', 'chz1', 'hnt1', 'xec1', 'bat1', 'crv1', 'enj1', 'grt1', 'zec1', 'tfuel1', 'sushi1', 'snx1', 'solve1', 'ankr1', 'hot1', 'rvn1', 'nexo1', 'dai1', 'zil1', 'celo1', 'mana1', 'amp1', 'one1', 'hbar1', 'icx1', 'mkr1', 'flow1', 'ren1', 'omg1', 'iost1', 'lrc1', 'tel1', 'dgb1', 'pax1', 'srm1', 'vgx1', 'comp1', 'waves1', 'ctsi1', 'qtum1', 'zrx1', 'band1', 'cvc1', 'rev1', 'ksm1', 'ar1', 'tlm1', 'bal1', 'nano1', 'lsk1', 'skl1', 'farm1', 'mir1', 'leo1', 'etc1', 'okb1', 'ton1', 'xmr1', 'ldo1', 'apt1', 'cro1', 'ape1', 'qnt1', 'ftm1', 'theta1', 'sand1', 'stx1', 'tusd1', 'lunc1', 'rpl1', 'neo1', 'klay1', 'ht1', 'usdp1', 'kcs1', 'mina1', 'imx1', 'fxs1', 'usdd1', 'miota1', 'cfx1', 'gmx1', 'op1', 'gusd1', 'twt1', 'rune1', 'gt1', '1inch1', 'osmo1', 'agix1', 'flr1', 'paxg1', 'cvx1', 'bone1', 'fei1', 'ethw1', 'cspr1', 'rose1', 'dydx1', 'btg1', 'fet1', 'ens1', 'magic1', 'ach1'],
@@ -20,15 +20,15 @@ export const nameUtils = {
   isValidName: (name: string) => {
     return nameUtils.VALID_NAME.test(name)
   },
-  isValidDomainName: (domainName: string) => {
-    return regx.test(domainName)
-  },
   isReservedName: (name: string) => {
-    name = name.toLowerCase()
     return (
+<<<<<<< HEAD
       name.length <= 2 &&
       nameUtils.RESTRICTED_VALID_NAME.test(name) &&
       !nameUtils.SPECIAL_NAMES.includes(name) || !nameUtils.CROSS_CHAIN_NAMES1.includes(name) || !nameUtils.CROSS_CHAIN_NAMES2.includes(name) || !nameUtils.COUNTRY_NAMES.includes(name)
+=======
+      name.length <= 2 && nameUtils.SPECIAL_NAMES.includes(name.toLowerCase())
+>>>>>>> e4a8a3fa3adc9b1aa57599a43a24ffc9ef90710f
     )
   },
 }
