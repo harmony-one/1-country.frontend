@@ -22,13 +22,7 @@ export const nameUtils = {
   },
   isReservedName: (name: string) => {
     return (
-<<<<<<< HEAD
-      name.length <= 2 &&
-      nameUtils.RESTRICTED_VALID_NAME.test(name) &&
-      !nameUtils.SPECIAL_NAMES.includes(name) || !nameUtils.CROSS_CHAIN_NAMES1.includes(name) || !nameUtils.CROSS_CHAIN_NAMES2.includes(name) || !nameUtils.COUNTRY_NAMES.includes(name)
-=======
       name.length <= 2 && nameUtils.SPECIAL_NAMES.includes(name.toLowerCase())
->>>>>>> e4a8a3fa3adc9b1aa57599a43a24ffc9ef90710f
     )
   },
 }
