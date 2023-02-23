@@ -103,16 +103,10 @@ export const HomeSearchPage: React.FC = observer(() => {
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
-  // const [price, setPrice] = useState<DomainPrice | undefined>()
   const [status, setStatus] = useState<ProcessStatusProps>({ type: statusTypes.INFO, render: '' })
-  // const [isValid, setIsValid] = useState(true)
   const [validation, setValidation] = useState({ valid: true, error: '' })
-  // const [record, setRecord] = useState<DomainRecord | undefined>()
-
-  // const [recordName, setRecordName] = useState('')
 
   const [web2Error, setWeb2Error] = useState(false)
-  // const toastId = useRef(null)
   const [secret] = useState<string>(Math.random().toString(26).slice(2))
   const [regTxHash, setRegTxHash] = useState<string>('')
   const [web2Acquired, setWeb2Acquired] = useState(false)
@@ -183,7 +177,7 @@ export const HomeSearchPage: React.FC = observer(() => {
         isAvailable: relayCheckDomain.isAvailable && isAvailable2,
       })
 
-      terminateProcess()
+      setLoading(false)
     }, 500)
   }, [client])
 
@@ -244,8 +238,6 @@ export const HomeSearchPage: React.FC = observer(() => {
     setStatus({
       render: 'Processing transaction'
     })
-
-    // toastId.current = toast.loading('Processing transaction')
 
     if (!searchResult.domainName) {
       return toast.error('Invalid domain')
