@@ -18,6 +18,7 @@ import { nameUtils } from '../../../api/utils'
 import { parseTweetId } from '../../../utils/parseTweetId'
 import { Container } from '../Home.styles'
 import { cutString } from '../../../utils/string'
+import ProcessStatus, { ProcessStatusProps, statusTypes } from '../../../components/process-status/ProcessStatus'
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -79,6 +80,7 @@ export const HomeSearchPage: React.FC = observer(() => {
   const [domainName, setDomainName] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
   const [price, setPrice] = useState<DomainPrice | undefined>()
+  const [status, setStatus] = useState<ProcessStatusProps>({ type: statusTypes.INFO, render: '' })
 
   const [record, setRecord] = useState<DomainRecord | undefined>()
   const [isValid, setIsValid] = useState(true)
@@ -120,6 +122,11 @@ export const HomeSearchPage: React.FC = observer(() => {
     updateSearch(event.target.value)
   }
 
+  const terminateProcess = async () => {
+    await sleep(5000)
+    setLoading(false)
+  }
+  
   const loadDomainRecord = useMemo(() => {
     return debounce((_domainName) => {
       if (!client || !_domainName) {
@@ -156,7 +163,8 @@ export const HomeSearchPage: React.FC = observer(() => {
       toast.error('Unable to acquire web2 domain')
       console.error(ex)
     } finally {
-      setLoading(false)
+      terminateProcess()
+      // setLoading(false)
     }
   }
 
@@ -183,21 +191,41 @@ export const HomeSearchPage: React.FC = observer(() => {
       domainName.length <= 2 &&
       nameUtils.SPECIAL_NAMES.includes(domainName.toLowerCase())
     ) {
+      // setStatus({
+      //   type: statusTypes.ERROR,
+      //   render: 'This domain name is reserved for special purpose'
+      // })
       return toast.error('This domain name is reserved for special purpose')
     }
 
     const { isAvailable } = await relayApi().checkDomain({ sld: domainName })
 
     if (!isAvailable) {
+      // setStatus({
+      //   type: statusTypes.ERROR,
+      //   render: 'This domain name is reserved or registered'
+      // })
       return toast.error('This domain name is reserved or registered')
     }
 
-    toastId.current = toast.loading('Processing transaction')
+    setStatus({
+      render: 'Processing transaction'
+    })
+
+    // toastId.current = toast.loading('Processing transaction')
 
     if (!domainName) {
+      // setStatus({
+      //   type: statusTypes.ERROR,
+      //   render: 'Invalid domain'
+      // })
       return toast.error('Invalid domain')
     }
     if (!nameUtils.isValidName(domainName)) {
+      // setStatus({
+      //   type: statusTypes.ERROR,
+      //   render: 'Domain must be alphanumerical characters or hyphen (-)'
+      // })
       return toast.error(
         'Domain must be alphanumerical characters or hyphen (-)'
       )
@@ -217,38 +245,67 @@ export const HomeSearchPage: React.FC = observer(() => {
     await client.commit({
       name: domainName.toLowerCase(),
       secret,
-      onFailed: () => toast.error('Failed to commit purchase'),
+      onFailed: () => setStatus({
+        type: statusTypes.ERROR,
+        render: 'Failed to commit purchase'
+      }),
+      // toast.error('Failed to commit purchase'),
       onSuccess: (tx) => {
         console.log(tx)
         const { transactionHash } = tx
-        toast.update(toastId.current, {
-          render: (
-            <FlexRow>
-              <BaseText style={{ marginRight: 8 }}>
-                Reserved {`${domainName}${config.tld}`}
-              </BaseText>
-              (
-              <LinkWrarpper
-                target="_blank"
-                type="text"
-                href={client.getExplorerUri(transactionHash)}
-              >
-                <BaseText>{cutString(transactionHash)}</BaseText>
-              </LinkWrarpper>
-              )
-            </FlexRow>
-          ),
-          type: toast.TYPE.INFO,
+        
+        setStatus({
+          type: statusTypes.INFO,
+          render: <FlexRow>
+            <BaseText style={{ marginRight: 8 }}>
+              Reserved {`${domainName}${config.tld}`}
+            </BaseText>
+            (
+            <LinkWrarpper
+              target="_blank"
+              type="text"
+              href={client.getExplorerUri(transactionHash)}
+            >
+              <BaseText>{cutString(transactionHash)}</BaseText>
+            </LinkWrarpper>
+            )
+          </FlexRow>
         })
+
+        // toast.update(toastId.current, {
+        //   render: (
+        //     <FlexRow>
+        //       <BaseText style={{ marginRight: 8 }}>
+        //         Reserved {`${domainName}${config.tld}`}
+        //       </BaseText>
+        //       (
+        //       <LinkWrarpper
+        //         target="_blank"
+        //         type="text"
+        //         href={client.getExplorerUri(transactionHash)}
+        //       >
+        //         <BaseText>{cutString(transactionHash)}</BaseText>
+        //       </LinkWrarpper>
+        //       )
+        //     </FlexRow>
+        //   ),
+        //   type: toast.TYPE.INFO,
+        // })
       },
     })
 
     console.log('waiting for 5 seconds...')
     await sleep(5000)
-    toast.update(toastId.current, {
-      render: 'Proceeding to purchase',
-      type: toast.TYPE.INFO,
+    
+    setStatus({
+      type: statusTypes.INFO,
+      render: 'Proceeding to purchase'
     })
+    
+    // toast.update(toastId.current, {
+    //   render: 'Proceeding to purchase',
+    //   type: toast.TYPE.INFO,
+    // })
     const tx = await client.rent({
       name: recordName,
       secret,
@@ -256,25 +313,41 @@ export const HomeSearchPage: React.FC = observer(() => {
       amount: new BN(price.amount).toString(),
       onSuccess: (tx: any) => {
         const { transactionHash } = tx
-        toast.update(toastId.current, {
+        setStatus({
+          type: statusTypes.INFO,
           render: (
             <FlexRow>
               <BaseText style={{ marginRight: 8 }}>
                 Registered {`${recordName}${config.tld}`}
               </BaseText>
             </FlexRow>
-          ),
-          type: toast.TYPE.SUCCESS,
+          )
         })
+        terminateProcess()
+        // toast.update(toastId.current, {
+        //   render: (
+        //     <FlexRow>
+        //       <BaseText style={{ marginRight: 8 }}>
+        //         Registered {`${recordName}${config.tld}`}
+        //       </BaseText>
+        //     </FlexRow>
+        //   ),
+        //   type: toast.TYPE.SUCCESS,
+        // })
       },
       onFailed: () => {
-        setLoading(false)
-        toast.update(toastId.current, {
-          render: 'Failed to purchase',
-          type: toast.TYPE.ERROR,
-          isLoading: false,
-          autoClose: 2000,
+        // setLoading(false)
+        setStatus({
+          type: statusTypes.ERROR,
+          render: 'Failed to purchase'
         })
+        terminateProcess()
+        // toast.update(toastId.current, {
+        //   render: 'Failed to purchase',
+        //   type: toast.TYPE.ERROR,
+        //   isLoading: false,
+        //   autoClose: 2000,
+        // })
       },
     })
 
@@ -282,27 +355,37 @@ export const HomeSearchPage: React.FC = observer(() => {
     setRegTxHash(txHash)
 
     try {
-      await claimWeb2Domain(txHash)
+      // await claimWeb2Domain(txHash)
       await sleep(1500)
-      toast.update(toastId.current, {
-        render: 'Domain registered',
-        type: toast.TYPE.SUCCESS,
-        isLoading: false,
-        autoClose: 2000,
+      setStatus({
+        type: statusTypes.SUCCESS,
+        render: 'Domain registered'
       })
-      setLoading(false)
+      // toast.update(toastId.current, {
+      //   render: 'Domain registered',
+      //   type: toast.TYPE.SUCCESS,
+      //   isLoading: false,
+      //   autoClose: 2000,
+      // })
+      terminateProcess()
+      // setLoading(false)
       setWeb2Acquired(true)
     } catch (ex) {
       console.log('claimWeb2Domain error:', ex)
       setWeb2Error(true)
-      toast.update(toastId.current, {
-        render: 'Failed to claim the domain',
-        type: 'error',
-        isLoading: false,
-        autoClose: 2000,
+      setStatus({
+        type: statusTypes.ERROR,
+        render: 'Failed to claim the domain'
       })
+      // toast.update(toastId.current, {
+      //   render: 'Failed to claim the domain',
+      //   type: 'error',
+      //   isLoading: false,
+      //   autoClose: 2000,
+      // })
     } finally {
-      setLoading(false)
+      terminateProcess()
+      // setLoading(false)
     }
   }
 
@@ -346,7 +429,8 @@ export const HomeSearchPage: React.FC = observer(() => {
               Domain can use a mix of letters (English A-Z), numbers and dash
             </BaseText>
           )}
-          {loading && <div>Loading...</div>}
+          {/* {loading && <div>Loading...</div>} */}
+          {loading && <ProcessStatus { ...status } />}
           {isValid &&
             !loading &&
             record &&
