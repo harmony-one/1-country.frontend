@@ -183,7 +183,7 @@ export const HomeSearchPage: React.FC = observer(() => {
         isAvailable: relayCheckDomain.isAvailable && isAvailable2,
       })
 
-      setLoading(false)
+      terminateProcess()
     }, 500)
   }, [client])
 
@@ -322,10 +322,8 @@ export const HomeSearchPage: React.FC = observer(() => {
             </FlexRow>
           )
         })
-        terminateProcess()
       },
       onFailed: () => {
-        // setLoading(false)
         setStatus({
           type: statusTypes.ERROR,
           render: 'Failed to purchase'
