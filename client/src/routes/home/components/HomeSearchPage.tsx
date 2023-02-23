@@ -181,7 +181,10 @@ export const HomeSearchPage: React.FC = observer(() => {
 
     if (
       domainName.length <= 2 &&
-      nameUtils.SPECIAL_NAMES.includes(domainName.toLowerCase())
+      nameUtils.SPECIAL_NAMES.includes(domainName.toLowerCase()) ||
+      nameUtils.CROSS_CHAIN_NAMES1.includes(domainName.toLowerCase()) ||
+      nameUtils.CROSS_CHAIN_NAMES2.includes(domainName.toLowerCase()) ||
+      nameUtils.COUNTRY_NAMES.includes(domainName.toLowerCase())
     ) {
       return toast.error('This domain name is reserved')
     }
