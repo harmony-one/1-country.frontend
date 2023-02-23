@@ -183,13 +183,13 @@ export const HomeSearchPage: React.FC = observer(() => {
       domainName.length <= 2 &&
       nameUtils.SPECIAL_NAMES.includes(domainName.toLowerCase())
     ) {
-      return toast.error('This domain name is reserved for special purpose')
+      return toast.error('This domain name is reserved')
     }
 
     const { isAvailable } = await relayApi().checkDomain({ sld: domainName })
 
     if (!isAvailable) {
-      return toast.error('This domain name is reserved or registered')
+      return toast.error('This domain name is already registered')
     }
 
     toastId.current = toast.loading('Processing transaction')
@@ -199,7 +199,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     }
     if (!nameUtils.isValidName(domainName)) {
       return toast.error(
-        'Domain must be alphanumerical characters or hyphen (-)'
+        'Domain must be alphanumerical characters'
       )
     }
 
@@ -246,7 +246,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     console.log('waiting for 5 seconds...')
     await sleep(5000)
     toast.update(toastId.current, {
-      render: 'Proceeding to purchase',
+      render: 'Purchasing Domain',
       type: toast.TYPE.INFO,
     })
     const tx = await client.rent({
@@ -296,7 +296,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       console.log('claimWeb2Domain error:', ex)
       setWeb2Error(true)
       toast.update(toastId.current, {
-        render: 'Failed to claim the domain',
+        render: 'Failed to claim domain',
         type: 'error',
         isLoading: false,
         autoClose: 2000,
