@@ -61,7 +61,6 @@ export const StyledInput = styled.input`
   }
 `
 
-const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
 const { tweetId } = parseTweetId(
   'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'
 )
@@ -70,55 +69,84 @@ const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(() => resolve(1), ms))
 }
 
-const isValidDomainName = (domainName: string) => {
+const validateDomainName = (domainName: string) => {
   console.log('isValidDomain', domainName)
-  return regx.test(domainName)
+
+  if (nameUtils.isReservedName(domainName.toLowerCase())) {
+    return {
+      valid: false,
+      error: 'This domain name is reserved for special purpose',
+    }
+  }
+
+  if (!nameUtils.isValidName(domainName.toLowerCase())) {
+    return {
+      valid: false,
+      error: 'Domains can use a mix of letters and numbers',
+    }
+  }
+
+  return {
+    valid: true,
+    error: '',
+  }
+}
+
+interface SearchResult {
+  domainName: string
+  domainRecord: DomainRecord
+  price: DomainPrice
+  isAvailable: boolean
 }
 
 export const HomeSearchPage: React.FC = observer(() => {
   const [searchParams] = useSearchParams()
-  const [domainName, setDomainName] = useState(searchParams.get('domain') || '')
+  const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
-  const [price, setPrice] = useState<DomainPrice | undefined>()
+  // const [price, setPrice] = useState<DomainPrice | undefined>()
   const [status, setStatus] = useState<ProcessStatusProps>({ type: statusTypes.INFO, render: '' })
+  // const [isValid, setIsValid] = useState(true)
+  const [validation, setValidation] = useState({ valid: true, error: '' })
+  // const [record, setRecord] = useState<DomainRecord | undefined>()
 
-  const [record, setRecord] = useState<DomainRecord | undefined>()
-  const [isValid, setIsValid] = useState(true)
-  const [recordName, setRecordName] = useState('')
+  // const [recordName, setRecordName] = useState('')
+
   const [web2Error, setWeb2Error] = useState(false)
-  const toastId = useRef(null)
+  // const toastId = useRef(null)
   const [secret] = useState<string>(Math.random().toString(26).slice(2))
   const [regTxHash, setRegTxHash] = useState<string>('')
   const [web2Acquired, setWeb2Acquired] = useState(false)
+  const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
   const { rootStore, ratesStore, walletStore } = useStores()
 
   const navigate = useNavigate()
   const client = rootStore.d1dcClient
 
   const updateSearch = (domainName: string) => {
-    const _isValid = isValidDomainName(domainName.toLowerCase())
-    setIsValid(_isValid)
+    setSearchResult(null)
+    const result = validateDomainName(domainName.toLowerCase())
+    setValidation(result)
 
-    if (_isValid) {
+    if (result.valid) {
       loadDomainRecord(domainName)
     }
   }
 
   // setup form from query string
   useEffect(() => {
-    if (domainName) {
-      updateSearch(domainName)
+    if (inputValue) {
+      updateSearch(inputValue)
     }
   }, [])
 
   useEffect(() => {
     if (web2Acquired) {
-      navigate(`new/${domainName}`)
+      navigate(`new/${searchResult.domainName}`)
     }
   }, [web2Acquired])
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDomainName(event.target.value)
+    setInputValue(event.target.value)
     updateSearch(event.target.value)
   }
 
@@ -128,27 +156,34 @@ export const HomeSearchPage: React.FC = observer(() => {
   }
   
   const loadDomainRecord = useMemo(() => {
-    return debounce((_domainName) => {
+    return debounce(async (_domainName) => {
       if (!client || !_domainName) {
         return
       }
 
       setLoading(true)
 
-      client
-        .getRecord({ name: _domainName })
-        .then((r) => {
-          setRecord(r)
-          setLoading(false)
-        })
-        .catch((ex) => {
-          console.log('### ex', ex)
-        })
-      client.getPrice({ name: _domainName }).then((p) => {
-        setPrice(p)
+      const [record, price, relayCheckDomain, isAvailable2] = await Promise.all(
+        [
+          client.getRecord({ name: _domainName }),
+          client.getPrice({ name: _domainName }),
+          relayApi().checkDomain({
+            sld: _domainName,
+          }),
+          client.checkAvailable({
+            name: _domainName,
+          }),
+        ]
+      )
+
+      setSearchResult({
+        domainName: _domainName,
+        domainRecord: record,
+        price: price,
+        isAvailable: relayCheckDomain.isAvailable && isAvailable2,
       })
 
-      setRecordName(_domainName)
+      setLoading(false)
     }, 500)
   }, [client])
 
@@ -170,7 +205,7 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   const claimWeb2Domain = async (txHash: string) => {
     const { success, responseText } = await relayApi().purchaseDomain({
-      domain: `${domainName.toLowerCase()}${config.tld}`,
+      domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
       txHash,
       address: walletStore.walletAddress,
     })
@@ -183,29 +218,27 @@ export const HomeSearchPage: React.FC = observer(() => {
   }
 
   const handleRentDomain = async () => {
-    if (!record || !isValid) {
+    if (!searchResult.domainRecord || !validation.valid) {
       return false
     }
 
-    if (
-      domainName.length <= 2 &&
-      nameUtils.SPECIAL_NAMES.includes(domainName.toLowerCase())
-    ) {
-      // setStatus({
-      //   type: statusTypes.ERROR,
-      //   render: 'This domain name is reserved for special purpose'
-      // })
-      return toast.error('This domain name is reserved for special purpose')
-    }
+    console.log('### searchResult', searchResult)
 
-    const { isAvailable } = await relayApi().checkDomain({ sld: domainName })
+    const { isAvailable } = await relayApi().checkDomain({
+      sld: searchResult.domainName,
+    })
+
+    console.log('### isAvailable', isAvailable)
 
     if (!isAvailable) {
-      // setStatus({
-      //   type: statusTypes.ERROR,
-      //   render: 'This domain name is reserved or registered'
-      // })
-      return toast.error('This domain name is reserved or registered')
+      return toast.error('This domain name is already registered')
+    }
+
+    const _available = await client.checkAvailable({
+      name: searchResult.domainName,
+    })
+    if (!_available) {
+      return toast.error('This domain name is already registered')
     }
 
     setStatus({
@@ -214,21 +247,11 @@ export const HomeSearchPage: React.FC = observer(() => {
 
     // toastId.current = toast.loading('Processing transaction')
 
-    if (!domainName) {
-      // setStatus({
-      //   type: statusTypes.ERROR,
-      //   render: 'Invalid domain'
-      // })
+    if (!searchResult.domainName) {
       return toast.error('Invalid domain')
     }
-    if (!nameUtils.isValidName(domainName)) {
-      // setStatus({
-      //   type: statusTypes.ERROR,
-      //   render: 'Domain must be alphanumerical characters or hyphen (-)'
-      // })
-      return toast.error(
-        'Domain must be alphanumerical characters or hyphen (-)'
-      )
+    if (!nameUtils.isValidName(searchResult.domainName)) {
+      return toast.error('Domain must be alphanumerical characters')
     }
 
     setLoading(true)
@@ -243,7 +266,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     }
 
     await client.commit({
-      name: domainName.toLowerCase(),
+      name: searchResult.domainName.toLowerCase(),
       secret,
       onFailed: () => setStatus({
         type: statusTypes.ERROR,
@@ -258,7 +281,7 @@ export const HomeSearchPage: React.FC = observer(() => {
           type: statusTypes.INFO,
           render: <FlexRow>
             <BaseText style={{ marginRight: 8 }}>
-              Reserved {`${domainName}${config.tld}`}
+              Reserved {`${searchResult.domainName}${config.tld}`}
             </BaseText>
             (
             <LinkWrarpper
@@ -271,26 +294,6 @@ export const HomeSearchPage: React.FC = observer(() => {
             )
           </FlexRow>
         })
-
-        // toast.update(toastId.current, {
-        //   render: (
-        //     <FlexRow>
-        //       <BaseText style={{ marginRight: 8 }}>
-        //         Reserved {`${domainName}${config.tld}`}
-        //       </BaseText>
-        //       (
-        //       <LinkWrarpper
-        //         target="_blank"
-        //         type="text"
-        //         href={client.getExplorerUri(transactionHash)}
-        //       >
-        //         <BaseText>{cutString(transactionHash)}</BaseText>
-        //       </LinkWrarpper>
-        //       )
-        //     </FlexRow>
-        //   ),
-        //   type: toast.TYPE.INFO,
-        // })
       },
     })
 
@@ -299,18 +302,14 @@ export const HomeSearchPage: React.FC = observer(() => {
     
     setStatus({
       type: statusTypes.INFO,
-      render: 'Proceeding to purchase'
+      render: 'Purchasing Domain',
     })
     
-    // toast.update(toastId.current, {
-    //   render: 'Proceeding to purchase',
-    //   type: toast.TYPE.INFO,
-    // })
     const tx = await client.rent({
-      name: recordName,
+      name: searchResult.domainName,
       secret,
       url: tweetId.toString(),
-      amount: new BN(price.amount).toString(),
+      amount: new BN(searchResult.price.amount).toString(),
       onSuccess: (tx: any) => {
         const { transactionHash } = tx
         setStatus({
@@ -318,22 +317,12 @@ export const HomeSearchPage: React.FC = observer(() => {
           render: (
             <FlexRow>
               <BaseText style={{ marginRight: 8 }}>
-                Registered {`${recordName}${config.tld}`}
+                Registered {`${searchResult.domainName}${config.tld}`}
               </BaseText>
             </FlexRow>
           )
         })
         terminateProcess()
-        // toast.update(toastId.current, {
-        //   render: (
-        //     <FlexRow>
-        //       <BaseText style={{ marginRight: 8 }}>
-        //         Registered {`${recordName}${config.tld}`}
-        //       </BaseText>
-        //     </FlexRow>
-        //   ),
-        //   type: toast.TYPE.SUCCESS,
-        // })
       },
       onFailed: () => {
         // setLoading(false)
@@ -342,12 +331,6 @@ export const HomeSearchPage: React.FC = observer(() => {
           render: 'Failed to purchase'
         })
         terminateProcess()
-        // toast.update(toastId.current, {
-        //   render: 'Failed to purchase',
-        //   type: toast.TYPE.ERROR,
-        //   isLoading: false,
-        //   autoClose: 2000,
-        // })
       },
     })
 
@@ -355,18 +338,12 @@ export const HomeSearchPage: React.FC = observer(() => {
     setRegTxHash(txHash)
 
     try {
-      // await claimWeb2Domain(txHash)
+      await claimWeb2Domain(txHash)
       await sleep(1500)
       setStatus({
         type: statusTypes.SUCCESS,
         render: 'Domain registered'
       })
-      // toast.update(toastId.current, {
-      //   render: 'Domain registered',
-      //   type: toast.TYPE.SUCCESS,
-      //   isLoading: false,
-      //   autoClose: 2000,
-      // })
       terminateProcess()
       // setLoading(false)
       setWeb2Acquired(true)
@@ -377,19 +354,12 @@ export const HomeSearchPage: React.FC = observer(() => {
         type: statusTypes.ERROR,
         render: 'Failed to claim the domain'
       })
-      // toast.update(toastId.current, {
-      //   render: 'Failed to claim the domain',
-      //   type: 'error',
-      //   isLoading: false,
-      //   autoClose: 2000,
-      // })
     } finally {
       terminateProcess()
-      // setLoading(false)
+
     }
   }
 
-  const isAvailable = record ? !record.renter : true
   return (
     <Container>
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
@@ -411,45 +381,42 @@ export const HomeSearchPage: React.FC = observer(() => {
               />
             </div>
             <InputContainer
-              valid={isValid && isAvailable}
+              valid={
+                validation.valid &&
+                (searchResult ? searchResult.isAvailable : true)
+              }
               style={{ flexGrow: 0 }}
             >
               <StyledInput
                 placeholder="Register your .country domain"
-                value={domainName}
+                value={inputValue}
                 onChange={handleSearchChange}
                 autoFocus
               />
             </InputContainer>
           </FlexColumn>
 
-          {!isValid && <BaseText>Invalid domain name</BaseText>}
-          {!isValid && (
-            <BaseText>
-              Domain can use a mix of letters (English A-Z), numbers and dash
-            </BaseText>
-          )}
-          {/* {loading && <div>Loading...</div>} */}
+          {!validation.valid && <BaseText>Invalid domain name</BaseText>}
+          {!validation.valid && <BaseText>{validation.error}</BaseText>}
           {loading && <ProcessStatus { ...status } />}
-          {isValid &&
+          {validation.valid &&
             !loading &&
-            record &&
-            price &&
+            searchResult &&
             !web2Acquired &&
             !web2Error && (
               <>
                 <HomeSearchResultItem
-                  name={recordName}
+                  name={searchResult.domainName}
                   rateONE={ratesStore.ONE_USD}
-                  price={price.formatted}
-                  available={isAvailable}
+                  price={searchResult.price.formatted}
+                  available={searchResult.isAvailable}
                 />
                 {/* <TermsCheckbox
             checked={isTermsAccepted}
             onChange={setIsTermsAccepted}
           /> */}
                 <Button
-                  disabled={!isValid || !isAvailable}
+                  disabled={!validation.valid || !searchResult.isAvailable}
                   style={{ marginTop: '1em' }}
                   onClick={handleRentDomain}
                 >
