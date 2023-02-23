@@ -10,7 +10,7 @@ const StyledText = styled(GradientText)`
 export const PageNotFound: React.FC = () => {
   return (
     <Box justify="center" align="center" height="100vh">
-      <StyledText>.404</StyledText>
+      <StyledText>404</StyledText>
       <GradientText>Page not found</GradientText>
     </Box>
   )
