@@ -29,12 +29,6 @@ export const VanityURL = observer(
       pageAddress.toLowerCase() === walletStore.walletAddress.toLowerCase()
 
     useEffect(() => {
-      if (!walletStore.isConnected) {
-        walletStore.connect()
-      }
-    }, [walletStore.isConnected])
-
-    useEffect(() => {
       if (!name || isSetOperation) {
         return
       }
