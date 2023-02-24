@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 export const BaseText = styled.div<{ $color?: string }>`
   color: ${(props) => props.$color || 'inherit'};
@@ -9,11 +9,61 @@ export const GradientText = styled.div<{ $size?: string }>`
   font-size: ${(props) => props.$size || '24px'};
   font-family: NunitoBold, system-ui;
   font-weight: bold;
-  background: linear-gradient(0.75turn, #69fabd, #00aee9);
+  background: linear-gradient(45deg, #00aee9, #69fabd);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(1px 1px 2px #0000000f);
+`
+
+export type DomainLevel =
+  | 'reserved'
+  | 'legendary'
+  | 'rare'
+  | 'uncommon'
+  | 'common'
+
+export const DomainName = styled.div<{ size?: string; level: DomainLevel }>`
+  font-size: ${(props) => props.size || '24px'};
+  font-family: NunitoBold, system-ui;
+  font-weight: bold;
+
+  ${(props) => {
+    switch (props.level) {
+      case 'reserved':
+      case 'legendary':
+        return css`
+          background: linear-gradient(
+            45deg,
+            #00aee9 30%,
+            #da707e,
+            #f1b965,
+            #69fabd 70%
+          );
+          background-clip: text;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          filter: drop-shadow(1px 1px 2px #0000000f);
+        `
+      case 'rare':
+        return css`
+          background: linear-gradient(45deg, #00aee9, #69fabd);
+          background-clip: text;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          filter: drop-shadow(1px 1px 2px #0000000f);
+        `
+      case 'uncommon':
+        return css`
+          color: #00aee9;
+        `
+      case 'common':
+      default:
+        return css`
+          color: var(--text-color);
+        `
+    }
+  }}
 `
 
 export const SmallText = styled(BaseText)`
