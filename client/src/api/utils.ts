@@ -2,13 +2,6 @@ import { parseTweetId } from '../utils/parseTweetId'
 
 const createKeccakHash = require('keccak')
 
-const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
-
-const isValidDomainName = (domainName: string) => {
-  console.log('isValidDomain', domainName)
-  return regx.test(domainName)
-}
-
 const SPECIAL_NAMES = ['s', '0', '1', 'li', 'ml', 'ba', 'names']
 // prettier-ignore
 const CROSS_CHAIN_NAMES1 = ['btc', 'eth', 'usdt', 'bnb', 'sol', 'ada', 'xrp', 'doge', 'dot', 'usdc', 'uni', 'link', 'luna', 'matic', 'axs', 'shib', 'avax', 'ltc', 'algo', 'fil', 'atom', 'icp', 'cake', 'ftt', 'vet', 'xlm', 'wbtc', 'eos', 'trx', 'xtz', 'aave', 'egld', 'bch', 'ust', 'near', 'dash', 'chz', 'hnt', 'xec', 'bat', 'crv', 'enj', 'grt', 'zec', 'tfuel', 'sushi', 'snx', 'solve', 'ankr', 'hot', 'rvn', 'nexo', 'dai', 'zil', 'celo', 'mana', 'amp', 'one', 'hbar', 'icx', 'mkr', 'flow', 'ren', 'omg', 'iost', 'lrc', 'tel', 'dgb', 'pax', 'srm', 'vgx', 'comp', 'waves', 'ctsi', 'qtum', 'zrx', 'band', 'cvc', 'rev', 'ksm', 'ar', 'tlm', 'bal', 'nano', 'lsk', 'skl', 'farm', 'mir', 'leo', 'etc', 'okb', 'ton', 'xmr', 'ldo', 'apt', 'cro', 'ape', 'qnt', 'ftm', 'theta', 'sand', 'stx', 'tusd', 'lunc', 'rpl', 'neo', 'klay', 'ht', 'usdp', 'kcs', 'mina', 'imx', 'fxs', 'usdd', 'miota', 'cfx', 'gmx', 'op', 'gusd', 'twt', 'rune', 'gt', '1inch', 'osmo', 'agix', 'flr', 'paxg', 'cvx', 'bone', 'fei', 'ethw', 'cspr', 'rose', 'dydx', 'btg', 'fet', 'ens', 'magic', 'ach'];
@@ -107,4 +100,32 @@ export const utils = {
       return null
     }
   },
+}
+
+export type DomainLevel =
+  | 'reserved'
+  | 'legendary'
+  | 'rare'
+  | 'uncommon'
+  | 'common'
+export const getDomainLevel = (domainName: string): DomainLevel => {
+  const len = domainName.length
+
+  if (len === 1) {
+    return 'reserved'
+  }
+
+  if (len === 2) {
+    return 'legendary'
+  }
+
+  if (len <= 6) {
+    return 'rare'
+  }
+
+  if (len <= 9) {
+    return 'uncommon'
+  }
+
+  return 'common'
 }

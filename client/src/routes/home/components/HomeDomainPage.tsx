@@ -8,10 +8,10 @@ import { DomainRecordRenewal } from './DomainRecordRenewal'
 import { HomePageFooter } from './HomePageFooter'
 import { useStores } from '../../../stores'
 
-import { DomainName, GradientText } from '../../../components/Text'
+import { DomainName } from '../../../components/Text'
 import { Container } from '../Home.styles'
 import config from '../../../../config'
-import { getDomainLevel } from '../../../utils/domain'
+import { getDomainLevel } from '../../../api/utils'
 
 interface Props {}
 

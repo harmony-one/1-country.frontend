@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components'
+import { DomainLevel } from '../api/utils'
 
 export const BaseText = styled.div<{ $color?: string }>`
   color: ${(props) => props.$color || 'inherit'};
@@ -15,13 +16,6 @@ export const GradientText = styled.div<{ $size?: string }>`
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(1px 1px 2px #0000000f);
 `
-
-export type DomainLevel =
-  | 'reserved'
-  | 'legendary'
-  | 'rare'
-  | 'uncommon'
-  | 'common'
 
 export const DomainName = styled.div<{ size?: string; level: DomainLevel }>`
   font-size: ${(props) => props.size || '24px'};

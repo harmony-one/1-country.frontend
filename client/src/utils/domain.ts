@@ -1,5 +1,3 @@
-import { DomainLevel } from '../components/Text'
-
 export const calcDomainUSDPrice = (price: number, oneRate: number) => {
   return price * oneRate
 }
@@ -20,26 +18,4 @@ export const formatUSDAmount = (num: string | number) => {
   })
 
   return twoDecimalsFormatter.format(Number(num))
-}
-
-export const getDomainLevel = (domainName: string): DomainLevel => {
-  const len = domainName.length
-
-  if (len === 1) {
-    return 'reserved'
-  }
-
-  if (len === 2) {
-    return 'legendary'
-  }
-
-  if (len <= 6) {
-    return 'rare'
-  }
-
-  if (len <= 9) {
-    return 'uncommon'
-  }
-
-  return 'common'
 }
