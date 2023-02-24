@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import TwitterWidget, { checkTweet } from '../widgets/TwitterWidget'
+import TwitterWidget, { parseInputValue } from '../widgets/TwitterWidget'
 import {
   PageWidgetContainer,
   WidgetInputContainer,
@@ -18,127 +18,130 @@ const defaultFormFields = {
 }
 
 type PageWidgetsProps = {
-  name?: string,
+  name?: string
   isOwner: boolean
   showAddButton: boolean
 }
 
-const PageWidgets = observer(({ name, isOwner, showAddButton }: PageWidgetsProps) => {
-  const [widgetList, setWidgetList] = useState([])
-  const [isValid, setIsValid] = useState(true)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [addingWidget, setAddingWidget] = useState(false)
-  const [formFields, setFormFields] = useState(defaultFormFields)
-  const [placeHolder, setPlaceHolder] = useState('')
-  const { domainName } = useParams()
-  const { rootStore } = useStores()
-  const [domainRecord, setDomainRecord] = useState<DomainRecord | null>()
+const PageWidgets = observer(
+  ({ name, isOwner, showAddButton }: PageWidgetsProps) => {
+    const [widgetList, setWidgetList] = useState([])
+    const [isValid, setIsValid] = useState(true)
+    const [errorMessage, setErrorMessage] = useState('')
+    const [addingWidget, setAddingWidget] = useState(false)
+    const [formFields, setFormFields] = useState(defaultFormFields)
+    const [placeHolder, setPlaceHolder] = useState('')
+    const { domainName } = useParams()
+    const { rootStore } = useStores()
+    const [domainRecord, setDomainRecord] = useState<DomainRecord | null>()
 
-  useEffect(() => {
-    widgetListStore.loadDomainTx(domainName || name)
-    // openWidgetsPageStore.loadDomainTx(domainName || name)
-  }, [])
+    useEffect(() => {
+      widgetListStore.loadDomainTx(domainName || name)
+      // openWidgetsPageStore.loadDomainTx(domainName || name)
+    }, [])
 
-  useEffect(() => {
-    rootStore.d1dcClient.getRecord({ name: domainName || name }).then((record) => {
-      setDomainRecord(record)
-    })
-  }, [])
+    useEffect(() => {
+      rootStore.d1dcClient
+        .getRecord({ name: domainName || name })
+        .then((record) => {
+          setDomainRecord(record)
+        })
+    }, [])
 
-  useEffect(() => {
-    setPlaceHolder('twitter handle or tweet link')
-  }, [])
+    useEffect(() => {
+      setPlaceHolder('twitter handle or tweet link')
+    }, [])
 
-  const enterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      setAddingWidget(true)
-      const value = (event.target as HTMLInputElement).value
-      if (value === '1' || value === 's') {
-        setWidgetList([
-          {
-            type: '',
-            value: 'http://twitter.com/stse/status/1477342465774342145',
-          },
-          ...widgetList,
-        ])
-        setAddingWidget(false)
-        setFormFields({ ...formFields, widgetValue: '' })
-        return
-      }
-      if (value.length > 0) {
-        if (!widgetList.find((e) => e.value === value)) {
-          const result = checkTweet(value)
-          setIsValid(result.error ? false : true)
-          if (result.value) {
-            setWidgetList([
-              {
-                type: result.type,
-                value: value,
-              },
-              ...widgetList,
-            ])
-          } else {
-            setErrorMessage(result.error)
-          }
+    const enterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        setAddingWidget(true)
+        const value = (event.target as HTMLInputElement).value
+        if (value === '1' || value === 's') {
+          setWidgetList([
+            {
+              type: '',
+              value: 'http://twitter.com/stse/status/1477342465774342145',
+            },
+            ...widgetList,
+          ])
+          setAddingWidget(false)
+          setFormFields({ ...formFields, widgetValue: '' })
+          return
         }
-        setAddingWidget(false)
-        setFormFields({ ...formFields, widgetValue: '' })
-        errorMessage && setErrorMessage('')
-      } else {
-        setAddingWidget(false)
-        setIsValid(false)
-        setErrorMessage('Please type a tweet link or a twitter handle')
+        if (value.length > 0) {
+          if (!widgetList.find((e) => e.value === value)) {
+            const result = parseInputValue(value)
+            setIsValid(result.error ? false : true)
+            if (result.value) {
+              setWidgetList([
+                {
+                  type: result.type,
+                  value: value,
+                },
+                ...widgetList,
+              ])
+            } else {
+              setErrorMessage(result.error)
+            }
+          }
+          setAddingWidget(false)
+          setFormFields({ ...formFields, widgetValue: '' })
+          errorMessage && setErrorMessage('')
+        } else {
+          setAddingWidget(false)
+          setIsValid(false)
+          setErrorMessage('Please type a tweet link or a twitter handle')
+        }
       }
     }
-  }
-  console.log(errorMessage)
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target
-    setFormFields({ ...formFields, [name]: value })
-  }
+    console.log(errorMessage)
+    const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = event.target
+      setFormFields({ ...formFields, [name]: value })
+    }
 
-  const deleteWidget = (value: string) => {
-    const newWidgetList = widgetList.filter((w) => w.value !== value)
-    setWidgetList(newWidgetList)
-  }
-  console.log('DOMAIN RECORD', domainRecord)
-  return (
-    <PageWidgetContainer>
-      {showAddButton && (
-        <WidgetInputContainer>
-          <WidgetStyledInput
-            placeholder={placeHolder}
-            name="widgetValue"
-            value={formFields.widgetValue}
-            required
-            onChange={onChange}
-            onKeyDown={enterHandler}
-            disabled={addingWidget}
-            valid={isValid}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
+    const deleteWidget = (value: string) => {
+      const newWidgetList = widgetList.filter((w) => w.value !== value)
+      setWidgetList(newWidgetList)
+    }
+    console.log('DOMAIN RECORD', domainRecord)
+    return (
+      <PageWidgetContainer>
+        {showAddButton && (
+          <WidgetInputContainer>
+            <WidgetStyledInput
+              placeholder={placeHolder}
+              name="widgetValue"
+              value={formFields.widgetValue}
+              required
+              onChange={onChange}
+              onKeyDown={enterHandler}
+              disabled={addingWidget}
+              valid={isValid}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+            />
+            <span>{errorMessage}</span>
+          </WidgetInputContainer>
+        )}
+        {domainRecord && (
+          <TransactionWidget
+            name={domainName || name}
+            loading={widgetListStore.txDomainLoading} // {openWidgetsPageStore.txDomainLoading}
+            domainRecord={domainRecord}
+            txHash={widgetListStore.txDomain} // {openWidgetsPageStore.txDomain}
           />
-          <span>{errorMessage}</span>
-        </WidgetInputContainer>
-      )}
-      {domainRecord && (
-        <TransactionWidget
-          name={domainName || name}
-          loading={widgetListStore.txDomainLoading} // {openWidgetsPageStore.txDomainLoading}
-          domainRecord={domainRecord}
-          txHash={widgetListStore.txDomain} // {openWidgetsPageStore.txDomain}
-        />
-      )}
-      {widgetList.map((widget, index) => (
-        <TwitterWidget
-          type={1}
-          value={widget.value}
-          key={widget.value}
-          deleteWidget={deleteWidget}
-        />
-      ))}
-    </PageWidgetContainer>
-  )
-})
+        )}
+        {widgetList.map((widget, index) => (
+          <TwitterWidget
+            value={widget.value}
+            key={widget.value}
+            onDelete={() => deleteWidget(widget.value)}
+          />
+        ))}
+      </PageWidgetContainer>
+    )
+  }
+)
 
 export default PageWidgets

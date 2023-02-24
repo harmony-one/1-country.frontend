@@ -17,7 +17,7 @@ export const DeleteWidgetButton = styled.button`
   border: 0;
   padding: 0;
 `
-export const WidgetsContainer = styled.div`
+export const WidgetsContainer = styled.div<{ isWidgetLoading?: boolean }>`
   display: flex;
   flex-direction: column;
   width: 100%;

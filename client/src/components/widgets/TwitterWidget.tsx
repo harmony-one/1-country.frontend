@@ -9,24 +9,22 @@ import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
 import { parseTweetId } from '../../utils/parseTweetId'
 import { IconClose } from '../icons/Close'
 
-export const WIDGET_TYPE = {
-  feed: 0,
-  post: 1,
-}
-
 const TwitterWidgetDefault = {
   tweetId: '',
   error: '',
 }
 
-export const checkTweet = (value) => {
+type ParseInputValueResult =
+  | { value: string; error: null }
+  | { error: string; value: null }
+
+export const parseInputValue = (value: string): ParseInputValueResult => {
   try {
     if (isUrl(value)) {
       const result = parseTweetId(value)
       return result.tweetId
         ? {
             value: result.tweetId,
-            type: WIDGET_TYPE.post,
             error: null,
           }
         : {
@@ -36,7 +34,7 @@ export const checkTweet = (value) => {
     } else {
       return {
         value: value,
-        type: WIDGET_TYPE.feed,
+        error: null,
       }
     }
   } catch (e) {
@@ -48,8 +46,15 @@ export const checkTweet = (value) => {
   }
 }
 
-const TwitterWidget = ({ value, type, deleteWidget }) => {
-  const [tweetId, setTweetId] = useState(TwitterWidgetDefault)
+interface Props {
+  value: string
+  onDelete?: () => void
+}
+
+const TwitterWidget: React.FC<Props> = ({ value, onDelete }) => {
+  const [tweetId, setTweetId] = useState<{ tweetId?: string; error?: string }>(
+    TwitterWidgetDefault
+  )
   const [userName, setUserName] = useState('')
   const [loading, setLoading] = useState(true)
   const { ref, inView } = useInView({
@@ -71,10 +76,6 @@ const TwitterWidget = ({ value, type, deleteWidget }) => {
       setTweetId(TwitterWidgetDefault)
     }
   }, [value])
-
-  const deleteItem = () => {
-    deleteWidget(value)
-  }
 
   return (
     <WidgetsContainer isWidgetLoading={loading} ref={ref}>
@@ -99,9 +100,11 @@ const TwitterWidget = ({ value, type, deleteWidget }) => {
           />
         )}
       </div>
-      <DeleteWidgetButton onClick={deleteItem}>
-        <IconClose />
-      </DeleteWidgetButton>
+      {onDelete && (
+        <DeleteWidgetButton onClick={onDelete}>
+          <IconClose />
+        </DeleteWidgetButton>
+      )}
     </WidgetsContainer>
   )
 }
