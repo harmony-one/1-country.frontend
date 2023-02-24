@@ -1,6 +1,6 @@
 import { RootStore } from './RootStore'
 import { BaseStore } from './BaseStore'
-import { action, computed, makeObservable, observable } from 'mobx'
+import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import { getDomainName } from '../utils/getDomainName'
 import { DCParams, DomainPrice, DomainRecord } from '../api'
 
@@ -86,8 +86,10 @@ export class DomainStore extends BaseStore {
         }),
       ])
 
-      this.domainPrice = domainPrice
-      this.domainRecord = domainRecord
+      runInAction(() => {
+        this.domainPrice = domainPrice
+        this.domainRecord = domainRecord
+      })
     } catch (ex) {
       console.log('### error loadDomainRecord', ex)
     }
