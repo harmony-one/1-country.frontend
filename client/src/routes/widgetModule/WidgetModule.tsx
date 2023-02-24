@@ -131,6 +131,23 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     })
   }
 
+  const handleDeleteLegacyUrl = async () => {
+    toastId.current = toast.loading('Processing transaction')
+
+    if (!walletStore.isConnected) {
+      await walletStore.connect()
+    }
+
+    await rootStore.d1dcClient.updateURL({
+      name: domainName,
+      url: '',
+      onSuccess,
+      onFailed,
+    })
+
+    domainStore.loadDomainRecord(domainName)
+  }
+
   const showInput = walletStore.isConnected && domainStore.isOwner
 
   return (
@@ -167,6 +184,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         <TwitterWidget
           value={domainStore.domainRecord.url}
           // widgetKey={widget.id}
+          onDelete={handleDeleteLegacyUrl}
         />
       )}
 
