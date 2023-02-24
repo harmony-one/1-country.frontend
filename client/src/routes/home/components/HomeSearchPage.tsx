@@ -20,6 +20,8 @@ import { Container } from '../Home.styles'
 import { cutString } from '../../../utils/string'
 import ProcessStatus, { ProcessStatusProps, statusTypes } from '../../../components/process-status/ProcessStatus'
 import { buildTxUri } from '../../../utils/explorer'
+import {useAccount} from "wagmi";
+import {useWeb3Modal, Web3Button} from "@web3modal/react";
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -100,6 +102,8 @@ interface SearchResult {
 }
 
 export const HomeSearchPage: React.FC = observer(() => {
+  const { isConnected, address, connector } = useAccount()
+  const { isOpen, open } = useWeb3Modal();
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
@@ -260,9 +264,18 @@ export const HomeSearchPage: React.FC = observer(() => {
     setLoading(true)
 
     try {
+      // if(!isConnected) {
+      //   open()
+      //   return
+      // }
+      // const provider = await connector!.getProvider()
+      // const web3 = new Web3(provider)
+      // rootStore.updateD1DCClient(web3, address)
       if (!walletStore.isConnected) {
         await walletStore.connect()
       }
+
+      await new Promise(resolve => setTimeout(resolve, 2000))
     } catch (e) {
       console.log('Error', e)
       return
@@ -271,7 +284,8 @@ export const HomeSearchPage: React.FC = observer(() => {
     const commitResult = await rootStore.d1dcClient.commit({
       name: searchResult.domainName.toLowerCase(),
       secret,
-      onFailed: () => {
+      onFailed: (e) => {
+        console.log('Commit result failed:', e)
         setStatus({
           type: statusTypes.ERROR,
           render: 'Failed to reserve the domain'
@@ -280,7 +294,7 @@ export const HomeSearchPage: React.FC = observer(() => {
         return
       },
       onSuccess: (tx) => {
-        console.log(tx)
+        console.log('Commit result success:', tx)
         const { transactionHash } = tx
 
         setStatus({
@@ -302,7 +316,7 @@ export const HomeSearchPage: React.FC = observer(() => {
         })
       },
     })
-    console.log('COMMIT RESULT', commitResult)
+    console.log('Commit result:', commitResult)
     if (!commitResult) {
       return
     }
