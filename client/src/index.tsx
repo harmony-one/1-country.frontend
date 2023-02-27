@@ -7,6 +7,7 @@ import './app.scss'
 import { WagmiConfigProvider } from './modules/wagmi/WagmiConfigProvider'
 import { BrowserRouter } from 'react-router-dom'
 import { ModalProvider } from './modules/modals/ModalProvider'
+import { Web3ModalProvider } from './modules/web3modal/Web3ModalProvider'
 import { UITransactionProvider } from './modules/transactions/UITransactionProvider'
 import { MetaTags } from './modules/metatags/MetaTags'
 
@@ -18,7 +19,7 @@ ReactDOM.render(
     <WagmiConfigProvider>
       <MetaTags />
       <Routes />
-      {/* <Web3ModalProvider /> */}
+      <Web3ModalProvider />
       <ModalProvider />
       <UITransactionProvider />
       <ToastContainer position="top-left" />

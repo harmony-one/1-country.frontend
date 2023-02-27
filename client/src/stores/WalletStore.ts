@@ -66,19 +66,22 @@ export class WalletStore extends BaseStore {
     return this._network.chain && this._network.chain.id
   }
 
+  get isMetamaskAvailable() {
+    return metamaskConnector && metamaskConnector.ready
+  }
+
+  setProvider(provider: any, address: string) {
+    const web3 = new Web3(provider)
+    this.rootStore.updateD1DCClient(web3, address)
+  }
+
   connect() {
-    const connector = metamaskConnector && metamaskConnector.ready
-      ? metamaskConnector
-      : walletConnectConnector
     return connect<typeof wagmiClient.provider>({
       chainId: config.chainParameters.id,
-      connector,
+      connector: metamaskConnector,
     }).then((result) => {
-      const provider = result.provider
-
-      // @ts-expect-error
-      const web3 = new Web3(provider)
-      this.rootStore.updateD1DCClient(web3, result.account)
+      const { provider, account } = result
+      this.setProvider(provider, account)
     })
   }
 }
