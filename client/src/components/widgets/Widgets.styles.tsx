@@ -25,7 +25,11 @@ export const WidgetsContainer = styled.div<{ isWidgetLoading?: boolean }>`
   gap: 1em;
   position: relative;
 
-  &:hover ${DeleteWidgetButton} {
+  ${DeleteWidgetButton} {
     opacity: ${(props) => (props.isWidgetLoading ? 0 : 0.5)};
   }
+
+  // &:hover ${DeleteWidgetButton} {
+  //   opacity: ${(props) => (props.isWidgetLoading ? 0 : 0.5)};
+  // }
 `

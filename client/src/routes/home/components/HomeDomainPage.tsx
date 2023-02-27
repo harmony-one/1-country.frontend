@@ -47,7 +47,7 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
         onClick={goToTx}
         style={{ cursor: widgetListStore.txDomain && 'pointer' }}
       >
-        hello@{domainStore.domainName}
+        hello@{domainStore.domainName}.country
       </DomainName>
       {domainStore.domainRecord && domainStore.domainRecord.renter && (
         <WidgetModule domainName={domainStore.domainName} />
