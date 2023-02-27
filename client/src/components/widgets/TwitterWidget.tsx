@@ -48,10 +48,11 @@ export const parseInputValue = (value: string): ParseInputValueResult => {
 
 interface Props {
   value: string
-  onDelete?: () => void
+  isOwner?: boolean
+  onDelete: () => void
 }
 
-const TwitterWidget: React.FC<Props> = ({ value, onDelete }) => {
+const TwitterWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   const [tweetId, setTweetId] = useState<{ tweetId?: string; error?: string }>(
     TwitterWidgetDefault
   )
@@ -100,7 +101,7 @@ const TwitterWidget: React.FC<Props> = ({ value, onDelete }) => {
           />
         )}
       </div>
-      {onDelete && (
+      {isOwner && (
         <DeleteWidgetButton onClick={onDelete}>
           <IconClose />
         </DeleteWidgetButton>

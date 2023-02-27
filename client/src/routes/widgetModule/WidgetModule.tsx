@@ -173,17 +173,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         <TwitterWidget
           value={widget.value}
           key={index}
-          // widgetKey={widget.id}
-          onDelete={
-            domainStore.isOwner ? () => deleteWidget(widget.id) : undefined
-          }
+          isOwner={domainStore.isOwner}
+          onDelete={() => deleteWidget(widget.id)}
         />
       ))}
 
       {domainStore.domainRecord && domainStore.domainRecord.url && (
         <TwitterWidget
           value={domainStore.domainRecord.url}
-          // widgetKey={widget.id}
+          isOwner={domainStore.isOwner}
           onDelete={handleDeleteLegacyUrl}
         />
       )}
