@@ -2,13 +2,6 @@ import { parseTweetId } from '../utils/parseTweetId'
 
 const createKeccakHash = require('keccak')
 
-const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
-
-const isValidDomainName = (domainName: string) => {
-  console.log('isValidDomain', domainName)
-  return regx.test(domainName)
-}
-
 const SPECIAL_NAMES = ['s', '0', '1', 'li', 'ml', 'ba', 'names']
 // prettier-ignore
 const CROSS_CHAIN_NAMES1 = ['btc', 'eth', 'usdt', 'bnb', 'sol', 'ada', 'xrp', 'doge', 'dot', 'usdc', 'uni', 'link', 'luna', 'matic', 'axs', 'shib', 'avax', 'ltc', 'algo', 'fil', 'atom', 'icp', 'cake', 'ftt', 'vet', 'xlm', 'wbtc', 'eos', 'trx', 'xtz', 'aave', 'egld', 'bch', 'ust', 'near', 'dash', 'chz', 'hnt', 'xec', 'bat', 'crv', 'enj', 'grt', 'zec', 'tfuel', 'sushi', 'snx', 'solve', 'ankr', 'hot', 'rvn', 'nexo', 'dai', 'zil', 'celo', 'mana', 'amp', 'one', 'hbar', 'icx', 'mkr', 'flow', 'ren', 'omg', 'iost', 'lrc', 'tel', 'dgb', 'pax', 'srm', 'vgx', 'comp', 'waves', 'ctsi', 'qtum', 'zrx', 'band', 'cvc', 'rev', 'ksm', 'ar', 'tlm', 'bal', 'nano', 'lsk', 'skl', 'farm', 'mir', 'leo', 'etc', 'okb', 'ton', 'xmr', 'ldo', 'apt', 'cro', 'ape', 'qnt', 'ftm', 'theta', 'sand', 'stx', 'tusd', 'lunc', 'rpl', 'neo', 'klay', 'ht', 'usdp', 'kcs', 'mina', 'imx', 'fxs', 'usdd', 'miota', 'cfx', 'gmx', 'op', 'gusd', 'twt', 'rune', 'gt', '1inch', 'osmo', 'agix', 'flr', 'paxg', 'cvx', 'bone', 'fei', 'ethw', 'cspr', 'rose', 'dydx', 'btg', 'fet', 'ens', 'magic', 'ach'];
@@ -38,7 +31,7 @@ export const nameUtils = {
 }
 
 export const utils = {
-  hexView: (bytes) => {
+  hexView: (bytes: Uint8Array) => {
     return (
       bytes &&
       Array.from(bytes)
@@ -47,64 +40,52 @@ export const utils = {
     )
   },
 
-  hexString: (bytes) => {
+  hexString: (bytes: Uint8Array) => {
     return '0x' + utils.hexView(bytes)
   },
 
-  keccak: (bytes) => {
+  keccak: (bytes: Uint8Array) => {
     const k = createKeccakHash('keccak256')
     // assume Buffer is poly-filled or loaded from https://github.com/feross/buffer
     const hash = k.update(Buffer.from(bytes)).digest()
     return new Uint8Array(hash)
   },
 
-  stringToBytes: (str) => {
+  stringToBytes: (str: string) => {
     return new TextEncoder().encode(str)
   },
 
-  keccak256: (str, use0x) => {
+  keccak256: (str: string, use0x: boolean) => {
     const bytes = utils.stringToBytes(str)
     const hash = utils.keccak(bytes)
     return use0x ? utils.hexString(hash) : utils.hexView(hash)
   },
+}
 
-  hexToBytes: (hex, length, padRight) => {
-    if (!hex) {
-      return
-    }
-    length = length || hex.length / 2
-    const ar = new Uint8Array(length)
-    for (let i = 0; i < hex.length / 2; i += 1) {
-      let j = i
-      if (padRight) {
-        j = length - hex.length + i
-      }
-      ar[j] = parseInt(hex.slice(i * 2, i * 2 + 2), 16)
-    }
-    return ar
-  },
+export type DomainLevel =
+  | 'reserved'
+  | 'legendary'
+  | 'rare'
+  | 'uncommon'
+  | 'common'
+export const getDomainLevel = (domainName: string): DomainLevel => {
+  const len = domainName.length
 
-  hexStringToBytes: (hexStr, length) => {
-    return hexStr.startsWith('0x')
-      ? utils.hexToBytes(hexStr.slice(2), length)
-      : utils.hexToBytes(hexStr, length)
-  },
+  if (len === 1) {
+    return 'reserved'
+  }
 
-  tryNormalizeAddress: (address) => {
-    try {
-      return web3.utils.toChecksumAddress((address || '').toLowerCase())
-    } catch (ex) {
-      console.error(ex)
-      return null
-    }
-  },
+  if (len === 2 || len === 3) {
+    return 'legendary'
+  }
 
-  ecrecover: (message, signature) => {
-    try {
-      return web3.eth.accounts.recover(message, signature)
-    } catch (ex) {
-      console.error(ex)
-      return null
-    }
-  },
+  if (len <= 6) {
+    return 'rare'
+  }
+
+  if (len <= 9) {
+    return 'uncommon'
+  }
+
+  return 'common'
 }

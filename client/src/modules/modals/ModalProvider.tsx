@@ -22,18 +22,11 @@ export const ModalProvider: React.FC<Props> = observer(() => {
     )
   }
 
-  if (!modal || !modal.component) {
+  if (!modal || !modal.render) {
     return null
   }
 
   const { full = false, position = 'center' } = modal.layerProps || {}
-
-  const modalComponent = React.cloneElement(
-    modal.component as React.ReactElement<{
-      onClose: () => void
-    }>,
-    { onClose: handleCloseModal }
-  )
 
   return (
     <Layer
@@ -42,7 +35,10 @@ export const ModalProvider: React.FC<Props> = observer(() => {
       position={position}
       responsive={false}
     >
-      {modalComponent}
+      {modal.render({
+        onClose: handleCloseModal,
+        modalId: modalContext.modalStore.activeModalId,
+      })}
     </Layer>
   )
 })

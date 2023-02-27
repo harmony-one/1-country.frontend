@@ -5,7 +5,9 @@ export const calcDomainUSDPrice = (price: number, oneRate: number) => {
 export const formatONEAmount = (num: number | string) => {
   const twoDecimalsFormatter = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
-    maximumFractionDigits: num > 1000 ? 0 : num < 100 ? 2 : 1,
+    maximumFractionDigits: num < 1 ? 2 : 0,
+    //below is for 4 sigfigs
+    // maximumFractionDigits: num > 1000 ? 0 : num < 100 ? 2 : 1,
   })
 
   return twoDecimalsFormatter.format(Number(num))
@@ -13,8 +15,12 @@ export const formatONEAmount = (num: number | string) => {
 
 export const formatUSDAmount = (num: string | number) => {
   const twoDecimalsFormatter = new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: num > 100 ? 1 : num < 10 ? 3 : 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+
+    //below is for 4 sigfigs
+    // minimumFractionDigits: 1,
+    // maximumFractionDigits: num > 100 ? 1 : num < 10 ? 3 : 2,
   })
 
   return twoDecimalsFormatter.format(Number(num))

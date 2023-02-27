@@ -6,7 +6,7 @@ import {
   WidgetStyledInput,
 } from '../../components/page-widgets/PageWidgets.styles'
 import TwitterWidget, {
-  checkTweet,
+  parseInputValue,
 } from '../../components/widgets/TwitterWidget'
 import { observer } from 'mobx-react-lite'
 import { widgetListStore, Widget } from './WidgetListStore'
@@ -86,7 +86,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     setAddingWidget(true)
     toastId.current = toast.loading('Processing transaction')
 
-    const tweet = checkTweet(event.currentTarget.value)
+    const tweet = parseInputValue(event.currentTarget.value)
 
     if (tweet.error) {
       toast.update(toastId.current, {
@@ -131,6 +131,23 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     })
   }
 
+  const handleDeleteLegacyUrl = async () => {
+    toastId.current = toast.loading('Processing transaction')
+
+    if (!walletStore.isConnected) {
+      await walletStore.connect()
+    }
+
+    await rootStore.d1dcClient.updateURL({
+      name: domainName,
+      url: '',
+      onSuccess,
+      onFailed,
+    })
+
+    domainStore.loadDomainRecord(domainName)
+  }
+
   const showInput = walletStore.isConnected && domainStore.isOwner
 
   return (
@@ -156,18 +173,18 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         <TwitterWidget
           value={widget.value}
           key={index}
-          type={1}
           // widgetKey={widget.id}
-          deleteWidget={() => deleteWidget(widget.id)}
+          onDelete={
+            domainStore.isOwner ? () => deleteWidget(widget.id) : undefined
+          }
         />
       ))}
 
-      {(domainStore.domainRecord && domainStore.domainRecord.url) && (
+      {domainStore.domainRecord && domainStore.domainRecord.url && (
         <TwitterWidget
           value={domainStore.domainRecord.url}
-          type={1}
           // widgetKey={widget.id}
-          deleteWidget={() => false}
+          onDelete={handleDeleteLegacyUrl}
         />
       )}
 

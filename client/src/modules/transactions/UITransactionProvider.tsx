@@ -16,7 +16,7 @@ export const UITransactionProvider: React.FC<Props> = observer(() => {
 
   return (
     <ModalRegister modalId={ModalIds.UI_TRANSACTION}>
-      <UITransactionModal />
+      {(modalProps) => <UITransactionModal {...modalProps} />}
     </ModalRegister>
   )
 })

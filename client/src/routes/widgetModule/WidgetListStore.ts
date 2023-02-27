@@ -1,4 +1,4 @@
-import { action, makeObservable, observable } from 'mobx'
+import { action, makeObservable, observable, runInAction } from 'mobx'
 import { BaseStore } from '../../stores/BaseStore'
 import { RootStore } from '../../stores/RootStore'
 import { rootStore } from '../../stores'
@@ -107,9 +107,9 @@ class WidgetListStore extends BaseStore {
 
     const urlList = await dcClient.getRecordUrlList({ name: domainName })
 
-    console.log('### urlList', urlList)
-
-    this.widgetList = urlList.map(mapUrlToWidget)
+    runInAction(() => {
+      this.widgetList = urlList.map(mapUrlToWidget)
+    })
   }
 
   async loadDomainTx(name: string) {
@@ -136,11 +136,15 @@ class WidgetListStore extends BaseStore {
         )
       })
 
-      this.txDomainLoading = false
-      this.txDomain = event.transactionHash
-      return event.transactionHash
+      runInAction(() => {
+        this.txDomainLoading = false
+        this.txDomain = event.transactionHash
+        return event.transactionHash
+      })
     } catch (ex) {
-      this.txDomainLoading = false
+      runInAction(() => {
+        this.txDomainLoading = false
+      })
       return ''
     }
   }

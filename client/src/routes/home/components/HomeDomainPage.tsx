@@ -3,14 +3,15 @@ import { observer } from 'mobx-react-lite'
 
 import { VanityURL } from '../VanityURL'
 import { WidgetModule } from '../../widgetModule/WidgetModule'
-import { widgetListStore } from  '../../widgetModule/WidgetListStore'
+import { widgetListStore } from '../../widgetModule/WidgetListStore'
 import { DomainRecordRenewal } from './DomainRecordRenewal'
 import { HomePageFooter } from './HomePageFooter'
 import { useStores } from '../../../stores'
 
-import { GradientText } from '../../../components/Text'
+import { DomainName } from '../../../components/Text'
 import { Container } from '../Home.styles'
 import config from '../../../../config'
+import { getDomainLevel } from '../../../api/utils'
 
 interface Props {}
 
@@ -26,7 +27,7 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
       window.open(config.explorer.tx + widgetListStore.txDomain, '_blank')
     }
   }
-  
+
   return (
     <Container>
       <VanityURL
@@ -34,11 +35,13 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
         name={domainStore.domainName}
       />
       <div style={{ height: '2em' }} />
-      <GradientText 
-        onClick={goToTx} 
-        style={{ cursor: widgetListStore.txDomain && 'pointer' }}>
-          {domainStore.domainName}.country
-      </GradientText>
+      <DomainName
+        level={getDomainLevel(domainStore.domainName)}
+        onClick={goToTx}
+        style={{ cursor: widgetListStore.txDomain && 'pointer' }}
+      >
+        hello@{domainStore.domainName}
+      </DomainName>
       {domainStore.domainRecord && domainStore.domainRecord.renter && (
         <WidgetModule domainName={domainStore.domainName} />
       )}
