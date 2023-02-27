@@ -5,6 +5,8 @@ import { toast } from 'react-toastify'
 import { observer } from 'mobx-react-lite'
 import BN from 'bn.js'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import Web3 from "web3";
+import {Box} from "grommet";
 
 import { HomeSearchResultItem } from './HomeSearchResultItem'
 import { useStores } from '../../../stores'
@@ -20,6 +22,8 @@ import { Container } from '../Home.styles'
 import { cutString } from '../../../utils/string'
 import ProcessStatus, { ProcessStatusProps, statusTypes } from '../../../components/process-status/ProcessStatus'
 import { buildTxUri } from '../../../utils/explorer'
+import {useAccount} from "wagmi";
+import {Web3Button} from "@web3modal/react";
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -100,6 +104,7 @@ interface SearchResult {
 }
 
 export const HomeSearchPage: React.FC = observer(() => {
+  const { isConnected, address, connector } = useAccount()
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
@@ -260,18 +265,24 @@ export const HomeSearchPage: React.FC = observer(() => {
     setLoading(true)
 
     try {
-      if (!walletStore.isConnected) {
-        await walletStore.connect()
+      if(walletStore.isMetamaskAvailable) {
+        if (!walletStore.isConnected) {
+          await walletStore.connect()
+        }
+      } else { // Wallet Connect
+        const provider = await connector!.getProvider()
+        walletStore.setProvider(provider, address)
       }
     } catch (e) {
-      console.log('Error', e)
+      console.log('Connect error:', e)
       return
     }
 
     const commitResult = await rootStore.d1dcClient.commit({
       name: searchResult.domainName.toLowerCase(),
       secret,
-      onFailed: () => {
+      onFailed: (e) => {
+        console.log('Commit result failed:', e)
         setStatus({
           type: statusTypes.ERROR,
           render: 'Failed to reserve the domain'
@@ -280,7 +291,7 @@ export const HomeSearchPage: React.FC = observer(() => {
         return
       },
       onSuccess: (tx) => {
-        console.log(tx)
+        console.log('Commit result success:', tx)
         const { transactionHash } = tx
 
         setStatus({
@@ -302,7 +313,7 @@ export const HomeSearchPage: React.FC = observer(() => {
         })
       },
     })
-    console.log('COMMIT RESULT', commitResult)
+    console.log('Commit result:', commitResult)
     if (!commitResult) {
       return
     }
@@ -423,7 +434,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             onChange={setIsTermsAccepted}
           /> */}
                 <Button
-                  disabled={!validation.valid || !searchResult.isAvailable}
+                  disabled={!validation.valid || !searchResult.isAvailable || (!walletStore.isMetamaskAvailable && !isConnected)}
                   style={{ marginTop: '1em' }}
                   onClick={handleRentDomain}
                 >
@@ -436,6 +447,11 @@ export const HomeSearchPage: React.FC = observer(() => {
               TRY AGAIN
             </Button>
           )}
+          {!walletStore.isMetamaskAvailable &&
+            <Box margin={{ top: '32px' }}>
+              <Web3Button />
+            </Box>
+          }
         </SearchBoxContainer>
       </FlexRow>
     </Container>
