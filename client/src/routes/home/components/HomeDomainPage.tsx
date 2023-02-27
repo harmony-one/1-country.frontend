@@ -17,10 +17,16 @@ import { buildTxUri } from '../../../utils/explorer'
 interface Props {}
 
 export const HomeDomainPage: React.FC<Props> = observer(() => {
-  const { domainStore, walletStore } = useStores()
+  const { domainStore, walletStore, metaTagsStore } = useStores()
 
   useEffect(() => {
     widgetListStore.loadDomainTx(domainStore.domainName)
+  }, [domainStore.domainName])
+
+  useEffect(() => {
+    metaTagsStore.update({
+      title: `${domainStore.domainName}${config.tld} | Harmony`,
+    })
   }, [domainStore.domainName])
 
   const goToTx = () => {
