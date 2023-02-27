@@ -115,7 +115,7 @@ export const getDomainLevel = (domainName: string): DomainLevel => {
     return 'reserved'
   }
 
-  if (len === 2) {
+  if (len === 2 || len === 3) {
     return 'legendary'
   }
 
