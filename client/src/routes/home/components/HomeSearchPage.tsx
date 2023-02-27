@@ -265,13 +265,14 @@ export const HomeSearchPage: React.FC = observer(() => {
     setLoading(true)
 
     try {
+      // Metamask
       if (!walletStore.isConnected) {
         await walletStore.connect()
       }
+      // Wallet Connect
       if(!walletStore.isMetamaskAvailable) {
         const provider = await connector!.getProvider()
-        const web3 = new Web3(provider)
-        rootStore.updateD1DCClient(web3, address)
+        walletStore.setProvider(provider, address)
       }
     } catch (e) {
       console.log('Connect error:', e)
