@@ -4,5 +4,5 @@ import { ethereumClient } from './ethereumClient'
 import config from '../../../config'
 
 export const Web3ModalProvider = () => {
-  return <Web3Modal projectId={config.walletConnect.projectId} ethereumClient={ethereumClient} />
+  return <Web3Modal projectId={config.walletConnect.projectId} ethereumClient={ethereumClient} themeBackground='themeColor' />
 }
