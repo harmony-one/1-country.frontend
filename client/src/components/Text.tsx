@@ -29,10 +29,10 @@ export const DomainName = styled.div<{ size?: string; level: DomainLevel }>`
         return css`
           background: linear-gradient(
             45deg,
-            #00aee9 30%,
+            #00aee9 10%,
             #da707e,
             #f1b965,
-            #69fabd 70%
+            #69fabd 80%
           );
           background-clip: text;
           -webkit-background-clip: text;
