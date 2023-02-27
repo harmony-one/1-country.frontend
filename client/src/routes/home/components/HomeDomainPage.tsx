@@ -12,6 +12,7 @@ import { DomainName } from '../../../components/Text'
 import { Container } from '../Home.styles'
 import config from '../../../../config'
 import { getDomainLevel } from '../../../api/utils'
+import { buildTxUri } from '../../../utils/explorer'
 
 interface Props {}
 
@@ -24,7 +25,7 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
 
   const goToTx = () => {
     if (widgetListStore.txDomain) {
-      window.open(config.explorer.tx + widgetListStore.txDomain, '_blank')
+      window.open(buildTxUri(widgetListStore.txDomain), '_blank')
     }
   }
 
