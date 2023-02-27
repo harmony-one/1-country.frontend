@@ -1,4 +1,4 @@
-import React from 'react'
+import { ModalRender } from './ModalRegister'
 
 export enum ModalIds {
   UI_TRANSACTION = 'UI_TRANSACTION',
@@ -20,22 +20,22 @@ export type ModalMap = {
   [ModalIds.UI_TRANSACTION]: {
     params: { data: string }
     layerProps?: LayerProps
-    component: React.ReactNode
+    render: ModalRender
   }
   [ModalIds.PROFILE_ADD_WIDGET]: {
     params: { data: string }
     layerProps?: LayerProps
-    component: React.ReactNode
+    render: ModalRender
   }
   [ModalIds.PROFILE_ADD_WIDGET_TEXT]: {
     params: { data: string }
     layerProps?: LayerProps
-    component: React.ReactNode
+    render: ModalRender
   }
   [ModalIds.PROFILE_EDIT]: {
     params: { data: string }
     layerProps?: LayerProps
-    component: React.ReactNode
+    render: ModalRender
   }
 }
 

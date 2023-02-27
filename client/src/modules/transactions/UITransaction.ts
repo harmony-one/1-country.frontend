@@ -49,7 +49,7 @@ export class UITransaction<Data = {}> {
 
     this.id = (Date.now() + Math.random()).toString(16)
 
-    this.data = config
+    this.data = config.data
     if (config.titles) {
       this._titles = { ...this._titles, ...config.titles }
     }

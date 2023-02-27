@@ -7,6 +7,7 @@ import { Spinner } from 'grommet/components/Spinner'
 import { BaseText } from '../../components/Text'
 import { HarmonyLink } from '../../components/HarmonyLink'
 import { ModalHeader } from '../../components/modals/ModalHeader'
+import { ModalRenderProps } from '../modals'
 
 interface UITxModalContentProps {
   txHash: string
@@ -50,9 +51,7 @@ export const UITxModalContent: React.FC<UITxModalContentProps> = ({
   )
 }
 
-interface Props {
-  onClose: () => void
-}
+interface Props extends ModalRenderProps {}
 
 export const UITransactionModal: React.FC<Props> = observer((props) => {
   const { onClose } = props
