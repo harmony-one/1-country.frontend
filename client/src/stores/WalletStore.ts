@@ -66,6 +66,10 @@ export class WalletStore extends BaseStore {
     return this._network.chain && this._network.chain.id
   }
 
+  get isMetamaskAvailable() {
+    return metamaskConnector && metamaskConnector.ready
+  }
+
   connect() {
     const connector = metamaskConnector && metamaskConnector.ready
       ? metamaskConnector

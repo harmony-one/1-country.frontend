@@ -5,6 +5,8 @@ import { toast } from 'react-toastify'
 import { observer } from 'mobx-react-lite'
 import BN from 'bn.js'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import Web3 from "web3";
+import {Box} from "grommet";
 
 import { HomeSearchResultItem } from './HomeSearchResultItem'
 import { useStores } from '../../../stores'
@@ -21,7 +23,7 @@ import { cutString } from '../../../utils/string'
 import ProcessStatus, { ProcessStatusProps, statusTypes } from '../../../components/process-status/ProcessStatus'
 import { buildTxUri } from '../../../utils/explorer'
 import {useAccount} from "wagmi";
-import {useWeb3Modal, Web3Button} from "@web3modal/react";
+import {Web3Button} from "@web3modal/react";
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -103,7 +105,6 @@ interface SearchResult {
 
 export const HomeSearchPage: React.FC = observer(() => {
   const { isConnected, address, connector } = useAccount()
-  const { isOpen, open } = useWeb3Modal();
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
@@ -264,20 +265,16 @@ export const HomeSearchPage: React.FC = observer(() => {
     setLoading(true)
 
     try {
-      // if(!isConnected) {
-      //   open()
-      //   return
-      // }
-      // const provider = await connector!.getProvider()
-      // const web3 = new Web3(provider)
-      // rootStore.updateD1DCClient(web3, address)
       if (!walletStore.isConnected) {
         await walletStore.connect()
       }
-
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      if(!walletStore.isMetamaskAvailable) {
+        const provider = await connector!.getProvider()
+        const web3 = new Web3(provider)
+        rootStore.updateD1DCClient(web3, address)
+      }
     } catch (e) {
-      console.log('Error', e)
+      console.log('Connect error:', e)
       return
     }
 
@@ -437,7 +434,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             onChange={setIsTermsAccepted}
           /> */}
                 <Button
-                  disabled={!validation.valid || !searchResult.isAvailable}
+                  disabled={!validation.valid || !searchResult.isAvailable || (!walletStore.isMetamaskAvailable && !isConnected)}
                   style={{ marginTop: '1em' }}
                   onClick={handleRentDomain}
                 >
@@ -450,6 +447,11 @@ export const HomeSearchPage: React.FC = observer(() => {
               TRY AGAIN
             </Button>
           )}
+          {!walletStore.isMetamaskAvailable &&
+            <Box margin={{ top: '32px' }}>
+              <Web3Button />
+            </Box>
+          }
         </SearchBoxContainer>
       </FlexRow>
     </Container>
