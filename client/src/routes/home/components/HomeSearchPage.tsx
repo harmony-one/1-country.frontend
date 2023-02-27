@@ -265,12 +265,11 @@ export const HomeSearchPage: React.FC = observer(() => {
     setLoading(true)
 
     try {
-      // Metamask
-      if (!walletStore.isConnected) {
-        await walletStore.connect()
-      }
-      // Wallet Connect
-      if(!walletStore.isMetamaskAvailable) {
+      if(walletStore.isMetamaskAvailable) {
+        if (!walletStore.isConnected) {
+          await walletStore.connect()
+        }
+      } else { // Wallet Connect
         const provider = await connector!.getProvider()
         walletStore.setProvider(provider, address)
       }
