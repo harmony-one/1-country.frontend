@@ -23,7 +23,7 @@ import { cutString } from '../../../utils/string'
 import ProcessStatus, { ProcessStatusProps, statusTypes } from '../../../components/process-status/ProcessStatus'
 import { buildTxUri } from '../../../utils/explorer'
 import {useAccount} from "wagmi";
-import {Web3Button} from "@web3modal/react";
+import {Web3Button, useWeb3Modal} from "@web3modal/react";
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -105,6 +105,7 @@ interface SearchResult {
 
 export const HomeSearchPage: React.FC = observer(() => {
   const { isConnected, address, connector } = useAccount()
+  const { open, close } = useWeb3Modal()
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
@@ -142,6 +143,19 @@ export const HomeSearchPage: React.FC = observer(() => {
       navigate(`new/${searchResult.domainName}`)
     }
   }, [web2Acquired])
+
+  useEffect(() => {
+    const connectWallet = async () => {
+      const provider = await connector!.getProvider()
+      walletStore.setProvider(provider, address)
+      handleRentDomain()
+    }
+    if(!walletStore.isMetamaskAvailable) {
+      if(isConnected) {
+        connectWallet()
+      }
+    }
+  }, [isConnected])
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value)
@@ -205,7 +219,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       setStatus({
         type: statusTypes.ERROR,
         render: 'Unable to acquire web2 domain'
-      }),
+      })
       console.error(ex)
       terminateProcess()
     }
@@ -270,8 +284,15 @@ export const HomeSearchPage: React.FC = observer(() => {
           await walletStore.connect()
         }
       } else { // Wallet Connect
-        const provider = await connector!.getProvider()
-        walletStore.setProvider(provider, address)
+        if(!isConnected) {
+          open()
+          return
+        } else {
+          setStatus({
+            type: statusTypes.INFO,
+            render: 'Confirm with connected wallet'
+          })
+        }
       }
     } catch (e) {
       console.log('Connect error:', e)
@@ -382,22 +403,19 @@ export const HomeSearchPage: React.FC = observer(() => {
     <Container>
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
         <SearchBoxContainer>
-          <FlexColumn
-            style={{
-              width: '100%',
-              justifyContent: 'center',
-              alignItems: 'center',
-              alignContent: 'center',
-              marginBottom: '24px',
-            }}
-          >
-            <div style={{ width: '14em', flexGrow: 0 }}>
+          {(isConnected && !walletStore.isMetamaskAvailable) &&
+            <Box align={'end'} margin={{ bottom: '16px' }}>
+              <Web3Button />
+            </Box>
+          }
+          <Box justify={'center'} align={'center'} margin={{ bottom: '24px' }}>
+            <Box width={'14em'} flex={{ grow: 0 }}>
               <img
                 style={{ objectFit: 'cover', width: '100%' }}
                 src="/images/countryLogo.png"
                 alt=".country"
               />
-            </div>
+            </Box>
             <InputContainer
               valid={
                 validation.valid &&
@@ -412,7 +430,7 @@ export const HomeSearchPage: React.FC = observer(() => {
                 autoFocus
               />
             </InputContainer>
-          </FlexColumn>
+          </Box>
 
           {!validation.valid && <BaseText>Invalid domain name</BaseText>}
           {!validation.valid && <BaseText>{validation.error}</BaseText>}
@@ -434,7 +452,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             onChange={setIsTermsAccepted}
           /> */}
                 <Button
-                  disabled={!validation.valid || !searchResult.isAvailable || (!walletStore.isMetamaskAvailable && !isConnected)}
+                  disabled={!validation.valid || !searchResult.isAvailable}
                   style={{ marginTop: '1em' }}
                   onClick={handleRentDomain}
                 >
@@ -447,11 +465,6 @@ export const HomeSearchPage: React.FC = observer(() => {
               TRY AGAIN
             </Button>
           )}
-          {!walletStore.isMetamaskAvailable &&
-            <Box margin={{ top: '32px' }}>
-              <Web3Button />
-            </Box>
-          }
         </SearchBoxContainer>
       </FlexRow>
     </Container>

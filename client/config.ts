@@ -21,7 +21,7 @@ const config = {
   tld: process.env.TLD || '.dev.1.localhost:3100', // '.1.country',
   tldLink: process.env.TLD_LINK || 'dev.1.localhost:3100', // '1.country',
   walletConnect: {
-    projectId: process.env.WALLETCONNECT_PROJECTID || '',
+    projectId: process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8'
   },
   emojiType: {
     ONE_ABOVE: 0,
