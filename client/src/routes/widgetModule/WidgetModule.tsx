@@ -88,7 +88,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         event.currentTarget.value
       )
     ) {
-      window.open(`mailto:hello@harmony.one`, '_self')
+      window.open(`mailto:1country@harmony.one`, '_self')
       return
     }
 

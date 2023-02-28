@@ -30,7 +30,7 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
   }, [domainStore.domainName])
 
   const handleClickDomain = () => {
-    window.open(`mailto:hello@harmony.one`, '_self')
+    window.open(`mailto:1country@harmony.one`, '_self')
   }
 
   return (
