@@ -12,20 +12,25 @@ import { DomainName } from '../../../components/Text'
 import { Container } from '../Home.styles'
 import config from '../../../../config'
 import { getDomainLevel } from '../../../api/utils'
+import { buildTxUri } from '../../../utils/explorer'
 
 interface Props {}
 
 export const HomeDomainPage: React.FC<Props> = observer(() => {
-  const { domainStore, walletStore } = useStores()
+  const { domainStore, walletStore, metaTagsStore } = useStores()
 
   useEffect(() => {
     widgetListStore.loadDomainTx(domainStore.domainName)
   }, [domainStore.domainName])
 
-  const goToTx = () => {
-    if (widgetListStore.txDomain) {
-      window.open(config.explorer.tx + widgetListStore.txDomain, '_blank')
-    }
+  useEffect(() => {
+    metaTagsStore.update({
+      title: `${domainStore.domainName}${config.tld} | Harmony`,
+    })
+  }, [domainStore.domainName])
+
+  const handleClickDomain = () => {
+    window.open(`mailto:1country@harmony.one`, '_self')
   }
 
   return (
@@ -37,10 +42,10 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
       <div style={{ height: '2em' }} />
       <DomainName
         level={getDomainLevel(domainStore.domainName)}
-        onClick={goToTx}
+        onClick={handleClickDomain}
         style={{ cursor: widgetListStore.txDomain && 'pointer' }}
       >
-        hello@{domainStore.domainName}
+        hello@{domainStore.domainName}.country
       </DomainName>
       {domainStore.domainRecord && domainStore.domainRecord.renter && (
         <WidgetModule domainName={domainStore.domainName} />

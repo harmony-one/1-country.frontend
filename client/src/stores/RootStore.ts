@@ -12,6 +12,7 @@ import {
   uiTransactionStore,
   UITransactionStore,
 } from '../modules/transactions/UITransactionStore'
+import { MetaTagsStore, metaTagsStore } from '../modules/metatags/MetaTagsStore'
 
 export class RootStore {
   modalStore: ModalStore
@@ -27,6 +28,7 @@ export class RootStore {
     domainStore: DomainStore
     walletStore: WalletStore
     uiTransactionStore: UITransactionStore
+    metaTagsStore: MetaTagsStore
   }
 
   constructor() {
@@ -54,6 +56,7 @@ export class RootStore {
       walletStore: this.walletStore,
       domainStore: this.domainStore,
       uiTransactionStore: this.uiTransactionStore,
+      metaTagsStore: metaTagsStore,
     }
   }
 

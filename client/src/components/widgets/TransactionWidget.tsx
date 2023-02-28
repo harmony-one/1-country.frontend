@@ -74,8 +74,8 @@ export const TransactionWidget: React.FC<Props> = ({
         </BaseText> */}
         <Tip
           plain
-          content={<TipContent text={tipContent} />}
-          dropProps={{ align: { bottom: 'top' } }}
+          // content={<TipContent text={tipContent} />}
+          // dropProps={{ align: { bottom: 'top' } }}
         >
           <BaseText>
             <Timer

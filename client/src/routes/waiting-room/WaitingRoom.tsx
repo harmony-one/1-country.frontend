@@ -43,7 +43,7 @@ const WaitingRoom = observer(() => {
     
     const interval = setInterval(() => {
       checkUrl()
-    }, 30000); //for testing purposes
+    }, 15000); //for testing purposes
     setIntervalId(interval)
     
     return () => clearInterval(interval);

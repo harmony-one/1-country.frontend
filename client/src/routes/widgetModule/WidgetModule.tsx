@@ -81,8 +81,17 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     if (event.key !== 'Enter') {
       return
     }
-
     event.preventDefault()
+
+    if (
+      /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(
+        event.currentTarget.value
+      )
+    ) {
+      window.open(`mailto:1country@harmony.one`, '_self')
+      return
+    }
+
     setAddingWidget(true)
     toastId.current = toast.loading('Processing transaction')
 
@@ -173,17 +182,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         <TwitterWidget
           value={widget.value}
           key={index}
-          // widgetKey={widget.id}
-          onDelete={
-            domainStore.isOwner ? () => deleteWidget(widget.id) : undefined
-          }
+          isOwner={domainStore.isOwner}
+          onDelete={() => deleteWidget(widget.id)}
         />
       ))}
 
       {domainStore.domainRecord && domainStore.domainRecord.url && (
         <TwitterWidget
           value={domainStore.domainRecord.url}
-          // widgetKey={widget.id}
+          isOwner={domainStore.isOwner}
           onDelete={handleDeleteLegacyUrl}
         />
       )}
