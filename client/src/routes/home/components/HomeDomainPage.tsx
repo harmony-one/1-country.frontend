@@ -29,10 +29,8 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
     })
   }, [domainStore.domainName])
 
-  const goToTx = () => {
-    if (widgetListStore.txDomain) {
-      window.open(buildTxUri(widgetListStore.txDomain), '_blank')
-    }
+  const handleClickDomain = () => {
+    window.open(`mailto:hello@harmony.one`, '_self')
   }
 
   return (
@@ -44,7 +42,7 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
       <div style={{ height: '2em' }} />
       <DomainName
         level={getDomainLevel(domainStore.domainName)}
-        onClick={goToTx}
+        onClick={handleClickDomain}
         style={{ cursor: widgetListStore.txDomain && 'pointer' }}
       >
         hello@{domainStore.domainName}.country
