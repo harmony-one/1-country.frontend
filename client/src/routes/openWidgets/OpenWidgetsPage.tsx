@@ -8,6 +8,7 @@ import {
 import TwitterWidget from '../../components/widgets/TwitterWidget'
 import { openWidgetsStore, Widget } from './OpenWidgetsStore'
 import { Container } from '../home/Home.styles'
+import MediaWidget from '../../components/widgets/MediaWidget'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -76,12 +77,18 @@ export const OpenWidgetsPage = observer(() => {
       </WidgetInputContainer>
       {widgetList.length > 0 &&
         widgetList.map((widget) => (
-          <TwitterWidget
+          <MediaWidget 
             isOwner
             key={widget.id}
             value={widget.value}
             onDelete={() => deleteWidget(widget.id)}
           />
+          // <TwitterWidget
+          //   isOwner
+          //   key={widget.id}
+          //   value={widget.value}
+          //   onDelete={() => deleteWidget(widget.id)}
+          // />
         ))}
     </Container>
   )

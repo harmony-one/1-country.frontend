@@ -18,6 +18,7 @@ import { FlexRow } from '../../components/Layout'
 import { LinkWrarpper } from '../../components/Controls'
 import isUrl from 'is-url'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
+import MediaWidget from '../../components/widgets/MediaWidget'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -179,20 +180,32 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}
       {widgetListStore.widgetList.map((widget, index) => (
-        <TwitterWidget
-          value={widget.value}
-          key={index}
+        <MediaWidget 
           isOwner={domainStore.isOwner}
+          // key={widget.id}
+          key={index}
+          value={widget.value}
           onDelete={() => deleteWidget(widget.id)}
         />
+        // <TwitterWidget
+        //   value={widget.value}
+        //   key={index}
+        //   isOwner={domainStore.isOwner}
+        //   onDelete={() => deleteWidget(widget.id)}
+        // />
       ))}
 
       {domainStore.domainRecord && domainStore.domainRecord.url && (
-        <TwitterWidget
+        <MediaWidget 
           value={domainStore.domainRecord.url}
           isOwner={domainStore.isOwner}
           onDelete={handleDeleteLegacyUrl}
         />
+        // <TwitterWidget
+        //   value={domainStore.domainRecord.url}
+        //   isOwner={domainStore.isOwner}
+        //   onDelete={handleDeleteLegacyUrl}
+        // />
       )}
 
       {domainStore.domainRecord && (
