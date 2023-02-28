@@ -2,17 +2,19 @@ const debug = process.env.DEBUG
 
 const config = {
   debug,
-  backendHost: process.env.BACKEND_HOST || 'http://localhost:8080',
+  backendHost:
+    process.env.BACKEND_HOST || 'https://mdo-dcobackend-01.t.hmny.io',
   contract:
     process.env.CONTRACT || '0x3cC3C5F98AC3FF544279919DfceBfb7aFe03A2cA', // (debug ? '0x9BC52FBcCcde8cEADAEde51a25dBeD489b201e53' : '0x476e14D956dca898C33262aecC81407242f8431A'),
   contractVanityURL:
     process.env.CONTRACT_VANITY_URL ||
     '0x88a1afC4134f385337Dd5F530D452079fC9E14CC', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
   explorer: {
-    explorerUrl: process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
+    explorerUrl:
+      process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
     address: 'https://explorer.harmony.one/address/',
     tx: 'https://explorer.harmony.one/tx/',
-    block: 'https://explorer.harmony.one/block/'
+    block: 'https://explorer.harmony.one/block/',
   },
   defaultRPC: process.env.DEFAULT_RPC || 'https://api.harmony.one',
   hostname: process.env.REACT_APP_BASE_URL || 'https://localhost:3100',
