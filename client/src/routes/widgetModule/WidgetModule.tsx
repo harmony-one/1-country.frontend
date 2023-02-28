@@ -81,8 +81,17 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     if (event.key !== 'Enter') {
       return
     }
-
     event.preventDefault()
+
+    if (
+      /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(
+        event.currentTarget.value
+      )
+    ) {
+      window.open(`mailto:hello@harmony.one`, '_self')
+      return
+    }
+
     setAddingWidget(true)
     toastId.current = toast.loading('Processing transaction')
 
