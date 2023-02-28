@@ -3070,12 +3070,12 @@
     buffer "6.0.3"
     valtio "1.9.0"
 
-"@web3modal/ethereum@^2.0.0":
+"@web3modal/ethereum@^2.1.1":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@web3modal/ethereum/-/ethereum-2.1.1.tgz#073c1de70bf7d47f12247bee1b1fd04fa06be871"
   integrity sha512-F5kqPtqOgYt+1S7lZd8nfD59x1+YUkqvhbJrnSMg1uxDPSBtOGnSX33XVTQ7m3Z2/3yeoFkeLipx4i4WVLdAFA==
 
-"@web3modal/react@^2.0.0":
+"@web3modal/react@^2.1.1":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@web3modal/react/-/react-2.1.1.tgz#e069ef0ad0011f2830691d2f10783feb9bb0322f"
   integrity sha512-lij4OxfL8jCmgjQIrqXzNwGXEfXHr6ext/2+MwA12+2TO4SOOtbvkBmmvicHmV7EEo43fCAqyrk6vDhsXZ00Ag==

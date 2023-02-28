@@ -18,6 +18,7 @@ import { FlexRow } from '../../components/Layout'
 import { LinkWrarpper } from '../../components/Controls'
 import isUrl from 'is-url'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
+import { WalletConnectWidget } from "../../components/widgets/WalletConnectWidget";
 
 const defaultFormFields = {
   widgetValue: '',
@@ -203,7 +204,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           txHash={widgetListStore.txDomain}
         />
       )}
-      {!walletStore.isConnected && <MetamaskWidget />}
+      {(!walletStore.isConnected && walletStore.isMetamaskAvailable) && <MetamaskWidget />}
+      {(!walletStore.isMetamaskAvailable) && <WalletConnectWidget />}
     </PageWidgetContainer>
   )
 })
