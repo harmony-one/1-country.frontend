@@ -8,6 +8,7 @@ export const BaseText = styled.div<{ $color?: string }>`
 
 export const GradientText = styled.div<{ $size?: string }>`
   font-size: ${(props) => props.$size || '24px'};
+  line-height: initial;
   font-family: NunitoBold, system-ui;
   font-weight: bold;
   // background: linear-gradient(45deg, #00aee9, #69fabd);
