@@ -4,7 +4,7 @@ import { Skeleton } from 'grommet/components/Skeleton'
 import styled from 'styled-components'
 
 const StyledBox = styled(Box)`
-  padding: 18px;
+  padding: 32px 18px;
   border: 1px solid rgb(207, 217, 222);
   border-radius: 12px;
 `
