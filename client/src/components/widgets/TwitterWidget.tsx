@@ -7,7 +7,7 @@ import isUrl from 'is-url'
 
 import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
 import { parseTweetId } from '../../utils/parseTweetId'
-import { IconClose } from '../icons/Close'
+import { CloseCircle } from '../icons/CloseCircle'
 import { Skeleton } from 'grommet/components/Skeleton'
 import { Box } from 'grommet/components/Box'
 
@@ -120,7 +120,7 @@ const TwitterWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
       </div>
       {isOwner && (
         <DeleteWidgetButton onClick={onDelete}>
-          <IconClose />
+          <CloseCircle />
         </DeleteWidgetButton>
       )}
     </WidgetsContainer>

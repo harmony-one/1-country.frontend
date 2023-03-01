@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Button } from 'grommet'
-import { GrClose } from 'react-icons/gr'
+import { Close } from '../icons/Close'
 import { Title } from '../Text'
 
 interface Props {
@@ -12,7 +12,7 @@ export const ModalHeader: React.FC<Props> = ({ title, onClick }) => {
   return (
     <Box direction="row" justify="end">
       {title && <Title>{title}</Title>}
-      <Button onClick={onClick} icon={<GrClose />} />
+      <Button onClick={onClick} icon={<Close />} />
     </Box>
   )
 }
