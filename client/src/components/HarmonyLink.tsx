@@ -58,7 +58,7 @@ export const HarmonyLink: React.FC<Props> = ({
 
   return (
     <Box direction="row" align="center" gap="4px">
-      <StyledImg src="/tokens/one.svg" alt={type} />
+      <StyledImg width="22px" height="22px" src="/tokens/one.svg" alt={type} />
       <StyledLink
         mono={mono}
         title={hash}
