@@ -24,6 +24,7 @@ import ProcessStatus, { ProcessStatusProps, statusTypes } from '../../../compone
 import { buildTxUri } from '../../../utils/explorer'
 import {useAccount} from "wagmi";
 import {Web3Button, useWeb3Modal} from "@web3modal/react";
+import {SearchInput} from "../../../components/search-input/SearchInput";
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -123,11 +124,15 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   const updateSearch = (domainName: string) => {
     setSearchResult(null)
-    const result = validateDomainName(domainName.toLowerCase())
-    setValidation(result)
+    if(domainName) {
+      const result = validateDomainName(domainName.toLowerCase())
+      setValidation(result)
 
-    if (result.valid) {
-      loadDomainRecord(domainName)
+      if (result.valid) {
+        loadDomainRecord(domainName)
+      }
+    } else {
+      setValidation({ valid: true, error: '' })
     }
   }
 
@@ -157,9 +162,9 @@ export const HomeSearchPage: React.FC = observer(() => {
     }
   }, [isConnected])
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value)
-    updateSearch(event.target.value)
+  const handleSearchChange = (value: string) => {
+    setInputValue(value)
+    updateSearch(value)
   }
 
   const terminateProcess = async (timer: number = 5000) => {
@@ -416,20 +421,11 @@ export const HomeSearchPage: React.FC = observer(() => {
                 alt=".country"
               />
             </Box>
-            <InputContainer
-              valid={
-                validation.valid &&
-                (searchResult ? searchResult.isAvailable : true)
-              }
-              style={{ flexGrow: 0 }}
-            >
-              <StyledInput
-                placeholder="Register your .country domain"
-                value={inputValue}
-                onChange={handleSearchChange}
-                autoFocus
-              />
-            </InputContainer>
+            <SearchInput
+              isValid={validation.valid && (searchResult ? searchResult.isAvailable : true)}
+              placeholder={'Type the domain you want'}
+              onSearch={handleSearchChange}
+            />
           </Box>
 
           {!validation.valid && <BaseText>Invalid domain name</BaseText>}
