@@ -1,6 +1,6 @@
-import React from 'react';
-import {Box} from "grommet";
-import styled from "styled-components";
+import React from 'react'
+import { Box } from 'grommet/components/Box'
+import styled from 'styled-components'
 
 interface Props {
   children: React.ReactNode
@@ -11,6 +11,6 @@ const BoxStyled = styled(Box)`
   max-width: 800px;
 `
 
-export const ModalContent: React.FC<Props> = ({children}) => {
-  return <BoxStyled pad="24px">{children}</BoxStyled>;
-};
+export const ModalContent: React.FC<Props> = ({ children }) => {
+  return <BoxStyled pad="24px">{children}</BoxStyled>
+}
