@@ -6,6 +6,7 @@ import { PageNotFound } from './routes/404/404Page'
 import WaitingRoom from './routes/waiting-room/WaitingRoom'
 import { OpenWidgetsPage } from './routes/openWidgets/OpenWidgetsPage'
 import { DetailsPage } from './routes/details/DetailsPage'
+import { LiveStreamPage } from './routes/live/LiveStreamPage'
 
 const AppRoutes = () => {
   return (
@@ -16,6 +17,7 @@ const AppRoutes = () => {
       <Route path="home/" element={<OpenWidgetsPage />} />
       <Route path="stats/" element={<Stats />} />
       <Route path="details/" element={<DetailsPage />} />
+      <Route path="live/" element={<LiveStreamPage />} />
       <Route path="*" element={<HomePage />} />
       {/*<Route path="*" element={<PageNotFound />} />*/}
     </Routes>
