@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, Button } from 'grommet'
+import { Box } from 'grommet/components/Box'
+import { Button } from 'grommet/components/Button'
 import { Close } from '../icons/Close'
 import { Title } from '../Text'
 
