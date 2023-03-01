@@ -2,16 +2,19 @@
   font-family: "NunitoLight";   /*Can be any text*/
   src: local("Nunito-Light"),
     url('./Nunito-Light.ttf') format("truetype");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "NunitoBold";   /*Can be any text*/
   src: local("Nunito-Bold"),
     url('./Nunito-Bold.ttf') format("truetype");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "NunitoRegular";   /*Can be any text*/
   src: local("Nunito-Regular"),
     url('./Nunito-Regular.ttf') format("truetype");
+  font-display: swap;
 }
