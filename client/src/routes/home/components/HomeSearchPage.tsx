@@ -145,7 +145,8 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   useEffect(() => {
     if (web2Acquired) {
-      navigate(`new/${searchResult.domainName}`)
+      window.location.href = `${config.hostname}/new?domain=${searchResult.domainName}`
+      // navigate(`new/${searchResult.domainName}`)
     }
   }, [web2Acquired])
 
