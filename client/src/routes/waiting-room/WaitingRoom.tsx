@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import qs from 'qs'
 import { useNavigate, useParams } from 'react-router'
 import { FlexColumn } from '../../components/Layout'
 import { GradientText } from '../../components/Text'
@@ -12,17 +13,25 @@ import config from '../../../config'
 
 import { toast } from 'react-toastify'
 import { urlExists } from '../../api/checkUrl'
+import { useSearchParams } from 'react-router-dom'
 
 const WaitingRoom = observer(() => {
   const [intervalId, setIntervalId] = useState<NodeJS.Timer>()
   const [isDomainAvailable, setIsDomainAvailable] = useState(false)
-  const { domainName = '' } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const domainName = searchParams.get("domain")
+  
   const { walletStore } = useStores()
   const navigate = useNavigate()
 
   const fullUrl = `https://${domainName.toLowerCase()}${config.tld}`
   
   useEffect(() => {
+    if (!domainName) {
+      navigate(-1)
+    }
+    
     try {
       if (!walletStore.isConnected) {
         walletStore.connect()

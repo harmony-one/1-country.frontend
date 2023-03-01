@@ -7,9 +7,8 @@ import isUrl from 'is-url'
 
 import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
 import { parseTweetId } from '../../utils/parseTweetId'
-import { IconClose } from '../icons/Close'
-import { Skeleton } from 'grommet/components/Skeleton'
-import { Box } from 'grommet/components/Box'
+import { CloseCircle } from '../icons/CloseCircle'
+import { TwitterWidgetPlaceholder } from './TwitterWidgetPlaceholder'
 
 const TwitterWidgetDefault = {
   tweetId: '',
@@ -54,21 +53,6 @@ interface Props {
   onDelete: () => void
 }
 
-export const Placeholder: React.FC = () => {
-  return (
-    <Box fill="horizontal" direction="row" skeleton gap="24px">
-      <Box>
-        <Skeleton round="48px" width="48px" height="48px" />
-      </Box>
-      <Box fill="horizontal" gap="8px">
-        <Skeleton round="12px" />
-        <Skeleton round="12px" />
-        <Skeleton round="12px" height="100px" />
-      </Box>
-    </Box>
-  )
-}
-
 const TwitterWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   const [tweetId, setTweetId] = useState<{ tweetId?: string; error?: string }>(
     TwitterWidgetDefault
@@ -103,7 +87,7 @@ const TwitterWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
             sourceType="profile"
             screenName={userName}
             options={{ height: 600, width: 550 }}
-            placeholder={<Placeholder />}
+            placeholder={<TwitterWidgetPlaceholder />}
             key={`${userName}`}
             onLoad={() => setLoading(false)}
           />
@@ -112,7 +96,7 @@ const TwitterWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
           <TwitterTweetEmbed
             tweetId={tweetId.tweetId}
             key={`${tweetId.tweetId}`}
-            placeholder={<Placeholder />}
+            placeholder={<TwitterWidgetPlaceholder />}
             options={{ height: 600, width: 550 }}
             onLoad={() => setLoading(false)}
           />
@@ -120,7 +104,7 @@ const TwitterWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
       </div>
       {isOwner && (
         <DeleteWidgetButton onClick={onDelete}>
-          <IconClose />
+          <CloseCircle />
         </DeleteWidgetButton>
       )}
     </WidgetsContainer>

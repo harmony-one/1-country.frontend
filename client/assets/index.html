@@ -24,7 +24,7 @@
     <meta data-n-head="ssr" data-hid="twitter:description" name="twitter:description" content="Harmony's .country domains allow a seamless transition between Web2 and Web3. You can use your .country domain for both traditional websites and decentralized applications, making it easier to access everything you need from one place!">
     <meta data-n-head="ssr" data-hid="og:image" property="og:image" content="https://storage.googleapis.com/dot-country-prod/countryLogo.png">
     <meta data-n-head="ssr" data-hid="twitter:image" name="twitter:image" content="https://storage.googleapis.com/dot-country-prod/countryLogo.png">
-    <link data-n-head="ssr" rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link data-n-head="ssr" rel="shortcut icon" href="/tokens/one.svg">
     <link data-n-head="ssr" rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" sizes="57x57" href="/images/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/images/apple-icon-60x60.png">
@@ -112,22 +112,33 @@
     @keyframes shadowPulse {
         33% {
             background: #FFF;
-            box-shadow: -24px 0 #f17175, 24px 0 #FFF;
+            box-shadow: -24px 0 #00aee9, 24px 0 #FFF;
         }
         66% {
-            background: #f17175;
+            background: #3ad7d1;
             box-shadow: -24px 0 #FFF, 24px 0 #FFF;
         }
         100% {
             background: #FFF;
-            box-shadow: -24px 0 #FFF, 24px 0 #f17175;
+            box-shadow: -24px 0 #FFF, 24px 0 #69fabd;
         }
+    }
+
+    .preload-text {
+        font-size: 42px;
+        font-family: NunitoBold, system-ui;
+        font-weight: bold;
+        background: linear-gradient(45deg, #00aee9, #69fabd);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(1px 1px 2px #0000000f);
     }
 
 </style>
 <div id="root">
     <div class="preload">
-        <img class="preload-img" src="/images/countryLogo.png" />
+        <div class="preload-text">.country</div>
         <div class="preload-loader"></div>
     </div>
 </div>

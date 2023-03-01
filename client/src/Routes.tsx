@@ -11,7 +11,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="new/:domainName" element={<WaitingRoom />} />
+      <Route path="new/" element={<WaitingRoom />} />
+      {/* <Route path="new/:domainName" element={<WaitingRoom />} /> */}
       <Route path="home/" element={<OpenWidgetsPage />} />
       <Route path="stats/" element={<Stats />} />
       <Route path="details/" element={<DetailsPage />} />

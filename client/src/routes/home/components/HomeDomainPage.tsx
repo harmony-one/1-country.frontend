@@ -12,7 +12,6 @@ import { DomainName } from '../../../components/Text'
 import { Container } from '../Home.styles'
 import config from '../../../../config'
 import { getDomainLevel } from '../../../api/utils'
-import { buildTxUri } from '../../../utils/explorer'
 
 interface Props {}
 
