@@ -10,7 +10,8 @@ export const GradientText = styled.div<{ $size?: string }>`
   font-size: ${(props) => props.$size || '24px'};
   font-family: NunitoBold, system-ui;
   font-weight: bold;
-  background: linear-gradient(45deg, #00aee9, #69fabd);
+  // background: linear-gradient(45deg, #00aee9, #69fabd);
+  background: linear-gradient(0deg, #00aee9 20%, #101042 80%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
