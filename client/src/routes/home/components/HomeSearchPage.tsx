@@ -412,7 +412,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             <Box width={'14em'} flex={{ grow: 0 }}>
               <img
                 style={{ objectFit: 'cover', width: '100%' }}
-                src="/images/countryLogo.png"
+                src="/images/countryLogoNew.png"
                 alt=".country"
               />
             </Box>

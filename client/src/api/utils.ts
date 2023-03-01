@@ -65,8 +65,8 @@ export const utils = {
 export type DomainLevel =
   | 'reserved'
   | 'legendary'
+  | 'super_rare'
   | 'rare'
-  | 'uncommon'
   | 'common'
 export const getDomainLevel = (domainName: string): DomainLevel => {
   const len = domainName.length
@@ -80,11 +80,11 @@ export const getDomainLevel = (domainName: string): DomainLevel => {
   }
 
   if (len <= 6) {
-    return 'rare'
+    return 'super_rare'
   }
 
   if (len <= 9) {
-    return 'uncommon'
+    return 'rare'
   }
 
   return 'common'

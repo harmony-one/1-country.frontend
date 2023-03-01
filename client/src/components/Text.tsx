@@ -25,6 +25,17 @@ export const DomainName = styled.div<{ size?: string; level: DomainLevel }>`
   ${(props) => {
     switch (props.level) {
       case 'reserved':
+        return css`
+          background: linear-gradient(
+            0deg,
+            #00aee9 20%,
+            #101042 80%
+          );
+          background-clip: text;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          filter: drop-shadow(1px 1px 2px #0000000f);
+        `
       case 'legendary':
         return css`
           background: linear-gradient(
@@ -39,6 +50,19 @@ export const DomainName = styled.div<{ size?: string; level: DomainLevel }>`
           -webkit-text-fill-color: transparent;
           filter: drop-shadow(1px 1px 2px #0000000f);
         `
+      case 'super_rare':
+        return css`
+          background: linear-gradient(
+            45deg, 
+            #101042,
+            #00aee9, 
+            #69fabd
+            );
+          background-clip: text;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          filter: drop-shadow(1px 1px 2px #0000000f);
+        `
       case 'rare':
         return css`
           background: linear-gradient(45deg, #00aee9, #69fabd);
@@ -47,14 +71,10 @@ export const DomainName = styled.div<{ size?: string; level: DomainLevel }>`
           -webkit-text-fill-color: transparent;
           filter: drop-shadow(1px 1px 2px #0000000f);
         `
-      case 'uncommon':
-        return css`
-          color: #00aee9;
-        `
       case 'common':
       default:
         return css`
-          color: var(--text-color);
+          color: #00aee9;
         `
     }
   }}
