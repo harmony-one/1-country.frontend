@@ -13,20 +13,22 @@ import config from '../../../../config'
 
 import { Button, LinkWrarpper } from '../../../components/Controls'
 import { BaseText, GradientText } from '../../../components/Text'
-import { FlexRow, FlexColumn } from '../../../components/Layout'
+import { FlexRow } from '../../../components/Layout'
 import { DomainPrice, DomainRecord, relayApi } from '../../../api'
-import { nameUtils } from '../../../api/utils'
+import { nameUtils, validateDomainName } from '../../../api/utils'
 import { parseTweetId } from '../../../utils/parseTweetId'
 import { Container } from '../Home.styles'
 import { cutString } from '../../../utils/string'
-import ProcessStatus, {
-  ProcessStatusProps,
-  statusTypes,
+import {
+  ProcessStatus,
+  ProcessStatusItem,
+  ProcessStatusTypes,
 } from '../../../components/process-status/ProcessStatus'
 import { buildTxUri } from '../../../utils/explorer'
 import { useAccount } from 'wagmi'
-import { Web3Button , useWeb3Modal} from '@web3modal/react'
+import { useWeb3Modal, Web3Button } from '@web3modal/react'
 import { TypedText } from './Typed'
+import { sleep } from '../../../utils/sleep'
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -73,31 +75,6 @@ const { tweetId } = parseTweetId(
   'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'
 )
 
-const sleep = (ms: number) => {
-  return new Promise((resolve) => setTimeout(() => resolve(1), ms))
-}
-
-const validateDomainName = (domainName: string) => {
-  if (nameUtils.isReservedName(domainName.toLowerCase())) {
-    return {
-      valid: false,
-      error: 'This domain name is reserved for special purpose',
-    }
-  }
-
-  if (!nameUtils.isValidName(domainName.toLowerCase())) {
-    return {
-      valid: false,
-      error: 'Domains can use a mix of letters and numbers',
-    }
-  }
-
-  return {
-    valid: true,
-    error: '',
-  }
-}
-
 interface SearchResult {
   domainName: string
   domainRecord: DomainRecord
@@ -111,8 +88,8 @@ export const HomeSearchPage: React.FC = observer(() => {
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState<ProcessStatusProps>({
-    type: statusTypes.INFO,
+  const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
+    type: ProcessStatusTypes.INFO,
     render: '',
   })
   const [validation, setValidation] = useState({ valid: true, error: '' })
@@ -156,8 +133,8 @@ export const HomeSearchPage: React.FC = observer(() => {
       walletStore.setProvider(provider, address)
       handleRentDomain()
     }
-    if(!walletStore.isMetamaskAvailable) {
-      if(isConnected) {
+    if (!walletStore.isMetamaskAvailable) {
+      if (isConnected) {
         connectWallet()
       }
     }
@@ -179,8 +156,8 @@ export const HomeSearchPage: React.FC = observer(() => {
         return
       }
 
-      setStatus({
-        type: statusTypes.INFO,
+      setProcessStatus({
+        type: ProcessStatusTypes.INFO,
         render: '',
       })
       setLoading(true) //will show three dots
@@ -214,16 +191,16 @@ export const HomeSearchPage: React.FC = observer(() => {
     try {
       await claimWeb2Domain(regTxHash)
       await sleep(1500)
-      setStatus({
-        type: statusTypes.SUCCESS,
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
         render: 'Web2 domain acquire',
       })
       terminateProcess()
       setWeb2Acquired(true)
     } catch (ex) {
       setWeb2Error(true)
-      setStatus({
-        type: statusTypes.ERROR,
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
         render: 'Unable to acquire web2 domain',
       })
       console.error(ex)
@@ -267,7 +244,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       return toast.error('This domain name is already registered')
     }
 
-    setStatus({
+    setProcessStatus({
       render: 'Processing transaction',
     })
 
@@ -278,8 +255,8 @@ export const HomeSearchPage: React.FC = observer(() => {
       return toast.error('Domain must be alphanumerical characters')
     }
 
-    setStatus({
-      type: statusTypes.INFO,
+    setProcessStatus({
+      type: ProcessStatusTypes.INFO,
       render: '',
     })
     setLoading(true)
@@ -289,14 +266,15 @@ export const HomeSearchPage: React.FC = observer(() => {
         if (!walletStore.isConnected) {
           await walletStore.connect()
         }
-      } else { // Wallet Connect
-        if(!isConnected) {
+      } else {
+        // Wallet Connect
+        if (!isConnected) {
           open()
           return
         } else {
-          setStatus({
-            type: statusTypes.INFO,
-            render: 'Confirm with connected wallet'
+          setProcessStatus({
+            type: ProcessStatusTypes.INFO,
+            render: 'Confirm with connected wallet',
           })
         }
       }
@@ -310,8 +288,8 @@ export const HomeSearchPage: React.FC = observer(() => {
       secret,
       onFailed: (e) => {
         console.log('Commit result failed:', e)
-        setStatus({
-          type: statusTypes.ERROR,
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
           render: 'Failed to reserve the domain',
         })
         terminateProcess(3000)
@@ -321,8 +299,8 @@ export const HomeSearchPage: React.FC = observer(() => {
         console.log('Commit result success:', tx)
         const { transactionHash } = tx
 
-        setStatus({
-          type: statusTypes.INFO,
+        setProcessStatus({
+          type: ProcessStatusTypes.INFO,
           render: (
             <FlexRow>
               <BaseText style={{ marginRight: 8 }}>
@@ -349,8 +327,8 @@ export const HomeSearchPage: React.FC = observer(() => {
     console.log('waiting for 5 seconds...')
     await sleep(5000)
 
-    setStatus({
-      type: statusTypes.INFO,
+    setProcessStatus({
+      type: ProcessStatusTypes.INFO,
       render: 'Purchasing Domain',
     })
 
@@ -361,8 +339,8 @@ export const HomeSearchPage: React.FC = observer(() => {
       amount: new BN(searchResult.price.amount).toString(),
       onSuccess: (tx: any) => {
         const { transactionHash } = tx
-        setStatus({
-          type: statusTypes.INFO,
+        setProcessStatus({
+          type: ProcessStatusTypes.INFO,
           render: (
             <FlexRow>
               <BaseText style={{ marginRight: 8 }}>
@@ -373,8 +351,8 @@ export const HomeSearchPage: React.FC = observer(() => {
         })
       },
       onFailed: () => {
-        setStatus({
-          type: statusTypes.ERROR,
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
           render: 'Failed to purchase',
         })
         terminateProcess(3000)
@@ -390,8 +368,8 @@ export const HomeSearchPage: React.FC = observer(() => {
     try {
       await claimWeb2Domain(txHash)
       await sleep(1500)
-      setStatus({
-        type: statusTypes.SUCCESS,
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
         render: 'Web2 domain acquire',
       })
       terminateProcess()
@@ -399,8 +377,8 @@ export const HomeSearchPage: React.FC = observer(() => {
     } catch (ex) {
       console.log('claimWeb2Domain error:', ex)
       setWeb2Error(true)
-      setStatus({
-        type: statusTypes.ERROR,
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
         render: 'Unable to acquire web2 domain',
       })
       terminateProcess()
@@ -411,11 +389,11 @@ export const HomeSearchPage: React.FC = observer(() => {
     <Container>
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
         <SearchBoxContainer>
-          {(isConnected && !walletStore.isMetamaskAvailable) &&
+          {isConnected && !walletStore.isMetamaskAvailable && (
             <Box align={'end'} margin={{ bottom: '16px' }}>
               <Web3Button />
             </Box>
-          }
+          )}
           <Box justify={'center'} align={'center'} margin={{ bottom: '24px' }}>
             <Box pad="16px">
               <GradientText $size="34px">
@@ -441,7 +419,7 @@ export const HomeSearchPage: React.FC = observer(() => {
 
           {!validation.valid && <BaseText>Invalid domain name</BaseText>}
           {!validation.valid && <BaseText>{validation.error}</BaseText>}
-          {loading && <ProcessStatus {...status} />}
+          {loading && <ProcessStatus status={processStatus} />}
           {validation.valid &&
             !loading &&
             searchResult &&
