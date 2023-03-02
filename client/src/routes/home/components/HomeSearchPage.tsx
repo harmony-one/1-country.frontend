@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import debounce from 'lodash.debounce'
-import { toast } from 'react-toastify'
 import { observer } from 'mobx-react-lite'
 import BN from 'bn.js'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -231,17 +230,23 @@ export const HomeSearchPage: React.FC = observer(() => {
       sld: searchResult.domainName,
     })
 
-    console.log('### isAvailable', isAvailable)
-
     if (!isAvailable) {
-      return toast.error('This domain name is already registered')
+      setValidation({
+        valid: false,
+        error: 'This domain name is already registered',
+      })
+      return
     }
 
     const _available = await rootStore.d1dcClient.checkAvailable({
       name: searchResult.domainName,
     })
     if (!_available) {
-      return toast.error('This domain name is already registered')
+      setValidation({
+        valid: false,
+        error: 'This domain name is already registered',
+      })
+      return
     }
 
     setProcessStatus({
@@ -249,10 +254,18 @@ export const HomeSearchPage: React.FC = observer(() => {
     })
 
     if (!searchResult.domainName) {
-      return toast.error('Invalid domain')
+      setValidation({
+        valid: false,
+        error: 'Invalid domain',
+      })
+      return
     }
     if (!nameUtils.isValidName(searchResult.domainName)) {
-      return toast.error('Domain must be alphanumerical characters')
+      setValidation({
+        valid: false,
+        error: 'Domain must be alphanumerical characters',
+      })
+      return
     }
 
     setProcessStatus({
