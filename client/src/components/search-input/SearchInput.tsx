@@ -4,7 +4,7 @@ import { FormClose } from 'grommet-icons';
 import styled from "styled-components";
 
 const TextInputWrapper = styled(TextInput)`
-  border-radius: 24px;
+  border-radius: 20px;
   box-shadow: none;
   font-weight: 400;
   border: 1px solid #dfe1e5;
