@@ -19,7 +19,7 @@ const web3ModalConnectors = modalConnectors({
 export const metamaskConnector = new MetaMaskConnector({ chains })
 export const [walletConnectConnector] = web3ModalConnectors
 export const wagmiClient = createClient({
-  autoConnect: true,
+  autoConnect: false,
   connectors: [metamaskConnector, walletConnectConnector],
   provider,
 })

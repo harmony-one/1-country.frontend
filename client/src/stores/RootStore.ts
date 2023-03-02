@@ -13,6 +13,7 @@ import {
   UITransactionStore,
 } from '../modules/transactions/UITransactionStore'
 import { MetaTagsStore, metaTagsStore } from '../modules/metatags/MetaTagsStore'
+import { wagmiClient } from '../modules/wagmi/wagmiClient'
 
 export class RootStore {
   modalStore: ModalStore
@@ -43,6 +44,13 @@ export class RootStore {
 
     const web3 = new Web3(config.defaultRPC)
     this.updateD1DCClient(web3, Constants.EmptyAddress)
+
+    wagmiClient.autoConnect().then(({ account, provider }) => {
+      console.log('### wagmi autoConnect')
+      // @ts-ignore-error
+      const web3 = new Web3(provider)
+      this.updateD1DCClient(web3, account)
+    })
 
     this.modalStore = modalStore
     this.ratesStore = new RatesStore(this)
