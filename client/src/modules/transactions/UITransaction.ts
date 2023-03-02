@@ -41,6 +41,7 @@ export class UITransaction<Data = {}> {
         error: observable,
         txHash: observable,
         status: observable,
+        pending: computed,
         errorMessage: computed,
         harmonyErrTxId: computed,
       },
@@ -55,12 +56,19 @@ export class UITransaction<Data = {}> {
     }
   }
 
-  setStatusWaitingSignIn() {
-    this.status = UITransactionStatus.WAITING_SIGN_IN
-  }
-
   get title() {
     return this._titles[this.status]
+  }
+
+  get pending() {
+    return (
+      this.status === UITransactionStatus.PROGRESS ||
+      this.status === UITransactionStatus.WAITING_SIGN_IN
+    )
+  }
+
+  setStatusWaitingSignIn() {
+    this.status = UITransactionStatus.WAITING_SIGN_IN
   }
 
   setStatusProgress() {
@@ -71,8 +79,9 @@ export class UITransaction<Data = {}> {
     this.status = UITransactionStatus.SUCCESS
   }
 
-  setStatusFail() {
+  setStatusFail(error?: Error | { message: string }) {
     this.status = UITransactionStatus.FAIL
+    error && this.setError(error)
   }
 
   setTxHash(txHash: string) {
