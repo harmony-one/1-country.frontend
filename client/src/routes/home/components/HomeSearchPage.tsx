@@ -28,6 +28,8 @@ import { useAccount } from 'wagmi'
 import { useWeb3Modal, Web3Button } from '@web3modal/react'
 import { TypedText } from './Typed'
 import { sleep } from '../../../utils/sleep'
+import {SearchInput} from "../../../components/search-input/SearchInput";
+import {FormSearch} from "grommet-icons";
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -104,11 +106,15 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   const updateSearch = (domainName: string) => {
     setSearchResult(null)
-    const result = validateDomainName(domainName.toLowerCase())
-    setValidation(result)
+    if(domainName) {
+      const result = validateDomainName(domainName)
+      setValidation(result)
 
-    if (result.valid) {
-      loadDomainRecord(domainName)
+      if (result.valid) {
+        loadDomainRecord(domainName)
+      }
+    } else {
+      setValidation({ valid: true, error: '' })
     }
   }
 
@@ -139,9 +145,9 @@ export const HomeSearchPage: React.FC = observer(() => {
     }
   }, [isConnected])
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value)
-    updateSearch(event.target.value)
+  const handleSearchChange = (value: string) => {
+    setInputValue(value)
+    updateSearch(value)
   }
 
   const terminateProcess = async (timer: number = 5000) => {
@@ -346,7 +352,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     })
 
     const tx = await rootStore.d1dcClient.rent({
-      name: searchResult.domainName,
+      name: searchResult.domainName.toLowerCase(),
       secret,
       url: tweetId.toString(),
       amount: new BN(searchResult.price.amount).toString(),
@@ -414,20 +420,15 @@ export const HomeSearchPage: React.FC = observer(() => {
                 .country
               </GradientText>
             </Box>
-            <InputContainer
-              valid={
-                validation.valid &&
-                (searchResult ? searchResult.isAvailable : true)
-              }
-              style={{ flexGrow: 0 }}
-            >
-              <StyledInput
-                placeholder="Register your .country domain"
+            <Box width={'100%'} margin={{ top: '16px' }}>
+              <SearchInput
+                isValid={validation.valid && (searchResult ? searchResult.isAvailable : true)}
                 value={inputValue}
-                onChange={handleSearchChange}
-                autoFocus
+                placeholder={'Type the domain you want'}
+                icon={<FormSearch />}
+                onSearch={handleSearchChange}
               />
-            </InputContainer>
+            </Box>
           </Box>
 
           {!validation.valid && <BaseText>Invalid domain name</BaseText>}
@@ -440,7 +441,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             !web2Error && (
               <>
                 <HomeSearchResultItem
-                  name={searchResult.domainName}
+                  name={searchResult.domainName.toLowerCase()}
                   rateONE={ratesStore.ONE_USD}
                   price={searchResult.price.formatted}
                   available={searchResult.isAvailable}

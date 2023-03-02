@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { rootStore, useStores } from '../../stores'
 import {
   PageWidgetContainer,
@@ -21,6 +21,7 @@ import {
   ProcessStatusTypes,
 } from '../../components/process-status/ProcessStatus'
 import { sleep } from '../../utils/sleep'
+import {SearchInput} from "../../components/search-input/SearchInput";
 
 const defaultFormFields = {
   widgetValue: '',
@@ -74,18 +75,17 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       return
     }
     event.preventDefault()
+    const value = (event.target as HTMLInputElement).value || ''
 
     if (
-      /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(
-        event.currentTarget.value
-      )
+      /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(value)
     ) {
       window.open(`mailto:1country@harmony.one`, '_self')
       return
     }
     setLoading(true)
 
-    const tweet = parseInputValue(event.currentTarget.value)
+    const tweet = parseInputValue(value)
 
     if (tweet.error) {
       setProcessStatus({
@@ -96,13 +96,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       return
     }
 
-    const value = isUrl(event.currentTarget.value)
-      ? event.currentTarget.value
-      : tweet.value
-
     const widget: Widget = {
       type: 'twitter',
-      value: value,
+      value: isUrl(value) ? value : tweet.value,
     }
 
     widgetListStore
@@ -118,9 +114,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       })
   }
 
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target
-    setFormFields({ ...formFields, [name]: value })
+  const onChange = (value: string) => {
+    setFormFields({ ...formFields, widgetValue: value })
   }
 
   const deleteWidget = (widgetId: number) => {
@@ -156,16 +151,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     <PageWidgetContainer>
       {showInput && (
         <WidgetInputContainer>
-          <WidgetStyledInput
-            placeholder="Twitter handle or tweet link"
-            name="widgetValue"
-            value={formFields.widgetValue}
-            required
-            onChange={onChange}
-            onKeyDown={enterHandler}
-            disabled={loading}
+          <SearchInput
             autoFocus
-            valid
+            disabled={loading}
+            placeholder={'Twitter handle or tweet link'}
+            value={formFields.widgetValue}
+            onSearch={onChange}
+            onKeyDown={enterHandler}
           />
         </WidgetInputContainer>
       )}
