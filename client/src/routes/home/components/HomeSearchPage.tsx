@@ -429,13 +429,15 @@ export const HomeSearchPage: React.FC = observer(() => {
                 .country
               </GradientText>
             </Box>
-            <SearchInput
-              isValid={validation.valid && (searchResult ? searchResult.isAvailable : true)}
-              value={inputValue}
-              placeholder={'Type the domain you want'}
-              icon={<FormSearch />}
-              onSearch={handleSearchChange}
-            />
+            <Box width={'100%'} margin={{ top: '16px' }}>
+              <SearchInput
+                isValid={validation.valid && (searchResult ? searchResult.isAvailable : true)}
+                value={inputValue}
+                placeholder={'Type the domain you want'}
+                icon={<FormSearch />}
+                onSearch={handleSearchChange}
+              />
+            </Box>
           </Box>
 
           {!validation.valid && <BaseText>Invalid domain name</BaseText>}
