@@ -1,82 +1,49 @@
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import humanizeDuration from 'humanize-duration'
-import { FlexRow, Row } from '../../../components/Layout'
-import { Button, LinkWrarpper } from '../../../components/Controls'
+import { Row } from '../../../components/Layout'
+import { Button } from '../../../components/Controls'
 import { HomeLabel, RecordRenewalContainer } from '../Home.styles'
 import { BaseText, SmallTextGrey, Title } from '../../../components/Text'
 import { useStores } from '../../../stores'
-import { toast } from 'react-toastify'
-import { Transaction } from '../../../api'
+import { UITx } from '../../../modules/transactions/UITx'
 
 interface Props {}
 
 const humanD = humanizeDuration.humanizer({ round: true, largest: 1 })
 
 export const DomainRecordRenewal: React.FC<Props> = observer(() => {
-  const { domainStore, walletStore, rootStore } = useStores()
-  const client = rootStore.d1dcClient
-  const [pending, setPending] = useState(false)
-  const toastId = useRef(null)
-  const [url] = useState(
-    'https://twitter.com/harmonyprotocol/status/1619034491280039937?s=20&t=0cZ38hFKKOrnEaQAgKddOg'
-  )
+  const { domainStore, walletStore, rootStore, uiTransactionStore } =
+    useStores()
+  const [uiTx] = useState(uiTransactionStore.create())
 
   const handleRenewal = async () => {
-    if (!url) {
-      return toast.error('Invalid URL to embed')
-    }
-
     if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
       await walletStore.connect()
     }
 
-    setPending(true)
+    uiTx.setStatusProgress()
+
     try {
-      const onFailed = () => {
-        toast.update(toastId.current, {
-          render: 'Failed to purchase',
-          type: 'error',
-          isLoading: false,
-          autoClose: 2000,
-        })
-      }
-
-      const onSuccess = (tx: Transaction) => {
-        console.log(tx)
-        const { transactionHash } = tx
-        toast.update(toastId.current, {
-          render: (
-            <FlexRow>
-              <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
-              <LinkWrarpper
-                target="_blank"
-                href={client.getExplorerUri(transactionHash)}
-              >
-                <BaseText>View transaction</BaseText>
-              </LinkWrarpper>
-            </FlexRow>
-          ),
-          type: 'success',
-          isLoading: false,
-          autoClose: 2000,
-        })
-        setTimeout(() => location.reload(), 1500)
-      }
-
-      toastId.current = toast.loading('Processing transaction')
-
-      rootStore.d1dcClient.updateURL({
+      uiTx.setStatusWaitingSignIn()
+      rootStore.d1dcClient.renewDomain({
         name: domainStore.domainName,
         url: '',
-        onFailed: onFailed,
-        onSuccess: onSuccess,
+        amount: domainStore.domainPrice.amount,
+        onTransactionHash: (txHash) => {
+          uiTx.setTxHash(txHash)
+          uiTx.setStatusProgress()
+        },
+        onFailed: (ex: Error) => {
+          uiTx.setStatusFail(ex)
+        },
+        onSuccess: ({ transactionHash }) => {
+          uiTx.setStatusSuccess()
+        },
       })
     } catch (ex) {
       console.error(ex)
-      toast.error(`Unexpected error: ${ex.toString()}`)
-    } finally {
-      setPending(false)
+      uiTx.setStatusFail(ex)
     }
   }
 
@@ -90,9 +57,10 @@ export const DomainRecordRenewal: React.FC<Props> = observer(() => {
       <SmallTextGrey>
         for {humanD(domainStore.d1cParams.duration)}{' '}
       </SmallTextGrey>
-      <Button onClick={handleRenewal} disabled={pending}>
+      <Button onClick={handleRenewal} disabled={uiTx.pending}>
         RENEW
       </Button>
+      <UITx uiTx={uiTx} />
     </RecordRenewalContainer>
   )
 })

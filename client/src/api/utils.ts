@@ -1,5 +1,3 @@
-import { parseTweetId } from '../utils/parseTweetId'
-
 const createKeccakHash = require('keccak')
 
 const SPECIAL_NAMES = ['s', '0', '1', 'li', 'ml', 'ba', 'names']
@@ -88,4 +86,25 @@ export const getDomainLevel = (domainName: string): DomainLevel => {
   }
 
   return 'common'
+}
+
+export const validateDomainName = (domainName: string) => {
+  if (nameUtils.isReservedName(domainName.toLowerCase())) {
+    return {
+      valid: false,
+      error: 'This domain name is reserved for special purpose',
+    }
+  }
+
+  if (!nameUtils.isValidName(domainName.toLowerCase())) {
+    return {
+      valid: false,
+      error: 'Domains can use a mix of letters and numbers',
+    }
+  }
+
+  return {
+    valid: true,
+    error: '',
+  }
 }
