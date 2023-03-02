@@ -1,25 +1,28 @@
-import React from "react"
-import { ProcessStatusContainer } from "./ProcessStatus.styles"
+import React from 'react'
+import { ProcessStatusContainer } from './ProcessStatus.styles'
 
-export const statusTypes = {
-  INFO: 0,
-  SUCCESS: 1, 
-  ERROR: 2
+export enum ProcessStatusTypes {
+  INFO = 'INFO',
+  SUCCESS = 'SUCCESS',
+  ERROR = 'ERROR',
 }
 
-export type ProcessStatusProps = {
-  type?: number,
-  render: any
+export interface ProcessStatusItem {
+  type?: ProcessStatusTypes
+  render: React.ReactNode
 }
 
-const ProcessStatus = ({ type = statusTypes.INFO, render = '' }: ProcessStatusProps) => {
+type Props = {
+  status: ProcessStatusItem
+}
+
+export const ProcessStatus: React.FC<Props> = ({ status }) => {
+  const { type = ProcessStatusTypes.INFO, render = '' } = status
   return (
     <ProcessStatusContainer colorType={type}>
       {render}
       {/* <span style={{ color: 'red' }}>{type === statusTypes.ERROR ? 'Error' : ''}</span> */}
-      { type === statusTypes.INFO && <div className="dot-elastic"></div>}
+      {type === ProcessStatusTypes.INFO && <div className="dot-elastic"></div>}
     </ProcessStatusContainer>
   )
 }
-
-export default ProcessStatus

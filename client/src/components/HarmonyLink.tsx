@@ -21,15 +21,16 @@ const typeMap = {
 }
 
 const StyledImg = styled.img`
-  height: 22px;
+  height: 16px;
 `
 
 const StyledLink = styled.a<{ mono: boolean }>`
   position: relative;
-  top: 1px;
+  font-size: 0.9em;
   text-overflow: wrap;
   word-break: break-all;
-  font-family: ${(props) => (props.mono ? 'Courier' : undefined)};
+  font-family: ${(props) =>
+    props.mono ? 'Courier' : `'NunitoBold', system-ui`};
   color: #47b8eb;
 `
 
@@ -58,7 +59,7 @@ export const HarmonyLink: React.FC<Props> = ({
 
   return (
     <Box direction="row" align="center" gap="4px">
-      <StyledImg width="22px" height="22px" src="/tokens/one.svg" alt={type} />
+      <StyledImg width="16px" height="16px" src="/tokens/one.svg" alt={type} />
       <StyledLink
         mono={mono}
         title={hash}

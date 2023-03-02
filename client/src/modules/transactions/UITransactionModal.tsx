@@ -38,7 +38,7 @@ export const UITxModalContent: React.FC<UITxModalContentProps> = ({
 
       {errorMessage && (
         <Box align="center">
-          <BaseText color="Red500">{errorMessage}</BaseText>
+          <BaseText>{errorMessage}</BaseText>
         </Box>
       )}
       {harmonyErrTxId && (

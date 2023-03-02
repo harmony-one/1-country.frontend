@@ -32,6 +32,9 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
     window.open(`mailto:1country@harmony.one`, '_self')
   }
 
+  const showRenewalBlock =
+    walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
+
   return (
     <Container>
       <VanityURL
@@ -49,13 +52,7 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
       {domainStore.domainRecord && domainStore.domainRecord.renter && (
         <WidgetModule domainName={domainStore.domainName} />
       )}
-      {walletStore.walletAddress && (
-        <>
-          {domainStore.isOwner && domainStore.isExpired && (
-            <DomainRecordRenewal />
-          )}
-        </>
-      )}
+      {showRenewalBlock && <DomainRecordRenewal />}
       <HomePageFooter />
       <div style={{ height: 200 }} />
     </Container>

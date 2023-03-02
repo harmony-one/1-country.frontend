@@ -68,6 +68,12 @@ interface RentProps extends CallbackProps {
   amount: string
 }
 
+interface RenewDomainProps extends CallbackProps {
+  name: string
+  url: string
+  amount: string
+}
+
 interface UpdateUrlProps extends CallbackProps {
   name: string
   url: string
@@ -254,9 +260,6 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     address,
     contract,
     web3,
-    getExplorerUri: (txHash: string) => {
-      return config.explorer.explorerUrl.replace('{{txId}}', txHash)
-    },
     call,
     commit: async ({
       name,
@@ -309,6 +312,25 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         methodName: 'updateURL',
         onFailed,
         onSubmitted,
+        onSuccess,
+      })
+    },
+    renewDomain: async ({
+      name,
+      url,
+      amount,
+      onFailed,
+      onTransactionHash,
+      onSubmitted,
+      onSuccess,
+    }: RenewDomainProps) => {
+      return call({
+        parameters: [name, url],
+        methodName: 'renew',
+        amount,
+        onFailed,
+        onSubmitted,
+        onTransactionHash,
         onSuccess,
       })
     },
