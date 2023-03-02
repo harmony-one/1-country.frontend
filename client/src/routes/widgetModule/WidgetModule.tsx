@@ -9,16 +9,18 @@ import TwitterWidget, {
   parseInputValue,
 } from '../../components/widgets/TwitterWidget'
 import { observer } from 'mobx-react-lite'
-import { widgetListStore, Widget } from './WidgetListStore'
-import { BaseText } from '../../components/Text'
+import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
 import { Transaction } from '../../api'
-import { toast } from 'react-toastify'
-import { FlexRow } from '../../components/Layout'
-import { LinkWrarpper } from '../../components/Controls'
 import isUrl from 'is-url'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
-import { WalletConnectWidget } from "../../components/widgets/WalletConnectWidget";
+import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
+import {
+  ProcessStatus,
+  ProcessStatusItem,
+  ProcessStatusTypes,
+} from '../../components/process-status/ProcessStatus'
+import { sleep } from '../../utils/sleep'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -30,51 +32,42 @@ interface Props {
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore } = useStores()
+  const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
+    type: ProcessStatusTypes.INFO,
+    render: '',
+  })
 
   const toastId = useRef(null)
 
   useEffect(() => {
     domainStore.loadDomainRecord(domainName)
-  }, [])
+  }, [domainName])
 
   useEffect(() => {
     widgetListStore.loadWidgetList(domainName)
     widgetListStore.loadDomainTx(domainName)
   }, [domainName])
 
-  const [addingWidget, setAddingWidget] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
-  const [placeHolder, setPlaceHolder] = useState('')
 
-  useEffect(() => {
-    setPlaceHolder('Twitter handle or tweet link')
-  }, [])
+  const terminateProcess = async (timer: number = 5000) => {
+    await sleep(timer)
+    setLoading(false)
+    setProcessStatus({ type: ProcessStatusTypes.INFO, render: '' })
+  }
 
-  const onSuccess = (tx: Transaction) => {
-    const { transactionHash } = tx
-    toast.update(toastId.current, {
-      render: (
-        <FlexRow>
-          <BaseText style={{ marginRight: 8 }}>Done!</BaseText>
-          <LinkWrarpper
-            target="_blank"
-            href={rootStore.d1dcClient.getExplorerUri(transactionHash)}
-          >
-            <BaseText>View transaction</BaseText>
-          </LinkWrarpper>
-        </FlexRow>
-      ),
-      type: 'success',
-      isLoading: false,
-      autoClose: 2000,
+  const onSuccess = (message: string) => (tx: Transaction) => {
+    setProcessStatus({
+      type: ProcessStatusTypes.SUCCESS,
+      render: message,
     })
   }
-  const onFailed = (ex: Error) => {
-    toast.update(toastId.current, {
-      render: `Failed ${ex.message}`,
-      type: 'error',
-      isLoading: false,
-      autoClose: 10000,
+
+  const onFailed = () => (ex: Error) => {
+    setProcessStatus({
+      type: ProcessStatusTypes.ERROR,
+      render: ex.message,
     })
   }
 
@@ -92,20 +85,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       window.open(`mailto:1country@harmony.one`, '_self')
       return
     }
-
-    setAddingWidget(true)
-    toastId.current = toast.loading('Processing transaction')
+    setLoading(true)
 
     const tweet = parseInputValue(event.currentTarget.value)
 
     if (tweet.error) {
-      toast.update(toastId.current, {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
         render: tweet.error,
-        type: 'error',
-        isLoading: false,
-        autoClose: 2000,
       })
-      setAddingWidget(false)
+      terminateProcess()
       return
     }
 
@@ -119,10 +108,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
 
     widgetListStore
-      .createWidget({ widget, domainName, onSuccess, onFailed })
+      .createWidget({
+        widget,
+        domainName,
+        onSuccess: onSuccess('Url successful added'),
+        onFailed: onFailed(),
+      })
       .then(() => {
-        setAddingWidget(false)
         setFormFields({ ...formFields, widgetValue: '' })
+        terminateProcess()
       })
   }
 
@@ -132,30 +126,30 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }
 
   const deleteWidget = (widgetId: number) => {
-    toastId.current = toast.loading('Processing transaction')
+    setLoading(true)
     widgetListStore.deleteWidget({
       domainName,
       widgetId,
-      onSuccess,
-      onFailed,
+      onSuccess: onSuccess('Widget deleted'),
+      onFailed: onFailed(),
     })
   }
 
   const handleDeleteLegacyUrl = async () => {
-    toastId.current = toast.loading('Processing transaction')
+    setLoading(true)
 
-    if (!walletStore.isConnected) {
-      await walletStore.connect()
+    try {
+      await rootStore.d1dcClient.updateURL({
+        name: domainName,
+        url: '',
+        onSuccess: onSuccess('Widget deleted'),
+        onFailed: onFailed(),
+      })
+
+      domainStore.loadDomainRecord(domainName)
+    } catch (ex) {
+      terminateProcess()
     }
-
-    await rootStore.d1dcClient.updateURL({
-      name: domainName,
-      url: '',
-      onSuccess,
-      onFailed,
-    })
-
-    domainStore.loadDomainRecord(domainName)
   }
 
   const showInput = walletStore.isConnected && domainStore.isOwner
@@ -165,18 +159,20 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       {showInput && (
         <WidgetInputContainer>
           <WidgetStyledInput
-            placeholder={placeHolder}
+            placeholder="Twitter handle or tweet link"
             name="widgetValue"
             value={formFields.widgetValue}
             required
             onChange={onChange}
             onKeyDown={enterHandler}
-            disabled={addingWidget}
+            disabled={loading}
             autoFocus
             valid // ={isValid && isAvailable}
           />
         </WidgetInputContainer>
       )}
+
+      {loading && <ProcessStatus status={processStatus} />}
 
       {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}
       {widgetListStore.widgetList.map((widget, index) => (
@@ -204,8 +200,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           txHash={widgetListStore.txDomain}
         />
       )}
-      {(!walletStore.isConnected && walletStore.isMetamaskAvailable) && <MetamaskWidget />}
-      {(!walletStore.isMetamaskAvailable) && <WalletConnectWidget />}
+      {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
+        <MetamaskWidget />
+      )}
+      {!walletStore.isMetamaskAvailable && <WalletConnectWidget />}
     </PageWidgetContainer>
   )
 })
