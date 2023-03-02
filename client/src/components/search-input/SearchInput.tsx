@@ -1,6 +1,6 @@
-import React, {useRef, useState} from 'react'
+import React, {ReactNode, useRef, useState} from 'react'
 import {Box, TextInput, TextInputProps} from "grommet";
-import { FormSearch, FormClose } from 'grommet-icons';
+import { FormClose } from 'grommet-icons';
 import styled from "styled-components";
 
 const TextInputWrapper = styled(TextInput)`
@@ -25,8 +25,13 @@ const TextInputWrapper = styled(TextInput)`
 
 const InputSuffix = styled(Box)`
   position: absolute;
-  right: 16px;
+  display: flex;
+  right: 8px;
   cursor: pointer;
+  background: white;
+  width: 32px;
+  justify-content: center;
+  align-items: center;
 `
 
 const Container = styled(Box)`
@@ -49,34 +54,34 @@ export const SearchInput = (props: SearchInputProps) => {
   } = props
 
   const inputRef = useRef(null)
-  const [value, setValue] = useState(props.defaultValue || '')
+
+  const clearValue = () => {
+    if(inputRef && inputRef.current) {
+      inputRef.current.value = ''
+    }
+    if(onSearch) {
+      onSearch('')
+    }
+  }
 
   const inputProps = {
     ref: inputRef,
     autoFocus,
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = e.target
-      setValue(value)
       if(onSearch) {
         onSearch(value)
+      }
+      if(props.onChange) {
+        props.onChange(e)
       }
     },
     ...restProps,
   }
 
-  const clearValue = () => {
-    if(inputRef && inputRef.current) {
-      inputRef.current.value = ''
-    }
-    setValue('')
-    if(onSearch) {
-      onSearch('')
-    }
-  }
-
   return <Container width={'100%'} justify={'center'}>
-    <TextInputWrapper icon={<FormSearch />} {...inputProps} />
-    {(allowClear && value) &&
+    <TextInputWrapper {...inputProps} />
+    {(allowClear && props.value) &&
       <InputSuffix>
         <FormClose onClick={clearValue} />
       </InputSuffix>

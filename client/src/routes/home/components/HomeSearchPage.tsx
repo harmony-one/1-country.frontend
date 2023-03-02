@@ -28,6 +28,7 @@ import { useAccount } from 'wagmi'
 import { Web3Button , useWeb3Modal} from '@web3modal/react'
 import { TypedText } from './Typed'
 import {SearchInput} from "../../../components/search-input/SearchInput";
+import {FormSearch} from "grommet-icons";
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -129,13 +130,12 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   const updateSearch = (domainName: string) => {
     setSearchResult(null)
-    const name = domainName.toLowerCase()
-    if(name) {
-      const result = validateDomainName(name)
+    if(domainName) {
+      const result = validateDomainName(domainName)
       setValidation(result)
 
       if (result.valid) {
-        loadDomainRecord(name)
+        loadDomainRecord(domainName)
       }
     } else {
       setValidation({ valid: true, error: '' })
@@ -170,9 +170,8 @@ export const HomeSearchPage: React.FC = observer(() => {
   }, [isConnected])
 
   const handleSearchChange = (value: string) => {
-    const formattedValue = value.toLowerCase()
-    setInputValue(formattedValue)
-    updateSearch(formattedValue)
+    setInputValue(value)
+    updateSearch(value)
   }
 
   const terminateProcess = async (timer: number = 5000) => {
@@ -362,7 +361,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     })
 
     const tx = await rootStore.d1dcClient.rent({
-      name: searchResult.domainName,
+      name: searchResult.domainName.toLowerCase(),
       secret,
       url: tweetId.toString(),
       amount: new BN(searchResult.price.amount).toString(),
@@ -432,8 +431,9 @@ export const HomeSearchPage: React.FC = observer(() => {
             </Box>
             <SearchInput
               isValid={validation.valid && (searchResult ? searchResult.isAvailable : true)}
-              defaultValue={inputValue}
+              value={inputValue}
               placeholder={'Type the domain you want'}
+              icon={<FormSearch />}
               onSearch={handleSearchChange}
             />
           </Box>
@@ -448,7 +448,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             !web2Error && (
               <>
                 <HomeSearchResultItem
-                  name={searchResult.domainName}
+                  name={searchResult.domainName.toLowerCase()}
                   rateONE={ratesStore.ONE_USD}
                   price={searchResult.price.formatted}
                   available={searchResult.isAvailable}

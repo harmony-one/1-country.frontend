@@ -19,6 +19,7 @@ import { LinkWrarpper } from '../../components/Controls'
 import isUrl from 'is-url'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { WalletConnectWidget } from "../../components/widgets/WalletConnectWidget";
+import {SearchInput} from "../../components/search-input/SearchInput";
 
 const defaultFormFields = {
   widgetValue: '',
@@ -83,11 +84,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       return
     }
     event.preventDefault()
+    const value = (event.target as HTMLInputElement).value || ''
 
     if (
-      /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(
-        event.currentTarget.value
-      )
+      /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(value)
     ) {
       window.open(`mailto:1country@harmony.one`, '_self')
       return
@@ -96,7 +96,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     setAddingWidget(true)
     toastId.current = toast.loading('Processing transaction')
 
-    const tweet = parseInputValue(event.currentTarget.value)
+    const tweet = parseInputValue(value)
 
     if (tweet.error) {
       toast.update(toastId.current, {
@@ -109,13 +109,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       return
     }
 
-    const value = isUrl(event.currentTarget.value)
-      ? event.currentTarget.value
-      : tweet.value
-
     const widget: Widget = {
       type: 'twitter',
-      value: value,
+      value: isUrl(value) ? value : tweet.value,
     }
 
     widgetListStore
@@ -126,9 +122,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       })
   }
 
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target
-    setFormFields({ ...formFields, [name]: value })
+  const onChange = (value: string) => {
+    setFormFields({ ...formFields, widgetValue: value })
   }
 
   const deleteWidget = (widgetId: number) => {
@@ -164,16 +159,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     <PageWidgetContainer>
       {showInput && (
         <WidgetInputContainer>
-          <WidgetStyledInput
-            placeholder={placeHolder}
-            name="widgetValue"
-            value={formFields.widgetValue}
-            required
-            onChange={onChange}
-            onKeyDown={enterHandler}
-            disabled={addingWidget}
+          <SearchInput
             autoFocus
-            valid // ={isValid && isAvailable}
+            disabled={addingWidget}
+            placeholder={placeHolder}
+            value={formFields.widgetValue}
+            onSearch={onChange}
+            onKeyDown={enterHandler}
           />
         </WidgetInputContainer>
       )}
