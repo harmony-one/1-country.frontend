@@ -15,7 +15,6 @@ export const WIDGET_TYPE = {
   post: 1,
 }
 
-
 // export const checkTweet = (value) => {
 //   try {
 //     if (isUrl(value)) {
@@ -63,31 +62,30 @@ const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
 
   useEffect(() => {
     setLoading(true)
+    console.log('### value', value)
     const getWidgetEmbed = async () => {
       const result = await getEmbedJson(value)
       if (result) {
         setWidget(result)
+        setLoading(false)
       }
     }
     if (isUrl(value)) {
       getWidgetEmbed()
-    } 
-
+    }
   }, [value])
   // ref={ref}
   return (
-    <WidgetsContainer isWidgetLoading={loading}> 
+    <WidgetsContainer isWidgetLoading={loading}>
       <div style={{ paddingBottom: '2em' }}>
-        {widget && (!loading || inView) && 
-          (<blockquote className="embedly-card" style={{ zIndex: '10'}}>
+        {widget && (!loading || inView) && (
+          <blockquote className="embedly-card" style={{ zIndex: '10' }}>
             <h4>
-              <a href={widget.url}>{widget.title}
-              </a>
+              <a href={widget.url}>{widget.title}</a>
             </h4>
-            <p>
-              {widget.description}
-            </p>
-          </blockquote>)}
+            <p>{widget.description}</p>
+          </blockquote>
+        )}
       </div>
       {isOwner && (
         <DeleteWidgetButton onClick={onDelete}>
