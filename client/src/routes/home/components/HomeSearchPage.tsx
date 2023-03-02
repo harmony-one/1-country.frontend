@@ -27,8 +27,6 @@ import { buildTxUri } from '../../../utils/explorer'
 import { useAccount } from 'wagmi'
 import { Web3Button , useWeb3Modal} from '@web3modal/react'
 import { TypedText } from './Typed'
-import {useAccount} from "wagmi";
-import {Web3Button, useWeb3Modal} from "@web3modal/react";
 import {SearchInput} from "../../../components/search-input/SearchInput";
 
 const SearchBoxContainer = styled.div`
@@ -131,12 +129,13 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   const updateSearch = (domainName: string) => {
     setSearchResult(null)
-    if(domainName) {
-      const result = validateDomainName(domainName.toLowerCase())
+    const name = domainName.toLowerCase()
+    if(name) {
+      const result = validateDomainName(name)
       setValidation(result)
 
       if (result.valid) {
-        loadDomainRecord(domainName)
+        loadDomainRecord(name)
       }
     } else {
       setValidation({ valid: true, error: '' })
@@ -171,8 +170,9 @@ export const HomeSearchPage: React.FC = observer(() => {
   }, [isConnected])
 
   const handleSearchChange = (value: string) => {
-    setInputValue(value)
-    updateSearch(value)
+    const formattedValue = value.toLowerCase()
+    setInputValue(formattedValue)
+    updateSearch(formattedValue)
   }
 
   const terminateProcess = async (timer: number = 5000) => {
@@ -432,6 +432,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             </Box>
             <SearchInput
               isValid={validation.valid && (searchResult ? searchResult.isAvailable : true)}
+              defaultValue={inputValue}
               placeholder={'Type the domain you want'}
               onSearch={handleSearchChange}
             />

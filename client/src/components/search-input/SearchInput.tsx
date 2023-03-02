@@ -8,10 +8,11 @@ const TextInputWrapper = styled(TextInput)`
   box-shadow: none;
   font-weight: 400;
   border: 1px solid #dfe1e5;
+  color: #333437;
 
   &:focus {
     background-color: #fff;
-    box-shadow: 0 1px 6px rgb(32 33 36 / 28%);
+    box-shadow: 0 1px 5px rgb(32 33 36 / 26%);
     border-color: rgba(223,225,229,0);
   }
 
@@ -47,14 +48,14 @@ export const SearchInput = (props: SearchInputProps) => {
     ...restProps
   } = props
 
+  const inputRef = useRef(null)
   const [value, setValue] = useState(props.defaultValue || '')
 
   const inputProps = {
-    value,
+    ref: inputRef,
     autoFocus,
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = e.target
-      console.log('value', value)
       setValue(value)
       if(onSearch) {
         onSearch(value)
@@ -64,6 +65,9 @@ export const SearchInput = (props: SearchInputProps) => {
   }
 
   const clearValue = () => {
+    if(inputRef && inputRef.current) {
+      inputRef.current.value = ''
+    }
     setValue('')
     if(onSearch) {
       onSearch('')
