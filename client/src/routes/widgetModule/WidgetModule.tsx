@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { rootStore, useStores } from '../../stores'
 import {
   PageWidgetContainer,
@@ -36,8 +36,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     type: ProcessStatusTypes.INFO,
     render: '',
   })
-
-  const toastId = useRef(null)
 
   useEffect(() => {
     domainStore.loadDomainRecord(domainName)
@@ -167,14 +165,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             onKeyDown={enterHandler}
             disabled={loading}
             autoFocus
-            valid // ={isValid && isAvailable}
+            valid
           />
         </WidgetInputContainer>
       )}
 
       {loading && <ProcessStatus status={processStatus} />}
 
-      {/* {showAddButton && <AddWidget list={widgetList} setList={setWidgetList} isOwner={isOwner} />} */}
       {widgetListStore.widgetList.map((widget, index) => (
         <TwitterWidget
           value={widget.value}
