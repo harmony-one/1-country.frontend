@@ -162,15 +162,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         </WidgetInputContainer>
       )}
 
-      {domainStore.domainRecord && (
-        <TransactionWidget
-          name={domainStore.domainName}
-          isLoading={widgetListStore.txDomainLoading}
-          domainRecord={domainStore.domainRecord}
-          txHash={widgetListStore.txDomain}
-        />
-      )}
-
       {loading && <ProcessStatus status={processStatus} />}
 
       {widgetListStore.widgetList.map((widget, index) => (
@@ -189,6 +180,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           onDelete={handleDeleteLegacyUrl}
         />
       )}
+
+      {domainStore.domainRecord && (
+        <TransactionWidget
+          name={domainStore.domainName}
+          isLoading={widgetListStore.txDomainLoading}
+          domainRecord={domainStore.domainRecord}
+          txHash={widgetListStore.txDomain}
+        />
+      )}
+
       {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
         <MetamaskWidget />
       )}

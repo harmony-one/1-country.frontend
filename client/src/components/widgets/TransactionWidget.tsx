@@ -95,10 +95,7 @@ export const TransactionWidget: React.FC<Props> = ({
       </Box>
       <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
         {isLoading
-          ? <Box direction={'row'} align={'center'} gap={'8px'}>
-            <Spinner size={'xsmall'} color="#00AEEA" />
-            <Text size={'small'}>Loading transaction data</Text>
-          </Box>
+          ? <Spinner size={'xsmall'} color="#00AEEA" />
           : <HarmonyLink
               type={'tx'}
               hash={txHash}
