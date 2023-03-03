@@ -24,7 +24,7 @@ const dateFormat = new Intl.DateTimeFormat('en-US', {
 })
 
 interface Props {
-  loading: boolean
+  isLoading: boolean
   txHash: string
   name: string
   domainRecord: DomainRecord
@@ -54,7 +54,7 @@ const LinkItem = styled.a`
 `
 
 export const TransactionWidget: React.FC<Props> = ({
-  loading,
+  isLoading,
   name,
   txHash,
   domainRecord,
@@ -94,7 +94,17 @@ export const TransactionWidget: React.FC<Props> = ({
         <Text size={'small'}>{dateFormat.format(expirationTime)}</Text>
       </Box>
       <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
-        <HarmonyLink type={'tx'} hash={txHash} href={`https://explorer.harmony.one/tx/${txHash}`} />
+        {isLoading
+          ? <Box direction={'row'} align={'center'} gap={'8px'}>
+            <Spinner size={'xsmall'} color="#00AEEA" />
+            <Text size={'small'}>Loading transaction data</Text>
+          </Box>
+          : <HarmonyLink
+              type={'tx'}
+              hash={txHash}
+              href={`https://explorer.harmony.one/tx/${txHash}`}
+            />
+        }
       </Box>
     </Box>
   </Container>
