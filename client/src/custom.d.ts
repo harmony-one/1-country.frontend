@@ -11,3 +11,6 @@ declare module "*.jpg";
 declare module "*.png";
 declare module "*.jpeg";
 declare module "*.gif";
+
+declare module 'grommet-icons/icons/FormClose';
+declare module 'grommet-icons/icons/FormSearch';

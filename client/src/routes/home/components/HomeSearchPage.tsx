@@ -29,7 +29,7 @@ import { useWeb3Modal, Web3Button } from '@web3modal/react'
 import { TypedText } from './Typed'
 import { sleep } from '../../../utils/sleep'
 import {SearchInput} from "../../../components/search-input/SearchInput";
-import {FormSearch} from "grommet-icons";
+import {FormSearch} from "grommet-icons/icons/FormSearch";
 
 const SearchBoxContainer = styled.div`
   width: 100%;

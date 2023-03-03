@@ -1,6 +1,6 @@
 import React, {ReactNode, useRef, useState} from 'react'
 import {Box, TextInput, TextInputProps} from "grommet";
-import { FormClose } from 'grommet-icons';
+import { FormClose } from 'grommet-icons/icons/FormClose';
 import styled from "styled-components";
 
 const TextInputWrapper = styled(TextInput)`
@@ -64,7 +64,7 @@ export const SearchInput = (props: SearchInputProps) => {
     }
   }
 
-  const inputProps = {
+  const inputProps: TextInputProps & {ref: any} = {
     ref: inputRef,
     autoFocus,
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
