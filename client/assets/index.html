@@ -77,7 +77,19 @@
     <link rel="preload" href="/_nuxt/9b5d46b.js" as="script">
     <link rel="preload" href="/_nuxt/d6c95f8.js" as="script">
     <style data-vue-ssr-id="45578684:0 16bf1389:0 53f61d5f:0 557d465e:0 2ab93304:0 57ecf89e:0 3cb359dc:0 4aefd3a6:0 000ac784:0 8cac872a:0 d6234006:0"> -->
-
+    <script>
+      (function(w, d){
+        var id='embedly-platform', n = 'script';
+        if (!d.getElementById(id)){
+          w.embedly = w.embedly || function() {(w.embedly.q = w.embedly.q || []).push(arguments);};
+          var e = d.createElement(n); e.id = id; e.async=1;
+          e.src = ('https:' === document.location.protocol ? 'https' : 'http') + '://cdn.embedly.com/widgets/platform.js';
+          var s = d.getElementsByTagName(n)[0];
+          s.parentNode.insertBefore(e, s);
+        }
+      })(window, document);
+    </script>
+    <script async src="//cdn.embedly.com/widgets/platform.js" charset="UTF-8"></script>
 </head>
 <body>
 <style>
