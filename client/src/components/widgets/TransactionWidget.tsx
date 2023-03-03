@@ -34,7 +34,7 @@ const ExplorerLogoContainer = styled(Box)`
 const ExplorerLogoWrapper = styled(Box)`
   display: none;
 
-  @media (min-width: 768px) {
+  @media (min-width: 600px) {
     display: block;
   }
 `
