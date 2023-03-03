@@ -1,21 +1,21 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Box } from 'grommet/components/Box'
-import { Spinner } from 'grommet/components/Spinner'
-import { Tip } from 'grommet/components/Tip'
+import { Box, Spinner, Tip, Text } from 'grommet'
 import Timer from '@amplication/react-compound-timer'
 import { BaseText } from '../Text'
 import { DomainRecord } from '../../api'
-import { HarmonyLink } from '../HarmonyLink'
+import {HarmonyLink} from '../HarmonyLink'
 import { WidgetsContainer } from './Widgets.styles'
-import { buildTxUri } from '../../utils/explorer'
 
 const Container = styled(WidgetsContainer)`
+  flex-direction: row;
   border: 1px solid rgb(207, 217, 222);
   border-radius: 12px;
   padding: 12px;
   box-sizing: border-box;
   cursor: ${(props) => (props.onClick ? 'pointer' : undefined)};
+  color: rgb(83, 100, 113);
+  overflow: hidden;
 `
 
 const dateFormat = new Intl.DateTimeFormat('en-US', {
@@ -48,51 +48,54 @@ const TipContent: React.FC<{ text: string }> = ({ text }) => {
   )
 }
 
+const LinkItem = styled.a`
+  color: #47b8eb;
+  font-size: 14px;
+`
+
 export const TransactionWidget: React.FC<Props> = ({
   loading,
   name,
   txHash,
   domainRecord,
 }) => {
-  const handleClick = () => {
-    window.open(buildTxUri(txHash), '_blank')
-  }
+  const { renter, expirationTime, rentTime } = domainRecord
 
-  const tipContent = `Rented on: ${dateFormat.format(
-    domainRecord.rentTime
-  )} and Rented until: ${dateFormat.format(domainRecord.expirationTime)}`
-
-  return (
-    <Container onClick={txHash ? handleClick : undefined}>
-      <Box gap="4px" align="center">
-        {/* <BaseText>{name}.country</BaseText> */}
-        {/* <BaseText>
-          Rented on: {dateFormat.format(domainRecord.rentTime)}{' '}
-        </BaseText>
-        <BaseText>
-
-        </BaseText> */}
-        <Tip
-          plain
-          // content={<TipContent text={tipContent} />}
-          // dropProps={{ align: { bottom: 'top' } }}
-        >
-          <BaseText>
-            <Timer
-              formatValue={formatTime}
-              initialTime={domainRecord.expirationTime - Date.now()}
-              direction="backward"
-            >
-              <Timer.Days />:
-              <Timer.Hours />:
-              <Timer.Minutes />:
-              <Timer.Seconds />
-            </Timer>
-          </BaseText>
-        </Tip>
-        {loading && <Spinner color="#00AEEA" />}
-        {!loading && txHash && <HarmonyLink type="tx" hash={txHash} />}
+  return <Container style={{ padding: 0 }}>
+    <Box justify={'center'}>
+      <Box align={'start'} pad={'12px'} justify={'center'} background={'#00aee9'} style={{ width: '100%', height: '100%' }}>
+        <Text weight={700} color={'white'} size={'20px'}>
+          Harmony
+        </Text>
+        <Text weight={700} color={'white'} size={'14px'} style={{ whiteSpace: 'nowrap' }}>
+          Block Explorer
+        </Text>
       </Box>
-    </Container>
-  )
+    </Box>
+    <Box gap={'4px'} pad={{ left: '4px', top: '12px', bottom: '12px' }}>
+      <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
+        <Text size={'small'} weight={'bold'}>Owner:</Text>
+        <LinkItem href={`https://explorer.harmony.one/address/${renter}`} target={'_blank'}>{renter}</LinkItem>
+      </Box>
+      <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
+        <Text size={'small'} weight={'bold'}>Expires in:</Text>
+        <Text size={'small'}>
+          <Timer
+            formatValue={formatTime}
+            initialTime={domainRecord.expirationTime - Date.now()}
+            direction="backward"
+          >
+            <Timer.Days /> days, <Timer.Hours /> hours, <Timer.Minutes /> minutes
+          </Timer>
+        </Text>
+      </Box>
+      <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
+        <Text size={'small'} weight={'bold'}>Rented until:</Text>
+        <Text size={'small'}>{dateFormat.format(expirationTime)}</Text>
+      </Box>
+      <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
+        <HarmonyLink type={'tx'} hash={txHash} href={`https://explorer.harmony.one/tx/${txHash}`} />
+      </Box>
+    </Box>
+  </Container>
 }
