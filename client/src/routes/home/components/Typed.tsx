@@ -8,7 +8,7 @@ export const TypedText: React.FC<Props> = React.memo(() => {
 
   useEffect(() => {
     new Typed(ref.current, {
-      strings: ['harmony', 'nft', 'crypto', 'web3', 'defi'],
+      strings: ['apes', 'nft', 'food', 'crypto', 'travel', 'web3', 'mine', 'defi', 'fomo', 'wallet', 'bitcoin', 'dao', 'pow', 'hodl', 'token'],
       typeSpeed: 100,
       backSpeed: 90,
       backDelay: 500,

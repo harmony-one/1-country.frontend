@@ -363,7 +363,7 @@ export const HomeSearchPage: React.FC = observer(() => {
           render: (
             <FlexRow>
               <BaseText style={{ marginRight: 8 }}>
-                Registered {`${searchResult.domainName}${config.tld}`}
+                Registered {`${searchResult.domainName}${config.tld}`} (3 min avg)
               </BaseText>
             </FlexRow>
           ),
@@ -398,7 +398,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       setWeb2Error(true)
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: 'Unable to acquire web2 domain',
+        render: 'Unable to acquire web2 domain. Try Again.',
       })
       terminateProcess()
     }
