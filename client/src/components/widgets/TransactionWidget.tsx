@@ -81,6 +81,10 @@ export const TransactionWidget: React.FC<Props> = ({
         <LinkItem href={`https://explorer.harmony.one/address/${renter}`} target={'_blank'}>{renter}</LinkItem>
       </Box>
       <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
+        <Text size={'small'} weight={'bold'}>Rented until:</Text>
+        <Text size={'small'}>{dateFormat.format(expirationTime)}</Text>
+      </Box>
+      <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
         <Text size={'small'} weight={'bold'} style={{ whiteSpace: 'nowrap' }}>Expires in:</Text>
         <Text size={'small'} style={{ whiteSpace: 'nowrap' }}>
           <Timer
@@ -96,10 +100,6 @@ export const TransactionWidget: React.FC<Props> = ({
             : null}
           </Timer>
         </Text>
-      </Box>
-      <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
-        <Text size={'small'} weight={'bold'}>Rented until:</Text>
-        <Text size={'small'}>{dateFormat.format(expirationTime)}</Text>
       </Box>
       <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
         {isLoading
