@@ -19,6 +19,7 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
     /* Optional options */
     rootMargin: '0px',
     root: null,
+    triggerOnce: true,
     threshold: 0.1,
   })
 
