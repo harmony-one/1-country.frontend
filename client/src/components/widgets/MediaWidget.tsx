@@ -9,6 +9,7 @@ import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
 import { parseTweetId } from '../../utils/parseTweetId'
 import { getEmbedJson } from '../../api/embedly'
 import { IconClose } from '../icons/Close'
+import config from '../../../config'
 
 export const WIDGET_TYPE = {
   feed: 0,
@@ -76,10 +77,10 @@ const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   }, [value])
   // ref={ref}
   return (
-    <WidgetsContainer isWidgetLoading={loading}>
+    <WidgetsContainer isWidgetLoading={loading} ref={ref}>
       <div style={{ paddingBottom: '2em' }}>
         {widget && (!loading || inView) && (
-          <blockquote className="embedly-card" style={{ zIndex: '10' }}>
+          <blockquote className="embedly-card" data-card-key={config.embedly.key} style={{ zIndex: '10' }}>
             <h4>
               <a href={widget.url}>{widget.title}</a>
             </h4>
