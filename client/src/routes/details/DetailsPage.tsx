@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { Container } from '../home/Home.styles'
 import { useStores } from '../../stores'
 import { Box } from 'grommet/components/Box'
@@ -64,6 +63,10 @@ export const DetailsPage: React.FC<Props> = observer(() => {
             label="Expired:"
             value={dateFormat.format(domainStore.domainRecord.expirationTime)}
           />
+        )}
+
+        {domainStore.domainRecord.renter && (
+          <DetailRow label="owner" value={domainStore.domainRecord.renter} />
         )}
 
         {!domainStore.domainRecord.renter && (
