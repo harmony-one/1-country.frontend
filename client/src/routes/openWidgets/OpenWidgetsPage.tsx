@@ -58,7 +58,7 @@ export const OpenWidgetsPage = observer(() => {
     if (!isUrl(formFields.widgetValue)) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: 'It should be valid URL',
+        render: 'Invalid URL entered',
       })
       terminateProcess()
       return
@@ -87,7 +87,7 @@ export const OpenWidgetsPage = observer(() => {
       .then(() => {
         setProcessStatus({
           type: ProcessStatusTypes.SUCCESS,
-          render: 'URL added',
+          render: 'Post created',
         })
 
         terminateProcess(3000)
@@ -117,7 +117,7 @@ export const OpenWidgetsPage = observer(() => {
         <SearchInput
           autoFocus
           disabled={loading}
-          placeholder={'Tweet link'}
+          placeholder={'Enter tweet or instagram post link'}
           value={formFields.widgetValue}
           onSearch={onChange}
           onKeyDown={enterHandler}

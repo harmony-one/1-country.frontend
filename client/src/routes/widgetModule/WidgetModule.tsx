@@ -86,7 +86,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     if (!isUrl(value)) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: 'It should be valid URL',
+        render: 'Invalid URL entered',
       })
       terminateProcess()
       return
@@ -122,7 +122,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       .createWidget({
         widget,
         domainName,
-        onSuccess: onSuccess('Url successful added'),
+        onSuccess: onSuccess('Url successfully added'),
         onFailed: onFailed(),
       })
       .then(() => {
@@ -152,7 +152,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       await rootStore.d1dcClient.updateURL({
         name: domainName,
         url: '',
-        onSuccess: onSuccess('Widget deleted'),
+        onSuccess: onSuccess('Post deleted'),
         onFailed: onFailed(),
       })
 
@@ -171,7 +171,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           <SearchInput
             autoFocus
             disabled={loading}
-            placeholder={'Tweet link'}
+            placeholder={'Enter tweet or instagram post link'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
