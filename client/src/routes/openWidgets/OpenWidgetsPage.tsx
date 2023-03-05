@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useStores } from '../../stores'
-import {
-  WidgetInputContainer,
-  WidgetStyledInput,
-} from '../../components/page-widgets/PageWidgets.styles'
-import TwitterWidget from '../../components/widgets/TwitterWidget'
+import { WidgetInputContainer } from '../../components/page-widgets/PageWidgets.styles'
 import { openWidgetsStore, Widget } from './OpenWidgetsStore'
 import { Container } from '../home/Home.styles'
+import { MediaWidget } from '../../components/widgets/MediaWidget'
+import { SearchInput } from '../../components/search-input/SearchInput'
+import {
+  ProcessStatus,
+  ProcessStatusItem,
+  ProcessStatusTypes,
+} from '../../components/process-status/ProcessStatus'
+import { sleep } from '../../utils/sleep'
+import isUrl from 'is-url'
+import { loadEmbedJson } from '../../modules/embedly/embedly'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -15,13 +21,17 @@ const defaultFormFields = {
 
 export const OpenWidgetsPage = observer(() => {
   const { domainStore } = useStores()
+  const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
+    type: ProcessStatusTypes.INFO,
+    render: '',
+  })
 
   useEffect(() => {
     domainStore.loadDomainRecord()
   }, [])
 
   const [widgetList, setWidgetList] = useState<Widget[]>([])
-  const [addingWidget, setAddingWidget] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
 
   useEffect(() => {
@@ -32,27 +42,68 @@ export const OpenWidgetsPage = observer(() => {
     setWidgetList(openWidgetsStore.widgetList)
   }, [openWidgetsStore.widgetList])
 
-  const enterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault()
-      setAddingWidget(true)
-      const value = event.currentTarget.value
-
-      const widget = {
-        type: 'twitter',
-        value,
-      }
-
-      openWidgetsStore.createWidget(widget).then(() => {
-        setAddingWidget(false)
-        setFormFields({ ...formFields, widgetValue: '' })
-      })
-    }
+  const terminateProcess = async (timer: number = 5000) => {
+    await sleep(timer)
+    setLoading(false)
+    setProcessStatus({ type: ProcessStatusTypes.INFO, render: '' })
   }
 
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target
-    setFormFields({ ...formFields, [name]: value })
+  const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') {
+      return
+    }
+    event.preventDefault()
+    setLoading(true)
+
+    if (!isUrl(formFields.widgetValue)) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Invalid URL entered',
+      })
+      terminateProcess()
+      return
+    }
+
+    const embedData = await loadEmbedJson(formFields.widgetValue).catch(
+      () => false
+    )
+
+    if (!embedData) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: `Sorry, we can't embed this URL`,
+      })
+      terminateProcess()
+      return
+    }
+
+    const widget = {
+      type: 'url',
+      value: formFields.widgetValue,
+    }
+
+    openWidgetsStore
+      .createWidget(widget)
+      .then(() => {
+        setProcessStatus({
+          type: ProcessStatusTypes.SUCCESS,
+          render: 'Post created',
+        })
+
+        terminateProcess(3000)
+        setFormFields({ ...formFields, widgetValue: '' })
+      })
+      .catch((error) => {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: error.message,
+        })
+        terminateProcess(3000)
+      })
+  }
+
+  const onChange = (value: string) => {
+    setFormFields({ ...formFields, widgetValue: value })
   }
 
   const deleteWidget = (widgetId: string) => {
@@ -63,20 +114,19 @@ export const OpenWidgetsPage = observer(() => {
     <Container>
       <div style={{ height: '2em' }} />
       <WidgetInputContainer>
-        <WidgetStyledInput
-          placeholder="Twitter handle or tweet link"
-          name="widgetValue"
+        <SearchInput
+          autoFocus
+          disabled={loading}
+          placeholder={'Enter tweet or instagram post link'}
           value={formFields.widgetValue}
-          required
-          onChange={onChange}
+          onSearch={onChange}
           onKeyDown={enterHandler}
-          disabled={addingWidget}
-          valid
         />
       </WidgetInputContainer>
+      {loading && <ProcessStatus status={processStatus} />}
       {widgetList.length > 0 &&
         widgetList.map((widget) => (
-          <TwitterWidget
+          <MediaWidget
             isOwner
             key={widget.id}
             value={widget.value}

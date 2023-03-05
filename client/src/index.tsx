@@ -11,9 +11,16 @@ import { Web3ModalProvider } from './modules/web3modal/Web3ModalProvider'
 import { UITransactionProvider } from './modules/transactions/UITransactionProvider'
 import { MetaTags } from './modules/metatags/MetaTags'
 import { Grommet } from 'grommet/components/Grommet'
+import config from '../config'
 
 console.log('### git commit hash', process.env.GIT_COMMIT_HASH)
 document.body.ontouchstart = function () {}
+
+window.embedly('defaults', {
+  cards: {
+    key: config.embedly.key,
+  },
+})
 
 const myTheme = {
   global: {},

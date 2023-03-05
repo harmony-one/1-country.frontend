@@ -5,11 +5,7 @@ export const DeleteWidgetButton = styled.button`
   position: absolute;
   top: 0;
   right: 0;
-  margin-right: 8px;
-  /* left: 0; */
-  /* margin-left: 0.3em; */
-  margin-top: 16px;
-  font-size: 3em;
+  font-size: 2em;
   opacity: 0;
   color: #758796;
   z-index: 99;

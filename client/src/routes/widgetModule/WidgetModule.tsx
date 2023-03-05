@@ -1,13 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { rootStore, useStores } from '../../stores'
 import {
   PageWidgetContainer,
   WidgetInputContainer,
-  WidgetStyledInput,
 } from '../../components/page-widgets/PageWidgets.styles'
-import TwitterWidget, {
-  parseInputValue,
-} from '../../components/widgets/TwitterWidget'
 import { observer } from 'mobx-react-lite'
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
@@ -21,7 +17,9 @@ import {
   ProcessStatusTypes,
 } from '../../components/process-status/ProcessStatus'
 import { sleep } from '../../utils/sleep'
-import {SearchInput} from "../../components/search-input/SearchInput";
+import { SearchInput } from '../../components/search-input/SearchInput'
+import { MediaWidget } from '../../components/widgets/MediaWidget'
+import { loadEmbedJson } from '../../modules/embedly/embedly'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -61,6 +59,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       type: ProcessStatusTypes.SUCCESS,
       render: message,
     })
+
+    terminateProcess(3000)
   }
 
   const onFailed = () => (ex: Error) => {
@@ -70,42 +70,59 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     })
   }
 
-  const enterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== 'Enter') {
       return
     }
     event.preventDefault()
     const value = (event.target as HTMLInputElement).value || ''
 
-    if (
-      /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(value)
-    ) {
+    if (/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(value)) {
       window.open(`mailto:1country@harmony.one`, '_self')
       return
     }
     setLoading(true)
 
-    const tweet = parseInputValue(value)
-
-    if (tweet.error) {
+    if (!isUrl(value)) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: tweet.error,
+        render: 'Invalid URL entered',
       })
       terminateProcess()
       return
     }
 
+    const embedData = await loadEmbedJson(value).catch(() => false)
+
+    if (!embedData) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: `Sorry, we can't embed this URL`,
+      })
+      terminateProcess()
+      return
+    }
+    // const tweet = parseInputValue(value)
+    //
+    // if (tweet.error) {
+    //   setProcessStatus({
+    //     type: ProcessStatusTypes.ERROR,
+    //     render: tweet.error,
+    //   })
+    //   terminateProcess()
+    //   return
+    // }
+
     const widget: Widget = {
-      type: 'twitter',
-      value: isUrl(value) ? value : tweet.value,
+      type: 'url',
+      value: value,
     }
 
     widgetListStore
       .createWidget({
         widget,
         domainName,
-        onSuccess: onSuccess('Url successful added'),
+        onSuccess: onSuccess('Url successfully added'),
         onFailed: onFailed(),
       })
       .then(() => {
@@ -135,7 +152,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       await rootStore.d1dcClient.updateURL({
         name: domainName,
         url: '',
-        onSuccess: onSuccess('Widget deleted'),
+        onSuccess: onSuccess('Post deleted'),
         onFailed: onFailed(),
       })
 
@@ -154,7 +171,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           <SearchInput
             autoFocus
             disabled={loading}
-            placeholder={'Twitter handle or tweet link'}
+            placeholder={'Enter tweet or instagram post link'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
@@ -165,7 +182,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       {loading && <ProcessStatus status={processStatus} />}
 
       {widgetListStore.widgetList.map((widget, index) => (
-        <TwitterWidget
+        <MediaWidget
           value={widget.value}
           key={index}
           isOwner={domainStore.isOwner}
@@ -174,7 +191,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       ))}
 
       {domainStore.domainRecord && domainStore.domainRecord.url && (
-        <TwitterWidget
+        <MediaWidget
           value={domainStore.domainRecord.url}
           isOwner={domainStore.isOwner}
           onDelete={handleDeleteLegacyUrl}
