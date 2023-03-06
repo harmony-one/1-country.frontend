@@ -20,6 +20,7 @@ import { sleep } from '../../utils/sleep'
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
+import { isValidInstagramUri, isValidTwitUri } from '../../utils/validation'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -88,7 +89,19 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         type: ProcessStatusTypes.ERROR,
         render: 'Invalid URL entered',
       })
-      terminateProcess()
+      terminateProcess(1000)
+      return
+    }
+
+    const isTwit = isValidTwitUri(value)
+    const isInst = isValidInstagramUri(value)
+
+    if (!isInst && !isTwit) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Invalid URL entered',
+      })
+      terminateProcess(1000)
       return
     }
 
@@ -184,7 +197,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       {widgetListStore.widgetList.map((widget, index) => (
         <MediaWidget
           value={widget.value}
-          key={index}
+          key={index + widget.value}
           isOwner={domainStore.isOwner}
           onDelete={() => deleteWidget(widget.id)}
         />

@@ -3,6 +3,7 @@ import { BaseStore } from '../../stores/BaseStore'
 import { RootStore } from '../../stores/RootStore'
 import { rootStore } from '../../stores'
 import { CallbackProps } from '../../api'
+import isUrl from 'is-url'
 
 export interface Widget {
   id?: number
@@ -13,9 +14,17 @@ export interface Widget {
 const parseRawUrl = (url: string): Widget => {
   const [type, ...rest] = url.split(':')
 
+  let value = rest.join(':')
+
+  // backward compatibility for twitter identity
+  if (!isUrl(value) && type === 'twitter') {
+    value = `https://twitter.com/${value}`
+    console.log('### value', value)
+  }
+
   return {
     type,
-    value: rest.join(':'),
+    value,
   }
 }
 
@@ -108,7 +117,7 @@ class WidgetListStore extends BaseStore {
     const urlList = await dcClient.getRecordUrlList({ name: domainName })
 
     runInAction(() => {
-      this.widgetList = urlList.map(mapUrlToWidget)
+      this.widgetList = urlList.map(mapUrlToWidget).reverse()
     })
   }
 
