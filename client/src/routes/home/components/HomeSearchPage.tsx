@@ -30,7 +30,6 @@ import { TypedText } from './Typed'
 import { sleep } from '../../../utils/sleep'
 import { SearchInput } from '../../../components/search-input/SearchInput'
 import { FormSearch } from 'grommet-icons/icons/FormSearch'
-import { TransactionReceipt } from 'web3-core'
 
 const SearchBoxContainer = styled.div`
   width: 100%;
@@ -281,6 +280,21 @@ export const HomeSearchPage: React.FC = observer(() => {
     })
     setLoading(true)
 
+    // validation
+    // connect wallet
+    // waiting for sign *commit*
+    // - rejected
+    // waiting for *commit* tx
+    // - tx error
+    // waiting for sign *rent*
+    // - rejected
+    // waiting for *rent* tx
+    // - tx error
+    // waiting for claim web2 domain
+    // - error
+    // retry claim web2 domain
+    // - error
+
     try {
       if (walletStore.isMetamaskAvailable) {
         if (!walletStore.isConnected) {
@@ -303,47 +317,44 @@ export const HomeSearchPage: React.FC = observer(() => {
       return
     }
 
-    const { result: commitResult, error } = await rootStore.d1dcClient.commit({
+    const commitResult = await rootStore.d1dcClient.commit({
       name: searchResult.domainName.toLowerCase(),
       secret,
-      onFailed: (e) => {
-        console.log('Commit result failed:', e)
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: 'Failed to reserve the domain',
-        })
-        terminateProcess(3000)
-        return
-      },
-      onSuccess: (tx) => {
-        console.log('Commit result success:', tx)
-        const { transactionHash } = tx
-
-        setProcessStatus({
-          type: ProcessStatusTypes.INFO,
-          render: (
-            <FlexRow>
-              <BaseText style={{ marginRight: 8 }}>
-                Reserved {`${searchResult.domainName}${config.tld}`}
-              </BaseText>
-              (
-              <LinkWrarpper
-                target="_blank"
-                type="text"
-                href={buildTxUri(transactionHash)}
-              >
-                <BaseText>{cutString(transactionHash)}</BaseText>
-              </LinkWrarpper>
-              )
-            </FlexRow>
-          ),
-        })
-      },
     })
-    console.log('Commit result:', commitResult)
-    if (!commitResult) {
+
+    if (commitResult.error) {
+      console.log('Commit result failed:', commitResult.error)
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Failed to reserve the domain',
+      })
+      terminateProcess(3000)
       return
     }
+
+    setProcessStatus({
+      type: ProcessStatusTypes.INFO,
+      render: (
+        <FlexRow>
+          <BaseText style={{ marginRight: 8 }}>
+            Reserved {`${searchResult.domainName}${config.tld}`}
+          </BaseText>
+          (
+          <LinkWrarpper
+            target="_blank"
+            type="text"
+            href={buildTxUri(commitResult.result.transactionHash)}
+          >
+            <BaseText>
+              {cutString(commitResult.result.transactionHash)}
+            </BaseText>
+          </LinkWrarpper>
+          )
+        </FlexRow>
+      ),
+    })
+
+    console.log('Commit result:', commitResult)
     console.log('waiting for 5 seconds...')
     await sleep(5000)
 
@@ -352,38 +363,35 @@ export const HomeSearchPage: React.FC = observer(() => {
       render: 'Purchasing Domain',
     })
 
-    const { result: tx } = await rootStore.d1dcClient.rent({
+    const rentResult = await rootStore.d1dcClient.rent({
       name: searchResult.domainName.toLowerCase(),
       secret,
       url: tweetId.toString(),
       amount: new BN(searchResult.price.amount).toString(),
-      onSuccess: (tx: TransactionReceipt) => {
-        const { transactionHash } = tx
-        setProcessStatus({
-          type: ProcessStatusTypes.INFO,
-          render: (
-            <FlexRow>
-              <BaseText style={{ marginRight: 8 }}>
-                Registered {`${searchResult.domainName}${config.tld}`} (3 min
-                avg)
-              </BaseText>
-            </FlexRow>
-          ),
-        })
-      },
-      onFailed: () => {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: 'Failed to purchase',
-        })
-        terminateProcess(3000)
-      },
     })
-    console.log('RRENT', tx)
-    if (!tx) {
+    console.log('rentResult', rentResult)
+
+    if (rentResult.error) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Failed to purchase',
+      })
+      terminateProcess(3000)
       return
     }
-    const txHash = tx.transactionHash
+
+    setProcessStatus({
+      type: ProcessStatusTypes.INFO,
+      render: (
+        <FlexRow>
+          <BaseText style={{ marginRight: 8 }}>
+            Registered {`${searchResult.domainName}${config.tld}`} (3 min avg)
+          </BaseText>
+        </FlexRow>
+      ),
+    })
+
+    const txHash = rentResult.result.transactionHash
     setRegTxHash(txHash)
 
     try {
