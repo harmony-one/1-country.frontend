@@ -23,7 +23,7 @@ const defaultFormFields = {
 export const OpenWidgetsPage = observer(() => {
   const { domainStore } = useStores()
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
-    type: ProcessStatusTypes.INFO,
+    type: ProcessStatusTypes.PROGRESS,
     render: '',
   })
 
@@ -46,7 +46,7 @@ export const OpenWidgetsPage = observer(() => {
   const terminateProcess = async (timer: number = 5000) => {
     await sleep(timer)
     setLoading(false)
-    setProcessStatus({ type: ProcessStatusTypes.INFO, render: '' })
+    setProcessStatus({ type: ProcessStatusTypes.PROGRESS, render: '' })
   }
 
   const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {

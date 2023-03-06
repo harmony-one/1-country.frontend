@@ -33,7 +33,7 @@ interface Props {
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore } = useStores()
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
-    type: ProcessStatusTypes.INFO,
+    type: ProcessStatusTypes.PROGRESS,
     render: '',
   })
 
@@ -52,7 +52,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const terminateProcess = async (timer: number = 5000) => {
     await sleep(timer)
     setLoading(false)
-    setProcessStatus({ type: ProcessStatusTypes.INFO, render: '' })
+    setProcessStatus({ type: ProcessStatusTypes.PROGRESS, render: '' })
   }
 
   const onSuccess = (message: string) => (tx: TransactionReceipt) => {
