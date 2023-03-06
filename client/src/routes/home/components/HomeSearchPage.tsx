@@ -343,10 +343,10 @@ export const HomeSearchPage: React.FC = observer(() => {
           <LinkWrarpper
             target="_blank"
             type="text"
-            href={buildTxUri(commitResult.result.transactionHash)}
+            href={buildTxUri(commitResult.txReceipt.transactionHash)}
           >
             <BaseText>
-              {cutString(commitResult.result.transactionHash)}
+              {cutString(commitResult.txReceipt.transactionHash)}
             </BaseText>
           </LinkWrarpper>
           )
@@ -391,7 +391,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       ),
     })
 
-    const txHash = rentResult.result.transactionHash
+    const txHash = rentResult.txReceipt.transactionHash
     setRegTxHash(txHash)
 
     try {

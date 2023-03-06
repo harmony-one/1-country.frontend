@@ -58,7 +58,7 @@ export interface SendProps extends CallbackProps {
 }
 
 export interface SendResult {
-  result: TransactionReceipt
+  txReceipt: TransactionReceipt
   error: Error
 }
 
@@ -235,10 +235,10 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
       console.log(methodName, tx?.events)
       onSuccess && onSuccess(tx)
-      return { result: tx, error: null }
+      return { txReceipt: tx, error: null }
     } catch (ex) {
       onFailed && onFailed(ex, true)
-      return { result: null, error: ex }
+      return { txReceipt: null, error: ex }
     }
   }
 
