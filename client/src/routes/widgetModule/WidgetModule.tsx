@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { TransactionReceipt } from 'web3-core'
 import { rootStore, useStores } from '../../stores'
 import {
   PageWidgetContainer,
@@ -7,7 +8,6 @@ import {
 import { observer } from 'mobx-react-lite'
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
-import { Transaction } from '../../api'
 import isUrl from 'is-url'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
@@ -55,7 +55,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     setProcessStatus({ type: ProcessStatusTypes.INFO, render: '' })
   }
 
-  const onSuccess = (message: string) => (tx: Transaction) => {
+  const onSuccess = (message: string) => (tx: TransactionReceipt) => {
     setProcessStatus({
       type: ProcessStatusTypes.SUCCESS,
       render: message,
