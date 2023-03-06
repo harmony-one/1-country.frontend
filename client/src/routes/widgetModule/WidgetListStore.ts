@@ -55,7 +55,7 @@ class WidgetListStore extends BaseStore {
   async createWidget(
     props: { widget: Widget; domainName: string } & CallbackProps
   ) {
-    const { widget, domainName, onSubmitted, onSuccess, onFailed } = props
+    const { widget, domainName, onSuccess, onFailed } = props
 
     try {
       if (!this.stores.walletStore.isConnected) {
@@ -68,7 +68,6 @@ class WidgetListStore extends BaseStore {
         name: domainName,
         url: buildUrlFromWidget(widget),
         onSuccess,
-        onSubmitted,
         onFailed,
       })
 
@@ -81,7 +80,7 @@ class WidgetListStore extends BaseStore {
   async deleteWidget(
     props: { domainName: string; widgetId: number } & CallbackProps
   ) {
-    const { domainName, widgetId, onSuccess, onSubmitted, onFailed } = props
+    const { domainName, widgetId, onSuccess, onFailed } = props
 
     try {
       if (!this.stores.walletStore.isConnected) {
@@ -92,7 +91,6 @@ class WidgetListStore extends BaseStore {
         name: domainName,
         pos: widgetId,
         onSuccess,
-        onSubmitted,
         onFailed,
       })
 
