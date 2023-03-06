@@ -14,6 +14,7 @@ import {
 import { sleep } from '../../utils/sleep'
 import isUrl from 'is-url'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
+import { isValidInstagramUri, isValidTwitUri } from '../../utils/validation'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -60,7 +61,19 @@ export const OpenWidgetsPage = observer(() => {
         type: ProcessStatusTypes.ERROR,
         render: 'Invalid URL entered',
       })
-      terminateProcess()
+      terminateProcess(1000)
+      return
+    }
+
+    const isTwit = isValidTwitUri(formFields.widgetValue)
+    const isInst = isValidInstagramUri(formFields.widgetValue)
+
+    if (!isInst && !isTwit) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Invalid URL entered',
+      })
+      terminateProcess(1000)
       return
     }
 
