@@ -41,6 +41,7 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
     if (isUrl(value)) {
       loadData(value)
     }
+    setLoading(false)
   }, [value])
 
   return (
