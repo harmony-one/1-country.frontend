@@ -12,30 +12,27 @@ import { UITransactionProvider } from './modules/transactions/UITransactionProvi
 import { MetaTags } from './modules/metatags/MetaTags'
 import { Grommet } from 'grommet/components/Grommet'
 import config from '../config'
+import { theme } from './constants'
 
 console.log('### git commit hash', process.env.GIT_COMMIT_HASH)
 document.body.ontouchstart = function () {}
 
 window.embedly('defaults', {
   cards: {
-    key: config.embedly.key,
-  },
+    key: config.embedly.key
+  }
 })
-
-const myTheme = {
-  global: {},
-}
 
 ReactDOM.render(
   <BrowserRouter>
-    <Grommet theme={myTheme}>
+    <Grommet theme={theme} themeMode='light'>
       <WagmiConfigProvider>
         <MetaTags />
         <Routes />
         <Web3ModalProvider />
         <ModalProvider />
         <UITransactionProvider />
-        <ToastContainer position="top-left" />
+        <ToastContainer position='top-left' />
       </WagmiConfigProvider>
     </Grommet>
   </BrowserRouter>,
