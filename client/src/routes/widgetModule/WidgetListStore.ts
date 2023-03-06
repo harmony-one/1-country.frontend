@@ -117,7 +117,7 @@ class WidgetListStore extends BaseStore {
     const urlList = await dcClient.getRecordUrlList({ name: domainName })
 
     runInAction(() => {
-      this.widgetList = urlList.map(mapUrlToWidget)
+      this.widgetList = urlList.map(mapUrlToWidget).reverse()
     })
   }
 

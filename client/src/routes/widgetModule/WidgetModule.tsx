@@ -184,7 +184,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       {widgetListStore.widgetList.map((widget, index) => (
         <MediaWidget
           value={widget.value}
-          key={index}
+          key={index + widget.value}
           isOwner={domainStore.isOwner}
           onDelete={() => deleteWidget(widget.id)}
         />
