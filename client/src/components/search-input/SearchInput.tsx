@@ -1,7 +1,7 @@
-import React, {ReactNode, useRef, useState} from 'react'
+import React, {useRef} from 'react'
 import {Box, TextInput, TextInputProps} from "grommet";
 import { FormClose } from 'grommet-icons/icons/FormClose';
-import styled from "styled-components";
+import styled, {css} from "styled-components";
 
 const TextInputWrapper = styled(TextInput)`
   border-radius: 20px;
@@ -34,8 +34,15 @@ const InputSuffix = styled(Box)`
   align-items: center;
 `
 
-const Container = styled(Box)`
+const Container = styled(Box)<{ paddingLeft?: string | null }>`
   position: relative;
+
+  input {
+    ${(props) => (props.paddingLeft &&
+        css`
+          padding-left: ${props.paddingLeft};
+        `)}
+  }
 `
 
 export interface SearchInputProps extends TextInputProps {
@@ -79,7 +86,7 @@ export const SearchInput = (props: SearchInputProps) => {
     ...restProps,
   }
 
-  return <Container width={'100%'} justify={'center'}>
+  return <Container width={'100%'} justify={'center'} paddingLeft={props.icon ? null : '24px'}>
     <TextInputWrapper {...inputProps} />
     {(allowClear && props.value) &&
       <InputSuffix>
