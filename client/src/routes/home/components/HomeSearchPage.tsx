@@ -24,7 +24,7 @@ import {
   ProcessStatusTypes,
 } from '../../../components/process-status/ProcessStatus'
 import { buildTxUri } from '../../../utils/explorer'
-import { useAccount } from 'wagmi'
+import {useAccount, useDisconnect} from 'wagmi'
 import { useWeb3Modal, Web3Button } from '@web3modal/react'
 import { TypedText } from './Typed'
 import { sleep } from '../../../utils/sleep'
@@ -84,8 +84,9 @@ interface SearchResult {
 }
 
 export const HomeSearchPage: React.FC = observer(() => {
-  const { isConnected, address, connector } = useAccount()
-  const { open, close } = useWeb3Modal()
+  const { isConnected, address, connector, status } = useAccount()
+  const { disconnect } = useDisconnect()
+  const { open, close, isOpen } = useWeb3Modal()
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
   const [loading, setLoading] = useState(false)
@@ -103,6 +104,19 @@ export const HomeSearchPage: React.FC = observer(() => {
   const { rootStore, ratesStore, walletStore } = useStores()
 
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if(status === 'connecting') {
+      if(!isOpen && !walletStore.isMetamaskAvailable) { // User declined connect with Wallet Connect
+        disconnect()
+        setProcessStatus({
+          type: ProcessStatusTypes.INFO,
+          render: '',
+        })
+        terminateProcess(0)
+      }
+    }
+  }, [status, isOpen])
 
   const updateSearch = (domainName: string) => {
     setSearchResult(null)
