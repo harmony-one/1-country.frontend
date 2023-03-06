@@ -58,7 +58,7 @@ export interface SendProps extends CallbackProps {
 }
 
 export interface SendResult {
-  result: TransactionReceipt
+  txReceipt: TransactionReceipt
   error: Error
 }
 
@@ -235,10 +235,10 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
       console.log(methodName, tx?.events)
       onSuccess && onSuccess(tx)
-      return { result: tx, error: null }
+      return { txReceipt: tx, error: null }
     } catch (ex) {
       onFailed && onFailed(ex, true)
-      return { result: null, error: ex }
+      return { txReceipt: null, error: ex }
     }
   }
 
@@ -247,7 +247,13 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     contract,
     web3,
     send,
-    commit: async ({ name, secret, onFailed, onSuccess }: CommitProps) => {
+    commit: async ({
+      name,
+      secret,
+      onFailed,
+      onSuccess,
+      onTransactionHash,
+    }: CommitProps) => {
       const secretHash = utils.keccak256(secret, true)
       const commitment = await contract.methods
         .makeCommitment(name, address, secretHash)
@@ -255,6 +261,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       return send({
         onFailed,
         onSuccess,
+        onTransactionHash,
         methodName: 'commit',
         parameters: [commitment],
       })
@@ -266,6 +273,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       amount,
       onFailed,
       onSuccess,
+      onTransactionHash,
     }: RentProps) => {
       const secretHash = utils.keccak256(secret, true)
       // console.log({ secretHash })
@@ -275,14 +283,22 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         methodName: 'register',
         onFailed,
         onSuccess,
+        onTransactionHash,
       })
     },
-    updateURL: async ({ name, url, onFailed, onSuccess }: UpdateUrlProps) => {
+    updateURL: async ({
+      name,
+      url,
+      onFailed,
+      onSuccess,
+      onTransactionHash,
+    }: UpdateUrlProps) => {
       return send({
         parameters: [name, url],
         methodName: 'updateURL',
         onFailed,
         onSuccess,
+        onTransactionHash,
       })
     },
     renewDomain: async ({

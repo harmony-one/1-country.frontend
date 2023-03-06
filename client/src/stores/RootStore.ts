@@ -45,11 +45,14 @@ export class RootStore {
     const web3 = new Web3(config.defaultRPC)
     this.updateD1DCClient(web3, Constants.EmptyAddress)
 
-    wagmiClient.autoConnect().then(({ account, provider }) => {
+    wagmiClient.autoConnect().then((result) => {
       console.log('### wagmi autoConnect')
-      // @ts-ignore-error
-      const web3 = new Web3(provider)
-      this.updateD1DCClient(web3, account)
+      if (result) {
+        const { account, provider } = result
+        // @ts-ignore-error
+        const web3 = new Web3(provider)
+        this.updateD1DCClient(web3, account)
+      }
     })
 
     this.modalStore = modalStore

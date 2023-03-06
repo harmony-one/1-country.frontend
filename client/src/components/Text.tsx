@@ -3,7 +3,7 @@ import { DomainLevel } from '../api/utils'
 
 export const BaseText = styled.div<{ $color?: string }>`
   color: ${(props) => props.$color || 'inherit'};
-  font-size: 0.9rem;
+  font-size: 1rem;
 `
 
 export const GradientText = styled.div<{ $size?: string }>`
@@ -28,11 +28,7 @@ export const DomainName = styled.div<{ size?: string; level: DomainLevel }>`
     switch (props.level) {
       case 'reserved':
         return css`
-          background: linear-gradient(
-            0deg,
-            #00aee9 20%,
-            #101042 80%
-          );
+          background: linear-gradient(0deg, #00aee9 20%, #101042 80%);
           background-clip: text;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -54,12 +50,7 @@ export const DomainName = styled.div<{ size?: string; level: DomainLevel }>`
         `
       case 'super_rare':
         return css`
-          background: linear-gradient(
-            45deg, 
-            #101042,
-            #00aee9, 
-            #69fabd
-            );
+          background: linear-gradient(45deg, #101042, #00aee9, #69fabd);
           background-clip: text;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;

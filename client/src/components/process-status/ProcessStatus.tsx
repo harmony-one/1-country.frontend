@@ -2,7 +2,8 @@ import React from 'react'
 import { ProcessStatusContainer } from './ProcessStatus.styles'
 
 export enum ProcessStatusTypes {
-  INFO = 'INFO',
+  IDLE = 'IDLE',
+  PROGRESS = 'PROGRESS',
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR',
 }
@@ -17,12 +18,12 @@ type Props = {
 }
 
 export const ProcessStatus: React.FC<Props> = ({ status }) => {
-  const { type = ProcessStatusTypes.INFO, render = '' } = status
+  const { type = ProcessStatusTypes.PROGRESS, render = '' } = status
   return (
     <ProcessStatusContainer colorType={type}>
       {render}
       {/* <span style={{ color: 'red' }}>{type === statusTypes.ERROR ? 'Error' : ''}</span> */}
-      {type === ProcessStatusTypes.INFO && <div className="dot-elastic"></div>}
+      {type === ProcessStatusTypes.PROGRESS && <div className="dot-elastic" />}
     </ProcessStatusContainer>
   )
 }
