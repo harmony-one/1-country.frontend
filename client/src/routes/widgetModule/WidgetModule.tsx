@@ -16,11 +16,15 @@ import {
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../../components/process-status/ProcessStatus'
-import { sleep } from '../../utils/sleep'
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
-import { isValidInstagramUri, isValidTwitUri } from '../../utils/validation'
+import {
+  isEmail,
+  isValidInstagramUri,
+  isValidTwitUri,
+} from '../../utils/validation'
+import { BaseText } from '../../components/Text'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -33,7 +37,7 @@ interface Props {
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore } = useStores()
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
-    type: ProcessStatusTypes.PROGRESS,
+    type: ProcessStatusTypes.IDLE,
     render: '',
   })
 
@@ -49,26 +53,17 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const [loading, setLoading] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
 
-  const terminateProcess = async (timer: number = 5000) => {
-    await sleep(timer)
-    setLoading(false)
-    setProcessStatus({ type: ProcessStatusTypes.PROGRESS, render: '' })
+  const resetProcessStatus = (time = 2000) => {
+    setTimeout(() => {
+      setProcessStatus({
+        type: ProcessStatusTypes.IDLE,
+        render: '',
+      })
+    }, time)
   }
 
-  const onSuccess = (message: string) => (tx: TransactionReceipt) => {
-    setProcessStatus({
-      type: ProcessStatusTypes.SUCCESS,
-      render: message,
-    })
-
-    terminateProcess(3000)
-  }
-
-  const onFailed = () => (ex: Error) => {
-    setProcessStatus({
-      type: ProcessStatusTypes.ERROR,
-      render: ex.message,
-    })
+  const resetInput = () => {
+    setFormFields({ ...formFields, widgetValue: '' })
   }
 
   const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -78,18 +73,23 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     event.preventDefault()
     const value = (event.target as HTMLInputElement).value || ''
 
-    if (/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(value)) {
+    if (isEmail(value)) {
       window.open(`mailto:1country@harmony.one`, '_self')
       return
     }
     setLoading(true)
+
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: 'Embedding post',
+    })
 
     if (!isUrl(value)) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
         render: 'Invalid URL entered',
       })
-      terminateProcess(1000)
+      setLoading(false)
       return
     }
 
@@ -101,9 +101,14 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         type: ProcessStatusTypes.ERROR,
         render: 'Invalid URL entered',
       })
-      terminateProcess(1000)
+      setLoading(false)
       return
     }
+
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: 'Checking URL',
+    })
 
     const embedData = await loadEmbedJson(value).catch(() => false)
 
@@ -112,66 +117,139 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         type: ProcessStatusTypes.ERROR,
         render: `Sorry, we can't embed this URL`,
       })
-      terminateProcess()
+      setLoading(false)
       return
     }
-    // const tweet = parseInputValue(value)
-    //
-    // if (tweet.error) {
-    //   setProcessStatus({
-    //     type: ProcessStatusTypes.ERROR,
-    //     render: tweet.error,
-    //   })
-    //   terminateProcess()
-    //   return
-    // }
 
     const widget: Widget = {
       type: 'url',
       value: value,
     }
 
-    widgetListStore
-      .createWidget({
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>Waiting for a transaction to be signed</BaseText>,
+    })
+
+    try {
+      const result = await widgetListStore.createWidget({
         widget,
         domainName,
-        onSuccess: onSuccess('Url successfully added'),
-        onFailed: onFailed(),
+        onTransactionHash: () => {
+          setProcessStatus({
+            type: ProcessStatusTypes.PROGRESS,
+            render: <BaseText>Waiting for transaction confirmation</BaseText>,
+          })
+        },
       })
-      .then(() => {
-        setFormFields({ ...formFields, widgetValue: '' })
-        terminateProcess()
+
+      setLoading(false)
+
+      if (result.error) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>{result.error.message}</BaseText>,
+        })
+        return
+      }
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: <BaseText>Url successfully added</BaseText>,
       })
+      resetProcessStatus()
+      resetInput()
+    } catch (ex) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>{ex.message}</BaseText>,
+      })
+      setLoading(false)
+    }
   }
 
   const onChange = (value: string) => {
     setFormFields({ ...formFields, widgetValue: value })
   }
 
-  const deleteWidget = (widgetId: number) => {
+  const deleteWidget = async (widgetId: number) => {
     setLoading(true)
-    widgetListStore.deleteWidget({
-      domainName,
-      widgetId,
-      onSuccess: onSuccess('Widget deleted'),
-      onFailed: onFailed(),
+
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>Waiting for a transaction to be signed</BaseText>,
     })
+
+    try {
+      const result = await widgetListStore.deleteWidget({
+        domainName,
+        widgetId,
+        onTransactionHash: () => {
+          setProcessStatus({
+            type: ProcessStatusTypes.PROGRESS,
+            render: <BaseText>Waiting for transaction confirmation</BaseText>,
+          })
+        },
+      })
+      setLoading(false)
+
+      if (result.error) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>{result.error.message}</BaseText>,
+        })
+        return
+      }
+
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: <BaseText>Url successfully removed</BaseText>,
+      })
+
+      resetProcessStatus()
+    } catch (ex) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>{ex.message}</BaseText>,
+      })
+      setLoading(false)
+    }
   }
 
   const handleDeleteLegacyUrl = async () => {
     setLoading(true)
 
     try {
-      await rootStore.d1dcClient.updateURL({
+      const updateResult = await rootStore.d1dcClient.updateURL({
         name: domainName,
         url: '',
-        onSuccess: onSuccess('Post deleted'),
-        onFailed: onFailed(),
+        onTransactionHash: () => {
+          setProcessStatus({
+            type: ProcessStatusTypes.PROGRESS,
+            render: <BaseText>Waiting for transaction confirmation</BaseText>,
+          })
+        },
       })
+
+      if (updateResult.error) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: updateResult.error.message,
+        })
+        setLoading(false)
+        return
+      }
+
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: <BaseText>Post deleted</BaseText>,
+      })
+      setLoading(false)
+
+      resetProcessStatus()
 
       domainStore.loadDomainRecord(domainName)
     } catch (ex) {
-      terminateProcess()
+      setLoading(false)
     }
   }
 
@@ -184,7 +262,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           <SearchInput
             autoFocus
             disabled={loading}
-            placeholder={'Enter tweet or instagram post link'}
+            placeholder={'Enter tweet or instagram post url'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
@@ -192,7 +270,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         </WidgetInputContainer>
       )}
 
-      {loading && <ProcessStatus status={processStatus} />}
+      {processStatus.type !== ProcessStatusTypes.IDLE && (
+        <ProcessStatus status={processStatus} />
+      )}
 
       {widgetListStore.widgetList.map((widget, index) => (
         <MediaWidget

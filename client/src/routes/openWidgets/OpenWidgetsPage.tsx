@@ -130,7 +130,7 @@ export const OpenWidgetsPage = observer(() => {
         <SearchInput
           autoFocus
           disabled={loading}
-          placeholder={'Enter tweet or instagram post link'}
+          placeholder={'Enter tweet or instagram post url'}
           value={formFields.widgetValue}
           onSearch={onChange}
           onKeyDown={enterHandler}

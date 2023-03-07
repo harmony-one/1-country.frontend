@@ -21,3 +21,8 @@ const instagramRegex =
 export function isValidInstagramUri(uri: string) {
   return instagramRegex.test(uri)
 }
+
+const emailRegex = /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/
+export function isEmail(str: string) {
+  return emailRegex.test(str)
+}

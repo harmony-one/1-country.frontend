@@ -454,7 +454,6 @@ export const HomeSearchPage: React.FC = observer(() => {
             </Box>
           </Box>
 
-          {!validation.valid && <BaseText>Invalid domain name</BaseText>}
           {!validation.valid && <BaseText>{validation.error}</BaseText>}
           {processStatus.type !== ProcessStatusTypes.IDLE && (
             <ProcessStatus status={processStatus} />
