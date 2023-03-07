@@ -64,7 +64,7 @@ class WidgetListStore extends BaseStore {
   async createWidget(
     props: { widget: Widget; domainName: string } & CallbackProps
   ) {
-    const { widget, domainName, onSuccess, onFailed } = props
+    const { widget, domainName, onTransactionHash, onSuccess, onFailed } = props
 
     try {
       if (!this.stores.walletStore.isConnected) {
@@ -73,14 +73,16 @@ class WidgetListStore extends BaseStore {
 
       const dcClient = this.getDCClient()
 
-      await dcClient.addRecordUrl({
+      const result = await dcClient.addRecordUrl({
         name: domainName,
         url: buildUrlFromWidget(widget),
         onSuccess,
         onFailed,
+        onTransactionHash,
       })
 
       await this.loadWidgetList(domainName)
+      return result
     } catch (ex) {
       console.log('### add url error', ex)
     }
@@ -89,21 +91,25 @@ class WidgetListStore extends BaseStore {
   async deleteWidget(
     props: { domainName: string; widgetId: number } & CallbackProps
   ) {
-    const { domainName, widgetId, onSuccess, onFailed } = props
+    const { domainName, widgetId, onSuccess, onTransactionHash, onFailed } =
+      props
 
     try {
       if (!this.stores.walletStore.isConnected) {
         await this.stores.walletStore.connect()
       }
       const dcClient = this.getDCClient()
-      await dcClient.removeRecordUrl({
+      const result = await dcClient.removeRecordUrl({
         name: domainName,
         pos: widgetId,
         onSuccess,
         onFailed,
+        onTransactionHash,
       })
 
       await this.loadWidgetList(domainName)
+
+      return result
     } catch (ex) {
       console.log('### error delete url', ex)
     }
