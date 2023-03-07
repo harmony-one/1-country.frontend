@@ -9,7 +9,7 @@ export const TypedText: React.FC<Props> = React.memo(() => {
   useEffect(() => {
     new Typed(ref.current, {
       // prettier-ignore
-      strings: ['apes', 'nft', 'food', 'crypto', 'travel', 'web3', 'mine', 'defi', 'fomo', 'wallet', 'bitcoin', 'dao', 'pow', 'hodl', 'token'],
+      strings: ['apes', 'travel', 'nft', 'food', 'crypto', 'web3', 'defi', 'soccer', 'wallet', 'bitcoin', 'music'],
       typeSpeed: 100,
       backSpeed: 90,
       backDelay: 500,

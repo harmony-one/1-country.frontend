@@ -206,7 +206,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       await sleep(1500)
       setProcessStatus({
         type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>Web2 domain acquire</BaseText>,
+        render: <BaseText>Web2 domain acquired</BaseText>,
       })
       terminateProcess()
       setWeb2Acquired(true)
@@ -287,7 +287,7 @@ export const HomeSearchPage: React.FC = observer(() => {
 
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>Check domain</BaseText>,
+      render: <BaseText>Checking domain</BaseText>,
     })
 
     console.log('### searchResult', searchResult)
@@ -508,11 +508,15 @@ export const HomeSearchPage: React.FC = observer(() => {
                   (searchResult ? searchResult.isAvailable : true)
                 }
                 value={inputValue}
-                placeholder={'Type the domain you want'}
+                placeholder={'Search domain name'}
                 icon={<FormSearch />}
                 onSearch={handleSearchChange}
               />
             </Box>
+            <br></br>
+            {/* <BaseText >
+                Learn More
+              </BaseText> */}
           </Box>
 
           {!validation.valid && <BaseText>{validation.error}</BaseText>}

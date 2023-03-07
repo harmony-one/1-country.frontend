@@ -69,11 +69,11 @@ export type DomainLevel =
 export const getDomainLevel = (domainName: string): DomainLevel => {
   const len = domainName.length
 
-  if (len === 1) {
-    return 'reserved'
-  }
+  // if (len === 1) {
+  //   return 'reserved'
+  // }
 
-  if (len === 2 || len === 3) {
+  if (len === 1 || len === 2 || len === 3) {
     return 'legendary'
   }
 
