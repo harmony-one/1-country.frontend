@@ -181,7 +181,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
           {processStatus.type !== ProcessStatusTypes.IDLE &&
             <Box align={'center'} style={{ position: 'relative' }}>
-              <Box margin={{ top: '4px' }} style={{ position: 'absolute' }}>
+              <Box margin={{ top: processStatus.type === ProcessStatusTypes.ERROR ? '4px' : '8px' }} style={{ position: 'absolute' }}>
                 <ProcessStatus status={processStatus} />
               </Box>
             </Box>
