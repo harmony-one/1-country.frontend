@@ -46,8 +46,10 @@ export class RootStore {
     this.updateD1DCClient(web3, Constants.EmptyAddress)
 
     wagmiClient.autoConnect().then((result) => {
-      console.log('### wagmi autoConnect')
-      if (result) {
+      console.log('### wagmi autoConnect', result)
+
+      // provider should setup harmony network
+      if (result && result.chain.id === config.chainParameters.id) {
         const { account, provider } = result
         // @ts-ignore-error
         const web3 = new Web3(provider)
