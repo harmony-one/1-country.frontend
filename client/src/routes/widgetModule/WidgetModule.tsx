@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { TransactionReceipt } from 'web3-core'
 import { rootStore, useStores } from '../../stores'
 import {
   PageWidgetContainer,
@@ -8,7 +7,7 @@ import {
 import { observer } from 'mobx-react-lite'
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
-import isUrl from 'is-url'
+import isValidUrl from 'is-url'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
 import {
@@ -25,6 +24,8 @@ import {
   isValidTwitUri,
 } from '../../utils/validation'
 import { BaseText } from '../../components/Text'
+import {Box} from "grommet";
+
 
 const defaultFormFields = {
   widgetValue: '',
@@ -50,7 +51,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     widgetListStore.loadDomainTx(domainName)
   }, [domainName])
 
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setLoading] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
 
   const resetProcessStatus = (time = 2000) => {
@@ -84,10 +85,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       render: 'Embedding post',
     })
 
-    if (!isUrl(value)) {
+    if (!isValidUrl(value)) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: 'Invalid URL entered',
+        render: 'Invalid URL',
       })
       setLoading(false)
       return
@@ -99,7 +100,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     if (!isInst && !isTwit) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: 'Invalid URL entered',
+        render: 'Invalid URL',
       })
       setLoading(false)
       return
@@ -169,6 +170,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const onChange = (value: string) => {
     setFormFields({ ...formFields, widgetValue: value })
+    if(!value) {
+      resetProcessStatus(0)
+    }
   }
 
   const deleteWidget = async (widgetId: number) => {
@@ -261,17 +265,20 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         <WidgetInputContainer>
           <SearchInput
             autoFocus
-            disabled={loading}
+            disabled={isLoading}
+            isValid={processStatus.type !== ProcessStatusTypes.ERROR}
             placeholder={'Enter tweet or instagram post url'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
           />
-        </WidgetInputContainer>
-      )}
 
-      {processStatus.type !== ProcessStatusTypes.IDLE && (
-        <ProcessStatus status={processStatus} />
+          {processStatus.type !== ProcessStatusTypes.IDLE &&
+            <Box align={'center'} margin={{ top: '8px' }}>
+              <ProcessStatus status={processStatus} />
+            </Box>
+          }
+        </WidgetInputContainer>
       )}
 
       {widgetListStore.widgetList.map((widget, index) => (

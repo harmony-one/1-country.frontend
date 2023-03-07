@@ -2,25 +2,32 @@ import React, {useRef} from 'react'
 import {Box, TextInput, TextInputProps} from "grommet";
 import { FormClose } from 'grommet-icons/icons/FormClose';
 import styled, {css} from "styled-components";
+import {palette} from "../../constants";
 
-const TextInputWrapper = styled(TextInput)`
+const TextInputWrapper = styled(TextInput)<{ isValid?: boolean }>`
   border-radius: 20px;
   box-shadow: none;
   font-weight: 400;
   border: 1px solid #dfe1e5;
   color: #333437;
+  transition: border-color 250ms, box-shadow 250ms;
 
-  &:focus {
+  &:focus, &:hover {
     background-color: #fff;
     box-shadow: 0 1px 5px rgb(32 33 36 / 26%);
     border-color: rgba(223,225,229,0);
   }
 
-  &:hover {
-    background-color: #fff;
-    box-shadow: 0 1px 6px rgb(32 33 36 / 28%);
-    border-color: rgba(223,225,229,0);
-  }
+  ${(props) => (!props.isValid &&
+    css`
+      border-color: ${palette.PinkRed};
+
+      &:hover, &:focus {
+        border-color: ${palette.LightRed};
+        box-shadow:0 1px 6px rgb(255 77 79 / 26%);
+      }
+    `
+  )}
 `
 
 const InputSuffix = styled(Box)`
@@ -71,8 +78,9 @@ export const SearchInput = (props: SearchInputProps) => {
     }
   }
 
-  const inputProps: TextInputProps & {ref: any} = {
+  const inputProps: TextInputProps & {ref: any, isValid?: boolean} = {
     ref: inputRef,
+    isValid,
     autoFocus,
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = e.target
@@ -88,7 +96,7 @@ export const SearchInput = (props: SearchInputProps) => {
 
   return <Container width={'100%'} justify={'center'} paddingLeft={props.icon ? null : '24px'}>
     <TextInputWrapper {...inputProps} />
-    {(allowClear && props.value) &&
+    {(allowClear && !props.disabled && props.value) &&
       <InputSuffix>
         <FormClose onClick={clearValue} />
       </InputSuffix>
