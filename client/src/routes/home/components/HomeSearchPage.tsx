@@ -326,7 +326,9 @@ export const HomeSearchPage: React.FC = observer(() => {
 
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>Waiting for a transaction to be signed</BaseText>,
+      render: <BaseText>{walletStore.isMetamaskAvailable
+        ? 'Waiting for a transaction to be signed'
+        : 'Sign transaction on mobile device'}</BaseText>,
     })
 
     const commitResult = await rootStore.d1dcClient.commit({
@@ -378,7 +380,11 @@ export const HomeSearchPage: React.FC = observer(() => {
 
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>Waiting for a transaction to be signed</BaseText>,
+      render: <BaseText>
+        {walletStore.isMetamaskAvailable
+          ? 'Waiting for a transaction to be signed'
+          : 'Sign transaction on mobile device'}
+      </BaseText>,
     })
 
     const rentResult = await rootStore.d1dcClient.rent({
