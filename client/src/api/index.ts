@@ -435,21 +435,35 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
     },
 
-    addRecordUrl: ({ name, url, onFailed, onSuccess }: AddUrlProps) => {
+    addRecordUrl: ({
+      name,
+      url,
+      onFailed,
+      onSuccess,
+      onTransactionHash,
+    }: AddUrlProps) => {
       return send({
         parameters: [name, url],
         methodName: 'addURL',
         onFailed,
         onSuccess,
+        onTransactionHash,
       })
     },
 
-    removeRecordUrl: ({ name, pos, onFailed, onSuccess }: RemoveUrlProps) => {
+    removeRecordUrl: ({
+      name,
+      pos,
+      onFailed,
+      onSuccess,
+      onTransactionHash,
+    }: RemoveUrlProps) => {
       return send({
         parameters: [name, pos],
         methodName: 'removeUrl',
         onFailed,
         onSuccess,
+        onTransactionHash,
       })
     },
     getRecordUrlList: async ({ name }: { name: string }) => {
