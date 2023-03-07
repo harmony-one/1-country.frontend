@@ -260,7 +260,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           <SearchInput
             autoFocus
             disabled={loading}
-            placeholder={'Enter tweet or instagram post link'}
+            placeholder={'Enter tweet or instagram post url'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
