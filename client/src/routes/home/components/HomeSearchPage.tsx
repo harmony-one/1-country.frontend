@@ -24,7 +24,7 @@ import {
   ProcessStatusTypes,
 } from '../../../components/process-status/ProcessStatus'
 import { buildTxUri } from '../../../utils/explorer'
-import {useAccount, useDisconnect} from 'wagmi'
+import { useAccount, useDisconnect } from 'wagmi'
 import { useWeb3Modal, Web3Button } from '@web3modal/react'
 import { TypedText } from './Typed'
 import { sleep } from '../../../utils/sleep'
@@ -106,8 +106,9 @@ export const HomeSearchPage: React.FC = observer(() => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if(status === 'connecting') {
-      if(!isOpen && !walletStore.isMetamaskAvailable) { // User declined connect with Wallet Connect
+    if (status === 'connecting') {
+      if (!isOpen && !walletStore.isMetamaskAvailable) {
+        // User declined connect with Wallet Connect
         disconnect()
         setProcessStatus({
           type: ProcessStatusTypes.IDLE,
@@ -232,14 +233,59 @@ export const HomeSearchPage: React.FC = observer(() => {
   }
 
   const claimWeb2Domain = async (txHash: string) => {
-    const { success, responseText } = await relayApi().purchaseDomain({
-      domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
-      txHash,
-      address: walletStore.walletAddress,
-    })
-    if (!success) {
-      console.log(`failure reason: ${responseText}`)
-      throw new Error(`Unable to acquire web2 domain. Reason: ${responseText}`)
+    const domain = searchResult.domainName + config.tld
+    const messages = [
+      `contacting dns server`,
+      `setting dns record for ${domain}`,
+      `verifying dns record for ${domain}`,
+      `setting up ${domain}`,
+      `creating ${domain} landing page`,
+      `adding transaction details of ${domain}`,
+      `creating SSL certificate for ${domain}`,
+      `verifying SSL certificate for ${domain}`,
+      `adding SSL certificate to ${domain}`,
+    ]
+
+    let messageIndex = 0
+
+    const createTick = () => {
+      return setTimeout(() => {
+        messageIndex++
+        if (messageIndex > messages.length - 1) {
+          return
+        }
+
+        const message = messages[messageIndex]
+        setProcessStatus({
+          type: ProcessStatusTypes.PROGRESS,
+          render: <BaseText>{message}</BaseText>,
+        })
+
+        createTick()
+      }, 10000)
+    }
+
+    const timerId = createTick()
+
+    try {
+      const { success, responseText, isRegistered } =
+        await relayApi().purchaseDomain({
+          domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+          txHash,
+          address: walletStore.walletAddress,
+        })
+
+      clearTimeout(timerId)
+      if (!success && !isRegistered) {
+        console.log(`failure reason: ${responseText}`)
+        throw new Error(
+          `Unable to acquire web2 domain. Reason: ${responseText}`
+        )
+      }
+    } catch (ex) {
+      clearTimeout(timerId)
+      console.log('### ex', ex)
+      throw new Error(`Unable to acquire web2 domain`)
     }
   }
 
@@ -326,9 +372,13 @@ export const HomeSearchPage: React.FC = observer(() => {
 
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>{walletStore.isMetamaskAvailable
-        ? 'Waiting for a transaction to be signed'
-        : 'Sign transaction on mobile device'}</BaseText>,
+      render: (
+        <BaseText>
+          {walletStore.isMetamaskAvailable
+            ? 'Waiting for a transaction to be signed'
+            : 'Sign transaction on mobile device'}
+        </BaseText>
+      ),
     })
 
     const commitResult = await rootStore.d1dcClient.commit({
@@ -380,11 +430,13 @@ export const HomeSearchPage: React.FC = observer(() => {
 
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>
-        {walletStore.isMetamaskAvailable
-          ? 'Waiting for a transaction to be signed'
-          : 'Sign transaction on mobile device'}
-      </BaseText>,
+      render: (
+        <BaseText>
+          {walletStore.isMetamaskAvailable
+            ? 'Waiting for a transaction to be signed'
+            : 'Sign transaction on mobile device'}
+        </BaseText>
+      ),
     })
 
     const rentResult = await rootStore.d1dcClient.rent({
@@ -503,9 +555,11 @@ export const HomeSearchPage: React.FC = observer(() => {
               </Box>
             )}
           {web2Error && (
-            <Button onClick={claimWeb2DomainWrapper} disabled={loading}>
-              TRY AGAIN
-            </Button>
+            <Box align="center">
+              <Button onClick={claimWeb2DomainWrapper} disabled={loading}>
+                TRY AGAIN
+              </Button>
+            </Box>
           )}
         </SearchBoxContainer>
       </FlexRow>
