@@ -54,6 +54,9 @@ const config = {
           default: {
             http: ['https://api.harmony.one'],
           },
+          public: {
+            http: ['https://api.harmony.one'],
+          },
         },
         blockExplorers: {
           default: { name: 'Explorer', url: 'https://explorer.harmony.one/' },
