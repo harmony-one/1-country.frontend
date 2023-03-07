@@ -24,7 +24,7 @@ const TextInputWrapper = styled(TextInput)<{ isValid?: boolean }>`
 
       &:hover, &:focus {
         border-color: ${palette.LightRed};
-        box-shadow:0 1px 6px ${palette.LightRed};
+        box-shadow:0 1px 6px rgb(255 77 79 / 26%);
       }
     `
   )}
