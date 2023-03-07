@@ -53,7 +53,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const [loading, setLoading] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
 
-  const resetProcessStatus = (time = 5000) => {
+  const resetProcessStatus = (time = 2000) => {
     setTimeout(() => {
       setProcessStatus({
         type: ProcessStatusTypes.IDLE,
@@ -244,6 +244,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         render: <BaseText>Post deleted</BaseText>,
       })
       setLoading(false)
+
+      resetProcessStatus()
 
       domainStore.loadDomainRecord(domainName)
     } catch (ex) {
