@@ -110,7 +110,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       if(!isOpen && !walletStore.isMetamaskAvailable) { // User declined connect with Wallet Connect
         disconnect()
         setProcessStatus({
-          type: ProcessStatusTypes.INFO,
+          type: ProcessStatusTypes.IDLE,
           render: '',
         })
         terminateProcess(0)

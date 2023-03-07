@@ -8,7 +8,8 @@ export const palette = {
   WhiteRed: '#fff2f0',
   PaleRed: '#ffccc7',
   LightRed: '#ffa39e',
-  PinkRed: '#ff4d4f'
+  PinkRed: '#ff4d4f',
+  KellyGreen: '#52c41a'
 }
 
 export const theme = {

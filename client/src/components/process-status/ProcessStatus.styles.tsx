@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { palette } from '../../constants'
 import { ProcessStatusTypes } from './ProcessStatus'
 
 export const ProcessStatusContainer = styled.div<{ colorType?: any }>`
@@ -7,11 +8,11 @@ export const ProcessStatusContainer = styled.div<{ colorType?: any }>`
   align-items: center;
   gap: 0.5em;
   font-size: ${(props) =>
-    props.colorType !== ProcessStatusTypes.PROGRESS && '1.1rem !important'};
+    props.colorType !== ProcessStatusTypes.PROGRESS && '1rem !important'};
   color: ${(props) =>
     props.colorType === ProcessStatusTypes.ERROR
-      ? 'red'
+      ? palette.PinkRed
       : props.colorType === ProcessStatusTypes.SUCCESS
-      ? 'green'
+      ? palette.KellyGreen
       : ''};
 `

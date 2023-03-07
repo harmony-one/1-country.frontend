@@ -1,26 +1,20 @@
-import React, { useEffect, useState } from 'react'
-import { TransactionReceipt } from 'web3-core'
-import { rootStore, useStores } from '../../stores'
-import {
-  PageWidgetContainer,
-  WidgetInputContainer,
-} from '../../components/page-widgets/PageWidgets.styles'
-import { observer } from 'mobx-react-lite'
-import { Widget, widgetListStore } from './WidgetListStore'
-import { TransactionWidget } from '../../components/widgets/TransactionWidget'
-import isUrl from 'is-url'
-import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
-import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
-import {
-  ProcessStatus,
-  ProcessStatusItem,
-  ProcessStatusTypes,
-} from '../../components/process-status/ProcessStatus'
-import { sleep } from '../../utils/sleep'
-import { SearchInput } from '../../components/search-input/SearchInput'
-import { MediaWidget } from '../../components/widgets/MediaWidget'
-import { loadEmbedJson } from '../../modules/embedly/embedly'
-import { isValidInstagramUri, isValidTwitUri } from '../../utils/validation'
+import React, {useEffect, useState} from 'react'
+import {TransactionReceipt} from 'web3-core'
+import {rootStore, useStores} from '../../stores'
+import {PageWidgetContainer, WidgetInputContainer,} from '../../components/page-widgets/PageWidgets.styles'
+import {observer} from 'mobx-react-lite'
+import {Widget, widgetListStore} from './WidgetListStore'
+import {TransactionWidget} from '../../components/widgets/TransactionWidget'
+import isValidUrl from 'is-url'
+import {MetamaskWidget} from '../../components/widgets/MetamaskWidget'
+import {WalletConnectWidget} from '../../components/widgets/WalletConnectWidget'
+import {ProcessStatus, ProcessStatusItem, ProcessStatusTypes,} from '../../components/process-status/ProcessStatus'
+import {sleep} from '../../utils/sleep'
+import {SearchInput} from '../../components/search-input/SearchInput'
+import {MediaWidget} from '../../components/widgets/MediaWidget'
+import {loadEmbedJson} from '../../modules/embedly/embedly'
+import {isValidInstagramUri, isValidTwitUri} from '../../utils/validation'
+import {Box} from "grommet";
 
 const defaultFormFields = {
   widgetValue: '',
@@ -33,7 +27,7 @@ interface Props {
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore } = useStores()
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
-    type: ProcessStatusTypes.PROGRESS,
+    type: ProcessStatusTypes.IDLE,
     render: '',
   })
 
@@ -46,13 +40,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     widgetListStore.loadDomainTx(domainName)
   }, [domainName])
 
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setLoading] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
 
   const terminateProcess = async (timer: number = 5000) => {
     await sleep(timer)
     setLoading(false)
-    setProcessStatus({ type: ProcessStatusTypes.PROGRESS, render: '' })
+    setProcessStatus({ type: ProcessStatusTypes.IDLE, render: '' })
   }
 
   const onSuccess = (message: string) => (tx: TransactionReceipt) => {
@@ -82,70 +76,64 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       window.open(`mailto:1country@harmony.one`, '_self')
       return
     }
-    setLoading(true)
 
-    if (!isUrl(value)) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: 'Invalid URL entered',
-      })
-      terminateProcess(1000)
-      return
-    }
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: ''
+    })
 
-    const isTwit = isValidTwitUri(value)
-    const isInst = isValidInstagramUri(value)
+    try {
+      setLoading(true)
+      let errorMessage = ''
+      const isUrl = isValidUrl(value)
+      const isTwit = isValidTwitUri(value)
+      const isInst = isValidInstagramUri(value)
 
-    if (!isInst && !isTwit) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: 'Invalid URL entered',
-      })
-      terminateProcess(1000)
-      return
-    }
+      if(!isUrl) {
+        errorMessage = 'Invalid URL'
+      } else if(!isTwit && !isInst) {
+        errorMessage = 'Invalid URL. Please enter valid twitter or instagram link.'
+      } else {
+        const embedData = await loadEmbedJson(value)
+        if (!embedData) {
+          errorMessage = `Sorry, we can't embed this URL`
+        }
+      }
 
-    const embedData = await loadEmbedJson(value).catch(() => false)
+      if(errorMessage) {
+        throw new Error(errorMessage)
+      }
 
-    if (!embedData) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: `Sorry, we can't embed this URL`,
-      })
+      const widget: Widget = {
+        type: 'url',
+        value: value,
+      }
+
+      await widgetListStore
+        .createWidget({
+          widget,
+          domainName,
+          onSuccess: onSuccess('Url successfully added'),
+          onFailed: onFailed(),
+        })
+      setFormFields({ ...formFields, widgetValue: '' })
       terminateProcess()
-      return
-    }
-    // const tweet = parseInputValue(value)
-    //
-    // if (tweet.error) {
-    //   setProcessStatus({
-    //     type: ProcessStatusTypes.ERROR,
-    //     render: tweet.error,
-    //   })
-    //   terminateProcess()
-    //   return
-    // }
-
-    const widget: Widget = {
-      type: 'url',
-      value: value,
-    }
-
-    widgetListStore
-      .createWidget({
-        widget,
-        domainName,
-        onSuccess: onSuccess('Url successfully added'),
-        onFailed: onFailed(),
+    } catch (e) {
+      console.error('Embed error: ', e)
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: e.message || 'Unknown error, try again later',
       })
-      .then(() => {
-        setFormFields({ ...formFields, widgetValue: '' })
-        terminateProcess()
-      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const onChange = (value: string) => {
     setFormFields({ ...formFields, widgetValue: value })
+    if(!value) {
+      terminateProcess(0)
+    }
   }
 
   const deleteWidget = (widgetId: number) => {
@@ -183,16 +171,23 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         <WidgetInputContainer>
           <SearchInput
             autoFocus
-            disabled={loading}
+            disabled={isLoading}
+            isValid={processStatus.type !== ProcessStatusTypes.ERROR}
             placeholder={'Enter tweet or instagram post link'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
           />
+
+          {processStatus.type !== ProcessStatusTypes.IDLE &&
+            <Box align={'center'} style={{ position: 'relative' }}>
+              <Box margin={{ top: '4px' }} style={{ position: 'absolute' }}>
+                <ProcessStatus status={processStatus} />
+              </Box>
+            </Box>
+          }
         </WidgetInputContainer>
       )}
-
-      {loading && <ProcessStatus status={processStatus} />}
 
       {widgetListStore.widgetList.map((widget, index) => (
         <MediaWidget
