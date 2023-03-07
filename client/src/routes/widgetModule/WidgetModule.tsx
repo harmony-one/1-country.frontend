@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { TransactionReceipt } from 'web3-core'
 import { rootStore, useStores } from '../../stores'
 import {
   PageWidgetContainer,
@@ -39,7 +38,7 @@ interface Props {
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore } = useStores()
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
-    type: ProcessStatusTypes.PROGRESS,
+    type: ProcessStatusTypes.IDLE,
     render: '',
   })
 
@@ -86,10 +85,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       render: 'Embedding post',
     })
 
-    if (!isUrl(value)) {
+    if (!isValidUrl(value)) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: 'Invalid URL entered',
+        render: 'Invalid URL',
       })
       setLoading(false)
       return
@@ -101,7 +100,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     if (!isInst && !isTwit) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: 'Invalid URL entered',
+        render: 'Invalid URL',
       })
       setLoading(false)
       return
@@ -171,6 +170,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const onChange = (value: string) => {
     setFormFields({ ...formFields, widgetValue: value })
+    if(!value) {
+      resetProcessStatus(0)
+    }
   }
 
   const deleteWidget = async (widgetId: number) => {
@@ -272,10 +274,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           />
 
           {processStatus.type !== ProcessStatusTypes.IDLE &&
-            <Box align={'center'} style={{ position: 'relative' }}>
-              <Box margin={{ top: processStatus.type === ProcessStatusTypes.ERROR ? '4px' : '8px' }} style={{ position: 'absolute' }}>
-                <ProcessStatus status={processStatus} />
-              </Box>
+            <Box align={'center'} margin={{ top: '8px' }}>
+              <ProcessStatus status={processStatus} />
             </Box>
           }
         </WidgetInputContainer>

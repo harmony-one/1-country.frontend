@@ -96,7 +96,7 @@ export const SearchInput = (props: SearchInputProps) => {
 
   return <Container width={'100%'} justify={'center'} paddingLeft={props.icon ? null : '24px'}>
     <TextInputWrapper {...inputProps} />
-    {(allowClear && props.value) &&
+    {(allowClear && !props.disabled && props.value) &&
       <InputSuffix>
         <FormClose onClick={clearValue} />
       </InputSuffix>
