@@ -37,17 +37,6 @@ const SearchBoxContainer = styled(Box)`
   margin: 0 auto;
 `
 
-export const InputContainer = styled.div<{ valid?: boolean }>`
-  position: relative;
-  border-radius: 5px;
-  box-sizing: border-box;
-  border: 2px solid ${(props) => (props.valid ? '#758796' : '#ff8c8c')};
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  width: 100%;
-`
-
 export const StyledInput = styled.input`
   border: none;
   font-family: 'NunitoRegular', system-ui;
