@@ -5,6 +5,7 @@ import BN from 'bn.js'
 import Web3 from 'web3'
 import { utils } from './utils'
 import axios from 'axios'
+import { TransactionReceipt } from 'web3-core'
 
 console.log('CONTRACT', process.env.CONTRACT)
 
@@ -44,21 +45,21 @@ export enum OWNER_INFO_FIELDS {
   PHONE = 'phone',
 }
 
-export interface Transaction {
-  transactionHash: string
-}
-
 export interface CallbackProps {
   onTransactionHash?: (txHash: string) => void
   onFailed?: (error: Error, flag?: boolean) => void
-  onSubmitted?: () => void
-  onSuccess?: (tx: Transaction) => void
+  onSuccess?: (tx: TransactionReceipt) => void
 }
 
-export interface CallProps extends CallbackProps {
+export interface SendProps extends CallbackProps {
   amount?: string
   methodName: string
   parameters: unknown[]
+}
+
+export interface SendResult {
+  txReceipt: TransactionReceipt
+  error: Error
 }
 
 interface RentProps extends CallbackProps {
@@ -212,31 +213,15 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     }
   }
 
-  const call = async ({
+  const send = async ({
     amount,
     onFailed,
-    onSubmitted,
     onTransactionHash = () => {},
     onSuccess,
     methodName,
     parameters,
-  }: CallProps) => {
+  }: SendProps): Promise<SendResult> => {
     console.log({ methodName, parameters, amount, address })
-    try {
-      const testTx = await contract.methods[methodName](...parameters).call({
-        from: address,
-        value: amount,
-      })
-      if (config.debug) {
-        console.log('testTx', methodName, parameters, testTx)
-      }
-    } catch (ex) {
-      const err = ex.toString()
-      console.error('testTx Error', err)
-      onFailed && onFailed(ex)
-      return null
-    }
-    onSubmitted && onSubmitted()
 
     try {
       const tx = await contract.methods[methodName](...parameters)
@@ -250,9 +235,10 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
       console.log(methodName, tx?.events)
       onSuccess && onSuccess(tx)
-      return tx
+      return { txReceipt: tx, error: null }
     } catch (ex) {
       onFailed && onFailed(ex, true)
+      return { txReceipt: null, error: ex }
     }
   }
 
@@ -260,22 +246,22 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     address,
     contract,
     web3,
-    call,
+    send,
     commit: async ({
       name,
       secret,
       onFailed,
-      onSubmitted,
       onSuccess,
+      onTransactionHash,
     }: CommitProps) => {
       const secretHash = utils.keccak256(secret, true)
       const commitment = await contract.methods
         .makeCommitment(name, address, secretHash)
         .call()
-      return call({
+      return send({
         onFailed,
-        onSubmitted,
         onSuccess,
+        onTransactionHash,
         methodName: 'commit',
         parameters: [commitment],
       })
@@ -286,33 +272,33 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       secret,
       amount,
       onFailed,
-      onSubmitted,
       onSuccess,
+      onTransactionHash,
     }: RentProps) => {
       const secretHash = utils.keccak256(secret, true)
       // console.log({ secretHash })
-      return call({
+      return send({
         amount,
         parameters: [name, url, secretHash],
         methodName: 'register',
         onFailed,
-        onSubmitted,
         onSuccess,
+        onTransactionHash,
       })
     },
     updateURL: async ({
       name,
       url,
       onFailed,
-      onSubmitted,
       onSuccess,
+      onTransactionHash,
     }: UpdateUrlProps) => {
-      return call({
+      return send({
         parameters: [name, url],
         methodName: 'updateURL',
         onFailed,
-        onSubmitted,
         onSuccess,
+        onTransactionHash,
       })
     },
     renewDomain: async ({
@@ -321,15 +307,13 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       amount,
       onFailed,
       onTransactionHash,
-      onSubmitted,
       onSuccess,
     }: RenewDomainProps) => {
-      return call({
+      return send({
         parameters: [name, url],
         methodName: 'renew',
         amount,
         onFailed,
-        onSubmitted,
         onTransactionHash,
         onSuccess,
       })
@@ -368,7 +352,9 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
           let ownerInfo = await getOwnerInfo(name, info)
           if (!ownerInfo) {
             console.log('case result', info, revealMethod, getMethod)
-            const tx = await contract.methods[revealMethod](name).send({
+            const { result: tx } = await contract.methods[revealMethod](
+              name
+            ).send({
               from: address,
               value: amount,
             })
@@ -449,34 +435,20 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
     },
 
-    addRecordUrl: ({
-      name,
-      url,
-      onFailed,
-      onSubmitted,
-      onSuccess,
-    }: AddUrlProps) => {
-      return call({
+    addRecordUrl: ({ name, url, onFailed, onSuccess }: AddUrlProps) => {
+      return send({
         parameters: [name, url],
         methodName: 'addURL',
         onFailed,
-        onSubmitted,
         onSuccess,
       })
     },
 
-    removeRecordUrl: ({
-      name,
-      pos,
-      onFailed,
-      onSubmitted,
-      onSuccess,
-    }: RemoveUrlProps) => {
-      return call({
+    removeRecordUrl: ({ name, pos, onFailed, onSuccess }: RemoveUrlProps) => {
+      return send({
         parameters: [name, pos],
         methodName: 'removeUrl',
         onFailed,
-        onSubmitted,
         onSuccess,
       })
     },

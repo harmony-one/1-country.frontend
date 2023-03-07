@@ -2,11 +2,12 @@ import { BaseStore } from '../../../stores/BaseStore'
 import { RootStore } from '../../../stores/RootStore'
 import { action, makeObservable, observable } from 'mobx'
 import { rootStore } from '../../../stores'
-import { DomainPrice, DomainRecord, Transaction } from '../../../api'
+import { DomainPrice, DomainRecord } from '../../../api'
 import debounce from 'lodash.debounce'
 import { nameUtils } from '../../../api/utils'
 import BN from 'bn.js'
 import { parseTweetId } from '../../../utils/parseTweetId'
+import { TransactionReceipt } from 'web3-core'
 
 const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
 
@@ -108,7 +109,7 @@ export class HomeSearchStore extends BaseStore {
         onFailed: () => {
           uiTx.setStatusFail()
         },
-        onSuccess: (tx: Transaction) => {
+        onSuccess: (tx: TransactionReceipt) => {
           console.log(tx)
           uiTx.setStatusSuccess()
         },
@@ -131,7 +132,7 @@ export class HomeSearchStore extends BaseStore {
         onFailed: () => {
           uiTx.setStatusFail()
         },
-        onSuccess: (tx: Transaction) => {
+        onSuccess: (tx: TransactionReceipt) => {
           console.log(tx)
           uiTx.setStatusSuccess()
         },

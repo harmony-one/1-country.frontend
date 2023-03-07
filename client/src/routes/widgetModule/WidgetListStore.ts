@@ -3,6 +3,7 @@ import { BaseStore } from '../../stores/BaseStore'
 import { RootStore } from '../../stores/RootStore'
 import { rootStore } from '../../stores'
 import { CallbackProps } from '../../api'
+import isUrl from 'is-url'
 
 export interface Widget {
   id?: number
@@ -13,9 +14,17 @@ export interface Widget {
 const parseRawUrl = (url: string): Widget => {
   const [type, ...rest] = url.split(':')
 
+  let value = rest.join(':')
+
+  // backward compatibility for twitter identity
+  if (!isUrl(value) && type === 'twitter') {
+    value = `https://twitter.com/${value}`
+    console.log('### value', value)
+  }
+
   return {
     type,
-    value: rest.join(':'),
+    value,
   }
 }
 
@@ -55,7 +64,7 @@ class WidgetListStore extends BaseStore {
   async createWidget(
     props: { widget: Widget; domainName: string } & CallbackProps
   ) {
-    const { widget, domainName, onSubmitted, onSuccess, onFailed } = props
+    const { widget, domainName, onSuccess, onFailed } = props
 
     try {
       if (!this.stores.walletStore.isConnected) {
@@ -68,7 +77,6 @@ class WidgetListStore extends BaseStore {
         name: domainName,
         url: buildUrlFromWidget(widget),
         onSuccess,
-        onSubmitted,
         onFailed,
       })
 
@@ -81,7 +89,7 @@ class WidgetListStore extends BaseStore {
   async deleteWidget(
     props: { domainName: string; widgetId: number } & CallbackProps
   ) {
-    const { domainName, widgetId, onSuccess, onSubmitted, onFailed } = props
+    const { domainName, widgetId, onSuccess, onFailed } = props
 
     try {
       if (!this.stores.walletStore.isConnected) {
@@ -92,7 +100,6 @@ class WidgetListStore extends BaseStore {
         name: domainName,
         pos: widgetId,
         onSuccess,
-        onSubmitted,
         onFailed,
       })
 
@@ -108,7 +115,7 @@ class WidgetListStore extends BaseStore {
     const urlList = await dcClient.getRecordUrlList({ name: domainName })
 
     runInAction(() => {
-      this.widgetList = urlList.map(mapUrlToWidget)
+      this.widgetList = urlList.map(mapUrlToWidget).reverse()
     })
   }
 

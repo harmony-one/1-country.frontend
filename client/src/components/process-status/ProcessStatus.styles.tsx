@@ -7,7 +7,7 @@ export const ProcessStatusContainer = styled.div<{ colorType?: any }>`
   align-items: center;
   gap: 0.5em;
   font-size: ${(props) =>
-    props.colorType !== ProcessStatusTypes.INFO && '1.1rem !important'};
+    props.colorType !== ProcessStatusTypes.PROGRESS && '1.1rem !important'};
   color: ${(props) =>
     props.colorType === ProcessStatusTypes.ERROR
       ? 'red'

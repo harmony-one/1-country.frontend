@@ -4,6 +4,7 @@ import { RootStore } from '../../stores/RootStore'
 import { rootStore } from '../../stores'
 import { action, makeObservable, observable, runInAction } from 'mobx'
 import config from '../../../config'
+import isUrl from 'is-url'
 
 export interface Widget {
   id: string
@@ -20,9 +21,17 @@ interface Message {
 const API_HOST = config.backendHost
 
 const mapMessageToWidget = (message: Message): Widget => {
+  let value = message.content.value
+
+  // backward compatibility for twitter identity
+  if (!isUrl(value) && message.content.type === 'twitter') {
+    value = `https://twitter.com/${value}`
+    console.log('### value', value)
+  }
+
   return {
     id: message.id,
-    value: message.content.value,
+    value: value,
     type: message.content.type,
   }
 }

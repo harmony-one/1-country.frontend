@@ -14,6 +14,7 @@ import {
 import { sleep } from '../../utils/sleep'
 import isUrl from 'is-url'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
+import { isValidInstagramUri, isValidTwitUri } from '../../utils/validation'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -22,7 +23,7 @@ const defaultFormFields = {
 export const OpenWidgetsPage = observer(() => {
   const { domainStore } = useStores()
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
-    type: ProcessStatusTypes.INFO,
+    type: ProcessStatusTypes.PROGRESS,
     render: '',
   })
 
@@ -45,7 +46,7 @@ export const OpenWidgetsPage = observer(() => {
   const terminateProcess = async (timer: number = 5000) => {
     await sleep(timer)
     setLoading(false)
-    setProcessStatus({ type: ProcessStatusTypes.INFO, render: '' })
+    setProcessStatus({ type: ProcessStatusTypes.PROGRESS, render: '' })
   }
 
   const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -60,7 +61,19 @@ export const OpenWidgetsPage = observer(() => {
         type: ProcessStatusTypes.ERROR,
         render: 'Invalid URL entered',
       })
-      terminateProcess()
+      terminateProcess(1000)
+      return
+    }
+
+    const isTwit = isValidTwitUri(formFields.widgetValue)
+    const isInst = isValidInstagramUri(formFields.widgetValue)
+
+    if (!isInst && !isTwit) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Invalid URL entered',
+      })
+      terminateProcess(1000)
       return
     }
 

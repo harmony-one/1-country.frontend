@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { TransactionReceipt } from 'web3-core'
 import { rootStore, useStores } from '../../stores'
 import {
   PageWidgetContainer,
@@ -7,7 +8,6 @@ import {
 import { observer } from 'mobx-react-lite'
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
-import { Transaction } from '../../api'
 import isUrl from 'is-url'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
@@ -20,6 +20,7 @@ import { sleep } from '../../utils/sleep'
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
+import { isValidInstagramUri, isValidTwitUri } from '../../utils/validation'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -32,7 +33,7 @@ interface Props {
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore } = useStores()
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
-    type: ProcessStatusTypes.INFO,
+    type: ProcessStatusTypes.PROGRESS,
     render: '',
   })
 
@@ -51,10 +52,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const terminateProcess = async (timer: number = 5000) => {
     await sleep(timer)
     setLoading(false)
-    setProcessStatus({ type: ProcessStatusTypes.INFO, render: '' })
+    setProcessStatus({ type: ProcessStatusTypes.PROGRESS, render: '' })
   }
 
-  const onSuccess = (message: string) => (tx: Transaction) => {
+  const onSuccess = (message: string) => (tx: TransactionReceipt) => {
     setProcessStatus({
       type: ProcessStatusTypes.SUCCESS,
       render: message,
@@ -88,7 +89,19 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         type: ProcessStatusTypes.ERROR,
         render: 'Invalid URL entered',
       })
-      terminateProcess()
+      terminateProcess(1000)
+      return
+    }
+
+    const isTwit = isValidTwitUri(value)
+    const isInst = isValidInstagramUri(value)
+
+    if (!isInst && !isTwit) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Invalid URL entered',
+      })
+      terminateProcess(1000)
       return
     }
 
@@ -184,7 +197,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       {widgetListStore.widgetList.map((widget, index) => (
         <MediaWidget
           value={widget.value}
-          key={index}
+          key={index + widget.value}
           isOwner={domainStore.isOwner}
           onDelete={() => deleteWidget(widget.id)}
         />
