@@ -232,7 +232,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       `adding transaction details of ${domain}`,
       `creating SSL certificate for ${domain}`,
       `verifying SSL certificate for ${domain}`,
-      `adding SSL certificate to ${domain}`,
+      `adding SSL certificate to ${domain} (3 min avg)`,
     ]
 
     let messageIndex = 0
@@ -456,7 +456,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       render: (
         <FlexRow>
           <BaseText style={{ marginRight: 8 }}>
-            Registered {`${searchResult.domainName}${config.tld}`} (3 min avg)
+            Registering {`${searchResult.domainName}${config.tld}`} (3 min avg)
           </BaseText>
         </FlexRow>
       ),
