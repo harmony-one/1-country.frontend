@@ -1,64 +1,37 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, {useEffect, useMemo, useState} from 'react'
 import styled from 'styled-components'
 import debounce from 'lodash.debounce'
-import { observer } from 'mobx-react-lite'
+import {observer} from 'mobx-react-lite'
 import BN from 'bn.js'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Box } from 'grommet/components/Box'
+import {useNavigate, useSearchParams} from 'react-router-dom'
+import {Box} from 'grommet/components/Box'
+import {Text} from 'grommet/components/Text'
 
-import { HomeSearchResultItem } from './HomeSearchResultItem'
-import { useStores } from '../../../stores'
+import {HomeSearchResultItem} from './HomeSearchResultItem'
+import {useStores} from '../../../stores'
 import config from '../../../../config'
 
-import { Button, LinkWrarpper } from '../../../components/Controls'
-import { BaseText, GradientText } from '../../../components/Text'
-import { FlexRow } from '../../../components/Layout'
-import { DomainPrice, DomainRecord, relayApi } from '../../../api'
-import { nameUtils, validateDomainName } from '../../../api/utils'
-import { parseTweetId } from '../../../utils/parseTweetId'
-import { Container } from '../Home.styles'
-import { cutString } from '../../../utils/string'
-import {
-  ProcessStatus,
-  ProcessStatusItem,
-  ProcessStatusTypes,
-} from '../../../components/process-status/ProcessStatus'
-import { buildTxUri } from '../../../utils/explorer'
-import { useAccount, useDisconnect } from 'wagmi'
-import { useWeb3Modal, Web3Button } from '@web3modal/react'
-import { TypedText } from './Typed'
-import { sleep } from '../../../utils/sleep'
-import { SearchInput } from '../../../components/search-input/SearchInput'
-import { FormSearch } from 'grommet-icons/icons/FormSearch'
+import {Button, Link, LinkWrapper} from '../../../components/Controls'
+import {BaseText, GradientText} from '../../../components/Text'
+import {FlexRow} from '../../../components/Layout'
+import {DomainPrice, DomainRecord, relayApi} from '../../../api'
+import {nameUtils, validateDomainName} from '../../../api/utils'
+import {parseTweetId} from '../../../utils/parseTweetId'
+import {Container} from '../Home.styles'
+import {cutString} from '../../../utils/string'
+import {ProcessStatus, ProcessStatusItem, ProcessStatusTypes,} from '../../../components/process-status/ProcessStatus'
+import {buildTxUri} from '../../../utils/explorer'
+import {useAccount, useDisconnect} from 'wagmi'
+import {useWeb3Modal, Web3Button} from '@web3modal/react'
+import {TypedText} from './Typed'
+import {sleep} from '../../../utils/sleep'
+import {SearchInput} from '../../../components/search-input/SearchInput'
+import {FormSearch} from 'grommet-icons/icons/FormSearch'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-`
-
-export const StyledInput = styled.input`
-  border: none;
-  font-family: 'NunitoRegular', system-ui;
-  font-size: 1rem;
-  box-sizing: border-box;
-  padding: 0.4em;
-  width: 100%;
-
-  &:focus {
-    outline: none;
-  }
-
-  &::placeholder {
-    font-size: 0.7em;
-    text-align: center;
-  }
-
-  @media (min-width: 640px) {
-    &::placeholder {
-      font-size: 1em;
-    }
-  }
 `
 
 const { tweetId } = parseTweetId(
@@ -78,7 +51,7 @@ export const HomeSearchPage: React.FC = observer(() => {
   const { open, close, isOpen } = useWeb3Modal()
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setLoading] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
@@ -152,6 +125,10 @@ export const HomeSearchPage: React.FC = observer(() => {
   const handleSearchChange = (value: string) => {
     setInputValue(value)
     updateSearch(value)
+
+    if(!value && processStatus.type === ProcessStatusTypes.ERROR) {
+      setProcessStatus({ type: ProcessStatusTypes.IDLE, render: '' })
+    }
   }
 
   const terminateProcess = async (timer: number = 5000) => {
@@ -399,7 +376,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             Reserved {`${searchResult.domainName}${config.tld}`}
           </BaseText>
           (
-          <LinkWrarpper
+          <LinkWrapper
             target="_blank"
             type="text"
             href={buildTxUri(commitResult.txReceipt.transactionHash)}
@@ -407,7 +384,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             <BaseText>
               {cutString(commitResult.txReceipt.transactionHash)}
             </BaseText>
-          </LinkWrarpper>
+          </LinkWrapper>
           )
         </FlexRow>
       ),
@@ -488,7 +465,7 @@ export const HomeSearchPage: React.FC = observer(() => {
   return (
     <Container>
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
-        <SearchBoxContainer gap="24px">
+        <SearchBoxContainer>
           {isConnected && !walletStore.isMetamaskAvailable && (
             <Box align={'end'} margin={{ bottom: '16px' }}>
               <Web3Button />
@@ -507,38 +484,26 @@ export const HomeSearchPage: React.FC = observer(() => {
                   validation.valid &&
                   (searchResult ? searchResult.isAvailable : true)
                 }
+                allowClear={!isLoading}
                 value={inputValue}
                 placeholder={'Search domain name'}
                 icon={<FormSearch />}
                 onSearch={handleSearchChange}
               />
             </Box>
-            <br></br>
-            {/* <BaseText >
-                Learn More
-              </BaseText> */}
           </Box>
-
-          {!validation.valid && <BaseText>{validation.error}</BaseText>}
-          {processStatus.type !== ProcessStatusTypes.IDLE && (
-            <ProcessStatus status={processStatus} />
-          )}
-          {validation.valid &&
-            !loading &&
+          {(validation.valid &&
+            !isLoading &&
             searchResult &&
             !web2Acquired &&
-            !web2Error && (
-              <Box gap="12px" align="center">
+            !web2Error) ? (
+              <Box margin={{ top: '16px' }} gap="12px" align="center">
                 <HomeSearchResultItem
                   name={searchResult.domainName.toLowerCase()}
                   rateONE={ratesStore.ONE_USD}
                   price={searchResult.price.formatted}
                   available={searchResult.isAvailable}
                 />
-                {/* <TermsCheckbox
-            checked={isTermsAccepted}
-            onChange={setIsTermsAccepted}
-          /> */}
                 <Button
                   disabled={!validation.valid || !searchResult.isAvailable}
                   onClick={handleRentDomain}
@@ -546,10 +511,24 @@ export const HomeSearchPage: React.FC = observer(() => {
                   Register
                 </Button>
               </Box>
-            )}
+            ) :
+            <Box margin={{ top: '16px' }}>
+              {!validation.valid && <Text size={'medium'}>{validation.error}</Text>}
+              {processStatus.type !== ProcessStatusTypes.IDLE && (
+                <ProcessStatus status={processStatus} />
+              )}
+              {processStatus.type === ProcessStatusTypes.IDLE && !inputValue &&
+                <Box>
+                  <Link href={'https://harmony.one/1'} target={'_blank'}>
+                    <Text size={'medium'}>Learn more</Text>
+                  </Link>
+                </Box>
+              }
+          </Box>
+          }
           {web2Error && (
             <Box align="center">
-              <Button onClick={claimWeb2DomainWrapper} disabled={loading}>
+              <Button onClick={claimWeb2DomainWrapper} disabled={isLoading}>
                 TRY AGAIN
               </Button>
             </Box>

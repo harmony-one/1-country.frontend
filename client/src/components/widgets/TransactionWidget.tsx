@@ -6,6 +6,7 @@ import { BaseText } from '../Text'
 import { DomainRecord } from '../../api'
 import {HarmonyLink} from '../HarmonyLink'
 import { WidgetsContainer } from './Widgets.styles'
+import {Link} from "../Controls";
 
 const Container = styled(WidgetsContainer)`
   gap: 0;
@@ -48,14 +49,6 @@ interface Props {
 
 const formatTime = (value: number) => `${value < 10 ? `0${value}` : value}`
 
-const LinkItem = styled.a`
-  color: #47b8eb;
-  font-size: 14px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-`
-
 export const TransactionWidget: React.FC<Props> = ({
   isLoading,
   name,
@@ -78,7 +71,7 @@ export const TransactionWidget: React.FC<Props> = ({
     <Box gap={'6px'} pad={{ left: '14px', top: '12px', bottom: '12px' }}>
       <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
         <Text size={'small'} weight={'bold'}>Owner:</Text>
-        <LinkItem href={`https://explorer.harmony.one/address/${renter}`} target={'_blank'}>{renter}</LinkItem>
+        <Link href={`https://explorer.harmony.one/address/${renter}`} target={'_blank'}>{renter}</Link>
       </Box>
       <Box direction={'row'} gap={'4px'} justify={"start"} align={'center'}>
         <Text size={'small'} weight={'bold'}>Rented until:</Text>
