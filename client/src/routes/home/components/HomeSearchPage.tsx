@@ -81,14 +81,46 @@ export const HomeSearchPage: React.FC = observer(() => {
     }
   }, [status, isOpen])
 
-  const updateSearch = (domainName: string) => {
+  const handleUpdateSearch = debounce((value: string) => updateSearch(value), 500)
+
+  const updateSearch = async (domainName: string) => {
     setSearchResult(null)
+
     if (domainName) {
       const result = validateDomainName(domainName)
       setValidation(result)
 
       if (result.valid) {
-        loadDomainRecord(domainName)
+        setProcessStatus({
+          type: ProcessStatusTypes.PROGRESS,
+          render: '',
+        })
+
+        setLoading(true)
+
+        try {
+          const domainData = await loadDomainRecord(domainName)
+          const { name, record, price, isAvailable } = domainData
+
+          setSearchResult({
+            domainName: name,
+            domainRecord: record,
+            price,
+            isAvailable
+          })
+          setProcessStatus({
+            type: ProcessStatusTypes.IDLE,
+            render: '',
+          })
+        } catch (e) {
+          console.log('Error on loading domain record: ', e)
+          setProcessStatus({
+            type: ProcessStatusTypes.ERROR,
+            render: 'Failed to load domain record',
+          })
+        } finally {
+          setLoading(false)
+        }
       }
     } else {
       setValidation({ valid: true, error: '' })
@@ -124,7 +156,7 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   const handleSearchChange = (value: string) => {
     setInputValue(value)
-    updateSearch(value)
+    handleUpdateSearch(value)
 
     if(!value && processStatus.type === ProcessStatusTypes.ERROR) {
       setProcessStatus({ type: ProcessStatusTypes.IDLE, render: '' })
@@ -137,16 +169,10 @@ export const HomeSearchPage: React.FC = observer(() => {
   }
 
   const loadDomainRecord = useMemo(() => {
-    return debounce(async (_domainName) => {
+    return async (_domainName: string) => {
       if (!_domainName) {
         return
       }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: '',
-      })
-      setLoading(true) //will show three dots
 
       const [record, price, relayCheckDomain, isAvailable2] = await Promise.all(
         [
@@ -161,20 +187,14 @@ export const HomeSearchPage: React.FC = observer(() => {
         ]
       )
 
-      setSearchResult({
-        domainName: _domainName,
-        domainRecord: record,
+      return {
+        name: _domainName,
+        record,
         price: price,
         isAvailable: relayCheckDomain.isAvailable && isAvailable2,
-      })
-
-      setProcessStatus({
-        type: ProcessStatusTypes.IDLE,
-        render: '',
-      })
-      setLoading(false)
-    }, 500)
-  }, [rootStore.d1dcClient])
+      }
+    }
+  }, [])
 
   const claimWeb2DomainWrapper = async () => {
     setLoading(true)
