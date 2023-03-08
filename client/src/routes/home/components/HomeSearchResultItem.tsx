@@ -7,6 +7,7 @@ import {
   formatONEAmount,
   formatUSDAmount,
 } from '../../../utils/domain'
+import { size } from 'lodash'
 
 const Container = styled.div`
   position: relative;
@@ -41,17 +42,24 @@ export const HomeSearchResultItem: React.FC<Props> = ({
           <DomainName>{name}.country</DomainName>
           <BaseText>
             {formatONEAmount(priceOne)} ONE = ${formatUSDAmount(priceUsd)} USD
-            for 3 months (
-            <a
+            for 3 months 
+            {/* <a
               style={{ color: '#758796' }}
               href="https://harmonyone.notion.site/harmonyone/Terms-Conditions-6096dbaf43f6402fb4719efaace47a5e"
               target="_blank"
               rel="noreferrer"
             >
               Terms
-            </a>
-            )
+            </a> */}
           </BaseText>
+          <a
+              style={{ color: '#758796', textDecoration: 'none', fontSize: '0.9rem'}}
+              href="https://harmonyone.notion.site/harmonyone/Terms-Conditions-6096dbaf43f6402fb4719efaace47a5e"
+              target="_blank"
+              rel="noreferrer"
+            >
+              By registering, you agree to the Terms of Service.
+            </a>
         </Box>
       )}
     </Container>
