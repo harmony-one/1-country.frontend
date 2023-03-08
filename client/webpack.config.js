@@ -7,6 +7,8 @@ const BundleAnalyzerPlugin =
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const CopyPlugin = require('copy-webpack-plugin')
+const CompressionPlugin = require('compression-webpack-plugin')
+const HtmlWebpackChangeAssetsExtensionPlugin = require('html-webpack-change-assets-extension-plugin')
 
 const commitHash = require('child_process')
   .execSync('git rev-parse --short HEAD')
@@ -184,6 +186,7 @@ module.exports = {
       filename: 'index.html',
       template: 'assets/index.html',
       environment: process.env.NODE_ENV,
+      jsExtension: '.gz',
     }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
@@ -209,5 +212,7 @@ module.exports = {
         },
       ],
     }),
+    isProduction && new CompressionPlugin({ test: /\.js(\?.*)?$/i }),
+    isProduction && new HtmlWebpackChangeAssetsExtensionPlugin(),
   ].filter((i) => i),
 }
