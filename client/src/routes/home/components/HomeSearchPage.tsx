@@ -1,13 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, {useEffect, useMemo, useState} from 'react'
 import styled from 'styled-components'
 import debounce from 'lodash.debounce'
-import { observer } from 'mobx-react-lite'
+import {observer} from 'mobx-react-lite'
 import BN from 'bn.js'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Box } from 'grommet/components/Box'
+import {useNavigate, useSearchParams} from 'react-router-dom'
+import {Box} from 'grommet/components/Box'
+import {Text} from 'grommet/components/Text'
 
-import { HomeSearchResultItem } from './HomeSearchResultItem'
-import { useStores } from '../../../stores'
+import {HomeSearchResultItem} from './HomeSearchResultItem'
+import {useStores} from '../../../stores'
 import config from '../../../../config'
 
 import { Button, LinkWrarpper } from '../../../components/Controls'
@@ -39,30 +40,6 @@ const SearchBoxContainer = styled(Box)`
   margin: 0 auto;
 `
 
-export const StyledInput = styled.input`
-  border: none;
-  font-family: 'NunitoRegular', system-ui;
-  font-size: 1rem;
-  box-sizing: border-box;
-  padding: 0.4em;
-  width: 100%;
-
-  &:focus {
-    outline: none;
-  }
-
-  &::placeholder {
-    font-size: 0.7em;
-    text-align: center;
-  }
-
-  @media (min-width: 640px) {
-    &::placeholder {
-      font-size: 1em;
-    }
-  }
-`
-
 const { tweetId } = parseTweetId(
   'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'
 )
@@ -80,7 +57,7 @@ export const HomeSearchPage: React.FC = observer(() => {
   const { open, close, isOpen } = useWeb3Modal()
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setLoading] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
@@ -110,14 +87,46 @@ export const HomeSearchPage: React.FC = observer(() => {
     }
   }, [status, isOpen])
 
-  const updateSearch = (domainName: string) => {
+  const handleUpdateSearch = debounce((value: string) => updateSearch(value), 500)
+
+  const updateSearch = async (domainName: string) => {
     setSearchResult(null)
+
     if (domainName) {
       const result = validateDomainName(domainName)
       setValidation(result)
 
       if (result.valid) {
-        loadDomainRecord(domainName)
+        setProcessStatus({
+          type: ProcessStatusTypes.PROGRESS,
+          render: '',
+        })
+
+        setLoading(true)
+
+        try {
+          const domainData = await loadDomainRecord(domainName)
+          const { name, record, price, isAvailable } = domainData
+
+          setSearchResult({
+            domainName: name,
+            domainRecord: record,
+            price,
+            isAvailable
+          })
+          setProcessStatus({
+            type: ProcessStatusTypes.IDLE,
+            render: '',
+          })
+        } catch (e) {
+          console.log('Error on loading domain record: ', e)
+          setProcessStatus({
+            type: ProcessStatusTypes.ERROR,
+            render: 'Failed to load domain record',
+          })
+        } finally {
+          setLoading(false)
+        }
       }
     } else {
       setValidation({ valid: true, error: '' })
@@ -158,7 +167,11 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   const handleSearchChange = (value: string) => {
     setInputValue(value)
-    updateSearch(value)
+    handleUpdateSearch(value)
+    // updateSearch(value)
+    if(!value && processStatus.type === ProcessStatusTypes.ERROR) {
+      setProcessStatus({ type: ProcessStatusTypes.IDLE, render: '' })
+    }
   }
 
   const terminateProcess = async (timer: number = 5000) => {
@@ -167,16 +180,10 @@ export const HomeSearchPage: React.FC = observer(() => {
   }
 
   const loadDomainRecord = useMemo(() => {
-    return debounce(async (_domainName) => {
+    return async (_domainName: string) => {
       if (!_domainName) {
         return
       }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: '',
-      })
-      setLoading(true) //will show three dots
 
       const [record, price, relayCheckDomain, isAvailable2] = await Promise.all(
         [
@@ -191,20 +198,14 @@ export const HomeSearchPage: React.FC = observer(() => {
         ]
       )
 
-      setSearchResult({
-        domainName: _domainName,
-        domainRecord: record,
+      return {
+        name: _domainName,
+        record,
         price: price,
         isAvailable: relayCheckDomain.isAvailable && isAvailable2,
-      })
-
-      setProcessStatus({
-        type: ProcessStatusTypes.IDLE,
-        render: '',
-      })
-      setLoading(false)
-    }, 500)
-  }, [rootStore.d1dcClient])
+      }
+    }
+  }, [])
 
   const claimWeb2DomainWrapper = async () => {
     setLoading(true)
@@ -406,7 +407,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             Reserved {`${searchResult.domainName}${config.tld}`}
           </BaseText>
           (
-          <LinkWrarpper
+          <LinkWrapper
             target="_blank"
             type="text"
             href={buildTxUri(commitResult.txReceipt.transactionHash)}
@@ -414,7 +415,7 @@ export const HomeSearchPage: React.FC = observer(() => {
             <BaseText>
               {cutString(commitResult.txReceipt.transactionHash)}
             </BaseText>
-          </LinkWrarpper>
+          </LinkWrapper>
           )
         </FlexRow>
       ),
@@ -495,7 +496,7 @@ export const HomeSearchPage: React.FC = observer(() => {
   return (
     <Container>
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
-        <SearchBoxContainer gap="24px">
+        <SearchBoxContainer>
           {isConnected && !walletStore.isMetamaskAvailable && (
             <Box align={'end'} margin={{ bottom: '16px' }}>
               <Web3Button />
@@ -514,38 +515,44 @@ export const HomeSearchPage: React.FC = observer(() => {
                   validation.valid &&
                   (searchResult ? searchResult.isAvailable : true)
                 }
+                allowClear={!isLoading}
                 value={inputValue}
                 placeholder={'Search domain name'}
                 icon={<FormSearch />}
                 onSearch={handleSearchChange}
               />
-            </Box>
-            <br></br>
-            {/* <BaseText >
-                Learn More
-              </BaseText> */}
-          </Box>
+              {(!validation.valid || processStatus.type !== ProcessStatusTypes.IDLE) &&
+                <Box margin={{ top: '16px' }}>
+                  {!validation.valid && <Text color={'textError'}>{validation.error}</Text>}
+                  {processStatus.type !== ProcessStatusTypes.IDLE && (
+                    <ProcessStatus status={processStatus} />
+                  )}
+                </Box>
+              }
+              {!inputValue && processStatus.type === ProcessStatusTypes.IDLE &&
+                <Box margin={{ top: '16px' }}>
+                  <Text>
+                    <Link href={'https://harmony.one/1'} target={'_blank'} style={{ fontSize: '16px' }}>
+                      Learn more
+                    </Link>
+                  </Text>
 
-          {!validation.valid && <BaseText>{validation.error}</BaseText>}
-          {processStatus.type !== ProcessStatusTypes.IDLE && (
-            <ProcessStatus status={processStatus} />
-          )}
-          {validation.valid &&
-            !loading &&
+                </Box>
+              }
+            </Box>
+          </Box>
+          {(validation.valid &&
+            !isLoading &&
             searchResult &&
             !web2Acquired &&
-            !web2Error && (
-              <Box gap="12px" align="center">
+            !web2Error) ? (
+              <Box margin={{ top: '16px' }} gap="12px" align="center">
                 <HomeSearchResultItem
                   name={searchResult.domainName.toLowerCase()}
                   rateONE={ratesStore.ONE_USD}
                   price={searchResult.price.formatted}
                   available={searchResult.isAvailable}
                 />
-                {/* <TermsCheckbox
-            checked={isTermsAccepted}
-            onChange={setIsTermsAccepted}
-          /> */}
                 <Button
                   disabled={!validation.valid || !searchResult.isAvailable}
                   onClick={handleRentDomain}
@@ -553,10 +560,34 @@ export const HomeSearchPage: React.FC = observer(() => {
                   Register
                 </Button>
               </Box>
-            )}
+            ) :
+            <Box margin={{ top: '16px' }}>
+              {!validation.valid && <Text size={'medium'}>{validation.error}</Text>}
+              {processStatus.type !== ProcessStatusTypes.IDLE && (
+                <ProcessStatus status={processStatus} />
+              )}
+              {processStatus.type === ProcessStatusTypes.IDLE && !inputValue &&
+                <Box>
+                  <BaseText>
+                    <a
+                      style={{ color: '#758796', textDecoration: 'none' }}
+                      href="https://harmonyone.notion.site/harmonyone/Terms-Conditions-6096dbaf43f6402fb4719efaace47a5e"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Learn More
+                    </a>
+                  </BaseText>
+                  {/* <Link href={'https://harmony.one/1'} target={'_blank'}>
+                    <BaseText>Learn more</BaseText>
+                  </Link> */}
+                </Box>
+              }
+          </Box>
+          }
           {web2Error && (
             <Box align="center">
-              <Button onClick={claimWeb2DomainWrapper} disabled={loading}>
+              <Button onClick={claimWeb2DomainWrapper} disabled={isLoading}>
                 TRY AGAIN
               </Button>
             </Box>
