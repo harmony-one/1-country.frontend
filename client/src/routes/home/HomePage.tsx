@@ -17,8 +17,6 @@ export const HomePage = observer(() => {
     domainStore.loadDomainRecord(domainName)
   }, [domainName])
 
-  useDefaultNetwork()
-
   useEffect(() => {
     const isNewDomain =
       domainName && domainStore.domainRecord && !domainStore.domainRecord.renter
