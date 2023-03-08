@@ -15,6 +15,7 @@ import { sleep } from '../../utils/sleep'
 import isUrl from 'is-url'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
 import { isValidInstagramUri, isValidTwitUri } from '../../utils/validation'
+import TwitterWidget from '../../components/widgets/TwitterWidget'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -139,12 +140,18 @@ export const OpenWidgetsPage = observer(() => {
       {loading && <ProcessStatus status={processStatus} />}
       {widgetList.length > 0 &&
         widgetList.map((widget) => (
-          <MediaWidget
+          <TwitterWidget
             isOwner
             key={widget.id}
             value={widget.value}
             onDelete={() => deleteWidget(widget.id)}
           />
+          // <MediaWidget
+          //   isOwner
+          //   key={widget.id}
+          //   value={widget.value}
+          //   onDelete={() => deleteWidget(widget.id)}
+          // />
         ))}
     </Container>
   )

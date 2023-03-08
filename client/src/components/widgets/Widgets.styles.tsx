@@ -3,8 +3,8 @@ import styled from 'styled-components'
 export const DeleteWidgetButton = styled.button`
   cursor: pointer;
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -0.8em;
+  right: 0.3em;
   font-size: 2em;
   opacity: 0;
   color: #758796;

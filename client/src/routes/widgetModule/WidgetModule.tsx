@@ -24,8 +24,8 @@ import {
   isValidTwitUri,
 } from '../../utils/validation'
 import { BaseText } from '../../components/Text'
-import {Box} from "grommet";
-
+import { Box } from 'grommet'
+import TwitterWidget from '../../components/widgets/TwitterWidget'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -42,13 +42,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     render: '',
   })
 
-  useEffect(() => {
-    domainStore.loadDomainRecord(domainName)
-  }, [domainName])
+  // useEffect(() => {
+  //   domainStore.loadDomainRecord(domainName)
+  // }, [domainName])
 
   useEffect(() => {
     widgetListStore.loadWidgetList(domainName)
-    widgetListStore.loadDomainTx(domainName)
+    // widgetListStore.loadDomainTx(domainName)
   }, [domainName])
 
   const [isLoading, setLoading] = useState(false)
@@ -170,7 +170,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const onChange = (value: string) => {
     setFormFields({ ...formFields, widgetValue: value })
-    if(!value) {
+    if (!value) {
       resetProcessStatus(0)
     }
   }
@@ -273,29 +273,40 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             onKeyDown={enterHandler}
           />
 
-          {processStatus.type !== ProcessStatusTypes.IDLE &&
+          {processStatus.type !== ProcessStatusTypes.IDLE && (
             <Box align={'center'} margin={{ top: '8px' }}>
               <ProcessStatus status={processStatus} />
             </Box>
-          }
+          )}
         </WidgetInputContainer>
       )}
 
       {widgetListStore.widgetList.map((widget, index) => (
-        <MediaWidget
+        <TwitterWidget
           value={widget.value}
           key={index + widget.value}
           isOwner={domainStore.isOwner}
           onDelete={() => deleteWidget(widget.id)}
         />
+        // <MediaWidget
+        //   value={widget.value}
+        //   key={index + widget.value}
+        //   isOwner={domainStore.isOwner}
+        //   onDelete={() => deleteWidget(widget.id)}
+        // />
       ))}
 
       {domainStore.domainRecord && domainStore.domainRecord.url && (
-        <MediaWidget
+        <TwitterWidget
           value={domainStore.domainRecord.url}
           isOwner={domainStore.isOwner}
           onDelete={handleDeleteLegacyUrl}
         />
+        // <MediaWidget
+        //   value={domainStore.domainRecord.url}
+        //   isOwner={domainStore.isOwner}
+        //   onDelete={handleDeleteLegacyUrl}
+        // />
       )}
 
       {domainStore.domainRecord && (

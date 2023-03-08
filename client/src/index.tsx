@@ -17,22 +17,22 @@ import { theme } from './constants'
 console.log('### git commit hash', process.env.GIT_COMMIT_HASH)
 document.body.ontouchstart = function () {}
 
-window.embedly('defaults', {
-  cards: {
-    key: config.embedly.key
-  }
-})
+// window.embedly('defaults', {
+//   cards: {
+//     key: config.embedly.key
+//   }
+// })
 
 ReactDOM.render(
   <BrowserRouter>
-    <Grommet theme={theme} themeMode='light'>
+    <Grommet theme={theme} themeMode="light">
       <WagmiConfigProvider>
         <MetaTags />
         <Routes />
         <Web3ModalProvider />
         <ModalProvider />
         <UITransactionProvider />
-        <ToastContainer position='top-left' />
+        <ToastContainer position="top-left" />
       </WagmiConfigProvider>
     </Grommet>
   </BrowserRouter>,
