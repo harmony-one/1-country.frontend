@@ -539,9 +539,19 @@ export const HomeSearchPage: React.FC = observer(() => {
               )}
               {processStatus.type === ProcessStatusTypes.IDLE && !inputValue &&
                 <Box>
-                  <Link href={'https://harmony.one/1'} target={'_blank'}>
-                    <Text size={'medium'}>Learn more</Text>
-                  </Link>
+                  <BaseText>
+                    <a
+                      style={{ color: '#758796', textDecoration: 'none' }}
+                      href="https://harmonyone.notion.site/harmonyone/Terms-Conditions-6096dbaf43f6402fb4719efaace47a5e"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Learn More
+                    </a>
+                  </BaseText>
+                  {/* <Link href={'https://harmony.one/1'} target={'_blank'}>
+                    <BaseText>Learn more</BaseText>
+                  </Link> */}
                 </Box>
               }
           </Box>
