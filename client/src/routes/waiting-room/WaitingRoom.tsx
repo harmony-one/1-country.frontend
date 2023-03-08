@@ -12,6 +12,7 @@ import config from '../../../config'
 
 import { urlExists } from '../../api/checkUrl'
 import { useSearchParams } from 'react-router-dom'
+import { relayApi } from '../../api/relayApi'
 
 const WaitingRoom = observer(() => {
   const [intervalId, setIntervalId] = useState<NodeJS.Timer>()
@@ -19,6 +20,7 @@ const WaitingRoom = observer(() => {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const domainName = searchParams.get('domain')
+  const txHash = searchParams.get('txHash')
 
   const { walletStore } = useStores()
   const navigate = useNavigate()
@@ -38,6 +40,36 @@ const WaitingRoom = observer(() => {
       console.log('Error', e)
     }
   }, [])
+
+  const createCert = async (attemptsLeft = 3) => {
+    const domain = `${domainName}${config.tld}`
+
+    if (!txHash || !walletStore.walletAddress) {
+      return false
+    }
+
+    try {
+      await relayApi().createCert({
+        domain,
+        txHash,
+        address: walletStore.walletAddress,
+      })
+    } catch (ex) {
+      console.log('### createCert ex', ex)
+      if (attemptsLeft === 0) {
+        return
+      }
+      setTimeout(() => {
+        createCert(attemptsLeft - 1)
+      }, 1000)
+    }
+  }
+
+  useEffect(() => {
+    if (walletStore.walletAddress) {
+      createCert()
+    }
+  }, [walletStore.walletAddress])
 
   useEffect(() => {
     const checkUrl = async () => {

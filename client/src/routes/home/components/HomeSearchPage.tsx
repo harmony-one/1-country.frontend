@@ -11,23 +11,28 @@ import {HomeSearchResultItem} from './HomeSearchResultItem'
 import {useStores} from '../../../stores'
 import config from '../../../../config'
 
-import {Button, Link, LinkWrapper} from '../../../components/Controls'
-
-import {BaseText, GradientText} from '../../../components/Text'
-import {FlexRow} from '../../../components/Layout'
-import {DomainPrice, DomainRecord, relayApi} from '../../../api'
-import {nameUtils, validateDomainName} from '../../../api/utils'
-import {parseTweetId} from '../../../utils/parseTweetId'
-import {Container} from '../Home.styles'
-import {cutString} from '../../../utils/string'
-import {ProcessStatus, ProcessStatusItem, ProcessStatusTypes,} from '../../../components/process-status/ProcessStatus'
-import {buildTxUri} from '../../../utils/explorer'
-import {useAccount, useDisconnect} from 'wagmi'
-import {useWeb3Modal, Web3Button} from '@web3modal/react'
-import {TypedText} from './Typed'
-import {sleep} from '../../../utils/sleep'
-import {SearchInput} from '../../../components/search-input/SearchInput'
-import {FormSearch} from 'grommet-icons/icons/FormSearch'
+import { Button, LinkWrarpper } from '../../../components/Controls'
+import { BaseText, GradientText } from '../../../components/Text'
+import { FlexRow } from '../../../components/Layout'
+import { DomainPrice, DomainRecord } from '../../../api'
+import { nameUtils, validateDomainName } from '../../../api/utils'
+import { parseTweetId } from '../../../utils/parseTweetId'
+import { Container } from '../Home.styles'
+import { cutString } from '../../../utils/string'
+import {
+  ProcessStatus,
+  ProcessStatusItem,
+  ProcessStatusTypes,
+} from '../../../components/process-status/ProcessStatus'
+import { buildTxUri } from '../../../utils/explorer'
+import { useAccount, useDisconnect } from 'wagmi'
+import { useWeb3Modal, Web3Button } from '@web3modal/react'
+import { TypedText } from './Typed'
+import { sleep } from '../../../utils/sleep'
+import { SearchInput } from '../../../components/search-input/SearchInput'
+import { FormSearch } from 'grommet-icons/icons/FormSearch'
+import { relayApi } from '../../../api/relayApi'
+import qs from 'qs'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -137,7 +142,12 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   useEffect(() => {
     if (web2Acquired) {
-      window.location.href = `${config.hostname}/new?domain=${searchResult.domainName}`
+      const queryString = qs.stringify({
+        domain: searchResult.domainName,
+        txHash: regTxHash,
+      })
+
+      window.location.href = `${config.hostname}/new?${queryString}`
       // navigate(`new/${searchResult.domainName}`)
     }
   }, [web2Acquired])
