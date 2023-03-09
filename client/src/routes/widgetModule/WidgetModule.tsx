@@ -223,7 +223,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     setLoading(true)
 
     try {
-      const updateResult = await rootStore.d1dcClient.updateURL({
+      const updateResult = await rootStore.tweetClient.updateURL({
         name: domainName,
         url: '',
         onTransactionHash: () => {
@@ -267,7 +267,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             autoFocus
             disabled={isLoading}
             isValid={processStatus.type !== ProcessStatusTypes.ERROR}
-            placeholder={'Enter tweet url'}
+            placeholder={'Enter tweet or instagram post url'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
@@ -325,4 +325,3 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     </PageWidgetContainer>
   )
 })
-

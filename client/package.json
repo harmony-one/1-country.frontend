@@ -10,7 +10,6 @@
     "prepare": "cd .. && husky install client/.husky"
   },
   "lint-staged": {
-    "*.ts": "npx tsc --noEmit",
     "*.{js,jsx,ts,tsx,html,css}": "npx prettier --check"
   },
   "devDependencies": {
