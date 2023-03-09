@@ -24,8 +24,7 @@ import {
   isValidTwitUri,
 } from '../../utils/validation'
 import { BaseText } from '../../components/Text'
-import {Box} from "grommet";
-
+import { Box } from 'grommet'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -48,7 +47,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   useEffect(() => {
     widgetListStore.loadWidgetList(domainName)
-    widgetListStore.loadDomainTx(domainName)
+    // widgetListStore.loadDomainTx(domainName)
   }, [domainName])
 
   const [isLoading, setLoading] = useState(false)
@@ -170,7 +169,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const onChange = (value: string) => {
     setFormFields({ ...formFields, widgetValue: value })
-    if(!value) {
+    if (!value) {
       resetProcessStatus(0)
     }
   }
@@ -273,11 +272,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             onKeyDown={enterHandler}
           />
 
-          {processStatus.type !== ProcessStatusTypes.IDLE &&
+          {processStatus.type !== ProcessStatusTypes.IDLE && (
             <Box align={'center'} margin={{ top: '8px' }}>
               <ProcessStatus status={processStatus} />
             </Box>
-          }
+          )}
         </WidgetInputContainer>
       )}
 

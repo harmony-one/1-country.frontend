@@ -28,7 +28,6 @@ export interface DomainPrice {
 
 export interface DCParams {
   baseRentalPrice: DomainPrice
-  lastRented: string // domainName
   duration: number
 }
 
@@ -289,21 +288,6 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         telegram,
         phone,
         email,
-      }
-    },
-    getParameters: async (): Promise<DCParams> => {
-      const [baseRentalPrice, duration, lastRented] = await Promise.all([
-        contract.methods.baseRentalPrice().call(),
-        contract.methods.duration().call(),
-        contract.methods.lastRented().call(),
-      ])
-      return {
-        baseRentalPrice: {
-          amount: new BN(baseRentalPrice).toString(),
-          formatted: web3.utils.fromWei(baseRentalPrice),
-        },
-        duration: new BN(duration).toNumber() * 1000,
-        lastRented,
       }
     },
     getPrice: async ({ name }: { name: string }): Promise<DomainPrice> => {

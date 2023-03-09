@@ -15,12 +15,14 @@ import {
 import { MetaTagsStore, metaTagsStore } from '../modules/metatags/MetaTagsStore'
 import { wagmiClient } from '../modules/wagmi/wagmiClient'
 import tweetApi, {TweetClient} from "../api/tweetApi";
+import commonApi, { CommonClient }  from "../api/common";
 
 export class RootStore {
   modalStore: ModalStore
   ratesStore: RatesStore
   d1dcClient: D1DCClient
   tweetClient: TweetClient
+  commonClient: CommonClient
   domainStore: DomainStore
   walletStore: WalletStore
   uiTransactionStore: UITransactionStore
@@ -39,13 +41,13 @@ export class RootStore {
       this,
       {
         d1dcClient: observable,
-        updateD1DCClient: action,
+        updateClients: action,
       },
       { autoBind: true }
     )
 
     const web3 = new Web3(config.defaultRPC)
-    this.updateD1DCClient(web3, Constants.EmptyAddress)
+    this.updateClients(web3, Constants.EmptyAddress)
 
     wagmiClient.autoConnect().then((result) => {
       console.log('### wagmi autoConnect')
@@ -53,7 +55,7 @@ export class RootStore {
         const { account, provider } = result
         // @ts-ignore-error
         const web3 = new Web3(provider)
-        this.updateD1DCClient(web3, account)
+        this.updateClients(web3, account)
       }
     })
 
@@ -73,10 +75,12 @@ export class RootStore {
     }
   }
 
-  updateD1DCClient(web3: Web3, address: string) {
+  updateClients(web3: Web3, address: string) {
     console.log('### dc client updated', address)
 
     this.d1dcClient = apis({ web3, address })
     this.tweetClient = tweetApi({ web3, address })
+    // @ts-ignore
+    this.commonClient = commonApi(this.d1dcClient.contract, this.tweetClient.contract)
   }
 }
