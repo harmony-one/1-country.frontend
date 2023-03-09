@@ -283,18 +283,18 @@ export const HomeSearchPage: React.FC = observer(() => {
 
     console.log('### searchResult', searchResult)
 
-    const { isAvailable } = await relayApi().checkDomain({
-      sld: searchResult.domainName,
-    })
-
-    if (!isAvailable) {
-      setValidation({
-        valid: false,
-        error: 'This domain name is already registered',
-      })
-      setLoading(false)
-      return
-    }
+    // const { isAvailable } = await relayApi().checkDomain({
+    //   sld: searchResult.domainName,
+    // })
+    //
+    // if (!isAvailable) {
+    //   setValidation({
+    //     valid: false,
+    //     error: 'This domain name is already registered',
+    //   })
+    //   setLoading(false)
+    //   return
+    // }
 
     const _available = await rootStore.d1dcClient.checkAvailable({
       name: searchResult.domainName,
