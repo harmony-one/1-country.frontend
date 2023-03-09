@@ -17,8 +17,7 @@ export const theme = {
     palette,
     colors: {
       brand: palette.Purple,
-      border: palette.WhiteGray,
-      textError: palette.PinkRed
+      border: palette.WhiteGray
     }
   }
 }
