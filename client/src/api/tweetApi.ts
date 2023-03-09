@@ -3,6 +3,7 @@ import TweetAbi from '../../abi/Tweet'
 import Web3 from 'web3'
 import { TransactionReceipt } from 'web3-core'
 import {CallbackProps, SendProps} from "./index";
+import {utils} from "./utils";
 
 const { tweetContractAddress } = config
 
@@ -150,6 +151,10 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
     },
     initialized: () => {
       return contract.methods.initialized().call()
+    },
+    isActivated: (name: string) => {
+      const hash = utils.keccak256(name, true)
+      return contract.methods.activated(hash).call()
     }
   }
 }

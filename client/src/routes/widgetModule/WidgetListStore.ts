@@ -72,9 +72,10 @@ class WidgetListStore extends BaseStore {
       }
 
       const client = this.getTweetClient()
-      const isInitialized = await client.initialized()
+      const isActivated = await client.isActivated(domainName)
+      console.log('isActivated', isActivated)
 
-      if(!isInitialized) {
+      if(!isActivated) {
         const rentalPrice = await client.baseRentalPrice()
         await client.activate({
           name: domainName,
