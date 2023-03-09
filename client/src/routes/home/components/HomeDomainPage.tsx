@@ -18,9 +18,9 @@ interface Props {}
 export const HomeDomainPage: React.FC<Props> = observer(() => {
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
-  useEffect(() => {
-    widgetListStore.loadDomainTx(domainStore.domainName)
-  }, [domainStore.domainName])
+  // useEffect(() => {
+  //   widgetListStore.loadDomainTx(domainStore.domainName)
+  // }, [domainStore.domainName])
 
   useEffect(() => {
     metaTagsStore.update({
