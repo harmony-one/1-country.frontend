@@ -35,7 +35,7 @@ export const HomeSearchResultItem: React.FC<Props> = ({
 
   return (
     <Container>
-      <div>{available ? '' : 'Domain Name Unavailable'}</div>
+      {/* <div>{available ? '' : 'Domain Name Unavailable'}</div> */}
       {available && (
         <Box gap="8px" direction="column">
           <DomainName>{name}.country</DomainName>
