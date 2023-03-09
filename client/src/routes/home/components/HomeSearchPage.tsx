@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import debounce from 'lodash.debounce'
 import { observer } from 'mobx-react-lite'
 import BN from 'bn.js'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet/components/Text'
 
@@ -11,7 +11,7 @@ import { HomeSearchResultItem } from './HomeSearchResultItem'
 import { useStores } from '../../../stores'
 import config from '../../../../config'
 
-import { Button, Link, LinkWrapper } from '../../../components/Controls'
+import { Button, LinkWrapper } from '../../../components/Controls'
 import { BaseText, GradientText } from '../../../components/Text'
 import { FlexRow } from '../../../components/Layout'
 import { DomainPrice, DomainRecord } from '../../../api'
@@ -40,10 +40,6 @@ const SearchBoxContainer = styled(Box)`
   margin: 0 auto;
 `
 
-const { tweetId } = parseTweetId(
-  'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'
-)
-
 interface SearchResult {
   domainName: string
   domainRecord: DomainRecord
@@ -70,8 +66,6 @@ export const HomeSearchPage: React.FC = observer(() => {
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
   const { rootStore, ratesStore, walletStore } = useStores()
-
-  const navigate = useNavigate()
 
   useEffect(() => {
     if (status === 'connecting') {
@@ -160,33 +154,40 @@ export const HomeSearchPage: React.FC = observer(() => {
       })
       setLoading(true) //will show three dots
 
-      const [record, price, relayCheckDomain, isAvailable2] = await Promise.all(
-        [
-          rootStore.d1dcClient.getRecord({ name: _domainName }),
-          rootStore.d1dcClient.getPrice({ name: _domainName }),
-          relayApi().checkDomain({
-            sld: _domainName,
-          }),
-          rootStore.d1dcClient.checkAvailable({
-            name: _domainName,
-          }),
-        ]
-      )
+      try {
+        const [record, price, relayCheckDomain, isAvailable2] =
+          await Promise.all([
+            rootStore.d1dcClient.getRecord({ name: _domainName }),
+            rootStore.d1dcClient.getPrice({ name: _domainName }),
+            relayApi().checkDomain({
+              sld: _domainName,
+            }),
+            rootStore.d1dcClient.checkAvailable({
+              name: _domainName,
+            }),
+          ])
 
-      console.log('Domain price:', price)
+        console.log('Domain price:', price)
 
-      setSearchResult({
-        domainName: _domainName,
-        domainRecord: record,
-        price: price,
-        isAvailable: isAvailable2,
-      })
+        setSearchResult({
+          domainName: _domainName,
+          domainRecord: record,
+          price: price,
+          isAvailable: isAvailable2,
+        })
 
-      setProcessStatus({
-        type: ProcessStatusTypes.IDLE,
-        render: '',
-      })
-      setLoading(false)
+        setProcessStatus({
+          type: ProcessStatusTypes.IDLE,
+          render: '',
+        })
+        setLoading(false)
+      } catch (ex) {
+        setProcessStatus({
+          type: ProcessStatusTypes.IDLE,
+          render: <BaseText>{ex.message}</BaseText>,
+        })
+        setLoading(false)
+      }
     }, 500)
   }, [rootStore.d1dcClient])
 
