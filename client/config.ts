@@ -5,7 +5,7 @@ const config = {
   backendHost:
     process.env.BACKEND_HOST || 'https://mdo-dcobackend-01.t.hmny.io',
   contract:
-    process.env.CONTRACT || '0x3cC3C5F98AC3FF544279919DfceBfb7aFe03A2cA',
+    process.env.CONTRACT || '0xeFC73fB07660464aA03A5790D011DA0512c5854f',
   tweetContractAddress:
     process.env.TWEET_CONTRACT_ADDRESS || '0x17cF877f9226ba382b0baDA1499576E60A547955',
   contractVanityURL:
