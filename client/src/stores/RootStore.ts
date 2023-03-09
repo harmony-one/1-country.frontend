@@ -14,11 +14,13 @@ import {
 } from '../modules/transactions/UITransactionStore'
 import { MetaTagsStore, metaTagsStore } from '../modules/metatags/MetaTagsStore'
 import { wagmiClient } from '../modules/wagmi/wagmiClient'
+import tweetApi, {TweetClient} from "../api/tweetApi";
 
 export class RootStore {
   modalStore: ModalStore
   ratesStore: RatesStore
   d1dcClient: D1DCClient
+  tweetClient: TweetClient
   domainStore: DomainStore
   walletStore: WalletStore
   uiTransactionStore: UITransactionStore
@@ -75,5 +77,6 @@ export class RootStore {
     console.log('### dc client updated', address)
 
     this.d1dcClient = apis({ web3, address })
+    this.tweetClient = tweetApi({ web3, address })
   }
 }
