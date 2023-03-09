@@ -39,7 +39,27 @@ export const CancelButton = styled(Button)`
   }
 `
 
-export const LinkWrapper = styled.a`
+export const Input = styled.input`
+  width: ${(props) =>
+    typeof props.$width === 'number'
+      ? `${props.$width || 400}px`
+      : props.$width || 'auto'};
+  margin-top: ${(props) => props.$marginTop || props.$margin || '32px'};
+  margin-bottom: ${(props) => props.$marginBottom || props.$margin || '32px'};
+  border: none;
+  border-bottom: 1px solid black;
+  font-size: 16px;
+  padding: 4px;
+  &:hover {
+    border-bottom: 1px solid black;
+  }
+  &:disabled {
+    color: grey;
+    background: lightgrey;
+  }
+`
+
+export const LinkWrarpper = styled.a`
   //margin-right: 12px;
   cursor: pointer;
   text-decoration: none;
@@ -60,17 +80,18 @@ export const LinkWrapper = styled.a`
   `
       : ''}
 `
+
+export const FloatingSwitch = styled(LinkWrarpper)`
+  position: absolute;
+  right: 0;
+  bottom: -8px;
+  font-size: 12px;
+  margin-right: 0;
+`
+
 export const FloatingText = styled(SmallText)`
   position: absolute;
   right: 0;
   bottom: -8px;
   margin-right: 0;
-`
-
-export const Link = styled.a`
-  color: #47b8eb;
-  font-size: 14px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
 `
