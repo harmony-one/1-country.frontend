@@ -52,7 +52,7 @@ interface SearchResult {
   isAvailable: boolean
 }
 
-const _testName = 'openconsensus03'
+const _testName = 'openconsensus04'
 
 const _getName = (name: string) => {
   if (name === 'openconsensus') {

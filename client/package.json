@@ -10,7 +10,7 @@
     "prepare": "cd .. && husky install client/.husky"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,html,css}": "npx prettier --check"
+    "*.{js,jsx,ts,tsx,html,css}": "npx prettier --write"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
