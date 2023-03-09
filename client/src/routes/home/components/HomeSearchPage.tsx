@@ -197,7 +197,7 @@ export const HomeSearchPage: React.FC = observer(() => {
         domainName: _domainName,
         domainRecord: record,
         price: price,
-        isAvailable: relayCheckDomain.isAvailable,
+        isAvailable: relayCheckDomain.isAvailable && isAvailable2,
       })
 
       setProcessStatus({
