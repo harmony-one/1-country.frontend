@@ -267,7 +267,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             autoFocus
             disabled={isLoading}
             isValid={processStatus.type !== ProcessStatusTypes.ERROR}
-            placeholder={'Enter tweet or instagram post url'}
+            placeholder={'Enter tweet url'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
@@ -325,3 +325,4 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     </PageWidgetContainer>
   )
 })
+

@@ -64,9 +64,11 @@ const config = {
     apiUrl: process.env.PAYMENTS_API_URL || 'http://localhost:3001',
   },
   embedly: {
-    host: 'https://api.embedly.com',
-    key: process.env.EMBEDLY_API_KEY,
+    host: process.env.EMBEDLY_API_URL || 'https://api.embedly.com',
+    key: process.env.EMBEDLY_API_KEY || 'key',
   },
 }
 
 export default config
+
+
