@@ -25,7 +25,7 @@ const WaitingRoom = observer(() => {
   const { walletStore } = useStores()
   const navigate = useNavigate()
 
-  const fullUrl = `https://${domainName.toLowerCase()}.localhost:3100`
+  const fullUrl = `https://${domainName.toLowerCase()}${config.tld}```
 
   useEffect(() => {
     if (!domainName) {

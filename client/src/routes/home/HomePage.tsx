@@ -23,7 +23,7 @@ export const HomePage = observer(() => {
     const isNewDomain =
       domainName && domainStore.domainRecord && !domainStore.domainRecord.renter
     if (isNewDomain) {
-      window.location.href = `${config.hostname}?domain=${domainName}`
+      // window.location.href = `${config.hostname}?domain=${domainName}`
     }
   }, [domainStore.domainRecord])
 
