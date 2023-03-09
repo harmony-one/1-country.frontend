@@ -70,7 +70,7 @@ const WaitingRoom = observer(() => {
       createCert()
     }
   }, [walletStore.walletAddress])
-
+  
   useEffect(() => {
     const checkUrl = async () => {
       if (await urlExists(fullUrl)) {
