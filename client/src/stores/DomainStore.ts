@@ -12,7 +12,6 @@ export class DomainStore extends BaseStore {
       amount: '0',
       formatted: '0',
     },
-    lastRented: '',
     duration: 0,
   }
   public domainRecord: DomainRecord | null = null
@@ -33,7 +32,7 @@ export class DomainStore extends BaseStore {
 
     this.domainName = getDomainName()
 
-    this.getDCClient()
+    this.getCommonClient()
       .getParameters()
       .then((d1cParams) => {
         this.d1cParams = d1cParams
@@ -65,7 +64,7 @@ export class DomainStore extends BaseStore {
 
   async loadDCParams() {
     try {
-      this.d1cParams = await this.getDCClient().getParameters()
+      this.d1cParams = await this.getCommonClient().getParameters()
     } catch (ex) {
       console.error('### ex load dc params', ex)
     }

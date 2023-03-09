@@ -95,7 +95,6 @@ export const HomeSearchPage: React.FC = observer(() => {
   const { rootStore, ratesStore, walletStore } = useStores()
 
   const navigate = useNavigate()
-
   useEffect(() => {
     if (status === 'connecting') {
       if (!isOpen && !walletStore.isMetamaskAvailable) {
@@ -264,6 +263,11 @@ export const HomeSearchPage: React.FC = observer(() => {
     const timerId = createTick()
 
     try {
+      console.log({
+        domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+        txHash,
+        address: walletStore.walletAddress,
+      })
       const { success, responseText, isRegistered } =
         await relayApi().purchaseDomain({
           domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
@@ -438,7 +442,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     const rentResult = await rootStore.d1dcClient.rent({
       name: searchResult.domainName.toLowerCase(),
       secret,
-      url: tweetId.toString(),
+      owner: walletStore.walletAddress,
       amount: new BN(searchResult.price.amount).toString(),
       onTransactionHash: () => {
         setProcessStatus({

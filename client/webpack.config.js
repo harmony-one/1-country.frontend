@@ -22,7 +22,7 @@ console.log('### isProduction', isProduction)
 module.exports = {
   devServer: {
     port: 3100,
-    https: !process.env.HTTP,
+    https: false,
     http2: !process.env.HTTP,
     historyApiFallback: {
       disableDotRule: true,

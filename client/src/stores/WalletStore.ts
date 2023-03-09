@@ -72,7 +72,7 @@ export class WalletStore extends BaseStore {
 
   setProvider(provider: any, address: string) {
     const web3 = new Web3(provider)
-    this.rootStore.updateD1DCClient(web3, address)
+    this.rootStore.updateClients(web3, address)
   }
 
   connect() {

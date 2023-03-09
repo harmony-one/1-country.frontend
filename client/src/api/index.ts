@@ -1,8 +1,9 @@
 import config from '../../config'
-import DCAbi from '../../abi/DC'
+import DCv2Abi from '../../abi/DCv2'
 import Constants from '../constants'
 import BN from 'bn.js'
 import Web3 from 'web3'
+import { Contract } from "web3-eth-contract";
 import { utils } from './utils'
 import { TransactionReceipt } from 'web3-core'
 
@@ -10,26 +11,8 @@ console.log('CONTRACT', process.env.CONTRACT)
 
 export interface DomainRecord {
   renter: string
-  rentTime: number
-  lastPrice: {
-    amount: string
-    formatted: string
-  }
   expirationTime: number
-  url: string
-  prev: string
-  next: string
-}
-
-export interface DomainPrice {
-  amount: string
-  formatted: string
-}
-
-export interface DCParams {
-  baseRentalPrice: DomainPrice
-  lastRented: string // domainName
-  duration: number
+  rentTime: number
 }
 
 export enum EMOJI_TYPE {
@@ -61,10 +44,20 @@ export interface SendResult {
   error: Error
 }
 
+export interface DomainPrice {
+  amount: string
+  formatted: string
+}
+
+export interface DCParams {
+  baseRentalPrice: DomainPrice
+  duration: number
+}
+
 interface RentProps extends CallbackProps {
   name: string
-  url: string
   secret: string
+  owner: string
   amount: string
 }
 
@@ -110,41 +103,42 @@ export const getEmojiPrice = (emojiType: EMOJI_TYPE) => {
   return config.emojiTypePrice[key]
 }
 
-const apis = ({ web3, address }: { web3: Web3; address: string }) => {
+const dcApi = ({ web3, address }: { web3: Web3; address: string }) => {
   // console.log('apis', web3, address)
   if (!web3) {
     return
   }
 
-  const contract = new web3.eth.Contract(DCAbi, config.contract)
+  const contract = new web3.eth.Contract(DCv2Abi, config.contract)
+  // const tweetContract = new web3.eth.Contract(TweetAbi, config.tweetContract)
 
-  const getOwnerInfo = async (name: string, info: OWNER_INFO_FIELDS) => {
-    console.log('getOwnerInfo', name, info, address)
-    try {
-      if (name) {
-        let getMethod = ''
-        switch (info) {
-          case OWNER_INFO_FIELDS.TELEGRAM:
-            getMethod = 'getOwnerTelegram'
-            break
-          case OWNER_INFO_FIELDS.PHONE:
-            getMethod = 'getOwnerPhone'
-            break
-          case OWNER_INFO_FIELDS.EMAIL:
-            getMethod = 'getOwnerEmail'
-            break
-        }
-        const ownerInfo = await contract.methods[getMethod](name).call({
-          from: address,
-        })
-        console.log('my ownerInfo', ownerInfo)
-        return ownerInfo
-      }
-      return null
-    } catch (e) {
-      return null
-    }
-  }
+  // const getOwnerInfo = async (name: string, info: OWNER_INFO_FIELDS) => {
+  //   console.log('getOwnerInfo', name, info, address)
+  //   try {
+  //     if (name) {
+  //       let getMethod = ''
+  //       switch (info) {
+  //         case OWNER_INFO_FIELDS.TELEGRAM:
+  //           getMethod = 'getOwnerTelegram'
+  //           break
+  //         case OWNER_INFO_FIELDS.PHONE:
+  //           getMethod = 'getOwnerPhone'
+  //           break
+  //         case OWNER_INFO_FIELDS.EMAIL:
+  //           getMethod = 'getOwnerEmail'
+  //           break
+  //       }
+  //       const ownerInfo = await contract.methods[getMethod](name).call({
+  //         from: address,
+  //       })
+  //       console.log('my ownerInfo', ownerInfo)
+  //       return ownerInfo
+  //     }
+  //     return null
+  //   } catch (e) {
+  //     return null
+  //   }
+  // }
 
   const send = async ({
     amount,
@@ -201,7 +195,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     },
     rent: async ({
       name,
-      url,
+      owner,
       secret,
       amount,
       onFailed,
@@ -212,7 +206,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       // console.log({ secretHash })
       return send({
         amount,
-        parameters: [name, url, secretHash],
+        parameters: [name, owner, secretHash],
         methodName: 'register',
         onFailed,
         onSuccess,
@@ -252,90 +246,75 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       })
     },
     // owner info
-    revealInfo: async ({
-      name,
-      info,
-    }: {
-      name: string
-      info: OWNER_INFO_FIELDS
-    }): Promise<string | null> => {
-      const amount = web3.utils.toWei(
-        new BN(config.infoRevealPrice[info]).toString()
-      )
-      console.log('reveal info', name, info, config.infoRevealPrice[info])
-      console.log('reveal info address', address)
-      try {
-        if (name) {
-          let revealMethod = ''
-          let getMethod = ''
-          switch (info) {
-            case OWNER_INFO_FIELDS.TELEGRAM:
-              revealMethod = 'requestTelegramReveal'
-              getMethod = 'getOwnerTelegram'
-              break
-            case OWNER_INFO_FIELDS.PHONE:
-              revealMethod = 'requestPhoneReveal'
-              getMethod = 'getOwnerPhone'
-              break
-            case OWNER_INFO_FIELDS.EMAIL:
-              revealMethod = 'requestEmailReveal'
-              getMethod = 'getOwnerEmail'
-              break
-          }
-          let ownerInfo = await getOwnerInfo(name, info)
-          if (!ownerInfo) {
-            console.log('case result', info, revealMethod, getMethod)
-            const { result: tx } = await contract.methods[revealMethod](
-              name
-            ).send({
-              from: address,
-              value: amount,
-            })
-            console.log(tx)
-            ownerInfo = await contract.methods[getMethod](name).call({
-              from: address,
-            })
-            console.log('my ownerInfo', ownerInfo)
-          }
-          return ownerInfo
-        }
-        return null
-      } catch (e) {
-        console.log(e)
-        return null
-      }
-    },
-    getAllOwnerInfo: async ({
-      name,
-    }: {
-      name: string
-    }): Promise<{ telegram: string; phone: string; email: string }> => {
-      const [telegram, phone, email] = await Promise.all([
-        contract.methods.getOwnerTelegram(name).call({ from: address }),
-        contract.methods.getOwnerPhone(name).call({ from: address }),
-        contract.methods.getOwnerEmail(name).call({ from: address }),
-      ])
-      return {
-        telegram,
-        phone,
-        email,
-      }
-    },
-    getParameters: async (): Promise<DCParams> => {
-      const [baseRentalPrice, duration, lastRented] = await Promise.all([
-        contract.methods.baseRentalPrice().call(),
-        contract.methods.duration().call(),
-        contract.methods.lastRented().call(),
-      ])
-      return {
-        baseRentalPrice: {
-          amount: new BN(baseRentalPrice).toString(),
-          formatted: web3.utils.fromWei(baseRentalPrice),
-        },
-        duration: new BN(duration).toNumber() * 1000,
-        lastRented,
-      }
-    },
+    // revealInfo: async ({
+    //   name,
+    //   info,
+    // }: {
+    //   name: string
+    //   info: OWNER_INFO_FIELDS
+    // }): Promise<string | null> => {
+    //   const amount = web3.utils.toWei(
+    //     new BN(config.infoRevealPrice[info]).toString()
+    //   )
+    //   console.log('reveal info', name, info, config.infoRevealPrice[info])
+    //   console.log('reveal info address', address)
+    //   try {
+    //     if (name) {
+    //       let revealMethod = ''
+    //       let getMethod = ''
+    //       switch (info) {
+    //         case OWNER_INFO_FIELDS.TELEGRAM:
+    //           revealMethod = 'requestTelegramReveal'
+    //           getMethod = 'getOwnerTelegram'
+    //           break
+    //         case OWNER_INFO_FIELDS.PHONE:
+    //           revealMethod = 'requestPhoneReveal'
+    //           getMethod = 'getOwnerPhone'
+    //           break
+    //         case OWNER_INFO_FIELDS.EMAIL:
+    //           revealMethod = 'requestEmailReveal'
+    //           getMethod = 'getOwnerEmail'
+    //           break
+    //       }
+    //       let ownerInfo = await getOwnerInfo(name, info)
+    //       if (!ownerInfo) {
+    //         console.log('case result', info, revealMethod, getMethod)
+    //         const { result: tx } = await contract.methods[revealMethod](
+    //           name
+    //         ).send({
+    //           from: address,
+    //           value: amount,
+    //         })
+    //         console.log(tx)
+    //         ownerInfo = await contract.methods[getMethod](name).call({
+    //           from: address,
+    //         })
+    //         console.log('my ownerInfo', ownerInfo)
+    //       }
+    //       return ownerInfo
+    //     }
+    //     return null
+    //   } catch (e) {
+    //     console.log(e)
+    //     return null
+    //   }
+    // },
+    // getAllOwnerInfo: async ({
+    //   name,
+    // }: {
+    //   name: string
+    // }): Promise<{ telegram: string; phone: string; email: string }> => {
+    //   const [telegram, phone, email] = await Promise.all([
+    //     contract.methods.getOwnerTelegram(name).call({ from: address }),
+    //     contract.methods.getOwnerPhone(name).call({ from: address }),
+    //     contract.methods.getOwnerEmail(name).call({ from: address }),
+    //   ])
+    //   return {
+    //     telegram,
+    //     phone,
+    //     email,
+    //   }
+    // },
     getPrice: async ({ name }: { name: string }): Promise<DomainPrice> => {
       const price = await contract.methods
         .getPrice(name)
@@ -350,118 +329,123 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       if (!name) {
         throw new Error('name is empty')
       }
-      const nameBytes = web3.utils.keccak256(name)
-      const result = await contract.methods.nameRecords(nameBytes).call()
-      const [renter, rentTime, expirationTime, lastPrice, url, prev, next] =
-        Object.keys(result).map((k) => result[k])
+      const available = await contract.methods.available(name).call()
+      if (available?.toString()?.toLowerCase() === 'true') {
+        return {
+          renter: null,
+          expirationTime: 0,
+          rentTime: 0,
+        }
+      }
+      const [renter, expirationTime, rentTime] = await Promise.all([
+        contract.methods.ownerOf(name).call(),
+        contract.methods.nameExpires(name).call(),
+        contract.methods.duration().call(),
+      ])
       return {
-        renter: renter === Constants.EmptyAddress ? null : renter,
+        renter: renter == Constants.EmptyAddress ? null : renter,
         rentTime: new BN(rentTime).toNumber() * 1000,
         expirationTime: new BN(expirationTime).toNumber() * 1000,
-        lastPrice: {
-          amount: lastPrice,
-          formatted: web3.utils.fromWei(lastPrice),
-        },
-        url,
-        prev,
-        next,
       }
     },
-
-    addRecordUrl: ({
-      name,
-      url,
-      onFailed,
-      onSuccess,
-      onTransactionHash,
-    }: AddUrlProps) => {
-      return send({
-        parameters: [name, url],
-        methodName: 'addURL',
-        onFailed,
-        onSuccess,
-        onTransactionHash,
-      })
+    ownerOf: async ({ name }: { name: string }) => {
+      return contract.methods.ownerOf(name).call()
     },
 
-    removeRecordUrl: ({
-      name,
-      pos,
-      onFailed,
-      onSuccess,
-      onTransactionHash,
-    }: RemoveUrlProps) => {
-      return send({
-        parameters: [name, pos],
-        methodName: 'removeUrl',
-        onFailed,
-        onSuccess,
-        onTransactionHash,
-      })
-    },
-    getRecordUrlList: async ({ name }: { name: string }) => {
-      return contract.methods.getAllUrls(name).call()
-    },
+    // addRecordUrl: ({
+    //   name,
+    //   url,
+    //   onFailed,
+    //   onSuccess,
+    //   onTransactionHash,
+    // }: AddUrlProps) => {
+    //   return send({
+    //     parameters: [name, url],
+    //     methodName: 'addURL',
+    //     onFailed,
+    //     onSuccess,
+    //     onTransactionHash,
+    //   })
+    // },
+
+    // removeRecordUrl: ({
+    //   name,
+    //   pos,
+    //   onFailed,
+    //   onSuccess,
+    //   onTransactionHash,
+    // }: RemoveUrlProps) => {
+    //   return send({
+    //     parameters: [name, pos],
+    //     methodName: 'removeUrl',
+    //     onFailed,
+    //     onSuccess,
+    //     onTransactionHash,
+    //   })
+    // },
+    // getRecordUrlList: async ({ name }: { name: string }) => {
+    //   return tweetContract.methods.getAllUrls(name).call()
+    // },
 
     checkAvailable: async ({ name }: { name: string }) => {
       const isAvailable = await contract.methods.available(name).call()
       return isAvailable?.toString()?.toLowerCase() === 'true'
     },
-    getEmojisCounter: async ({ name }: { name: string }) => {
-      const byte32Name = web3.utils.soliditySha3(getFullName(name))
-      const [oneAbove, firstPrice, oneHundred] = await Promise.all(
-        Object.values(config.emojiType).map((emoji) =>
-          contract.methods.emojiReactionCounters(byte32Name, emoji).call()
-        )
-      )
-      return {
-        0: oneAbove,
-        1: firstPrice,
-        2: oneHundred,
-      }
-    },
-    getEmojiCounter: async ({
-      name,
-      emojiType,
-    }: {
-      name: string
-      emojiType: EMOJI_TYPE
-    }) => {
-      const byte32Name = web3.utils.soliditySha3(getFullName(name))
-      const emoji = await contract.methods
-        .emojiReactionCounters(byte32Name, emojiType)
-        .call()
-      return emoji
-    },
-    addEmojiReaction: async ({
-      name,
-      emojiType,
-    }: {
-      name: string
-      emojiType: EMOJI_TYPE
-    }) => {
-      try {
-        const amount = web3.utils.toWei(
-          new BN(getEmojiPrice(emojiType)).toString()
-        )
-        const tx = await contract.methods
-          .addEmojiReaction(getFullName(name), emojiType)
-          .send({ from: address, value: amount })
-        console.log('addEmojiReaction TX', tx)
-        return tx
-      } catch (e) {
-        console.log('addEmojiReaction ERROR', e)
-        return null
-      }
-    },
+    // getEmojisCounter: async ({ name }: { name: string }) => {
+    //   const byte32Name = web3.utils.soliditySha3(getFullName(name))
+    //   const [oneAbove, firstPrice, oneHundred] = await Promise.all(
+    //     Object.values(config.emojiType).map((emoji) =>
+    //       contract.methods.emojiReactionCounters(byte32Name, emoji).call()
+    //     )
+    //   )
+    //   return {
+    //     0: oneAbove,
+    //     1: firstPrice,
+    //     2: oneHundred,
+    //   }
+    // },
+    // getEmojiCounter: async ({
+    //   name,
+    //   emojiType,
+    // }: {
+    //   name: string
+    //   emojiType: EMOJI_TYPE
+    // }) => {
+    //   const byte32Name = web3.utils.soliditySha3(getFullName(name))
+    //   const emoji = await contract.methods
+    //     .emojiReactionCounters(byte32Name, emojiType)
+    //     .call()
+    //   return emoji
+    // },
+    // addEmojiReaction: async ({
+    //   name,
+    //   emojiType,
+    // }: {
+    //   name: string
+    //   emojiType: EMOJI_TYPE
+    // }) => {
+    //   try {
+    //     const amount = web3.utils.toWei(
+    //       new BN(getEmojiPrice(emojiType)).toString()
+    //     )
+    //     const tx = await contract.methods
+    //       .addEmojiReaction(getFullName(name), emojiType)
+    //       .send({ from: address, value: amount })
+    //     console.log('addEmojiReaction TX', tx)
+    //     return tx
+    //   } catch (e) {
+    //     console.log('addEmojiReaction ERROR', e)
+    //     return null
+    //   }
+    // },
   }
 }
 
 if (window) {
   // @ts-expect-error
-  window.apis = apis
+  window.apis = dcApi
 }
 
-export default apis
+export default dcApi
 
-export type D1DCClient = ReturnType<typeof apis>
+export type D1DCClient = ReturnType<typeof dcApi>

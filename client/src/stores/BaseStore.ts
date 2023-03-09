@@ -11,6 +11,14 @@ export class BaseStore {
     return this.rootStore.d1dcClient
   }
 
+  getCommonClient() {
+    return this.rootStore.commonClient
+  }
+
+  getTweetClient() {
+    return this.rootStore.tweetClient
+  }
+
   get stores() {
     return this.rootStore.stores
   }

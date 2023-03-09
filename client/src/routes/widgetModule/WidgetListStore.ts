@@ -4,6 +4,7 @@ import { RootStore } from '../../stores/RootStore'
 import { rootStore } from '../../stores'
 import { CallbackProps } from '../../api'
 import isUrl from 'is-url'
+import BN from 'bn.js'
 
 export interface Widget {
   id?: number
@@ -71,9 +72,18 @@ class WidgetListStore extends BaseStore {
         await this.stores.walletStore.connect()
       }
 
-      const dcClient = this.getDCClient()
+      const tweetClient = this.getTweetClient()
+      if (!(await tweetClient.isActivated(domainName))) {
+        await tweetClient.activate({
+          name: domainName,
+          amount: await tweetClient.getBasePrice(),
+          onSuccess,
+          onFailed,
+          onTransactionHash,
+        })
+      }
 
-      const result = await dcClient.addRecordUrl({
+      const result = await tweetClient.addRecordUrl({
         name: domainName,
         url: buildUrlFromWidget(widget),
         onSuccess,
@@ -98,8 +108,8 @@ class WidgetListStore extends BaseStore {
       if (!this.stores.walletStore.isConnected) {
         await this.stores.walletStore.connect()
       }
-      const dcClient = this.getDCClient()
-      const result = await dcClient.removeRecordUrl({
+      const tweetClient = this.getTweetClient()
+      const result = await tweetClient.removeRecordUrl({
         name: domainName,
         pos: widgetId,
         onSuccess,
@@ -116,9 +126,9 @@ class WidgetListStore extends BaseStore {
   }
 
   async loadWidgetList(domainName: string) {
-    const dcClient = this.getDCClient()
+    const tweetClient = this.getTweetClient()
 
-    const urlList = await dcClient.getRecordUrlList({ name: domainName })
+    const urlList = await tweetClient.getRecordUrlList({ name: domainName })
 
     runInAction(() => {
       this.widgetList = urlList.map(mapUrlToWidget).reverse()
