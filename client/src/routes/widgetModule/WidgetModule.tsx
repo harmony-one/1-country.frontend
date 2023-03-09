@@ -223,7 +223,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     setLoading(true)
 
     try {
-      const updateResult = await rootStore.d1dcClient.updateURL({
+      const updateResult = await rootStore.tweetClient.updateURL({
         name: domainName,
         url: '',
         onTransactionHash: () => {

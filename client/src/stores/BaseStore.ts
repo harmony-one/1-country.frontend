@@ -11,6 +11,10 @@ export class BaseStore {
     return this.rootStore.d1dcClient
   }
 
+  getTweetClient() {
+    return this.rootStore.tweetClient
+  }
+
   get stores() {
     return this.rootStore.stores
   }

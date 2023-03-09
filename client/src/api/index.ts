@@ -74,24 +74,9 @@ interface RenewDomainProps extends CallbackProps {
   amount: string
 }
 
-interface UpdateUrlProps extends CallbackProps {
-  name: string
-  url: string
-}
-
 interface CommitProps extends CallbackProps {
   name: string
   secret: string
-}
-
-interface AddUrlProps extends CallbackProps {
-  name: string
-  url: string
-}
-
-interface RemoveUrlProps extends CallbackProps {
-  name: string
-  pos: number
 }
 
 export const getFullName = (name: string) => {
@@ -214,21 +199,6 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         amount,
         parameters: [name, owner, secretHash],
         methodName: 'register',
-        onFailed,
-        onSuccess,
-        onTransactionHash,
-      })
-    },
-    updateURL: async ({
-      name,
-      url,
-      onFailed,
-      onSuccess,
-      onTransactionHash,
-    }: UpdateUrlProps) => {
-      return send({
-        parameters: [name, url],
-        methodName: 'updateURL',
         onFailed,
         onSuccess,
         onTransactionHash,
@@ -373,42 +343,6 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         next,
       }
     },
-
-    addRecordUrl: ({
-      name,
-      url,
-      onFailed,
-      onSuccess,
-      onTransactionHash,
-    }: AddUrlProps) => {
-      return send({
-        parameters: [name, url],
-        methodName: 'addURL',
-        onFailed,
-        onSuccess,
-        onTransactionHash,
-      })
-    },
-
-    removeRecordUrl: ({
-      name,
-      pos,
-      onFailed,
-      onSuccess,
-      onTransactionHash,
-    }: RemoveUrlProps) => {
-      return send({
-        parameters: [name, pos],
-        methodName: 'removeUrl',
-        onFailed,
-        onSuccess,
-        onTransactionHash,
-      })
-    },
-    getRecordUrlList: async ({ name }: { name: string }) => {
-      return contract.methods.getAllUrls(name).call()
-    },
-
     ownerOf: async ({ name }: { name: string }) => {
       return contract.methods.ownerOf(name).call()
     },

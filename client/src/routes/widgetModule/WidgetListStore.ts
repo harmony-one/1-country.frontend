@@ -71,9 +71,19 @@ class WidgetListStore extends BaseStore {
         await this.stores.walletStore.connect()
       }
 
-      const dcClient = this.getDCClient()
+      const client = this.getTweetClient()
+      const isInitialized = await client.initialized()
 
-      const result = await dcClient.addRecordUrl({
+      if(!isInitialized) {
+        const rentalPrice = await client.baseRentalPrice()
+        await client.activate({
+          name: domainName,
+          amount: rentalPrice
+        })
+        await new Promise(resolve => setTimeout(resolve, 5000))
+      }
+
+      const result = await client.addRecordUrl({
         name: domainName,
         url: buildUrlFromWidget(widget),
         onSuccess,
@@ -98,8 +108,8 @@ class WidgetListStore extends BaseStore {
       if (!this.stores.walletStore.isConnected) {
         await this.stores.walletStore.connect()
       }
-      const dcClient = this.getDCClient()
-      const result = await dcClient.removeRecordUrl({
+      const client = this.getTweetClient()
+      const result = await client.removeRecordUrl({
         name: domainName,
         pos: widgetId,
         onSuccess,
@@ -116,9 +126,8 @@ class WidgetListStore extends BaseStore {
   }
 
   async loadWidgetList(domainName: string) {
-    const dcClient = this.getDCClient()
-
-    const urlList = await dcClient.getRecordUrlList({ name: domainName })
+    const client = this.getTweetClient()
+    const urlList = await client.getRecordUrlList({ name: domainName })
 
     runInAction(() => {
       this.widgetList = urlList.map(mapUrlToWidget).reverse()

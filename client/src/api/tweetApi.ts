@@ -49,7 +49,7 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
                         methodName,
                         parameters,
                       }: SendProps): Promise<SendResult> => {
-    console.log({ methodName, parameters, amount, address })
+    console.log('send:', { methodName, parameters, amount, address })
 
     try {
       const tx = await contract.methods[methodName](...parameters)
@@ -145,6 +145,12 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
     getRecordUrlList: async ({ name }: { name: string }) => {
       return contract.methods.getAllUrls(name).call()
     },
+    baseRentalPrice: () => {
+      return contract.methods.baseRentalPrice().call()
+    },
+    initialized: () => {
+      return contract.methods.initialized().call()
+    }
   }
 }
 
