@@ -13,7 +13,7 @@ import config from '../../../../config'
 
 import { Button, Link, LinkWrarpper } from '../../../components/Controls'
 import { BaseText, GradientText } from '../../../components/Text'
-import { FlexRow } from '../../../components/Layout'
+import { FlexColumn, FlexRow } from '../../../components/Layout'
 import { DomainPrice, DomainRecord } from '../../../api'
 import { nameUtils, validateDomainName } from '../../../api/utils'
 import { parseTweetId } from '../../../utils/parseTweetId'
@@ -402,22 +402,9 @@ export const HomeSearchPage: React.FC = observer(() => {
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
       render: (
-        <FlexRow>
-          <BaseText style={{ marginRight: 8 }}>
-            Reserved {`${_getName(searchResult.domainName)}${config.tld}`}
-          </BaseText>
-          (
-          <LinkWrarpper
-            target="_blank"
-            type="text"
-            href={buildTxUri(commitResult.txReceipt.transactionHash)}
-          >
-            <BaseText>
-              {cutString(commitResult.txReceipt.transactionHash)}
-            </BaseText>
-          </LinkWrarpper>
-          )
-        </FlexRow>
+        <BaseText style={{ marginRight: 8 }}>
+          Reserved {`${_getName(searchResult.domainName)}${config.tld}`}
+        </BaseText>
       ),
     })
 
