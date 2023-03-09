@@ -14,7 +14,7 @@ import config from '../../../../config'
 import {Button, Link, LinkWrapper} from '../../../components/Controls'
 import {BaseText, GradientText} from '../../../components/Text'
 import {FlexRow} from '../../../components/Layout'
-import {DomainPrice, DomainRecord, relayApi} from '../../../api'
+import {DomainPrice, DomainRecord} from '../../../api'
 import {nameUtils, validateDomainName} from '../../../api/utils'
 import {parseTweetId} from '../../../utils/parseTweetId'
 import {Container} from '../Home.styles'
@@ -27,6 +27,8 @@ import {TypedText} from './Typed'
 import {sleep} from '../../../utils/sleep'
 import {SearchInput} from '../../../components/search-input/SearchInput'
 import {FormSearch} from 'grommet-icons/icons/FormSearch'
+import { relayApi } from '../../../api/relayApi'
+import qs from 'qs'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -105,6 +107,12 @@ export const HomeSearchPage: React.FC = observer(() => {
   useEffect(() => {
     if (web2Acquired) {
       window.location.href = `${config.hostname}/new?domain=${searchResult.domainName}`
+      const queryString = qs.stringify({
+        domain: searchResult.domainName,
+        txHash: regTxHash,
+      })
+
+      window.location.href = `${config.hostname}/new?${queryString}`
       // navigate(`new/${searchResult.domainName}`)
     }
   }, [web2Acquired])
@@ -519,9 +527,16 @@ export const HomeSearchPage: React.FC = observer(() => {
               )}
               {processStatus.type === ProcessStatusTypes.IDLE && !inputValue &&
                 <Box>
-                  <Link href={'https://harmony.one/1'} target={'_blank'}>
-                    <Text size={'medium'}>Learn more</Text>
-                  </Link>
+                  <BaseText>
+                    <a
+                      style={{ color: '#758796', textDecoration: 'none' }}
+                      href="https://harmony.one/1"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Learn More
+                    </a>
+                  </BaseText>
                 </Box>
               }
           </Box>
