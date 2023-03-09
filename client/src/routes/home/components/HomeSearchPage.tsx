@@ -62,6 +62,8 @@ const _getName = (name: string) => {
   if (name === _testName) {
     return 'openconsensus'
   }
+
+  return name
 }
 
 export const HomeSearchPage: React.FC = observer(() => {
@@ -254,12 +256,12 @@ export const HomeSearchPage: React.FC = observer(() => {
         })
 
         createTick()
-      }, 10000)
+      }, 3000)
     }
 
     const timerId = createTick()
 
-    await sleep(20000)
+    await sleep(messages.length * 3000)
     setWeb2Acquired(true)
     return
     try {

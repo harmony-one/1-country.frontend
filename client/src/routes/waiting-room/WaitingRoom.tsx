@@ -25,7 +25,7 @@ const WaitingRoom = observer(() => {
   const { walletStore } = useStores()
   const navigate = useNavigate()
 
-  const fullUrl = `https://${domainName.toLowerCase()}${config.tld}`
+  const fullUrl = `https://${domainName.toLowerCase()}.localhost:3100`
 
   useEffect(() => {
     if (!domainName) {
@@ -70,7 +70,7 @@ const WaitingRoom = observer(() => {
       createCert()
     }
   }, [walletStore.walletAddress])
-  
+
   useEffect(() => {
     const checkUrl = async () => {
       if (await urlExists(fullUrl)) {
