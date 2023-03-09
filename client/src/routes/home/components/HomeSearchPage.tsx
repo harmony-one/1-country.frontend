@@ -1,32 +1,36 @@
-import React, {useEffect, useMemo, useState} from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import debounce from 'lodash.debounce'
-import {observer} from 'mobx-react-lite'
+import { observer } from 'mobx-react-lite'
 import BN from 'bn.js'
-import {useNavigate, useSearchParams} from 'react-router-dom'
-import {Box} from 'grommet/components/Box'
-import {Text} from 'grommet/components/Text'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Box } from 'grommet/components/Box'
+import { Text } from 'grommet/components/Text'
 
-import {HomeSearchResultItem} from './HomeSearchResultItem'
-import {useStores} from '../../../stores'
+import { HomeSearchResultItem } from './HomeSearchResultItem'
+import { useStores } from '../../../stores'
 import config from '../../../../config'
 
-import {Button, Link, LinkWrapper} from '../../../components/Controls'
-import {BaseText, GradientText} from '../../../components/Text'
-import {FlexRow} from '../../../components/Layout'
-import {DomainPrice, DomainRecord} from '../../../api'
-import {nameUtils, validateDomainName} from '../../../api/utils'
-import {parseTweetId} from '../../../utils/parseTweetId'
-import {Container} from '../Home.styles'
-import {cutString} from '../../../utils/string'
-import {ProcessStatus, ProcessStatusItem, ProcessStatusTypes,} from '../../../components/process-status/ProcessStatus'
-import {buildTxUri} from '../../../utils/explorer'
-import {useAccount, useDisconnect} from 'wagmi'
-import {useWeb3Modal, Web3Button} from '@web3modal/react'
-import {TypedText} from './Typed'
-import {sleep} from '../../../utils/sleep'
-import {SearchInput} from '../../../components/search-input/SearchInput'
-import {FormSearch} from 'grommet-icons/icons/FormSearch'
+import { Button, Link, LinkWrapper } from '../../../components/Controls'
+import { BaseText, GradientText } from '../../../components/Text'
+import { FlexRow } from '../../../components/Layout'
+import { DomainPrice, DomainRecord } from '../../../api'
+import { nameUtils, validateDomainName } from '../../../api/utils'
+import { parseTweetId } from '../../../utils/parseTweetId'
+import { Container } from '../Home.styles'
+import { cutString } from '../../../utils/string'
+import {
+  ProcessStatus,
+  ProcessStatusItem,
+  ProcessStatusTypes,
+} from '../../../components/process-status/ProcessStatus'
+import { buildTxUri } from '../../../utils/explorer'
+import { useAccount, useDisconnect } from 'wagmi'
+import { useWeb3Modal, Web3Button } from '@web3modal/react'
+import { TypedText } from './Typed'
+import { sleep } from '../../../utils/sleep'
+import { SearchInput } from '../../../components/search-input/SearchInput'
+import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { relayApi } from '../../../api/relayApi'
 import qs from 'qs'
 
@@ -134,7 +138,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     setInputValue(value)
     updateSearch(value)
 
-    if(!value && processStatus.type === ProcessStatusTypes.ERROR) {
+    if (!value && processStatus.type === ProcessStatusTypes.ERROR) {
       setProcessStatus({ type: ProcessStatusTypes.IDLE, render: '' })
     }
   }
@@ -175,7 +179,7 @@ export const HomeSearchPage: React.FC = observer(() => {
         domainName: _domainName,
         domainRecord: record,
         price: price,
-        isAvailable: relayCheckDomain.isAvailable && isAvailable2,
+        isAvailable: isAvailable2,
       })
 
       setProcessStatus({
@@ -503,47 +507,50 @@ export const HomeSearchPage: React.FC = observer(() => {
               />
             </Box>
           </Box>
-          {(validation.valid &&
-            !isLoading &&
-            searchResult &&
-            !web2Acquired &&
-            !web2Error) ? (
-              <Box margin={{ top: '16px' }} gap="12px" align="center">
-                <HomeSearchResultItem
-                  name={searchResult.domainName.toLowerCase()}
-                  rateONE={ratesStore.ONE_USD}
-                  price={searchResult.price.formatted}
-                  available={searchResult.isAvailable}
-                />
-                <Button
-                  disabled={!validation.valid || !searchResult.isAvailable}
-                  onClick={handleRentDomain}
-                >
-                  Register
-                </Button>
-              </Box>
-            ) :
+          {validation.valid &&
+          !isLoading &&
+          searchResult &&
+          !web2Acquired &&
+          !web2Error ? (
+            <Box margin={{ top: '16px' }} gap="12px" align="center">
+              <HomeSearchResultItem
+                name={searchResult.domainName.toLowerCase()}
+                rateONE={ratesStore.ONE_USD}
+                price={searchResult.price.formatted}
+                available={searchResult.isAvailable}
+              />
+              <Button
+                disabled={!validation.valid || !searchResult.isAvailable}
+                onClick={handleRentDomain}
+              >
+                Register
+              </Button>
+            </Box>
+          ) : (
             <Box margin={{ top: '16px' }}>
-              {!validation.valid && <Text size={'medium'}>{validation.error}</Text>}
+              {!validation.valid && (
+                <Text size={'medium'}>{validation.error}</Text>
+              )}
               {processStatus.type !== ProcessStatusTypes.IDLE && (
                 <ProcessStatus status={processStatus} />
               )}
-              {processStatus.type === ProcessStatusTypes.IDLE && !inputValue &&
-                <Box>
-                  <BaseText>
-                    <a
-                      style={{ color: '#758796', textDecoration: 'none' }}
-                      href="https://harmony.one/1"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Learn More
-                    </a>
-                  </BaseText>
-                </Box>
-              }
-          </Box>
-          }
+              {processStatus.type === ProcessStatusTypes.IDLE &&
+                !inputValue && (
+                  <Box>
+                    <BaseText>
+                      <a
+                        style={{ color: '#758796', textDecoration: 'none' }}
+                        href="https://harmony.one/1"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Learn More
+                      </a>
+                    </BaseText>
+                  </Box>
+                )}
+            </Box>
+          )}
           {web2Error && (
             <Box align="center">
               <Button onClick={claimWeb2DomainWrapper} disabled={isLoading}>
