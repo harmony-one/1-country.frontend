@@ -20,7 +20,7 @@ const defaultFormFields = {
   widgetValue: '',
 }
 
-export const OpenWidgetsPage = observer(() => {
+const OpenWidgetsPage = observer(() => {
   const { domainStore } = useStores()
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.PROGRESS,
@@ -149,3 +149,5 @@ export const OpenWidgetsPage = observer(() => {
     </Container>
   )
 })
+
+export default OpenWidgetsPage

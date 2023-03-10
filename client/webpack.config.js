@@ -148,24 +148,9 @@ module.exports = {
   },
 
   optimization: {
-    concatenateModules: true,
     minimize: true,
     splitChunks: {
       chunks: 'all',
-      cacheGroups: {
-        web3: {
-          test: /[\\/]node_modules[\\/](web3)[\\/]/,
-          name: 'web3',
-        },
-        icons: {
-          test: /[\\/]node_modules[\\/](react-icons)[\\/]/,
-          name: 'icons',
-        },
-        vendors: {
-          test: /[\\/]node_modules[\\/]((?!react-icons|web3).*)[\\/]/,
-          name: 'vendors',
-        },
-      },
     },
   },
   plugins: [
