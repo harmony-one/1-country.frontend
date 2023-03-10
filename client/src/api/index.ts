@@ -305,17 +305,26 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         throw new Error('name is empty')
       }
       // const nameBytes = web3.utils.keccak256(name)
-      let ownerAddress = ''
-      let lastPrice = '0', url = '', prev = '', next = ''
-      try {
-        ownerAddress = await contract.methods.ownerOf(name).call()
-      } catch (e) {
-        // console.log('Cannot get owner address', e.message)
-      }
-      const rentTime = await contract.methods.duration().call()
-      const expirationTime = await contract.methods.nameExpires(name).call()
+
+      let lastPrice = '0',
+        url = '',
+        prev = '',
+        next = ''
+
+      const [ownerAddress, rentTime, expirationTime] = await Promise.all([
+        contract.methods
+          .ownerOf(name)
+          .call()
+          .catch(() => ''),
+        contract.methods.duration().call(),
+        contract.methods.nameExpires(name).call(),
+      ])
+
       return {
-        renter: !ownerAddress || ownerAddress === Constants.EmptyAddress ? null : ownerAddress,
+        renter:
+          !ownerAddress || ownerAddress === Constants.EmptyAddress
+            ? null
+            : ownerAddress,
         rentTime: new BN(rentTime).toNumber() * 1000,
         expirationTime: new BN(expirationTime).toNumber() * 1000,
         lastPrice: {
