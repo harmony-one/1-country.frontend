@@ -24,8 +24,8 @@ import {
   isValidTwitUri,
 } from '../../utils/validation'
 import { BaseText } from '../../components/Text'
-import { Box } from 'grommet'
 import TwitterWidget from '../../components/widgets/TwitterWidget'
+import { Box } from 'grommet/components/Box'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -48,7 +48,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   useEffect(() => {
     widgetListStore.loadWidgetList(domainName)
-    // widgetListStore.loadDomainTx(domainName)
+    widgetListStore.loadDomainTx(domainName)
   }, [domainName])
 
   const [isLoading, setLoading] = useState(false)

@@ -1,23 +1,29 @@
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 import config from '../../../config'
-import { useDefaultNetwork } from '../../hooks/network'
 import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
-import { HomeSearchPage } from './components/HomeSearchPage'
 import { getDomainName } from '../../utils/getDomainName'
 import { HomePageLoader } from './components/HomePageLoader'
-import { HomeDomainPage } from './components/HomeDomainPage'
+
+const HomeSearchPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "HomeSearchPage" */ './components/HomeSearchPage'
+    )
+)
+const HomeDomainPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "HomeDomainPage" */ './components/HomeDomainPage'
+    )
+)
 
 export const HomePage = observer(() => {
   const [domainName] = useState(getDomainName())
 
   const { domainStore } = useStores()
 
-  useEffect(() => {
-    domainStore.loadDomainRecord(domainName)
-  }, [domainName])
-
-  useDefaultNetwork()
+  // useDefaultNetwork()
 
   useEffect(() => {
     const isNewDomain =
@@ -28,12 +34,16 @@ export const HomePage = observer(() => {
   }, [domainStore.domainRecord])
 
   if (domainName === '') {
-    return <HomeSearchPage />
+    return (
+      <Suspense fallback={<HomePageLoader />}>
+        <HomeSearchPage />
+      </Suspense>
+    )
   }
 
-  if (domainName && !domainStore.domainRecord) {
-    return <HomePageLoader />
-  }
-
-  return <HomeDomainPage />
+  return (
+    <Suspense fallback={<HomePageLoader />}>
+      <HomeDomainPage />
+    </Suspense>
+  )
 })
