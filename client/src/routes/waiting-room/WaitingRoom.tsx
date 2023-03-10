@@ -63,7 +63,7 @@ const WaitingRoom = observer(() => {
       }
       setTimeout(() => {
         createCert(attemptsLeft - 1)
-      }, 1000)
+      }, (4 - attemptsLeft) * 3000)
     }
   }
 
