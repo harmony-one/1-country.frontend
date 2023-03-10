@@ -14,8 +14,8 @@ import {
 } from '../modules/transactions/UITransactionStore'
 import { MetaTagsStore, metaTagsStore } from '../modules/metatags/MetaTagsStore'
 import { wagmiClient } from '../modules/wagmi/wagmiClient'
-import tweetApi, {TweetClient} from "../api/tweetApi";
-import commonApi, { CommonClient }  from "../api/common";
+import tweetApi, { TweetClient } from '../api/tweetApi'
+import commonApi, { CommonClient } from '../api/common'
 
 export class RootStore {
   modalStore: ModalStore
@@ -51,11 +51,15 @@ export class RootStore {
 
     wagmiClient.autoConnect().then((result) => {
       console.log('### wagmi autoConnect')
-      if (result) {
+
+      // web3 should works with harmony network
+      if (result && result.chain.id === config.chainParameters.id) {
         const { account, provider } = result
         // @ts-ignore-error
         const web3 = new Web3(provider)
         this.updateClients(web3, account)
+      } else {
+        console.log('### wallet connect to wrong network')
       }
     })
 
@@ -81,6 +85,9 @@ export class RootStore {
     this.d1dcClient = apis({ web3, address })
     this.tweetClient = tweetApi({ web3, address })
     // @ts-ignore
-    this.commonClient = commonApi(this.d1dcClient.contract, this.tweetClient.contract)
+    this.commonClient = commonApi(
+      this.d1dcClient.contract,
+      this.tweetClient.contract
+    )
   }
 }

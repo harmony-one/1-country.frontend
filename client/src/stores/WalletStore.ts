@@ -9,7 +9,7 @@ import {
 import Web3 from 'web3'
 import { BaseStore } from './BaseStore'
 import { RootStore } from './RootStore'
-import {metamaskConnector, wagmiClient, walletConnectConnector} from '../modules/wagmi/wagmiClient'
+import { metamaskConnector, wagmiClient } from '../modules/wagmi/wagmiClient'
 import config from '../../config'
 
 export class WalletStore extends BaseStore {
@@ -55,7 +55,7 @@ export class WalletStore extends BaseStore {
   }
 
   get isConnected() {
-    return this._account.isConnected
+    return this._account.isConnected && this.isHarmonyNetwork
   }
 
   get walletAddress() {
@@ -63,7 +63,10 @@ export class WalletStore extends BaseStore {
   }
 
   get isHarmonyNetwork() {
-    return this._network.chain && this._network.chain.id
+    return (
+      this._network.chain &&
+      this._network.chain.id === config.chainParameters.id
+    )
   }
 
   get isMetamaskAvailable() {
