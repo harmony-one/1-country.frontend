@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 
 import { VanityURL } from '../VanityURL'
@@ -12,15 +12,22 @@ import { DomainName } from '../../../components/Text'
 import { Container } from '../Home.styles'
 import config from '../../../../config'
 import { getDomainLevel } from '../../../api/utils'
+import { getDomainName } from '../../../utils/getDomainName'
 
 interface Props {}
 
 const HomeDomainPage: React.FC<Props> = observer(() => {
+  const [domainName] = useState(getDomainName())
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
   // useEffect(() => {
   //   widgetListStore.loadDomainTx(domainStore.domainName)
   // }, [domainStore.domainName])
+  useEffect(() => {
+    if (domainName) {
+      domainStore.loadDomainRecord(domainName)
+    }
+  }, [domainName])
 
   useEffect(() => {
     metaTagsStore.update({

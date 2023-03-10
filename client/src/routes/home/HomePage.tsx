@@ -1,6 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react'
 import config from '../../../config'
-import { useDefaultNetwork } from '../../hooks/network'
 import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import { getDomainName } from '../../utils/getDomainName'
@@ -24,13 +23,7 @@ export const HomePage = observer(() => {
 
   const { domainStore } = useStores()
 
-  useEffect(() => {
-    if (domainName) {
-      domainStore.loadDomainRecord(domainName)
-    }
-  }, [domainName])
-
-  useDefaultNetwork()
+  // useDefaultNetwork()
 
   useEffect(() => {
     const isNewDomain =
@@ -46,10 +39,6 @@ export const HomePage = observer(() => {
         <HomeSearchPage />
       </Suspense>
     )
-  }
-
-  if (domainName && !domainStore.domainRecord) {
-    return <HomePageLoader />
   }
 
   return (
