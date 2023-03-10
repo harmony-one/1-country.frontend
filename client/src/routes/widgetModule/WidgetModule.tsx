@@ -93,17 +93,17 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       return
     }
 
-    const isTwit = isValidTwitUri(value)
-    const isInst = isValidInstagramUri(value)
+    // const isTwit = isValidTwitUri(value)
+    // const isInst = isValidInstagramUri(value)
 
-    if (!isInst && !isTwit) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: 'Invalid URL',
-      })
-      setLoading(false)
-      return
-    }
+    // if (!isInst && !isTwit) {
+    //   setProcessStatus({
+    //     type: ProcessStatusTypes.ERROR,
+    //     render: 'Invalid URL',
+    //   })
+    //   setLoading(false)
+    //   return
+    // }
 
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
@@ -115,7 +115,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     if (!embedData) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: `Sorry, we can't embed this URL`,
+        render: `Error processing URL. Please try using another URL`,
       })
       setLoading(false)
       return
@@ -266,7 +266,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             autoFocus
             disabled={isLoading}
             isValid={processStatus.type !== ProcessStatusTypes.ERROR}
-            placeholder={'Enter tweet or instagram post url'}
+            placeholder={'Enter tweet or any url'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
