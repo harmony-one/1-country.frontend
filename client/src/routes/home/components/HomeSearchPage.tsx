@@ -47,7 +47,7 @@ interface SearchResult {
   isAvailable: boolean
 }
 
-export const HomeSearchPage: React.FC = observer(() => {
+const HomeSearchPage: React.FC = observer(() => {
   const { isConnected, address, connector, status } = useAccount()
   const { disconnect } = useDisconnect()
   const { open, close, isOpen } = useWeb3Modal()
@@ -565,3 +565,5 @@ export const HomeSearchPage: React.FC = observer(() => {
     </Container>
   )
 })
+
+export default HomeSearchPage
