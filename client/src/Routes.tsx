@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { HomePage } from './routes/home/HomePage'
+import { HomePageLoader } from './routes/home/components/HomePageLoader'
 
 const StatsPage = lazy(
   () => import(/* webpackChunkName: "Others" */ './routes/stats/Stats')
@@ -27,7 +28,7 @@ console.log('### WaitingRoom', WaitingRoom)
 
 const AppRoutes = () => {
   return (
-    <Suspense fallback={<div>...</div>}>
+    <Suspense fallback={<HomePageLoader />}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="new/" element={<WaitingRoom />} />
