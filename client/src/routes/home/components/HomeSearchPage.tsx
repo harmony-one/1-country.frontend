@@ -141,7 +141,7 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   const loadDomainRecord = useMemo(() => {
-    return debounce(async (_domainName) => {
+    return debounce(async (_domainName: string) => {
       if (!_domainName) {
         return
       }
@@ -157,9 +157,11 @@ const HomeSearchPage: React.FC = observer(() => {
           await Promise.all([
             rootStore.d1dcClient.getRecord({ name: _domainName }),
             rootStore.d1dcClient.getPrice({ name: _domainName }),
-            relayApi().checkDomain({
+            _domainName.length > 2 ? relayApi().checkDomain({
               sld: _domainName,
-            }),
+            }) : {
+              isAvailable: true
+            },
             rootStore.d1dcClient.checkAvailable({
               name: _domainName,
             }),
