@@ -4,7 +4,6 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![LGPL-3.0-License][license-shield]][license-url]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -35,12 +34,8 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
+    <li><a href="#about-the-project">About The Project</a></li>
+    <li><a href="#built-with">Built With</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -187,9 +182,7 @@ Distributed under the LGPL-3.0 license.
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
-
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-* [LGPL-3.0 license](https://github.com/harmony-one/1-country.frontend/main/LICENSE)
+* [LGPL-3.0 license](https://github.com/harmony-one/1-country.frontend/blob/main/LICENSE)
 * [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -216,7 +209,7 @@ Use this space to list resources you find helpful and would like to give credit 
 [issues-shield]: https://img.shields.io/github/issues/harmony-one/1-country.frontend.svg?style=flat-square
 [issues-url]: https://github.com/harmony-one/1-country.frontend/issues
 [license-shield]: https://img.shields.io/github/license/harmony-one/1-country.frontend?style=flat-square
-[license-url]: https://github.com/harmony-one/1-country.frontend/main/LICENSE
+[license-url]: https://github.com/harmony-one/1-country.frontend/blob/main/LICENSE
 
 [product-screenshot]: https://i.imgur.com/njNlM9X.png
 
