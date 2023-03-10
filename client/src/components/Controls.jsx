@@ -59,7 +59,7 @@ export const Input = styled.input`
   }
 `
 
-export const LinkWrarpper = styled.a`
+export const LinkWrapper = styled.a`
   //margin-right: 12px;
   cursor: pointer;
   text-decoration: none;
@@ -81,7 +81,7 @@ export const LinkWrarpper = styled.a`
       : ''}
 `
 
-export const FloatingSwitch = styled(LinkWrarpper)`
+export const FloatingSwitch = styled(LinkWrapper)`
   position: absolute;
   right: 0;
   bottom: -8px;
@@ -94,4 +94,11 @@ export const FloatingText = styled(SmallText)`
   right: 0;
   bottom: -8px;
   margin-right: 0;
+`
+export const Link = styled.a`
+  color: #47b8eb;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `

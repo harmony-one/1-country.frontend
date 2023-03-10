@@ -1,7 +1,4 @@
 import React from 'react'
-import { FlexColumn } from '../../../components/Layout'
-import { Container } from '../Home.styles'
-import { GradientText } from '../../../components/Text'
 
 interface Props {}
 

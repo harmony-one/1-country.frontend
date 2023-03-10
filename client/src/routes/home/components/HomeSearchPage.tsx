@@ -1,44 +1,44 @@
-import React, {useEffect, useMemo, useState} from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import debounce from 'lodash.debounce'
-import {observer} from 'mobx-react-lite'
+import { observer } from 'mobx-react-lite'
 import BN from 'bn.js'
-import {useNavigate, useSearchParams} from 'react-router-dom'
-import {Box} from 'grommet/components/Box'
-import {Text} from 'grommet/components/Text'
+import { useSearchParams } from 'react-router-dom'
+import { Box } from 'grommet/components/Box'
+import { Text } from 'grommet/components/Text'
 
-import {HomeSearchResultItem} from './HomeSearchResultItem'
-import {useStores} from '../../../stores'
+import { HomeSearchResultItem } from './HomeSearchResultItem'
+import { useStores } from '../../../stores'
 import config from '../../../../config'
 
-import {Button, Link, LinkWrapper} from '../../../components/Controls'
-import {BaseText, GradientText} from '../../../components/Text'
-import {FlexRow} from '../../../components/Layout'
-import {DomainPrice, DomainRecord} from '../../../api'
-import {nameUtils, validateDomainName} from '../../../api/utils'
-import {parseTweetId} from '../../../utils/parseTweetId'
-import {Container} from '../Home.styles'
-import {cutString} from '../../../utils/string'
-import {ProcessStatus, ProcessStatusItem, ProcessStatusTypes,} from '../../../components/process-status/ProcessStatus'
-import {buildTxUri} from '../../../utils/explorer'
-import {useAccount, useDisconnect} from 'wagmi'
-import {useWeb3Modal, Web3Button} from '@web3modal/react'
-import {TypedText} from './Typed'
-import {sleep} from '../../../utils/sleep'
-import {SearchInput} from '../../../components/search-input/SearchInput'
-import {FormSearch} from 'grommet-icons/icons/FormSearch'
+import { Button, LinkWrapper } from '../../../components/Controls'
+import { BaseText, GradientText } from '../../../components/Text'
+import { FlexRow } from '../../../components/Layout'
+import { DomainPrice, DomainRecord } from '../../../api'
+import { nameUtils, validateDomainName } from '../../../api/utils'
+import { Container } from '../Home.styles'
+import { cutString } from '../../../utils/string'
+import {
+  ProcessStatus,
+  ProcessStatusItem,
+  ProcessStatusTypes,
+} from '../../../components/process-status/ProcessStatus'
+import { buildTxUri } from '../../../utils/explorer'
+import { useAccount, useDisconnect } from 'wagmi'
+import { useWeb3Modal, Web3Button } from '@web3modal/react'
+import { TypedText } from './Typed'
+import { sleep } from '../../../utils/sleep'
+import { SearchInput } from '../../../components/search-input/SearchInput'
+import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { relayApi } from '../../../api/relayApi'
 import qs from 'qs'
+import { mainApi } from '../../../api/mainApi'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
 `
-
-const { tweetId } = parseTweetId(
-  'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'
-)
 
 interface SearchResult {
   domainName: string
@@ -47,7 +47,7 @@ interface SearchResult {
   isAvailable: boolean
 }
 
-export const HomeSearchPage: React.FC = observer(() => {
+const HomeSearchPage: React.FC = observer(() => {
   const { isConnected, address, connector, status } = useAccount()
   const { disconnect } = useDisconnect()
   const { open, close, isOpen } = useWeb3Modal()
@@ -66,8 +66,6 @@ export const HomeSearchPage: React.FC = observer(() => {
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
   const { rootStore, ratesStore, walletStore } = useStores()
-
-  const navigate = useNavigate()
 
   useEffect(() => {
     if (status === 'connecting') {
@@ -106,10 +104,8 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   useEffect(() => {
     if (web2Acquired) {
-      window.location.href = `${config.hostname}/new?domain=${searchResult.domainName}`
       const queryString = qs.stringify({
         domain: searchResult.domainName,
-        txHash: regTxHash,
       })
 
       window.location.href = `${config.hostname}/new?${queryString}`
@@ -134,7 +130,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     setInputValue(value)
     updateSearch(value)
 
-    if(!value && processStatus.type === ProcessStatusTypes.ERROR) {
+    if (!value && processStatus.type === ProcessStatusTypes.ERROR) {
       setProcessStatus({ type: ProcessStatusTypes.IDLE, render: '' })
     }
   }
@@ -156,33 +152,40 @@ export const HomeSearchPage: React.FC = observer(() => {
       })
       setLoading(true) //will show three dots
 
-      const [record, price, relayCheckDomain, isAvailable2] = await Promise.all(
-        [
-          rootStore.d1dcClient.getRecord({ name: _domainName }),
-          rootStore.d1dcClient.getPrice({ name: _domainName }),
-          relayApi().checkDomain({
-            sld: _domainName,
-          }),
-          rootStore.d1dcClient.checkAvailable({
-            name: _domainName,
-          }),
-        ]
-      )
+      try {
+        const [record, price, relayCheckDomain, isAvailable2] =
+          await Promise.all([
+            rootStore.d1dcClient.getRecord({ name: _domainName }),
+            rootStore.d1dcClient.getPrice({ name: _domainName }),
+            relayApi().checkDomain({
+              sld: _domainName,
+            }),
+            rootStore.d1dcClient.checkAvailable({
+              name: _domainName,
+            }),
+          ])
 
-      console.log('Domain price:', price)
+        console.log('Domain price:', price)
 
-      setSearchResult({
-        domainName: _domainName,
-        domainRecord: record,
-        price: price,
-        isAvailable: relayCheckDomain.isAvailable && isAvailable2,
-      })
+        setSearchResult({
+          domainName: _domainName,
+          domainRecord: record,
+          price: price,
+          isAvailable: relayCheckDomain.isAvailable && isAvailable2,
+        })
 
-      setProcessStatus({
-        type: ProcessStatusTypes.IDLE,
-        render: '',
-      })
-      setLoading(false)
+        setProcessStatus({
+          type: ProcessStatusTypes.IDLE,
+          render: '',
+        })
+        setLoading(false)
+      } catch (ex) {
+        setProcessStatus({
+          type: ProcessStatusTypes.IDLE,
+          render: <BaseText>{ex.message}</BaseText>,
+        })
+        setLoading(false)
+      }
     }, 500)
   }, [rootStore.d1dcClient])
 
@@ -244,6 +247,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     const timerId = createTick()
 
     try {
+      // @ts-ignore
       const { success, responseText, isRegistered } =
         await relayApi().purchaseDomain({
           domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
@@ -279,18 +283,18 @@ export const HomeSearchPage: React.FC = observer(() => {
 
     console.log('### searchResult', searchResult)
 
-    const { isAvailable } = await relayApi().checkDomain({
-      sld: searchResult.domainName,
-    })
-
-    if (!isAvailable) {
-      setValidation({
-        valid: false,
-        error: 'This domain name is already registered',
-      })
-      setLoading(false)
-      return
-    }
+    // const { isAvailable } = await relayApi().checkDomain({
+    //   sld: searchResult.domainName,
+    // })
+    //
+    // if (!isAvailable) {
+    //   setValidation({
+    //     valid: false,
+    //     error: 'This domain name is already registered',
+    //   })
+    //   setLoading(false)
+    //   return
+    // }
 
     const _available = await rootStore.d1dcClient.checkAvailable({
       name: searchResult.domainName,
@@ -346,114 +350,116 @@ export const HomeSearchPage: React.FC = observer(() => {
       return
     }
 
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <BaseText>
-          {walletStore.isMetamaskAvailable
-            ? 'Waiting for a transaction to be signed'
-            : 'Sign transaction on mobile device'}
-        </BaseText>
-      ),
-    })
-
-    const commitResult = await rootStore.d1dcClient.commit({
-      name: searchResult.domainName.toLowerCase(),
-      onTransactionHash: () => {
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: <BaseText>Waiting for transaction confirmation</BaseText>,
-        })
-      },
-      secret,
-    })
-
-    if (commitResult.error) {
-      console.log('Commit result failed:', commitResult.error)
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{commitResult.error.message}</BaseText>,
-      })
-      terminateProcess(1500)
-      return
-    }
-
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <FlexRow>
-          <BaseText style={{ marginRight: 8 }}>
-            Reserved {`${searchResult.domainName}${config.tld}`}
-          </BaseText>
-          (
-          <LinkWrapper
-            target="_blank"
-            type="text"
-            href={buildTxUri(commitResult.txReceipt.transactionHash)}
-          >
-            <BaseText>
-              {cutString(commitResult.txReceipt.transactionHash)}
-            </BaseText>
-          </LinkWrapper>
-          )
-        </FlexRow>
-      ),
-    })
-
-    console.log('Commit result:', commitResult)
-    console.log('waiting for 5 seconds...')
-    await sleep(5000)
-
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <BaseText>
-          {walletStore.isMetamaskAvailable
-            ? 'Waiting for a transaction to be signed'
-            : 'Sign transaction on mobile device'}
-        </BaseText>
-      ),
-    })
-
-    const rentResult = await rootStore.d1dcClient.rent({
-      name: searchResult.domainName.toLowerCase(),
-      secret,
-      //url: tweetId.toString(),
-      owner: walletStore.walletAddress,
-      amount: new BN(searchResult.price.amount).toString(),
-      onTransactionHash: () => {
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: <BaseText>Waiting for transaction confirmation</BaseText>,
-        })
-      },
-    })
-    console.log('rentResult', rentResult)
-
-    if (rentResult.error) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{rentResult.error.message}</BaseText>,
-      })
-      terminateProcess(1500)
-      return
-    }
-
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <FlexRow>
-          <BaseText style={{ marginRight: 8 }}>
-            Registered {`${searchResult.domainName}${config.tld}`} (3 min avg)
-          </BaseText>
-        </FlexRow>
-      ),
-    })
-
-    const txHash = rentResult.txReceipt.transactionHash
-    setRegTxHash(txHash)
-
     try {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: (
+          <BaseText>
+            {walletStore.isMetamaskAvailable
+              ? 'Waiting for a transaction to be signed'
+              : 'Sign transaction on mobile device'}
+          </BaseText>
+        ),
+      })
+
+      const commitResult = await rootStore.d1dcClient.commit({
+        name: searchResult.domainName.toLowerCase(),
+        onTransactionHash: () => {
+          setProcessStatus({
+            type: ProcessStatusTypes.PROGRESS,
+            render: <BaseText>Waiting for transaction confirmation</BaseText>,
+          })
+        },
+        secret,
+      })
+
+      if (commitResult.error) {
+        console.log('Commit result failed:', commitResult.error)
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>{commitResult.error.message}</BaseText>,
+        })
+        terminateProcess(1500)
+        return
+      }
+
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: (
+          <FlexRow>
+            <BaseText style={{ marginRight: 8 }}>
+              Reserved {`${searchResult.domainName}${config.tld}`}
+            </BaseText>
+            (
+            <LinkWrapper
+              target="_blank"
+              type="text"
+              href={buildTxUri(commitResult.txReceipt.transactionHash)}
+            >
+              <BaseText>
+                {cutString(commitResult.txReceipt.transactionHash)}
+              </BaseText>
+            </LinkWrapper>
+            )
+          </FlexRow>
+        ),
+      })
+
+      console.log('Commit result:', commitResult)
+      console.log('waiting for 5 seconds...')
+      await sleep(5000)
+
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: (
+          <BaseText>
+            {walletStore.isMetamaskAvailable
+              ? 'Waiting for a transaction to be signed'
+              : 'Sign transaction on mobile device'}
+          </BaseText>
+        ),
+      })
+
+      const rentResult = await rootStore.d1dcClient.rent({
+        name: searchResult.domainName.toLowerCase(),
+        secret,
+        //url: tweetId.toString(),
+        owner: walletStore.walletAddress,
+        amount: new BN(searchResult.price.amount).toString(),
+        onTransactionHash: () => {
+          setProcessStatus({
+            type: ProcessStatusTypes.PROGRESS,
+            render: <BaseText>Waiting for transaction confirmation</BaseText>,
+          })
+        },
+      })
+      console.log('rentResult', rentResult)
+
+      if (rentResult.error) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>{rentResult.error.message}</BaseText>,
+        })
+        terminateProcess(1500)
+        return
+      }
+
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: (
+          <FlexRow>
+            <BaseText style={{ marginRight: 8 }}>
+              Registered {`${searchResult.domainName}${config.tld}`} (3 min avg)
+            </BaseText>
+          </FlexRow>
+        ),
+      })
+
+      const txHash = rentResult.txReceipt.transactionHash
+      setRegTxHash(txHash)
+
+      mainApi.createDomain({ domain: searchResult.domainName, txHash })
+
       await claimWeb2Domain(txHash)
       await sleep(1500)
       setProcessStatus({
@@ -467,7 +473,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       setWeb2Error(true)
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: <BaseText>Unable to acquire web2 domain. Try Again.</BaseText>,
+        render: <BaseText>Unable to acquire domain. Try Again.</BaseText>,
       })
       terminateProcess()
     }
@@ -503,47 +509,50 @@ export const HomeSearchPage: React.FC = observer(() => {
               />
             </Box>
           </Box>
-          {(validation.valid &&
-            !isLoading &&
-            searchResult &&
-            !web2Acquired &&
-            !web2Error) ? (
-              <Box margin={{ top: '16px' }} gap="12px" align="center">
-                <HomeSearchResultItem
-                  name={searchResult.domainName.toLowerCase()}
-                  rateONE={ratesStore.ONE_USD}
-                  price={searchResult.price.formatted}
-                  available={searchResult.isAvailable}
-                />
-                <Button
-                  disabled={!validation.valid || !searchResult.isAvailable}
-                  onClick={handleRentDomain}
-                >
-                  Register
-                </Button>
-              </Box>
-            ) :
+          {validation.valid &&
+          !isLoading &&
+          searchResult &&
+          !web2Acquired &&
+          !web2Error ? (
+            <Box margin={{ top: '16px' }} gap="12px" align="center">
+              <HomeSearchResultItem
+                name={searchResult.domainName.toLowerCase()}
+                rateONE={ratesStore.ONE_USD}
+                price={searchResult.price.formatted}
+                available={searchResult.isAvailable}
+              />
+              <Button
+                disabled={!validation.valid || !searchResult.isAvailable}
+                onClick={handleRentDomain}
+              >
+                Register
+              </Button>
+            </Box>
+          ) : (
             <Box margin={{ top: '16px' }}>
-              {!validation.valid && <Text size={'medium'}>{validation.error}</Text>}
+              {!validation.valid && (
+                <Text size={'medium'}>{validation.error}</Text>
+              )}
               {processStatus.type !== ProcessStatusTypes.IDLE && (
                 <ProcessStatus status={processStatus} />
               )}
-              {processStatus.type === ProcessStatusTypes.IDLE && !inputValue &&
-                <Box>
-                  <BaseText>
-                    <a
-                      style={{ color: '#758796', textDecoration: 'none' }}
-                      href="https://harmony.one/1"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Learn More
-                    </a>
-                  </BaseText>
-                </Box>
-              }
-          </Box>
-          }
+              {processStatus.type === ProcessStatusTypes.IDLE &&
+                !inputValue && (
+                  <Box>
+                    <BaseText>
+                      <a
+                        style={{ color: '#758796', textDecoration: 'none' }}
+                        href="https://harmony.one/1"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Learn More
+                      </a>
+                    </BaseText>
+                  </Box>
+                )}
+            </Box>
+          )}
           {web2Error && (
             <Box align="center">
               <Button onClick={claimWeb2DomainWrapper} disabled={isLoading}>
@@ -556,3 +565,5 @@ export const HomeSearchPage: React.FC = observer(() => {
     </Container>
   )
 })
+
+export default HomeSearchPage

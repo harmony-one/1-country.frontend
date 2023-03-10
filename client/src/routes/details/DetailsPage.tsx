@@ -29,7 +29,7 @@ const dateFormat = new Intl.DateTimeFormat('en-US', {
   timeStyle: 'short',
 })
 
-export const DetailsPage: React.FC<Props> = observer(() => {
+const DetailsPage: React.FC<Props> = observer(() => {
   const domainName = window.location.search.replace('?', '')
 
   const { domainStore, ratesStore } = useStores()
@@ -86,3 +86,5 @@ export const DetailsPage: React.FC<Props> = observer(() => {
     </Container>
   )
 })
+
+export default DetailsPage
