@@ -7,6 +7,7 @@ import Timer from '@amplication/react-compound-timer'
 import { DomainRecord } from '../../api'
 import { HarmonyLink } from '../HarmonyLink'
 import { WidgetsContainer } from './Widgets.styles'
+import { useInView } from 'react-intersection-observer'
 
 const Container = styled(WidgetsContainer)`
   gap: 0;
