@@ -16,7 +16,6 @@ import { BaseText, GradientText } from '../../../components/Text'
 import { FlexRow } from '../../../components/Layout'
 import { DomainPrice, DomainRecord } from '../../../api'
 import { nameUtils, validateDomainName } from '../../../api/utils'
-import { parseTweetId } from '../../../utils/parseTweetId'
 import { Container } from '../Home.styles'
 import { cutString } from '../../../utils/string'
 import {
@@ -33,6 +32,7 @@ import { SearchInput } from '../../../components/search-input/SearchInput'
 import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { relayApi } from '../../../api/relayApi'
 import qs from 'qs'
+import { mainApi } from '../../../api/mainApi'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -104,10 +104,8 @@ export const HomeSearchPage: React.FC = observer(() => {
 
   useEffect(() => {
     if (web2Acquired) {
-      window.location.href = `${config.hostname}/new?domain=${searchResult.domainName}`
       const queryString = qs.stringify({
         domain: searchResult.domainName,
-        txHash: regTxHash,
       })
 
       window.location.href = `${config.hostname}/new?${queryString}`
@@ -460,6 +458,8 @@ export const HomeSearchPage: React.FC = observer(() => {
       const txHash = rentResult.txReceipt.transactionHash
       setRegTxHash(txHash)
 
+    mainApi.createDomain({ domain: searchResult.domainName, txHash })
+    try {
       await claimWeb2Domain(txHash)
       await sleep(1500)
       setProcessStatus({

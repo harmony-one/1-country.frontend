@@ -4,6 +4,7 @@ import { RootStore } from '../../stores/RootStore'
 import { rootStore } from '../../stores'
 import { CallbackProps } from '../../api'
 import isUrl from 'is-url'
+import { mainApi } from '../../api/mainApi'
 
 export interface Widget {
   id?: number
@@ -75,13 +76,13 @@ class WidgetListStore extends BaseStore {
       const isActivated = await client.isActivated(domainName)
       console.log('isActivated', isActivated)
 
-      if(!isActivated) {
+      if (!isActivated) {
         const rentalPrice = await client.baseRentalPrice()
         await client.activate({
           name: domainName,
-          amount: rentalPrice
+          amount: rentalPrice,
         })
-        await new Promise(resolve => setTimeout(resolve, 5000))
+        await new Promise((resolve) => setTimeout(resolve, 5000))
       }
 
       const result = await client.addRecordUrl({
@@ -135,72 +136,22 @@ class WidgetListStore extends BaseStore {
     })
   }
 
-  async loadDomainTx(name: string) {
+  async loadDomainTx(domainName: string) {
     this.txDomainLoading = true
 
     try {
-      const record = await this.getDCClient().getRecord({ name })
-
-      const block = await this.findBlock(record.rentTime / 1000)
-
-      const eventList = await this.getDCClient().contract.getPastEvents(
-        'NameRented',
-        {
-          filter: {},
-          fromBlock: block.number,
-          toBlock: block.number,
-        }
-      )
-
-      const event = eventList.find((event) => {
-        return (
-          event.returnValues.name ===
-          this.getDCClient().web3.utils.keccak256(name)
-        )
-      })
+      const domain = await mainApi.loadDomain({ domain: domainName })
 
       runInAction(() => {
         this.txDomainLoading = false
-        this.txDomain = event.transactionHash
-        return event.transactionHash
+        this.txDomain = domain.createdTxHash
+        return domain.createdTxHash
       })
     } catch (ex) {
       runInAction(() => {
         this.txDomainLoading = false
       })
       return ''
-    }
-  }
-
-  async findBlock(blockTimeStamp = 1674732160) {
-    let leftBlockNumber = 34902999
-    let rightBlockNumber = await this.getDCClient().web3.eth.getBlockNumber()
-
-    let leftBlock = await this.getDCClient().web3.eth.getBlock(leftBlockNumber)
-    let rightBlock = await this.getDCClient().web3.eth.getBlock(
-      rightBlockNumber
-    )
-
-    let counter = 0
-    while (leftBlock.number <= rightBlock.number) {
-      counter++
-      let midBlockNumber = Math.floor(
-        (leftBlock.number + rightBlock.number) / 2
-      )
-      let midBlock = await this.getDCClient().web3.eth.getBlock(midBlockNumber)
-      if (blockTimeStamp === midBlock.timestamp) {
-        return midBlock
-      }
-
-      if (blockTimeStamp > midBlock.timestamp) {
-        leftBlock = await this.getDCClient().web3.eth.getBlock(
-          midBlockNumber + 1
-        )
-      } else {
-        rightBlock = await this.getDCClient().web3.eth.getBlock(
-          midBlockNumber - 1
-        )
-      }
     }
   }
 }
