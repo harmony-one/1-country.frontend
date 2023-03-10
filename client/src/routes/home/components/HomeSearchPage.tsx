@@ -458,8 +458,8 @@ export const HomeSearchPage: React.FC = observer(() => {
       const txHash = rentResult.txReceipt.transactionHash
       setRegTxHash(txHash)
 
-    mainApi.createDomain({ domain: searchResult.domainName, txHash })
-    try {
+      mainApi.createDomain({ domain: searchResult.domainName, txHash })
+
       await claimWeb2Domain(txHash)
       await sleep(1500)
       setProcessStatus({
