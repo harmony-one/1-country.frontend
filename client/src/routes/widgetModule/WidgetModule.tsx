@@ -47,7 +47,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   useEffect(() => {
     widgetListStore.loadWidgetList(domainName)
-    // widgetListStore.loadDomainTx(domainName)
+    widgetListStore.loadDomainTx(domainName)
   }, [domainName])
 
   const [isLoading, setLoading] = useState(false)
