@@ -6,8 +6,18 @@ import { observer } from 'mobx-react-lite'
 import { getDomainName } from '../../utils/getDomainName'
 import { HomePageLoader } from './components/HomePageLoader'
 
-const HomeSearchPage = lazy(() => import('./components/HomeSearchPage'))
-const HomeDomainPage = lazy(() => import('./components/HomeDomainPage'))
+const HomeSearchPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "HomeSearchPage" */ './components/HomeSearchPage'
+    )
+)
+const HomeDomainPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "HomeDomainPage" */ './components/HomeDomainPage'
+    )
+)
 
 export const HomePage = observer(() => {
   const [domainName] = useState(getDomainName())

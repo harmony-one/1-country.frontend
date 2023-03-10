@@ -2,12 +2,26 @@ import React, { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { HomePage } from './routes/home/HomePage'
 
-const StatsPage = lazy(() => import('./routes/stats/Stats'))
-const WaitingRoom = lazy(() => import('./routes/waiting-room/WaitingRoom'))
-const DetailsPage = lazy(() => import('./routes/details/DetailsPage'))
-const LiveStreamPage = lazy(() => import('./routes/live/LiveStreamPage'))
+const StatsPage = lazy(
+  () => import(/* webpackChunkName: "Others" */ './routes/stats/Stats')
+)
+const WaitingRoom = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "WaitingRoom" */ './routes/waiting-room/WaitingRoom'
+    )
+)
+const DetailsPage = lazy(
+  () => import(/* webpackChunkName: "Others" */ './routes/details/DetailsPage')
+)
+const LiveStreamPage = lazy(
+  () => import(/* webpackChunkName: "Others" */ './routes/live/LiveStreamPage')
+)
 const OpenWidgetsPage = lazy(
-  () => import('./routes/openWidgets/OpenWidgetsPage')
+  () =>
+    import(
+      /* webpackChunkName: "Others" */ './routes/openWidgets/OpenWidgetsPage'
+    )
 )
 console.log('### WaitingRoom', WaitingRoom)
 

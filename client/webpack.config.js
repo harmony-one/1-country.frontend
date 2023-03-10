@@ -56,7 +56,7 @@ module.exports = {
                 {
                   useBuiltIns: false,
                   // corejs: 3,
-                  modules: 'cjs',
+                  modules: 'auto',
                 },
               ],
               '@babel/preset-react',
@@ -124,6 +124,7 @@ module.exports = {
   devtool: isProduction ? false : 'source-map',
   output: {
     filename: '[name].[contenthash].js',
+    chunkFilename: '[name].[contenthash].chunk.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
     publicPath: '/',
@@ -148,9 +149,10 @@ module.exports = {
   },
 
   optimization: {
+    // concatenateModules: true,
     minimize: true,
     splitChunks: {
-      chunks: 'all',
+      chunks: 'async',
     },
   },
   plugins: [
