@@ -15,7 +15,7 @@ import { getDomainLevel } from '../../../api/utils'
 
 interface Props {}
 
-export const HomeDomainPage: React.FC<Props> = observer(() => {
+const HomeDomainPage: React.FC<Props> = observer(() => {
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
   // useEffect(() => {
@@ -58,3 +58,5 @@ export const HomeDomainPage: React.FC<Props> = observer(() => {
     </Container>
   )
 })
+
+export default HomeDomainPage
