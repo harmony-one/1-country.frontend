@@ -249,6 +249,7 @@ export const HomeSearchPage: React.FC = observer(() => {
     const timerId = createTick()
 
     try {
+      // @ts-ignore
       const { success, responseText, isRegistered } =
         await relayApi().purchaseDomain({
           domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
@@ -351,114 +352,114 @@ export const HomeSearchPage: React.FC = observer(() => {
       return
     }
 
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <BaseText>
-          {walletStore.isMetamaskAvailable
-            ? 'Waiting for a transaction to be signed'
-            : 'Sign transaction on mobile device'}
-        </BaseText>
-      ),
-    })
-
-    const commitResult = await rootStore.d1dcClient.commit({
-      name: searchResult.domainName.toLowerCase(),
-      onTransactionHash: () => {
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: <BaseText>Waiting for transaction confirmation</BaseText>,
-        })
-      },
-      secret,
-    })
-
-    if (commitResult.error) {
-      console.log('Commit result failed:', commitResult.error)
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{commitResult.error.message}</BaseText>,
-      })
-      terminateProcess(1500)
-      return
-    }
-
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <FlexRow>
-          <BaseText style={{ marginRight: 8 }}>
-            Reserved {`${searchResult.domainName}${config.tld}`}
-          </BaseText>
-          (
-          <LinkWrapper
-            target="_blank"
-            type="text"
-            href={buildTxUri(commitResult.txReceipt.transactionHash)}
-          >
-            <BaseText>
-              {cutString(commitResult.txReceipt.transactionHash)}
-            </BaseText>
-          </LinkWrapper>
-          )
-        </FlexRow>
-      ),
-    })
-
-    console.log('Commit result:', commitResult)
-    console.log('waiting for 5 seconds...')
-    await sleep(5000)
-
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <BaseText>
-          {walletStore.isMetamaskAvailable
-            ? 'Waiting for a transaction to be signed'
-            : 'Sign transaction on mobile device'}
-        </BaseText>
-      ),
-    })
-
-    const rentResult = await rootStore.d1dcClient.rent({
-      name: searchResult.domainName.toLowerCase(),
-      secret,
-      //url: tweetId.toString(),
-      owner: walletStore.walletAddress,
-      amount: new BN(searchResult.price.amount).toString(),
-      onTransactionHash: () => {
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: <BaseText>Waiting for transaction confirmation</BaseText>,
-        })
-      },
-    })
-    console.log('rentResult', rentResult)
-
-    if (rentResult.error) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{rentResult.error.message}</BaseText>,
-      })
-      terminateProcess(1500)
-      return
-    }
-
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <FlexRow>
-          <BaseText style={{ marginRight: 8 }}>
-            Registered {`${searchResult.domainName}${config.tld}`} (3 min avg)
-          </BaseText>
-        </FlexRow>
-      ),
-    })
-
-    const txHash = rentResult.txReceipt.transactionHash
-    setRegTxHash(txHash)
-
     try {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: (
+          <BaseText>
+            {walletStore.isMetamaskAvailable
+              ? 'Waiting for a transaction to be signed'
+              : 'Sign transaction on mobile device'}
+          </BaseText>
+        ),
+      })
+
+      const commitResult = await rootStore.d1dcClient.commit({
+        name: searchResult.domainName.toLowerCase(),
+        onTransactionHash: () => {
+          setProcessStatus({
+            type: ProcessStatusTypes.PROGRESS,
+            render: <BaseText>Waiting for transaction confirmation</BaseText>,
+          })
+        },
+        secret,
+      })
+
+      if (commitResult.error) {
+        console.log('Commit result failed:', commitResult.error)
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>{commitResult.error.message}</BaseText>,
+        })
+        terminateProcess(1500)
+        return
+      }
+
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: (
+          <FlexRow>
+            <BaseText style={{ marginRight: 8 }}>
+              Reserved {`${searchResult.domainName}${config.tld}`}
+            </BaseText>
+            (
+            <LinkWrapper
+              target="_blank"
+              type="text"
+              href={buildTxUri(commitResult.txReceipt.transactionHash)}
+            >
+              <BaseText>
+                {cutString(commitResult.txReceipt.transactionHash)}
+              </BaseText>
+            </LinkWrapper>
+            )
+          </FlexRow>
+        ),
+      })
+
+      console.log('Commit result:', commitResult)
+      console.log('waiting for 5 seconds...')
+      await sleep(5000)
+
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: (
+          <BaseText>
+            {walletStore.isMetamaskAvailable
+              ? 'Waiting for a transaction to be signed'
+              : 'Sign transaction on mobile device'}
+          </BaseText>
+        ),
+      })
+
+      const rentResult = await rootStore.d1dcClient.rent({
+        name: searchResult.domainName.toLowerCase(),
+        secret,
+        //url: tweetId.toString(),
+        owner: walletStore.walletAddress,
+        amount: new BN(searchResult.price.amount).toString(),
+        onTransactionHash: () => {
+          setProcessStatus({
+            type: ProcessStatusTypes.PROGRESS,
+            render: <BaseText>Waiting for transaction confirmation</BaseText>,
+          })
+        },
+      })
+      console.log('rentResult', rentResult)
+
+      if (rentResult.error) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>{rentResult.error.message}</BaseText>,
+        })
+        terminateProcess(1500)
+        return
+      }
+
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: (
+          <FlexRow>
+            <BaseText style={{ marginRight: 8 }}>
+              Registered {`${searchResult.domainName}${config.tld}`} (3 min avg)
+            </BaseText>
+          </FlexRow>
+        ),
+      })
+
+      const txHash = rentResult.txReceipt.transactionHash
+      setRegTxHash(txHash)
+
       await claimWeb2Domain(txHash)
       await sleep(1500)
       setProcessStatus({
@@ -472,7 +473,7 @@ export const HomeSearchPage: React.FC = observer(() => {
       setWeb2Error(true)
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: <BaseText>Unable to acquire web2 domain. Try Again.</BaseText>,
+        render: <BaseText>Unable to acquire domain. Try Again.</BaseText>,
       })
       terminateProcess()
     }
