@@ -1,5 +1,5 @@
 import config from '../../config'
-import DCAbi from '../../abi/DC'
+import DCv2Abi from '../../abi/DCv2'
 import Constants from '../constants'
 import BN from 'bn.js'
 import Web3 from 'web3'
@@ -28,7 +28,6 @@ export interface DomainPrice {
 
 export interface DCParams {
   baseRentalPrice: DomainPrice
-  lastRented: string // domainName
   duration: number
 }
 
@@ -63,7 +62,7 @@ export interface SendResult {
 
 interface RentProps extends CallbackProps {
   name: string
-  url: string
+  owner: string
   secret: string
   amount: string
 }
@@ -74,24 +73,9 @@ interface RenewDomainProps extends CallbackProps {
   amount: string
 }
 
-interface UpdateUrlProps extends CallbackProps {
-  name: string
-  url: string
-}
-
 interface CommitProps extends CallbackProps {
   name: string
   secret: string
-}
-
-interface AddUrlProps extends CallbackProps {
-  name: string
-  url: string
-}
-
-interface RemoveUrlProps extends CallbackProps {
-  name: string
-  pos: number
 }
 
 export const getFullName = (name: string) => {
@@ -116,7 +100,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     return
   }
 
-  const contract = new web3.eth.Contract(DCAbi, config.contract)
+  const contract = new web3.eth.Contract(DCv2Abi, config.contract)
 
   const getOwnerInfo = async (name: string, info: OWNER_INFO_FIELDS) => {
     console.log('getOwnerInfo', name, info, address)
@@ -201,7 +185,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     },
     rent: async ({
       name,
-      url,
+      owner,
       secret,
       amount,
       onFailed,
@@ -212,23 +196,8 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       // console.log({ secretHash })
       return send({
         amount,
-        parameters: [name, url, secretHash],
+        parameters: [name, owner, secretHash],
         methodName: 'register',
-        onFailed,
-        onSuccess,
-        onTransactionHash,
-      })
-    },
-    updateURL: async ({
-      name,
-      url,
-      onFailed,
-      onSuccess,
-      onTransactionHash,
-    }: UpdateUrlProps) => {
-      return send({
-        parameters: [name, url],
-        methodName: 'updateURL',
         onFailed,
         onSuccess,
         onTransactionHash,
@@ -321,21 +290,6 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         email,
       }
     },
-    getParameters: async (): Promise<DCParams> => {
-      const [baseRentalPrice, duration, lastRented] = await Promise.all([
-        contract.methods.baseRentalPrice().call(),
-        contract.methods.duration().call(),
-        contract.methods.lastRented().call(),
-      ])
-      return {
-        baseRentalPrice: {
-          amount: new BN(baseRentalPrice).toString(),
-          formatted: web3.utils.fromWei(baseRentalPrice),
-        },
-        duration: new BN(duration).toNumber() * 1000,
-        lastRented,
-      }
-    },
     getPrice: async ({ name }: { name: string }): Promise<DomainPrice> => {
       const price = await contract.methods
         .getPrice(name)
@@ -350,12 +304,18 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       if (!name) {
         throw new Error('name is empty')
       }
-      const nameBytes = web3.utils.keccak256(name)
-      const result = await contract.methods.nameRecords(nameBytes).call()
-      const [renter, rentTime, expirationTime, lastPrice, url, prev, next] =
-        Object.keys(result).map((k) => result[k])
+      // const nameBytes = web3.utils.keccak256(name)
+      let ownerAddress = ''
+      let lastPrice = '0', url = '', prev = '', next = ''
+      try {
+        ownerAddress = await contract.methods.ownerOf(name).call()
+      } catch (e) {
+        // console.log('Cannot get owner address', e.message)
+      }
+      const rentTime = await contract.methods.duration().call()
+      const expirationTime = await contract.methods.nameExpires(name).call()
       return {
-        renter: renter === Constants.EmptyAddress ? null : renter,
+        renter: !ownerAddress || ownerAddress === Constants.EmptyAddress ? null : ownerAddress,
         rentTime: new BN(rentTime).toNumber() * 1000,
         expirationTime: new BN(expirationTime).toNumber() * 1000,
         lastPrice: {
@@ -367,40 +327,8 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         next,
       }
     },
-
-    addRecordUrl: ({
-      name,
-      url,
-      onFailed,
-      onSuccess,
-      onTransactionHash,
-    }: AddUrlProps) => {
-      return send({
-        parameters: [name, url],
-        methodName: 'addURL',
-        onFailed,
-        onSuccess,
-        onTransactionHash,
-      })
-    },
-
-    removeRecordUrl: ({
-      name,
-      pos,
-      onFailed,
-      onSuccess,
-      onTransactionHash,
-    }: RemoveUrlProps) => {
-      return send({
-        parameters: [name, pos],
-        methodName: 'removeUrl',
-        onFailed,
-        onSuccess,
-        onTransactionHash,
-      })
-    },
-    getRecordUrlList: async ({ name }: { name: string }) => {
-      return contract.methods.getAllUrls(name).call()
+    ownerOf: async ({ name }: { name: string }) => {
+      return contract.methods.ownerOf(name).call()
     },
 
     checkAvailable: async ({ name }: { name: string }) => {

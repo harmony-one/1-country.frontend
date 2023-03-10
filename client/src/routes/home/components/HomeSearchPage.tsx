@@ -169,6 +169,8 @@ export const HomeSearchPage: React.FC = observer(() => {
         ]
       )
 
+      console.log('Domain price:', price)
+
       setSearchResult({
         domainName: _domainName,
         domainRecord: record,
@@ -416,7 +418,8 @@ export const HomeSearchPage: React.FC = observer(() => {
     const rentResult = await rootStore.d1dcClient.rent({
       name: searchResult.domainName.toLowerCase(),
       secret,
-      url: tweetId.toString(),
+      //url: tweetId.toString(),
+      owner: walletStore.walletAddress,
       amount: new BN(searchResult.price.amount).toString(),
       onTransactionHash: () => {
         setProcessStatus({
