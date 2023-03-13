@@ -165,19 +165,20 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   const loadDomainRecord = async (_domainName: string) => {
-    const [record, price, relayCheckDomain, isAvailable2] =
-      await Promise.all([
-        rootStore.d1dcClient.getRecord({ name: _domainName }),
-        rootStore.d1dcClient.getPrice({ name: _domainName }),
-        _domainName.length > 2 ? relayApi().checkDomain({
-          sld: _domainName,
-        }) : {
-          isAvailable: true
-        },
-        rootStore.d1dcClient.checkAvailable({
-          name: _domainName,
-        }),
-      ])
+    const [record, price, relayCheckDomain, isAvailable2] = await Promise.all([
+      rootStore.d1dcClient.getRecord({ name: _domainName }),
+      rootStore.d1dcClient.getPrice({ name: _domainName }),
+      _domainName.length > 2
+        ? relayApi().checkDomain({
+            sld: _domainName,
+          })
+        : {
+            isAvailable: true,
+          },
+      rootStore.d1dcClient.checkAvailable({
+        name: _domainName,
+      }),
+    ])
 
     return {
       domainName: _domainName,
@@ -541,17 +542,15 @@ const HomeSearchPage: React.FC = observer(() => {
               )}
               {processStatus.type === ProcessStatusTypes.IDLE &&
                 !inputValue && (
-                  <Box>
-                    <BaseText>
-                      <a
-                        style={{ color: '#758796', textDecoration: 'none' }}
-                        href="https://harmony.one/1"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Learn More
-                      </a>
-                    </BaseText>
+                  <Box align="center">
+                    <Button
+                      as="a"
+                      href="https://harmony.one/1"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Learn More
+                    </Button>
                   </Box>
                 )}
             </Box>
