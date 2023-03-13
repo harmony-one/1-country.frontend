@@ -33,6 +33,7 @@ import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { relayApi } from '../../../api/relayApi'
 import qs from 'qs'
 import { mainApi } from '../../../api/mainApi'
+import { retry } from '../../../utils/retry'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -243,27 +244,32 @@ const HomeSearchPage: React.FC = observer(() => {
 
     const timerId = createTick()
 
-    try {
-      // @ts-ignore
-      const { success, responseText, isRegistered } =
-        await relayApi().purchaseDomain({
-          domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
-          txHash,
-          address: walletStore.walletAddress,
-        })
+    await retry(
+      async () => {
+        try {
+          // @ts-ignore
+          const { success, responseText, isRegistered } =
+            await relayApi().purchaseDomain({
+              domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+              txHash,
+              address: walletStore.walletAddress,
+            })
 
-      clearTimeout(timerId)
-      if (!success && !isRegistered) {
-        console.log(`failure reason: ${responseText}`)
-        throw new Error(
-          `Unable to acquire web2 domain. Reason: ${responseText}`
-        )
-      }
-    } catch (ex) {
-      clearTimeout(timerId)
-      console.log('### ex', ex)
-      throw new Error(`Unable to acquire web2 domain`)
-    }
+          clearTimeout(timerId)
+          if (!success && !isRegistered) {
+            console.log(`failure reason: ${responseText}`)
+            throw new Error(
+              `Unable to acquire web2 domain. Reason: ${responseText}`
+            )
+          }
+        } catch (ex) {
+          clearTimeout(timerId)
+          console.log('### ex', ex)
+          throw new Error(`Unable to acquire web2 domain`)
+        }
+      },
+      { retries: 3, retryIntervalMs: 3000 }
+    )
   }
 
   const handleRentDomain = async () => {
