@@ -16,7 +16,7 @@ export const nameUtils = {
     return nameUtils.VALID_NAME.test(name)
   },
   isReservedName: (name: string) => {
-    return RESERVED_NAMES.includes(name)
+    return name.length <= 9 || RESERVED_NAMES.includes(name)
   },
 }
 
