@@ -15,8 +15,11 @@ export const nameUtils = {
   isValidName: (name: string) => {
     return nameUtils.VALID_NAME.test(name)
   },
+  isTaken: (name: string) => {
+    return RESERVED_NAMES.includes(name)
+  },
   isReservedName: (name: string) => {
-    return name.length <= 9 || RESERVED_NAMES.includes(name)
+    return name.length <= 9
   },
 }
 
@@ -81,10 +84,16 @@ export const getDomainLevel = (domainName: string): DomainLevel => {
 }
 
 export const validateDomainName = (domainName: string) => {
-  if (nameUtils.isReservedName(domainName.toLowerCase())) {
+  if (nameUtils.isTaken(domainName.toLowerCase())) {
     return {
       valid: false,
       error: 'This domain name is reserved for special purpose',
+    }
+  }
+  if (nameUtils.isReservedName(domainName.toLowerCase())) {
+    return {
+      valid: false,
+      error: 'This domain name is reserved',
     }
   }
 
