@@ -81,19 +81,42 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }, [status, isOpen])
 
-  const updateSearch = (domainName: string) => {
-    setSearchResult(null)
-    if (domainName) {
-      const result = validateDomainName(domainName)
-      setValidation(result)
+  const updateSearch = useMemo(() => {
+    return debounce(async (domainName: string) => {
+      setSearchResult(null)
+      if (domainName) {
+        const result = validateDomainName(domainName)
+        setValidation(result)
 
-      if (result.valid) {
-        loadDomainRecord(domainName)
+        if (result.valid) {
+          try {
+            setProcessStatus({
+              type: ProcessStatusTypes.PROGRESS,
+              render: '',
+            })
+            setLoading(true)
+
+            const result = await loadDomainRecord(domainName)
+            setSearchResult(result)
+
+            setProcessStatus({
+              type: ProcessStatusTypes.IDLE,
+              render: '',
+            })
+          } catch (e) {
+            setProcessStatus({
+              type: ProcessStatusTypes.IDLE,
+              render: <BaseText>{e.message}</BaseText>,
+            })
+          } finally {
+            setLoading(false)
+          }
+        }
+      } else {
+        setValidation({ valid: true, error: '' })
       }
-    } else {
-      setValidation({ valid: true, error: '' })
-    }
-  }
+    }, 350)
+  }, [rootStore.d1dcClient])
 
   // setup form from query string
   useEffect(() => {
@@ -140,56 +163,28 @@ const HomeSearchPage: React.FC = observer(() => {
     setLoading(false)
   }
 
-  const loadDomainRecord = useMemo(() => {
-    return debounce(async (_domainName: string) => {
-      if (!_domainName) {
-        return
-      }
+  const loadDomainRecord = async (_domainName: string) => {
+    const [record, price, relayCheckDomain, isAvailable2] =
+      await Promise.all([
+        rootStore.d1dcClient.getRecord({ name: _domainName }),
+        rootStore.d1dcClient.getPrice({ name: _domainName }),
+        _domainName.length > 2 ? relayApi().checkDomain({
+          sld: _domainName,
+        }) : {
+          isAvailable: true
+        },
+        rootStore.d1dcClient.checkAvailable({
+          name: _domainName,
+        }),
+      ])
 
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: '',
-      })
-      setLoading(true) //will show three dots
-
-      try {
-        const [record, price, relayCheckDomain, isAvailable2] =
-          await Promise.all([
-            rootStore.d1dcClient.getRecord({ name: _domainName }),
-            rootStore.d1dcClient.getPrice({ name: _domainName }),
-            _domainName.length > 2 ? relayApi().checkDomain({
-              sld: _domainName,
-            }) : {
-              isAvailable: true
-            },
-            rootStore.d1dcClient.checkAvailable({
-              name: _domainName,
-            }),
-          ])
-
-        console.log('Domain price:', price)
-
-        setSearchResult({
-          domainName: _domainName,
-          domainRecord: record,
-          price: price,
-          isAvailable: relayCheckDomain.isAvailable && isAvailable2,
-        })
-
-        setProcessStatus({
-          type: ProcessStatusTypes.IDLE,
-          render: '',
-        })
-        setLoading(false)
-      } catch (ex) {
-        setProcessStatus({
-          type: ProcessStatusTypes.IDLE,
-          render: <BaseText>{ex.message}</BaseText>,
-        })
-        setLoading(false)
-      }
-    }, 500)
-  }, [rootStore.d1dcClient])
+    return {
+      domainName: _domainName,
+      domainRecord: record,
+      price: price,
+      isAvailable: relayCheckDomain.isAvailable && isAvailable2,
+    }
+  }
 
   const claimWeb2DomainWrapper = async () => {
     setLoading(true)
