@@ -179,44 +179,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     widgetListStore.deleteWidget({ widgetId, domainName })
   }
 
-  const handleDeleteLegacyUrl = async () => {
-    setLoading(true)
-
-    try {
-      const updateResult = await rootStore.tweetClient.updateURL({
-        name: domainName,
-        url: '',
-        onTransactionHash: () => {
-          setProcessStatus({
-            type: ProcessStatusTypes.PROGRESS,
-            render: <BaseText>Waiting for transaction confirmation</BaseText>,
-          })
-        },
-      })
-
-      if (updateResult.error) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: updateResult.error.message,
-        })
-        setLoading(false)
-        return
-      }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>Post deleted</BaseText>,
-      })
-      setLoading(false)
-
-      resetProcessStatus()
-
-      domainStore.loadDomainRecord(domainName)
-    } catch (ex) {
-      setLoading(false)
-    }
-  }
-
   const showInput = walletStore.isConnected && domainStore.isOwner
 
   return (
@@ -253,14 +215,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           />
         </WidgetStatusWrapper>
       ))}
-
-      {domainStore.domainRecord && domainStore.domainRecord.url && (
-        <MediaWidget
-          value={domainStore.domainRecord.url}
-          isOwner={domainStore.isOwner}
-          onDelete={handleDeleteLegacyUrl}
-        />
-      )}
 
       {domainStore.domainRecord && (
         <TransactionWidget
