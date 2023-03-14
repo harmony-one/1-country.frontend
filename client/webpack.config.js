@@ -150,12 +150,18 @@ module.exports = {
 
   optimization: {
     // concatenateModules: true,
-    minimize: true,
+    minimize: isProduction,
     splitChunks: {
       chunks: 'async',
     },
   },
   plugins: [
+    // disable chunks for dev env
+    !isProduction
+      ? new webpack.optimize.LimitChunkCountPlugin({
+          maxChunks: 5,
+        })
+      : false,
     new Dotenv({
       allowEmptyValues: true,
       systemvars: true,
