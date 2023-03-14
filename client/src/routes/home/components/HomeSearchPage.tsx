@@ -142,9 +142,14 @@ const HomeSearchPage: React.FC = observer(() => {
       walletStore.setProvider(provider, address)
       handleRentDomain()
     }
+
     if (!walletStore.isMetamaskAvailable) {
       if (isConnected) {
         connectWallet()
+      } else { // Wallet Connect disconnected, drop to initial state
+        if(processStatus.type === ProcessStatusTypes.PROGRESS) {
+          terminateProcess(1)
+        }
       }
     }
   }, [isConnected])
