@@ -93,7 +93,7 @@ export const validateDomainName = (domainName: string) => {
   if (nameUtils.isReservedName(domainName.toLowerCase())) {
     return {
       valid: false,
-      error: 'This domain name is reserved',
+      error: 'Available Soon',
     }
   }
 
