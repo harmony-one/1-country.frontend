@@ -31,12 +31,6 @@ export interface DCParams {
   duration: number
 }
 
-export enum EMOJI_TYPE {
-  ONE_ABOVE = 0,
-  FIRST_PRIZE = 1,
-  ONE_HUNDRED_PERCENT = 2,
-}
-
 export enum OWNER_INFO_FIELDS {
   TELEGRAM = 'telegram',
   EMAIL = 'email',
@@ -78,20 +72,8 @@ interface CommitProps extends CallbackProps {
   secret: string
 }
 
-export const getFullName = (name: string) => {
-  return name
-  // `${name}${config.tdl}`
-}
-
 function objectKeys<T>(obj: T) {
   return Object.keys(obj) as [keyof T]
-}
-
-export const getEmojiPrice = (emojiType: EMOJI_TYPE) => {
-  const key = objectKeys(config.emojiType).find(
-    (key) => config.emojiType[key] === emojiType
-  )
-  return config.emojiTypePrice[key]
 }
 
 const apis = ({ web3, address }: { web3: Web3; address: string }) => {
@@ -274,22 +256,6 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         return null
       }
     },
-    getAllOwnerInfo: async ({
-      name,
-    }: {
-      name: string
-    }): Promise<{ telegram: string; phone: string; email: string }> => {
-      const [telegram, phone, email] = await Promise.all([
-        contract.methods.getOwnerTelegram(name).call({ from: address }),
-        contract.methods.getOwnerPhone(name).call({ from: address }),
-        contract.methods.getOwnerEmail(name).call({ from: address }),
-      ])
-      return {
-        telegram,
-        phone,
-        email,
-      }
-    },
     getPrice: async ({ name }: { name: string }): Promise<DomainPrice> => {
       const price = await contract.methods
         .getPrice(name)
@@ -343,53 +309,6 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     checkAvailable: async ({ name }: { name: string }) => {
       const isAvailable = await contract.methods.available(name).call()
       return isAvailable?.toString()?.toLowerCase() === 'true'
-    },
-    getEmojisCounter: async ({ name }: { name: string }) => {
-      const byte32Name = web3.utils.soliditySha3(getFullName(name))
-      const [oneAbove, firstPrice, oneHundred] = await Promise.all(
-        Object.values(config.emojiType).map((emoji) =>
-          contract.methods.emojiReactionCounters(byte32Name, emoji).call()
-        )
-      )
-      return {
-        0: oneAbove,
-        1: firstPrice,
-        2: oneHundred,
-      }
-    },
-    getEmojiCounter: async ({
-      name,
-      emojiType,
-    }: {
-      name: string
-      emojiType: EMOJI_TYPE
-    }) => {
-      const byte32Name = web3.utils.soliditySha3(getFullName(name))
-      const emoji = await contract.methods
-        .emojiReactionCounters(byte32Name, emojiType)
-        .call()
-      return emoji
-    },
-    addEmojiReaction: async ({
-      name,
-      emojiType,
-    }: {
-      name: string
-      emojiType: EMOJI_TYPE
-    }) => {
-      try {
-        const amount = web3.utils.toWei(
-          new BN(getEmojiPrice(emojiType)).toString()
-        )
-        const tx = await contract.methods
-          .addEmojiReaction(getFullName(name), emojiType)
-          .send({ from: address, value: amount })
-        console.log('addEmojiReaction TX', tx)
-        return tx
-      } catch (e) {
-        console.log('addEmojiReaction ERROR', e)
-        return null
-      }
     },
   }
 }
