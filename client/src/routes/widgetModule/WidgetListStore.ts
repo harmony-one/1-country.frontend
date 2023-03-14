@@ -5,6 +5,10 @@ import { rootStore } from '../../stores'
 import { CallbackProps } from '../../api'
 import isUrl from 'is-url'
 import { mainApi } from '../../api/mainApi'
+import {
+  ProcessStatusItem,
+  ProcessStatusTypes,
+} from '../../components/process-status/ProcessStatus'
 
 export interface Widget {
   id?: number
@@ -44,6 +48,9 @@ class WidgetListStore extends BaseStore {
   widgetList: Widget[] = []
   txDomainLoading: boolean = false
   txDomain: string = ''
+  widgetStatus: {
+    [key: number]: ProcessStatusItem
+  }
 
   constructor(rootStore: RootStore) {
     super(rootStore)
@@ -57,9 +64,14 @@ class WidgetListStore extends BaseStore {
         widgetList: observable,
         loadWidgetList: action,
         deleteWidget: action,
+        _deleteWidget: action,
+        widgetStatus: observable,
+        setWidgetStatus: observable,
       },
       { autoBind: true }
     )
+
+    this.widgetStatus = {}
   }
 
   async createWidget(
@@ -100,7 +112,74 @@ class WidgetListStore extends BaseStore {
     }
   }
 
-  async deleteWidget(
+  setWidgetStatus(widgetId: number, processStatus: ProcessStatusItem) {
+    this.widgetStatus[widgetId] = processStatus
+  }
+
+  async deleteWidget(props: { widgetId: number; domainName: string }) {
+    const { widgetId, domainName } = props
+
+    if (
+      this.widgetStatus[widgetId] &&
+      this.widgetStatus[widgetId].type !== ProcessStatusTypes.IDLE
+    ) {
+      return
+    }
+
+    this.setWidgetStatus(widgetId, {
+      type: ProcessStatusTypes.PROGRESS,
+      render: 'Waiting for a transaction to be signed',
+    })
+
+    try {
+      const result = await this._deleteWidget({
+        domainName,
+        widgetId,
+        onTransactionHash: () => {
+          this.setWidgetStatus(widgetId, {
+            type: ProcessStatusTypes.PROGRESS,
+            render: 'Waiting for transaction confirmation',
+          })
+        },
+      })
+
+      if (result.error) {
+        this.setWidgetStatus(widgetId, {
+          type: ProcessStatusTypes.ERROR,
+          render: result.error.message,
+        })
+        throw result.error
+      }
+
+      this.setWidgetStatus(widgetId, {
+        type: ProcessStatusTypes.SUCCESS,
+        render: 'Url successfully removed',
+      })
+
+      setTimeout(() => {
+        this.setWidgetStatus(widgetId, {
+          type: ProcessStatusTypes.IDLE,
+          render: '',
+        })
+
+        this.loadWidgetList(domainName)
+      }, 3000)
+    } catch (ex) {
+      this.setWidgetStatus(widgetId, {
+        type: ProcessStatusTypes.ERROR,
+        render: ex.message,
+      })
+
+      setTimeout(() => {
+        this.setWidgetStatus(widgetId, {
+          type: ProcessStatusTypes.IDLE,
+          render: '',
+        })
+      }, 3000)
+    }
+  }
+
+  async _deleteWidget(
     props: { domainName: string; widgetId: number } & CallbackProps
   ) {
     const { domainName, widgetId, onSuccess, onTransactionHash, onFailed } =
@@ -118,8 +197,6 @@ class WidgetListStore extends BaseStore {
         onFailed,
         onTransactionHash,
       })
-
-      await this.loadWidgetList(domainName)
 
       return result
     } catch (ex) {

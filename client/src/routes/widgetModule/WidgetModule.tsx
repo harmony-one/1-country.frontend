@@ -25,6 +25,7 @@ import {
 } from '../../utils/validation'
 import { BaseText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
+import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -175,47 +176,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }
 
   const deleteWidget = async (widgetId: number) => {
-    setLoading(true)
-
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>Waiting for a transaction to be signed</BaseText>,
-    })
-
-    try {
-      const result = await widgetListStore.deleteWidget({
-        domainName,
-        widgetId,
-        onTransactionHash: () => {
-          setProcessStatus({
-            type: ProcessStatusTypes.PROGRESS,
-            render: <BaseText>Waiting for transaction confirmation</BaseText>,
-          })
-        },
-      })
-      setLoading(false)
-
-      if (result.error) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: <BaseText>{result.error.message}</BaseText>,
-        })
-        return
-      }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>Url successfully removed</BaseText>,
-      })
-
-      resetProcessStatus()
-    } catch (ex) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{ex.message}</BaseText>,
-      })
-      setLoading(false)
-    }
+    widgetListStore.deleteWidget({ widgetId, domainName })
   }
 
   const handleDeleteLegacyUrl = async () => {
@@ -281,12 +242,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       )}
 
       {widgetListStore.widgetList.map((widget, index) => (
-        <MediaWidget
-          value={widget.value}
-          key={index + widget.value}
-          isOwner={domainStore.isOwner}
-          onDelete={() => deleteWidget(widget.id)}
-        />
+        <WidgetStatusWrapper
+          key={widget.id + widget.value}
+          widgetId={widget.id}
+        >
+          <MediaWidget
+            value={widget.value}
+            isOwner={domainStore.isOwner}
+            onDelete={() => deleteWidget(widget.id)}
+          />
+        </WidgetStatusWrapper>
       ))}
 
       {domainStore.domainRecord && domainStore.domainRecord.url && (
