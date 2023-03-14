@@ -6,6 +6,7 @@ import { ModalStore } from '../modules/modals/ModalStore'
 import { RatesStore } from './RatesStore'
 import { WalletStore } from './WalletStore'
 import { DomainStore } from './DomainStore'
+import { LoadersStore } from './LoadersStore'
 import Constants from '../constants'
 import apis, { D1DCClient } from '../api'
 import {
@@ -34,6 +35,7 @@ export class RootStore {
     walletStore: WalletStore
     uiTransactionStore: UITransactionStore
     metaTagsStore: MetaTagsStore
+    loadersStore: LoadersStore
   }
 
   constructor() {
@@ -76,6 +78,7 @@ export class RootStore {
       domainStore: this.domainStore,
       uiTransactionStore: this.uiTransactionStore,
       metaTagsStore: metaTagsStore,
+      loadersStore: new LoadersStore(this),
     }
   }
 
