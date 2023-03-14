@@ -5,7 +5,7 @@ import {
   ProcessStatusTypes,
 } from '../process-status/ProcessStatus'
 import { observer } from 'mobx-react-lite'
-import { widgetListStore } from '../../routes/widgetModule/WidgetListStore'
+import { useStores } from '../../stores'
 
 const Wrapper = styled.div`
   position: relative;
@@ -33,18 +33,19 @@ const StatusContent = styled.div`
 `
 
 interface Props {
-  widgetId: number
+  loaderId: string
   children: React.ReactNode
 }
 
 export const WidgetStatusWrapper: React.FC<Props> = observer(
-  ({ widgetId, children }) => {
-    const processProcess = widgetListStore.widgetStatus[widgetId]
+  ({ loaderId, children }) => {
+    const { loadersStore } = useStores()
+    const processProcess = loadersStore.getLoader(loaderId)
 
     return (
       <Wrapper>
         {children}
-        {processProcess && processProcess.type !== ProcessStatusTypes.IDLE && (
+        {processProcess.type !== ProcessStatusTypes.IDLE && (
           <StatusContainer>
             <StatusContent>
               <ProcessStatus status={processProcess} />

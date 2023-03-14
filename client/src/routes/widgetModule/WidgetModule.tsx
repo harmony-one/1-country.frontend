@@ -18,11 +18,7 @@ import {
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
-import {
-  isEmail,
-  isValidInstagramUri,
-  isValidTwitUri,
-} from '../../utils/validation'
+import { isEmail } from '../../utils/validation'
 import { BaseText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
@@ -206,7 +202,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       {widgetListStore.widgetList.map((widget, index) => (
         <WidgetStatusWrapper
           key={widget.id + widget.value}
-          widgetId={widget.id}
+          loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
         >
           <MediaWidget
             value={widget.value}

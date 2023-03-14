@@ -48,9 +48,6 @@ class WidgetListStore extends BaseStore {
   widgetList: Widget[] = []
   txDomainLoading: boolean = false
   txDomain: string = ''
-  widgetStatus: {
-    [key: number]: ProcessStatusItem
-  }
 
   constructor(rootStore: RootStore) {
     super(rootStore)
@@ -65,13 +62,10 @@ class WidgetListStore extends BaseStore {
         loadWidgetList: action,
         deleteWidget: action,
         _deleteWidget: action,
-        widgetStatus: observable,
-        setWidgetStatus: observable,
+        setWidgetLoader: observable,
       },
       { autoBind: true }
     )
-
-    this.widgetStatus = {}
   }
 
   async createWidget(
@@ -112,21 +106,29 @@ class WidgetListStore extends BaseStore {
     }
   }
 
-  setWidgetStatus(widgetId: number, processStatus: ProcessStatusItem) {
-    this.widgetStatus[widgetId] = processStatus
+  buildWidgetLoaderId(widgetId: number) {
+    return 'widget_' + widgetId
+  }
+
+  setWidgetLoader(widgetId: number, processStatus: ProcessStatusItem) {
+    const loaderId = this.buildWidgetLoaderId(widgetId)
+    this.stores.loadersStore.setLoader(loaderId, processStatus)
+  }
+
+  getWidgetLoader(widgetId: number) {
+    const id = this.buildWidgetLoaderId(widgetId)
+    return this.stores.loadersStore.getLoader(id)
   }
 
   async deleteWidget(props: { widgetId: number; domainName: string }) {
     const { widgetId, domainName } = props
 
-    if (
-      this.widgetStatus[widgetId] &&
-      this.widgetStatus[widgetId].type !== ProcessStatusTypes.IDLE
-    ) {
+    const processStatus = this.getWidgetLoader(widgetId)
+    if (processStatus.type !== ProcessStatusTypes.IDLE) {
       return
     }
 
-    this.setWidgetStatus(widgetId, {
+    this.setWidgetLoader(widgetId, {
       type: ProcessStatusTypes.PROGRESS,
       render: 'Waiting for a transaction to be signed',
     })
@@ -136,7 +138,7 @@ class WidgetListStore extends BaseStore {
         domainName,
         widgetId,
         onTransactionHash: () => {
-          this.setWidgetStatus(widgetId, {
+          this.setWidgetLoader(widgetId, {
             type: ProcessStatusTypes.PROGRESS,
             render: 'Waiting for transaction confirmation',
           })
@@ -144,20 +146,20 @@ class WidgetListStore extends BaseStore {
       })
 
       if (result.error) {
-        this.setWidgetStatus(widgetId, {
+        this.setWidgetLoader(widgetId, {
           type: ProcessStatusTypes.ERROR,
           render: result.error.message,
         })
         throw result.error
       }
 
-      this.setWidgetStatus(widgetId, {
+      this.setWidgetLoader(widgetId, {
         type: ProcessStatusTypes.SUCCESS,
         render: 'Url successfully removed',
       })
 
       setTimeout(() => {
-        this.setWidgetStatus(widgetId, {
+        this.setWidgetLoader(widgetId, {
           type: ProcessStatusTypes.IDLE,
           render: '',
         })
@@ -165,13 +167,13 @@ class WidgetListStore extends BaseStore {
         this.loadWidgetList(domainName)
       }, 3000)
     } catch (ex) {
-      this.setWidgetStatus(widgetId, {
+      this.setWidgetLoader(widgetId, {
         type: ProcessStatusTypes.ERROR,
         render: ex.message,
       })
 
       setTimeout(() => {
-        this.setWidgetStatus(widgetId, {
+        this.setWidgetLoader(widgetId, {
           type: ProcessStatusTypes.IDLE,
           render: '',
         })
