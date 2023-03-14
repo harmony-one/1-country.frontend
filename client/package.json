@@ -6,7 +6,6 @@
   "scripts": {
     "debug": "DEBUG=1 webpack serve --mode=development",
     "local": "DEBUG=true webpack serve --mode=development",
-    "analysis": "SIZE_ANALYSIS=true DEBUG=true webpack serve --mode=production",
     "build": "webpack --mode=production --config webpack.config.js",
     "prepare": "cd .. && husky install client/.husky"
   },

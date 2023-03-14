@@ -38,12 +38,10 @@ export const relayApi = () => {
       domain,
       txHash,
       address,
-      fast,
     }: {
       domain: string
       txHash: string
       address: string
-      fast?: 0 | 1
     }) => {
       const {
         data: {
@@ -53,9 +51,8 @@ export const relayApi = () => {
           traceId,
           reqTime,
           responseText,
-          isRegistered,
         },
-      } = await base.post('/purchase', { domain, txHash, address, fast })
+      } = await base.post('/purchase', { domain, txHash, address, fast: 1 })
       return {
         success,
         domainCreationDate,
@@ -63,7 +60,6 @@ export const relayApi = () => {
         traceId,
         reqTime,
         responseText,
-        isRegistered,
       }
     },
     createCert: async ({
