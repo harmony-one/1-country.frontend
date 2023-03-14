@@ -22,6 +22,7 @@ import {
   isEmail,
   isValidInstagramUri,
   isValidTwitUri,
+  isRedditUrl,
 } from '../../utils/validation'
 import { BaseText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
@@ -93,6 +94,14 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       return
     }
 
+    if (isRedditUrl(value)) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Invalid URL',
+      })
+      setLoading(false)
+      return
+    }
     // const isTwit = isValidTwitUri(value)
     // const isInst = isValidInstagramUri(value)
 
