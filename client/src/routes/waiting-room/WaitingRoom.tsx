@@ -14,6 +14,7 @@ import { urlExists } from '../../api/checkUrl'
 import { useSearchParams } from 'react-router-dom'
 import { relayApi } from '../../api/relayApi'
 import { mainApi } from '../../api/mainApi'
+import {Web3Button} from "@web3modal/react";
 
 const WaitingRoom = observer(() => {
   const [intervalId, setIntervalId] = useState<NodeJS.Timer>()
@@ -147,6 +148,9 @@ const WaitingRoom = observer(() => {
       {!walletStore.isConnected && (
         <DescResponsive>
           <h3>Please connect your MetaMask wallet</h3>
+          {!walletStore.isMetamaskAvailable &&
+            <Web3Button />
+          }
         </DescResponsive>
       )}
     </Container>

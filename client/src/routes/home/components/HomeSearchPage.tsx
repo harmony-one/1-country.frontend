@@ -268,7 +268,7 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   const handleRentDomain = async () => {
-    if (!searchResult.domainRecord || !validation.valid) {
+    if (!searchResult || !searchResult.domainRecord || !validation.valid) {
       return false
     }
 
