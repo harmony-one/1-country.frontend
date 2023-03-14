@@ -26,3 +26,9 @@ const emailRegex = /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/
 export function isEmail(str: string) {
   return emailRegex.test(str)
 }
+
+export const isRedditUrl = (url: string) => {
+  return (
+    url.indexOf('//www.reddit.com') >= 0 || url.indexOf('//reddit.com') >= 0
+  )
+}
