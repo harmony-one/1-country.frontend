@@ -3,4 +3,3 @@ backend
 .idea
 # Local Netlify folder
 .netlify
-node_modules
