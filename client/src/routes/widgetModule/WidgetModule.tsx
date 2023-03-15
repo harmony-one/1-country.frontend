@@ -93,7 +93,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     if (isRedditUrl(value)) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: 'Invalid URL',
+        render: 'Incompatible URL. Please try a URL from another website.',
       })
       setLoading(false)
       return
