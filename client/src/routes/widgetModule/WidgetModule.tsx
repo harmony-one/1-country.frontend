@@ -18,7 +18,7 @@ import {
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
-import { isEmail } from '../../utils/validation'
+import { isEmail, isRedditUrl } from '../../utils/validation'
 import { BaseText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
@@ -90,6 +90,14 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       return
     }
 
+    if (isRedditUrl(value)) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Incompatible URL. Please try a URL from another website.',
+      })
+      setLoading(false)
+      return
+    }
     // const isTwit = isValidTwitUri(value)
     // const isInst = isValidInstagramUri(value)
 
