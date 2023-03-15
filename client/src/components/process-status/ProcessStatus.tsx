@@ -17,6 +17,18 @@ type Props = {
   status: ProcessStatusItem
 }
 
+export const psHelpers = {
+  isIdle(ps: ProcessStatusItem) {
+    return ps.type === ProcessStatusTypes.IDLE
+  },
+  isProgress(ps: ProcessStatusItem) {
+    return ps.type === ProcessStatusTypes.PROGRESS
+  },
+  isError(ps: ProcessStatusItem) {
+    return ps.type === ProcessStatusTypes.ERROR
+  },
+}
+
 export const ProcessStatus: React.FC<Props> = ({ status }) => {
   const { type = ProcessStatusTypes.PROGRESS, render = '' } = status
   return (
