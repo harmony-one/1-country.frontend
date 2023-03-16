@@ -16,6 +16,7 @@ import { relayApi } from '../../api/relayApi'
 import { mainApi } from '../../api/mainApi'
 import { Web3Button } from '@web3modal/react'
 import { Box } from 'grommet'
+import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 
 const WaitingRoom = observer(() => {
   const [intervalId, setIntervalId] = useState<NodeJS.Timer>()
@@ -143,6 +144,7 @@ const WaitingRoom = observer(() => {
           {walletStore.isMetamaskAvailable ? (
             <Box>
               <h3>Please connect your MetaMask wallet</h3>
+              <MetamaskWidget />
             </Box>
           ) : (
             <Box>
