@@ -72,10 +72,6 @@ interface CommitProps extends CallbackProps {
   secret: string
 }
 
-function objectKeys<T>(obj: T) {
-  return Object.keys(obj) as [keyof T]
-}
-
 const apis = ({ web3, address }: { web3: Web3; address: string }) => {
   // console.log('apis', web3, address)
   if (!web3) {
