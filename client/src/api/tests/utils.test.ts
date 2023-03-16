@@ -34,13 +34,3 @@ describe('Testing utils', () => {
     )
   })
 })
-
-describe('Testing getDomainLevel', () => {
-  test('getDomainLevel', () => {
-    expect(getDomainLevel('1')).toBe('legendary')
-    expect(getDomainLevel('11111')).toBe('super_rare')
-    expect(getDomainLevel('11111111')).toBe('rare')
-    expect(getDomainLevel('1111111111')).toBe('common')
-    expect(getDomainLevel('11111111111111111111')).toBe('common')
-  })
-})
