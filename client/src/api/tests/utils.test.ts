@@ -1,6 +1,7 @@
 import { nameUtils } from '../utils'
 import { utils } from '../utils'
 import { getDomainLevel } from '../utils'
+import { validateDomainName } from '../utils'
 
 describe('Testing nameUtils', () => {
   test('isValidName', () => {
@@ -32,5 +33,40 @@ describe('Testing utils', () => {
     expect(utils.keccak256('foo', false)).toBe(
       '41b1a0649752af1b28b3dc29a1556eee781e4a4c3a1f7f53f90fa834de098c4d'
     )
+  })
+})
+
+describe('Testing getDomainLevel', () => {
+  test('getDomainLevel', () => {
+    expect(getDomainLevel('1')).toBe('legendary')
+    expect(getDomainLevel('11111')).toBe('super_rare')
+    expect(getDomainLevel('11111111')).toBe('rare')
+    expect(getDomainLevel('1111111111')).toBe('common')
+    expect(getDomainLevel('11111111111111111111')).toBe('common')
+  })
+})
+
+describe('Testing validateDomainName', () => {
+  test('validateDomainName', () => {
+    expect(validateDomainName('1')).toStrictEqual({
+      valid: false,
+      error: 'This domain name is reserved for special purpose',
+    })
+    expect(validateDomainName('****foo****')).toStrictEqual({
+      valid: false,
+      error: 'Domains can use a mix of letters and numbers',
+    })
+    expect(validateDomainName('seven.country')).toStrictEqual({
+      valid: false,
+      error: 'Domains can use a mix of letters and numbers',
+    })
+    expect(validateDomainName('1234567890')).toStrictEqual({
+      valid: true,
+      error: '',
+    })
+    expect(validateDomainName('foofoobarbar')).toStrictEqual({
+      valid: true,
+      error: '',
+    })
   })
 })
