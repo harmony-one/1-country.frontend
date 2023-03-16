@@ -200,6 +200,10 @@ module.exports = {
           from: 'assets/tokens',
           to: 'tokens',
         },
+        {
+          from: 'assets/fonts',
+          to: 'fonts',
+        },
       ],
     }),
   ].filter((i) => i),
