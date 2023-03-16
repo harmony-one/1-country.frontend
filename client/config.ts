@@ -26,6 +26,16 @@ const config = {
     projectId:
       process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8',
   },
+  domain : {
+    tiers : {
+      RESERVED: process.env.TIER_RESERVED || 1,
+      LEGENDARY: process.env.TIER_LEGENDARY || 3,
+      SUPER_RARE: process.env.TIER_SUPER_RARE || 6,
+      RARE: process.env.TIER_RARE || 9,
+      COMMON: process.env.TIER_COMMON || 10
+    }, 
+    reserved : process.env.DOMAIN_RESERVED_LENGTH || 9
+  },
   emojiType: {
     ONE_ABOVE: 0,
     FIRST_PRIZE: 1,

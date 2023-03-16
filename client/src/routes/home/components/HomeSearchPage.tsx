@@ -534,7 +534,7 @@ const HomeSearchPage: React.FC = observer(() => {
           ) : (
             <Box margin={{ top: '16px' }}>
               {!validation.valid && (
-                <Text size={'medium'}>{validation.error}</Text>
+                <Text size={'medium'} style={{ whiteSpace: 'pre-line' }}>{validation.error}</Text>
               )}
               {processStatus.type !== ProcessStatusTypes.IDLE && (
                 <ProcessStatus status={processStatus} />
