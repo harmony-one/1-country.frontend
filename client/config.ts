@@ -28,13 +28,12 @@ const config = {
   },
   domain : {
     tiers : {
-      RESERVED: process.env.TIER_RESERVED || 1,
-      LEGENDARY: process.env.TIER_LEGENDARY || 3,
+      LEGENDARY: process.env.TIER_LEGENDARY || 1,
       SUPER_RARE: process.env.TIER_SUPER_RARE || 6,
       RARE: process.env.TIER_RARE || 9,
       COMMON: process.env.TIER_COMMON || 10
     }, 
-    reserved : process.env.DOMAIN_RESERVED_LENGTH || 9
+    reserved : process.env.DOMAIN_RESERVED_LENGTH || 6
   },
   emojiType: {
     ONE_ABOVE: 0,
