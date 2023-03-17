@@ -60,6 +60,10 @@ describe('Testing validateDomainName', () => {
       valid: false,
       error: 'Domains can use a mix of letters and numbers',
     })
+    expect(validateDomainName('!@#')).toStrictEqual({
+      valid: false,
+      error: 'Domains can use a mix of letters and numbers',
+    })
     expect(validateDomainName('1234567890')).toStrictEqual({
       valid: true,
       error: '',
