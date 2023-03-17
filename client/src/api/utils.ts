@@ -102,7 +102,7 @@ export const validateDomainName = (domainName: string) => {
     return {
       valid: false,
       error:
-        'Domains can use a mix of letters a-z and numbers 0-9.\nNo special characters are allowed', //Domains can use a mix of letters and numbers
+        'Domains may contain letters a-z and numbers 0-9.\nNo special characters are allowed', //Domains can use a mix of letters and numbers
     }
   }
   if (nameUtils.isTaken(domainName.toLowerCase())) {
