@@ -37,9 +37,6 @@ describe('parse tweet id', () => {
     const url = 'https://twitter.com/harmonyprotocol/status/1636138600365719552'
     const result = parseTweetId(url)
     const expected = '1636138600365719552'
-    console.log('[XXX] ID:' + result.tweetId)
-    console.log('[XXX] ERROR:' + result.error)
-
     expect(result.tweetId).toBe(expected)
     expect(result.error).toEqual(null)
   })
