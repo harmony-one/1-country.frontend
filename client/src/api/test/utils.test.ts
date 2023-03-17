@@ -68,5 +68,9 @@ describe('Testing validateDomainName', () => {
       valid: true,
       error: '',
     })
+    expect(validateDomainName('x'.repeat(64))).toStrictEqual({
+      valid: false,
+      error: 'Domains must be under 64 characters long',
+    })
   })
 })
