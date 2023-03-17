@@ -9,6 +9,14 @@ const RESERVED_NAMES = [
   ...SPECIAL_NAMES,
 ]
 
+const isRestricted = (name: string): boolean => {
+  const phrases = config.domain.restrictedPhrases
+  for (var i = 0; i < phrases.length; i++) {
+    if (name.includes(phrases[i])) return true
+  }
+  return false
+}
+
 export const nameUtils = {
   RESTRICTED_VALID_NAME: /[a-z0-9]+/,
   VALID_NAME: /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/,
@@ -19,6 +27,9 @@ export const nameUtils = {
   },
   isTaken: (name: string) => {
     return RESERVED_NAMES.includes(name)
+  },
+  isRestricted: (name: string) => {
+    return isRestricted(name)
   },
   isReservedName: (name: string) => {
     return name.length <= config.domain.reserved
@@ -98,6 +109,12 @@ export const validateDomainName = (domainName: string) => {
     return {
       valid: false,
       error: 'This domain name is reserved for special purpose',
+    }
+  }
+  if (nameUtils.isRestricted(domainName.toLocaleLowerCase())) {
+    return {
+      valid: false,
+      error: `${domainName} contains a restricted phrase and can't be registered`,
     }
   }
   if (nameUtils.isReservedName(domainName.toLowerCase())) {
