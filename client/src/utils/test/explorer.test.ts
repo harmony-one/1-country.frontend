@@ -8,6 +8,7 @@ describe('build transaction URI', () => {
       '0xdfeff1fba1aeed89fb75ef4ee9bf9e0fca1ff9b26d78d471565bf151f965274b'
     const actual = buildTxUri(txHash)
     const expected = explorerURL + txHash
+
     expect(actual).toEqual(expected)
   })
 })
