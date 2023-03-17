@@ -2,8 +2,8 @@ import config from '../../config'
 import TweetAbi from '../../abi/Tweet'
 import Web3 from 'web3'
 import { TransactionReceipt } from 'web3-core'
-import {CallbackProps, SendProps} from "./index";
-import {utils} from "./utils";
+import { CallbackProps, SendProps } from './index'
+import { utils } from './utils'
 
 const { tweetContractAddress } = config
 
@@ -40,16 +40,23 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
     return
   }
 
+  const web3ReadOnly = new Web3(config.defaultRPC)
+  const contractReadOnly = new web3ReadOnly.eth.Contract(
+    TweetAbi,
+    tweetContractAddress,
+    { from: address }
+  )
+
   const contract = new web3.eth.Contract(TweetAbi, tweetContractAddress)
 
   const send = async ({
-                        amount,
-                        onFailed,
-                        onTransactionHash = () => {},
-                        onSuccess,
-                        methodName,
-                        parameters,
-                      }: SendProps): Promise<SendResult> => {
+    amount,
+    onFailed,
+    onTransactionHash = () => {},
+    onSuccess,
+    methodName,
+    parameters,
+  }: SendProps): Promise<SendResult> => {
     console.log('send:', { methodName, parameters, amount, address })
 
     try {
@@ -77,12 +84,12 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
     web3,
     send,
     activate: async ({
-                   name,
-                   amount,
-                   onFailed,
-                   onSuccess,
-                   onTransactionHash,
-                 }: ActivateProps) => {
+      name,
+      amount,
+      onFailed,
+      onSuccess,
+      onTransactionHash,
+    }: ActivateProps) => {
       return send({
         amount,
         parameters: [name],
@@ -93,12 +100,12 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
       })
     },
     updateURL: async ({
-                        name,
-                        url,
-                        onFailed,
-                        onSuccess,
-                        onTransactionHash,
-                      }: UpdateUrlProps) => {
+      name,
+      url,
+      onFailed,
+      onSuccess,
+      onTransactionHash,
+    }: UpdateUrlProps) => {
       return send({
         parameters: [name, url],
         methodName: 'updateURL',
@@ -107,16 +114,16 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
         onTransactionHash,
       })
     },
-    numUrls ({ name }: { name: string }) {
-      return contract.methods.numUrls(name).call()
+    numUrls({ name }: { name: string }) {
+      return contractReadOnly.methods.numUrls(name).call()
     },
     removeRecordUrl: ({
-                        name,
-                        pos,
-                        onFailed,
-                        onSuccess,
-                        onTransactionHash,
-                      }: RemoveUrlProps) => {
+      name,
+      pos,
+      onFailed,
+      onSuccess,
+      onTransactionHash,
+    }: RemoveUrlProps) => {
       return send({
         parameters: [name, pos],
         methodName: 'removeUrl',
@@ -125,16 +132,16 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
         onTransactionHash,
       })
     },
-    clearUrls ({ name }: { name: string }) {
-      return contract.methods.clearUrls(name).call()
+    clearUrls({ name }: { name: string }) {
+      return contractReadOnly.methods.clearUrls(name).call()
     },
     addRecordUrl: ({
-                     name,
-                     url,
-                     onFailed,
-                     onSuccess,
-                     onTransactionHash,
-                   }: AddUrlProps) => {
+      name,
+      url,
+      onFailed,
+      onSuccess,
+      onTransactionHash,
+    }: AddUrlProps) => {
       return send({
         parameters: [name, url],
         methodName: 'addURL',
@@ -144,18 +151,18 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
       })
     },
     getRecordUrlList: async ({ name }: { name: string }) => {
-      return contract.methods.getAllUrls(name).call()
+      return contractReadOnly.methods.getAllUrls(name).call()
     },
     baseRentalPrice: () => {
-      return contract.methods.baseRentalPrice().call()
+      return contractReadOnly.methods.baseRentalPrice().call()
     },
     initialized: () => {
-      return contract.methods.initialized().call()
+      return contractReadOnly.methods.initialized().call()
     },
     isActivated: (name: string) => {
       const hash = utils.keccak256(name, true)
-      return contract.methods.activated(hash).call()
-    }
+      return contractReadOnly.methods.activated(hash).call()
+    },
   }
 }
 

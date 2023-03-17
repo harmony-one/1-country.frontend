@@ -14,8 +14,9 @@ import { urlExists } from '../../api/checkUrl'
 import { useSearchParams } from 'react-router-dom'
 import { relayApi } from '../../api/relayApi'
 import { mainApi } from '../../api/mainApi'
-import {Web3Button} from "@web3modal/react";
-import {Box} from "grommet";
+import { Web3Button } from '@web3modal/react'
+import { Box } from 'grommet'
+import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 
 const WaitingRoom = observer(() => {
   const [intervalId, setIntervalId] = useState<NodeJS.Timer>()
@@ -32,14 +33,6 @@ const WaitingRoom = observer(() => {
   useEffect(() => {
     if (!domainName) {
       navigate(-1)
-    }
-
-    try {
-      if (!walletStore.isConnected) {
-        walletStore.connect()
-      }
-    } catch (e) {
-      console.log('Error', e)
     }
   }, [])
 
@@ -148,15 +141,17 @@ const WaitingRoom = observer(() => {
       )}
       {!walletStore.isConnected && (
         <DescResponsive>
-          {walletStore.isMetamaskAvailable ?
+          {walletStore.isMetamaskAvailable ? (
             <Box>
               <h3>Please connect your MetaMask wallet</h3>
+              <MetamaskWidget />
             </Box>
-            : <Box>
+          ) : (
+            <Box>
               <h3>Please connect mobile wallet with Wallet Connect</h3>
               <Web3Button />
             </Box>
-          }
+          )}
         </DescResponsive>
       )}
     </Container>
