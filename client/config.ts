@@ -4,8 +4,6 @@ const config = {
   debug,
   backendHost:
     process.env.BACKEND_HOST || 'https://mdo-dcobackend-01.t.hmny.io',
-  registrar: 
-    process.env.REGISTRAR_RELAYER || 'https://1ns-registrar-relayer.hiddenstate.xyz',
   contract:
     process.env.CONTRACT || '0xeFC73fB07660464aA03A5790D011DA0512c5854f',
   tweetContractAddress:
