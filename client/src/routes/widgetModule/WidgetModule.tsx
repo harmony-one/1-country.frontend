@@ -18,13 +18,10 @@ import {
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
-import {
-  isEmail,
-  isValidInstagramUri,
-  isValidTwitUri,
-} from '../../utils/validation'
+import { isEmail, isRedditUrl } from '../../utils/validation'
 import { BaseText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
+import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -93,6 +90,14 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       return
     }
 
+    if (isRedditUrl(value)) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Incompatible URL. Please try a URL from another website.',
+      })
+      setLoading(false)
+      return
+    }
     // const isTwit = isValidTwitUri(value)
     // const isInst = isValidInstagramUri(value)
 
@@ -175,85 +180,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }
 
   const deleteWidget = async (widgetId: number) => {
-    setLoading(true)
-
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>Waiting for a transaction to be signed</BaseText>,
-    })
-
-    try {
-      const result = await widgetListStore.deleteWidget({
-        domainName,
-        widgetId,
-        onTransactionHash: () => {
-          setProcessStatus({
-            type: ProcessStatusTypes.PROGRESS,
-            render: <BaseText>Waiting for transaction confirmation</BaseText>,
-          })
-        },
-      })
-      setLoading(false)
-
-      if (result.error) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: <BaseText>{result.error.message}</BaseText>,
-        })
-        return
-      }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>Url successfully removed</BaseText>,
-      })
-
-      resetProcessStatus()
-    } catch (ex) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{ex.message}</BaseText>,
-      })
-      setLoading(false)
-    }
-  }
-
-  const handleDeleteLegacyUrl = async () => {
-    setLoading(true)
-
-    try {
-      const updateResult = await rootStore.tweetClient.updateURL({
-        name: domainName,
-        url: '',
-        onTransactionHash: () => {
-          setProcessStatus({
-            type: ProcessStatusTypes.PROGRESS,
-            render: <BaseText>Waiting for transaction confirmation</BaseText>,
-          })
-        },
-      })
-
-      if (updateResult.error) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: updateResult.error.message,
-        })
-        setLoading(false)
-        return
-      }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>Post deleted</BaseText>,
-      })
-      setLoading(false)
-
-      resetProcessStatus()
-
-      domainStore.loadDomainRecord(domainName)
-    } catch (ex) {
-      setLoading(false)
-    }
+    widgetListStore.deleteWidget({ widgetId, domainName })
   }
 
   const showInput = walletStore.isConnected && domainStore.isOwner
@@ -281,21 +208,17 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       )}
 
       {widgetListStore.widgetList.map((widget, index) => (
-        <MediaWidget
-          value={widget.value}
-          key={index + widget.value}
-          isOwner={domainStore.isOwner}
-          onDelete={() => deleteWidget(widget.id)}
-        />
+        <WidgetStatusWrapper
+          key={widget.id + widget.value}
+          loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
+        >
+          <MediaWidget
+            value={widget.value}
+            isOwner={domainStore.isOwner}
+            onDelete={() => deleteWidget(widget.id)}
+          />
+        </WidgetStatusWrapper>
       ))}
-
-      {domainStore.domainRecord && domainStore.domainRecord.url && (
-        <MediaWidget
-          value={domainStore.domainRecord.url}
-          isOwner={domainStore.isOwner}
-          onDelete={handleDeleteLegacyUrl}
-        />
-      )}
 
       {domainStore.domainRecord && (
         <TransactionWidget

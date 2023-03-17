@@ -14,7 +14,7 @@ import { PersonalInfoRevealContainer } from './OwnerInfo.styles'
 const defaultOwnerInfo = {
   telegram: '',
   email: '',
-  phone: ''
+  phone: '',
 }
 
 const OwnerInfo = (props) => {
@@ -25,19 +25,8 @@ const OwnerInfo = (props) => {
   const [revealInfo, setRevealInfo] = useState(false)
 
   const revealEvent = () => {
-    setRevealInfo(reveal => !reveal)
+    setRevealInfo((reveal) => !reveal)
   }
-
-  useEffect(() => {
-    const getInfo = async () => {
-      const info = await client.getAllOwnerInfo({ name: pageName })
-      setOwnerInfo(info)
-    }
-    if (isOwner) {
-      console.log('is owner')
-      getInfo()
-    }
-  }, [])
 
   useEffect(() => {
     // const getInfo = async () => {
@@ -67,14 +56,14 @@ const OwnerInfo = (props) => {
           render: 'Transaction success!',
           type: 'success',
           isLoading: false,
-          autoClose: 2000
+          autoClose: 2000,
         })
       } else {
         toast.update(toastId.current, {
           render: 'Error processing the transaction',
           type: 'error',
           isLoading: false,
-          autoClose: 2000
+          autoClose: 2000,
         })
       }
     } else {
@@ -85,27 +74,76 @@ const OwnerInfo = (props) => {
   return (
     <>
       <PersonalInfoRevealContainer>
-        <div className='reveal-button' onClick={revealEvent}>
+        <div className="reveal-button" onClick={revealEvent}>
           <OnwerLabel>Reveal Owner information</OnwerLabel>
           <div>{revealInfo ? <AiOutlineUp /> : <AiOutlineDown />}</div>
         </div>
         {revealInfo && (
           <>
-            <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
-              <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Email address:' : 'Owners\'s Email address:'}</OnwerLabel>
-              {ownerInfo.email ? ownerInfo.email : (<OnwerLabel>{`Pay ${config.infoRevealPrice.email} to reveal`}</OnwerLabel>)}
+            <FlexRow
+              style={{
+                justifyContent: 'space-between',
+                paddingBottom: '0.5em',
+              }}
+            >
+              <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>
+                {isOwner ? 'Email address:' : "Owners's Email address:"}
+              </OnwerLabel>
+              {ownerInfo.email ? (
+                ownerInfo.email
+              ) : (
+                <OnwerLabel>{`Pay ${config.infoRevealPrice.email} to reveal`}</OnwerLabel>
+              )}
               {/* <div className='icon-button' onClick={reveal} name='email'><span style={{ color: '#FBBC05' }}><MdOutlineMail /></span>Reveal</div> */}
-              {!isOwner && <button onClick={reveal} name='email'><span style={{ color: '#FBBC05', paddingRight: '0.3em' }}><MdOutlineMail /></span>Reveal</button>}
+              {!isOwner && (
+                <button onClick={reveal} name="email">
+                  <span style={{ color: '#FBBC05', paddingRight: '0.3em' }}>
+                    <MdOutlineMail />
+                  </span>
+                  Reveal
+                </button>
+              )}
             </FlexRow>
-            <FlexRow style={{ justifyContent: 'space-between', paddingBottom: '0.5em' }}>
-              <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Phone number:' : 'Owners\'s Phone number:'}</OnwerLabel>
-              {ownerInfo.phone ? ownerInfo.phone : (<OnwerLabel>{`Pay ${config.infoRevealPrice.phone} to reveal`}</OnwerLabel>)}
-              {!isOwner && <button onClick={reveal} name='phone'><span style={{ color: 'red', paddingRight: '0.3em' }}><TbPhoneCall /></span>Reveal</button>}
+            <FlexRow
+              style={{
+                justifyContent: 'space-between',
+                paddingBottom: '0.5em',
+              }}
+            >
+              <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>
+                {isOwner ? 'Phone number:' : "Owners's Phone number:"}
+              </OnwerLabel>
+              {ownerInfo.phone ? (
+                ownerInfo.phone
+              ) : (
+                <OnwerLabel>{`Pay ${config.infoRevealPrice.phone} to reveal`}</OnwerLabel>
+              )}
+              {!isOwner && (
+                <button onClick={reveal} name="phone">
+                  <span style={{ color: 'red', paddingRight: '0.3em' }}>
+                    <TbPhoneCall />
+                  </span>
+                  Reveal
+                </button>
+              )}
             </FlexRow>
             <FlexRow style={{ justifyContent: 'space-between' }}>
-              <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>{isOwner ? 'Telegram handle:' : 'Owners\'s Telegram handle:'}</OnwerLabel>
-              {ownerInfo.telegram ? ownerInfo.telegram : (<OnwerLabel>{`Pay ${config.infoRevealPrice.telegram} to reveal`}</OnwerLabel>)}
-              {!isOwner && <button onClick={reveal} name='telegram'><span style={{ color: '#0088cc', paddingRight: '0.3em' }}><TbBrandTelegram /></span>Reveal</button>}
+              <OnwerLabel style={{ width: '185px', textAlign: 'left' }}>
+                {isOwner ? 'Telegram handle:' : "Owners's Telegram handle:"}
+              </OnwerLabel>
+              {ownerInfo.telegram ? (
+                ownerInfo.telegram
+              ) : (
+                <OnwerLabel>{`Pay ${config.infoRevealPrice.telegram} to reveal`}</OnwerLabel>
+              )}
+              {!isOwner && (
+                <button onClick={reveal} name="telegram">
+                  <span style={{ color: '#0088cc', paddingRight: '0.3em' }}>
+                    <TbBrandTelegram />
+                  </span>
+                  Reveal
+                </button>
+              )}
             </FlexRow>
           </>
         )}

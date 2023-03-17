@@ -30,7 +30,7 @@ import { TypedText } from './Typed'
 import { sleep } from '../../../utils/sleep'
 import { SearchInput } from '../../../components/search-input/SearchInput'
 import { FormSearch } from 'grommet-icons/icons/FormSearch'
-import { relayApi } from '../../../api/relayApi'
+import { relayApi, RelayError } from '../../../api/relayApi'
 import qs from 'qs'
 import { mainApi } from '../../../api/mainApi'
 
@@ -132,7 +132,6 @@ const HomeSearchPage: React.FC = observer(() => {
       })
 
       window.location.href = `${config.hostname}/new?${queryString}`
-      // navigate(`new/${searchResult.domainName}`)
     }
   }, [web2Acquired])
 
@@ -142,9 +141,15 @@ const HomeSearchPage: React.FC = observer(() => {
       walletStore.setProvider(provider, address)
       handleRentDomain()
     }
+
     if (!walletStore.isMetamaskAvailable) {
       if (isConnected) {
         connectWallet()
+      } else {
+        // Wallet Connect disconnected, drop to initial state
+        if (processStatus.type === ProcessStatusTypes.PROGRESS) {
+          terminateProcess(1)
+        }
       }
     }
   }, [isConnected])
@@ -164,19 +169,20 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   const loadDomainRecord = async (_domainName: string) => {
-    const [record, price, relayCheckDomain, isAvailable2] =
-      await Promise.all([
-        rootStore.d1dcClient.getRecord({ name: _domainName }),
-        rootStore.d1dcClient.getPrice({ name: _domainName }),
-        _domainName.length > 2 ? relayApi().checkDomain({
-          sld: _domainName,
-        }) : {
-          isAvailable: true
-        },
-        rootStore.d1dcClient.checkAvailable({
-          name: _domainName,
-        }),
-      ])
+    const [record, price, relayCheckDomain, isAvailable2] = await Promise.all([
+      rootStore.d1dcClient.getRecord({ name: _domainName }),
+      rootStore.d1dcClient.getPrice({ name: _domainName }),
+      _domainName.length > 2
+        ? relayApi().checkDomain({
+            sld: _domainName,
+          })
+        : {
+            isAvailable: true,
+          },
+      rootStore.d1dcClient.checkAvailable({
+        name: _domainName,
+      }),
+    ])
 
     return {
       domainName: _domainName,
@@ -201,7 +207,13 @@ const HomeSearchPage: React.FC = observer(() => {
       setWeb2Error(true)
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: <BaseText>Unable to acquire web2 domain</BaseText>,
+        render: (
+          <BaseText>{`${
+            ex instanceof RelayError
+              ? ex.message
+              : 'Unable to acquire domain. Try Again.'
+          }`}</BaseText>
+        ),
       })
       console.error(ex)
       terminateProcess()
@@ -251,23 +263,24 @@ const HomeSearchPage: React.FC = observer(() => {
           txHash,
           address: walletStore.walletAddress,
         })
-
       clearTimeout(timerId)
       if (!success && !isRegistered) {
         console.log(`failure reason: ${responseText}`)
-        throw new Error(
+        throw new RelayError(
           `Unable to acquire web2 domain. Reason: ${responseText}`
         )
       }
-    } catch (ex) {
+    } catch (error) {
       clearTimeout(timerId)
-      console.log('### ex', ex)
-      throw new Error(`Unable to acquire web2 domain`)
+      console.log('### ex', error?.response?.data)
+      throw new RelayError(
+        error?.response?.data?.responseText || `Unable to acquire web2 domain`
+      )
     }
   }
 
   const handleRentDomain = async () => {
-    if (!searchResult.domainRecord || !validation.valid) {
+    if (!searchResult || !searchResult.domainRecord || !validation.valid) {
       return false
     }
 
@@ -456,7 +469,6 @@ const HomeSearchPage: React.FC = observer(() => {
       setRegTxHash(txHash)
 
       mainApi.createDomain({ domain: searchResult.domainName, txHash })
-
       await claimWeb2Domain(txHash)
       await sleep(1500)
       setProcessStatus({
@@ -470,7 +482,13 @@ const HomeSearchPage: React.FC = observer(() => {
       setWeb2Error(true)
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: <BaseText>Unable to acquire domain. Try Again.</BaseText>,
+        render: (
+          <BaseText>{`${
+            ex instanceof RelayError
+              ? ex.message
+              : 'Unable to acquire domain. Try Again.'
+          }`}</BaseText>
+        ),
       })
       terminateProcess()
     }
@@ -528,24 +546,24 @@ const HomeSearchPage: React.FC = observer(() => {
           ) : (
             <Box margin={{ top: '16px' }}>
               {!validation.valid && (
-                <Text size={'medium'}>{validation.error}</Text>
+                <Text size={'medium'} style={{ whiteSpace: 'pre-line' }}>
+                  {validation.error}
+                </Text>
               )}
               {processStatus.type !== ProcessStatusTypes.IDLE && (
                 <ProcessStatus status={processStatus} />
               )}
               {processStatus.type === ProcessStatusTypes.IDLE &&
                 !inputValue && (
-                  <Box>
-                    <BaseText>
-                      <a
-                        style={{ color: '#758796', textDecoration: 'none' }}
-                        href="https://harmony.one/1"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Learn More
-                      </a>
-                    </BaseText>
+                  <Box align="center">
+                    <Button
+                      as="a"
+                      href="https://harmony.one/1"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Learn More
+                    </Button>
                   </Box>
                 )}
             </Box>
