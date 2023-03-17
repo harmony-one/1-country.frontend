@@ -1,4 +1,4 @@
-import config from "../../config"
+import config from '../../config'
 
 const createKeccakHash = require('keccak')
 
@@ -70,7 +70,8 @@ export const getDomainLevel = (domainName: string): DomainLevel => {
   //   return 'reserved'
   // }
 
-  if (len <= config.domain.tiers.LEGENDARY) {// (len === 1 || len === 2 || len === 3) {
+  if (len <= config.domain.tiers.LEGENDARY) {
+    // (len === 1 || len === 2 || len === 3) {
     return 'legendary'
   }
 
@@ -86,11 +87,11 @@ export const getDomainLevel = (domainName: string): DomainLevel => {
 }
 
 export const validateDomainName = (domainName: string) => {
-  console.log('checking', domainName)
   if (!nameUtils.isValidName(domainName.toLowerCase())) {
     return {
       valid: false,
-      error: 'Domains can use a mix of letters a-z and numbers 0-9.\nNo special characters are allowed', //Domains can use a mix of letters and numbers
+      error:
+        'Domains can use a mix of letters a-z and numbers 0-9.\nNo special characters are allowed', //Domains can use a mix of letters and numbers
     }
   }
   if (nameUtils.isTaken(domainName.toLowerCase())) {
@@ -102,7 +103,7 @@ export const validateDomainName = (domainName: string) => {
   if (nameUtils.isReservedName(domainName.toLowerCase())) {
     return {
       valid: false,
-      error: `1 to ${(config.domain.reserved as number) - 1} letter domains will be available soon`, // 'Available Soon',
+      error: `1 to ${config.domain.reserved} letter domains will be available soon`, // 'Available Soon',
     }
   }
   return {
