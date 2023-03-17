@@ -4,10 +4,14 @@ const config = {
   debug,
   backendHost:
     process.env.BACKEND_HOST || 'https://mdo-dcobackend-01.t.hmny.io',
+  registrar:
+    process.env.REGISTRAR_RELAYER ||
+    'https://1ns-registrar-relayer.hiddenstate.xyz',
   contract:
     process.env.CONTRACT || '0xeFC73fB07660464aA03A5790D011DA0512c5854f',
   tweetContractAddress:
-    process.env.TWEET_CONTRACT_ADDRESS || '0x17cF877f9226ba382b0baDA1499576E60A547955',
+    process.env.TWEET_CONTRACT_ADDRESS ||
+    '0x17cF877f9226ba382b0baDA1499576E60A547955',
   contractVanityURL:
     process.env.CONTRACT_VANITY_URL ||
     '0x88a1afC4134f385337Dd5F530D452079fC9E14CC', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
@@ -25,6 +29,15 @@ const config = {
   walletConnect: {
     projectId:
       process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8',
+  },
+  domain: {
+    tiers: {
+      LEGENDARY: process.env.TIER_LEGENDARY || 1,
+      SUPER_RARE: process.env.TIER_SUPER_RARE || 6,
+      RARE: process.env.TIER_RARE || 9,
+      COMMON: process.env.TIER_COMMON || 10,
+    },
+    reserved: process.env.DOMAIN_RESERVED_LENGTH || 6,
   },
   emojiType: {
     ONE_ABOVE: 0,
