@@ -30,7 +30,7 @@ import { TypedText } from './Typed'
 import { sleep } from '../../../utils/sleep'
 import { SearchInput } from '../../../components/search-input/SearchInput'
 import { FormSearch } from 'grommet-icons/icons/FormSearch'
-import { relayApi } from '../../../api/relayApi'
+import { relayApi, RelayError } from '../../../api/relayApi'
 import qs from 'qs'
 import { mainApi } from '../../../api/mainApi'
 
@@ -132,7 +132,6 @@ const HomeSearchPage: React.FC = observer(() => {
       })
 
       window.location.href = `${config.hostname}/new?${queryString}`
-      // navigate(`new/${searchResult.domainName}`)
     }
   }, [web2Acquired])
 
@@ -257,18 +256,17 @@ const HomeSearchPage: React.FC = observer(() => {
           txHash,
           address: walletStore.walletAddress,
         })
-
       clearTimeout(timerId)
       if (!success && !isRegistered) {
         console.log(`failure reason: ${responseText}`)
-        throw new Error(
+        throw new RelayError(
           `Unable to acquire web2 domain. Reason: ${responseText}`
         )
       }
-    } catch (ex) {
+    } catch (error) {
       clearTimeout(timerId)
-      console.log('### ex', ex)
-      throw new Error(`Unable to acquire web2 domain`)
+      console.log('### ex', error?.response?.data)
+      throw new RelayError(error?.response?.data?.responseText || `Unable to acquire web2 domain`)
     }
   }
 
@@ -462,7 +460,6 @@ const HomeSearchPage: React.FC = observer(() => {
       setRegTxHash(txHash)
 
       mainApi.createDomain({ domain: searchResult.domainName, txHash })
-
       await claimWeb2Domain(txHash)
       await sleep(1500)
       setProcessStatus({
@@ -476,7 +473,7 @@ const HomeSearchPage: React.FC = observer(() => {
       setWeb2Error(true)
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: <BaseText>Unable to acquire domain. Try Again.</BaseText>,
+        render: <BaseText>{`${ex instanceof RelayError ? ex.message : 'Unable to acquire domain. Try Again.'}`}</BaseText>,
       })
       terminateProcess()
     }
