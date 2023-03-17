@@ -120,11 +120,12 @@ export const TransactionWidget: React.FC<Props> = ({
             </Timer>
           </Text>
         </Box>
-        <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
+        <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'} style={{ maxWidth: '400px' }}>
           {isLoading ? (
             <Spinner size={'xsmall'} color="#00AEEA" />
           ) : txHash ? (
             <HarmonyLink
+              cut={false}
               type={'tx'}
               hash={txHash}
               href={`https://explorer.harmony.one/tx/${txHash}`}

@@ -26,12 +26,14 @@ const StyledImg = styled.img`
 
 const StyledLink = styled.a<{ mono: boolean }>`
   position: relative;
-  font-size: 0.9em;
-  text-overflow: wrap;
+  font-size: 14px;
   word-break: break-all;
   font-family: ${(props) =>
     props.mono ? 'Courier' : `'NunitoBold', system-ui`};
   color: #47b8eb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 export const HarmonyLink: React.FC<Props> = ({
