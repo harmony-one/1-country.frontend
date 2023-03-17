@@ -1,4 +1,4 @@
-import config from "../../config"
+import config from '../../config'
 
 const createKeccakHash = require('keccak')
 
@@ -8,6 +8,14 @@ const SPECIAL_NAMES = ['0', '1']
 const RESERVED_NAMES = [
   ...SPECIAL_NAMES,
 ]
+
+const isRestricted = (name: string): boolean => {
+  const phrases = config.domain.restrictedPhrases
+  for (var i = 0; i < phrases.length; i++) {
+    if (name.includes(phrases[i])) return true
+  }
+  return false
+}
 
 export const nameUtils = {
   RESTRICTED_VALID_NAME: /[a-z0-9]+/,
@@ -19,6 +27,9 @@ export const nameUtils = {
   },
   isTaken: (name: string) => {
     return RESERVED_NAMES.includes(name)
+  },
+  isRestricted: (name: string) => {
+    return isRestricted(name)
   },
   isReservedName: (name: string) => {
     return name.length <= config.domain.reserved
@@ -70,7 +81,8 @@ export const getDomainLevel = (domainName: string): DomainLevel => {
   //   return 'reserved'
   // }
 
-  if (len <= config.domain.tiers.LEGENDARY) {// (len === 1 || len === 2 || len === 3) {
+  if (len <= config.domain.tiers.LEGENDARY) {
+    // (len === 1 || len === 2 || len === 3) {
     return 'legendary'
   }
 
@@ -86,11 +98,11 @@ export const getDomainLevel = (domainName: string): DomainLevel => {
 }
 
 export const validateDomainName = (domainName: string) => {
-  console.log('checking', domainName)
   if (!nameUtils.isValidName(domainName.toLowerCase())) {
     return {
       valid: false,
-      error: 'Domains can use a mix of letters a-z and numbers 0-9.\nNo special characters are allowed', //Domains can use a mix of letters and numbers
+      error:
+        'Domains may contain letters a-z and numbers 0-9.\nNo special characters are allowed', //Domains can use a mix of letters and numbers
     }
   }
   if (nameUtils.isTaken(domainName.toLowerCase())) {
@@ -99,10 +111,16 @@ export const validateDomainName = (domainName: string) => {
       error: 'This domain name is reserved for special purpose',
     }
   }
+  if (nameUtils.isRestricted(domainName.toLocaleLowerCase())) {
+    return {
+      valid: false,
+      error: `${domainName} contains a restricted phrase and can't be registered`,
+    }
+  }
   if (nameUtils.isReservedName(domainName.toLowerCase())) {
     return {
       valid: false,
-      error: `1 to ${(config.domain.reserved as number) - 1} letter domains will be available soon`, // 'Available Soon',
+      error: `1 to ${config.domain.reserved} letter domains will be available soon`, // 'Available Soon',
     }
   }
   return {

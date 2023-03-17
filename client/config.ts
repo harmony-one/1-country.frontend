@@ -38,6 +38,9 @@ const config = {
       COMMON: process.env.TIER_COMMON || 10,
     },
     reserved: process.env.DOMAIN_RESERVED_LENGTH || 6,
+    restrictedPhrases: process.env.RESTRICTED_PHRASES
+      ? process.env.RESTRICTED_PHRASES.split(', ')
+      : ['metamask', 'walletconnect'],
   },
   emojiType: {
     ONE_ABOVE: 0,
