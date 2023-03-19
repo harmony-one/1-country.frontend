@@ -45,6 +45,7 @@ interface SearchResult {
   domainRecord: DomainRecord
   price: DomainPrice
   isAvailable: boolean
+  error: string
 }
 
 const HomeSearchPage: React.FC = observer(() => {
@@ -178,16 +179,17 @@ const HomeSearchPage: React.FC = observer(() => {
           })
         : {
             isAvailable: true,
+            error: '',
           },
       rootStore.d1dcClient.checkAvailable({
         name: _domainName,
       }),
     ])
-
     return {
       domainName: _domainName,
       domainRecord: record,
       price: price,
+      error: relayCheckDomain.error,
       isAvailable: relayCheckDomain.isAvailable && isAvailable2,
     }
   }
@@ -277,24 +279,6 @@ const HomeSearchPage: React.FC = observer(() => {
         error?.response?.data?.responseText || `Unable to acquire web2 domain`
       )
     }
-  }
-
-  const generateNFT = async () => {
-    const domain = searchResult.domainName + config.tld
-    try {
-      await relayApi().genNFT({
-        domain,
-      })
-    } catch (error) {
-      console.log(error)
-      throw new RelayError(
-        error?.response?.data?.responseText || `Unable to genereate the NFT`
-      )
-    }
-  }
-
-  const handleRentDomain2 = async () => {
-    generateNFT()
   }
 
   const handleRentDomain = async () => {
@@ -493,12 +477,6 @@ const HomeSearchPage: React.FC = observer(() => {
         type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Web2 domain acquire</BaseText>,
       })
-      await generateNFT()
-      await sleep(2000)
-      setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>NFT generated</BaseText>,
-      })
       terminateProcess()
       setWeb2Acquired(true)
     } catch (ex) {
@@ -559,6 +537,7 @@ const HomeSearchPage: React.FC = observer(() => {
                 rateONE={ratesStore.ONE_USD}
                 price={searchResult.price.formatted}
                 available={searchResult.isAvailable}
+                error={searchResult.error}
               />
               <Button
                 disabled={!validation.valid || !searchResult.isAvailable}
