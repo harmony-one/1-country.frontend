@@ -272,6 +272,16 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
+  const generateNFTMetadata = async (domain: string) => {
+    try {
+      console.log('Trying to generate metadata...', domain)
+      const data = await relayApi().generateMetadata(domain)
+      console.log('NFT Metadata:', data)
+    } catch (e) {
+      console.error('Failed to generate metadata:', e)
+    }
+  }
+
   const handleRentDomain = async () => {
     if (!searchResult || !searchResult.domainRecord || !validation.valid) {
       return false
@@ -462,6 +472,7 @@ const HomeSearchPage: React.FC = observer(() => {
       setRegTxHash(txHash)
 
       mainApi.createDomain({ domain: searchResult.domainName, txHash })
+      generateNFTMetadata(searchResult.domainName + config.tld)
 
       await claimWeb2Domain(txHash)
       await sleep(1500)

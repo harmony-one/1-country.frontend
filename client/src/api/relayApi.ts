@@ -90,5 +90,9 @@ export const relayApi = () => {
         responseText,
       }
     },
+    generateMetadata: async (domain: string) => {
+      const { data } = await base.post('/gen', { domain })
+      return data
+    }
   }
 }
