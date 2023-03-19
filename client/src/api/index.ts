@@ -72,16 +72,18 @@ interface CommitProps extends CallbackProps {
   secret: string
 }
 
-function objectKeys<T>(obj: T) {
-  return Object.keys(obj) as [keyof T]
-}
-
 const apis = ({ web3, address }: { web3: Web3; address: string }) => {
   // console.log('apis', web3, address)
   if (!web3) {
     return
   }
 
+  const web3ReadOnly = new Web3(config.defaultRPC)
+  const contractReadOnly = new web3ReadOnly.eth.Contract(
+    DCv2Abi,
+    config.contract,
+    { from: address }
+  )
   const contract = new web3.eth.Contract(DCv2Abi, config.contract)
 
   const getOwnerInfo = async (name: string, info: OWNER_INFO_FIELDS) => {
@@ -100,7 +102,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
             getMethod = 'getOwnerEmail'
             break
         }
-        const ownerInfo = await contract.methods[getMethod](name).call({
+        const ownerInfo = await contractReadOnly.methods[getMethod](name).call({
           from: address,
         })
         console.log('my ownerInfo', ownerInfo)
@@ -154,7 +156,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       onTransactionHash,
     }: CommitProps) => {
       const secretHash = utils.keccak256(secret, true)
-      const commitment = await contract.methods
+      const commitment = await contractReadOnly.methods
         .makeCommitment(name, address, secretHash)
         .call()
       return send({
@@ -243,7 +245,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
               value: amount,
             })
             console.log(tx)
-            ownerInfo = await contract.methods[getMethod](name).call({
+            ownerInfo = await contractReadOnly.methods[getMethod](name).call({
               from: address,
             })
             console.log('my ownerInfo', ownerInfo)
@@ -257,7 +259,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
     },
     getPrice: async ({ name }: { name: string }): Promise<DomainPrice> => {
-      const price = await contract.methods
+      const price = await contractReadOnly.methods
         .getPrice(name)
         .call({ from: address })
       const amount = new BN(price).toString()
@@ -278,12 +280,12 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         next = ''
 
       const [ownerAddress, rentTime, expirationTime] = await Promise.all([
-        contract.methods
+        contractReadOnly.methods
           .ownerOf(name)
           .call()
           .catch(() => ''),
-        contract.methods.duration().call(),
-        contract.methods.nameExpires(name).call(),
+        contractReadOnly.methods.duration().call(),
+        contractReadOnly.methods.nameExpires(name).call(),
       ])
 
       return {
@@ -303,11 +305,11 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
     },
     ownerOf: async ({ name }: { name: string }) => {
-      return contract.methods.ownerOf(name).call()
+      return contractReadOnly.methods.ownerOf(name).call()
     },
 
     checkAvailable: async ({ name }: { name: string }) => {
-      const isAvailable = await contract.methods.available(name).call()
+      const isAvailable = await contractReadOnly.methods.available(name).call()
       return isAvailable?.toString()?.toLowerCase() === 'true'
     },
   }

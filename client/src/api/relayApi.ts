@@ -1,7 +1,8 @@
 import axios from 'axios'
+import config from '../../config'
 
 const base = axios.create({
-  baseURL: process.env.REGISTRAR_RELAYER,
+  baseURL: config.registrar,
 })
 export const relayApi = () => {
   return {
@@ -94,5 +95,13 @@ export const relayApi = () => {
       const { data } = await base.post('/gen', { domain })
       return data
     }
+  }
+}
+
+export class RelayError extends Error {
+  constructor(readonly message: string) {
+    super(message)
+
+    this.name = 'RelayError'
   }
 }
