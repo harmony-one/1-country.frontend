@@ -7,13 +7,12 @@ import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import Timer from '@amplication/react-compound-timer'
 import { WidgetModule } from '../widgetModule/WidgetModule'
-import { Button } from '../../components/Controls'
+import { Button, Link } from '../../components/Controls'
 import config from '../../../config'
 
 import { urlExists } from '../../api/checkUrl'
 import { useSearchParams } from 'react-router-dom'
 import { relayApi } from '../../api/relayApi'
-import { mainApi } from '../../api/mainApi'
 import { Web3Button } from '@web3modal/react'
 import { Box } from 'grommet/components/Box'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
@@ -146,6 +145,12 @@ const WaitingRoom = observer(() => {
           <WidgetModule domainName={domainName} />
         </FlexColumn>
       )}
+      <Box>
+        <BaseText>
+          if the certificate is not generated, please{' '}
+          <Link href="mailto: help@harmony.one">contact us</Link>
+        </BaseText>
+      </Box>
       {!walletStore.isConnected && (
         <DescResponsive>
           {walletStore.isMetamaskAvailable ? (
