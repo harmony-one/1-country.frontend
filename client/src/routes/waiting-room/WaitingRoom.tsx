@@ -107,7 +107,7 @@ const WaitingRoom = observer(() => {
           </h3>
           {/* <GradientText>{`${domainName}.country`}</GradientText> */}
           {!isDomainAvailable && (
-            <GradientText $size="1.17rem">
+            <GradientText $size="1.17rem" style={{ marginBottom: '0.6em' }}>
               <Timer>
                 <Timer.Minutes
                   formatValue={(value) => `${value < 10 ? `0${value}` : value}`}
