@@ -31,9 +31,15 @@ const WaitingRoom = observer(() => {
 
   useEffect(() => {
     if (!domainName) {
-      navigate(-1)
+      navigate('/')
     }
   }, [])
+
+  useEffect(() => {
+    if (domainStore.domainRecord && !domainStore.domainRecord.renter) {
+      navigate(`/?domain=${domainName}`)
+    }
+  }, [domainStore.domainRecord])
 
   const createCert = async (attemptsLeft = 3) => {
     const domain = `${domainName}${config.tld}`
