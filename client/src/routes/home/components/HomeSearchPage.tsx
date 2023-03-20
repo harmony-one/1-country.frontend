@@ -20,8 +20,8 @@ import { Container } from '../Home.styles'
 import { cutString } from '../../../utils/string'
 import {
   ProcessStatus,
-  ProcessStatusItem,
   ProcessStatusTypes,
+  psHelpers,
 } from '../../../components/process-status/ProcessStatus'
 import { buildTxUri } from '../../../utils/explorer'
 import { useAccount, useDisconnect } from 'wagmi'
@@ -33,6 +33,7 @@ import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { relayApi, RelayError } from '../../../api/relayApi'
 import qs from 'qs'
 import { mainApi } from '../../../api/mainApi'
+import { RegistrationSteps } from './RegistrationSteps'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -45,7 +46,11 @@ interface SearchResult {
   domainRecord: DomainRecord
   price: DomainPrice
   isAvailable: boolean
+  error: string
 }
+
+const DOMAIN_SEARCH_LOADER = 'DOMAIN_SEARCH_LOADER'
+const DOMAIN_RENT_LOADER = 'DOMAIN_RENT_LOADER'
 
 const HomeSearchPage: React.FC = observer(() => {
   const { isConnected, address, connector, status } = useAccount()
@@ -53,11 +58,6 @@ const HomeSearchPage: React.FC = observer(() => {
   const { open, close, isOpen } = useWeb3Modal()
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
-  const [isLoading, setLoading] = useState(false)
-  const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
-    type: ProcessStatusTypes.IDLE,
-    render: '',
-  })
   const [validation, setValidation] = useState({ valid: true, error: '' })
 
   const [web2Error, setWeb2Error] = useState(false)
@@ -65,18 +65,24 @@ const HomeSearchPage: React.FC = observer(() => {
   const [regTxHash, setRegTxHash] = useState<string>('')
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
-  const { rootStore, ratesStore, walletStore } = useStores()
+  const { rootStore, ratesStore, walletStore, loadersStore } = useStores()
+  const [step, setStep] = useState<{
+    step: number
+    status: 'process' | 'error'
+  }>({ step: 0, status: 'process' })
+
+  const searchLoader = loadersStore.getLoader(DOMAIN_SEARCH_LOADER)
+  const rentLoader = loadersStore.getLoader(DOMAIN_RENT_LOADER)
 
   useEffect(() => {
     if (status === 'connecting') {
       if (!isOpen && !walletStore.isMetamaskAvailable) {
         // User declined connect with Wallet Connect
         disconnect()
-        setProcessStatus({
+        loadersStore.setLoader(DOMAIN_RENT_LOADER, {
           type: ProcessStatusTypes.IDLE,
           render: '',
         })
-        terminateProcess(0)
       }
     }
   }, [status, isOpen])
@@ -90,26 +96,23 @@ const HomeSearchPage: React.FC = observer(() => {
 
         if (result.valid) {
           try {
-            setProcessStatus({
+            loadersStore.setLoader(DOMAIN_SEARCH_LOADER, {
               type: ProcessStatusTypes.PROGRESS,
               render: '',
             })
-            setLoading(true)
 
             const result = await loadDomainRecord(domainName)
             setSearchResult(result)
 
-            setProcessStatus({
+            loadersStore.setLoader(DOMAIN_SEARCH_LOADER, {
               type: ProcessStatusTypes.IDLE,
               render: '',
             })
           } catch (e) {
-            setProcessStatus({
-              type: ProcessStatusTypes.IDLE,
+            loadersStore.setLoader(DOMAIN_SEARCH_LOADER, {
+              type: ProcessStatusTypes.ERROR,
               render: <BaseText>{e.message}</BaseText>,
             })
-          } finally {
-            setLoading(false)
           }
         }
       } else {
@@ -147,8 +150,11 @@ const HomeSearchPage: React.FC = observer(() => {
         connectWallet()
       } else {
         // Wallet Connect disconnected, drop to initial state
-        if (processStatus.type === ProcessStatusTypes.PROGRESS) {
-          terminateProcess(1)
+        if (psHelpers.isProgress(rentLoader)) {
+          loadersStore.setLoader(DOMAIN_RENT_LOADER, {
+            type: ProcessStatusTypes.IDLE,
+            render: '',
+          })
         }
       }
     }
@@ -156,16 +162,22 @@ const HomeSearchPage: React.FC = observer(() => {
 
   const handleSearchChange = (value: string) => {
     setInputValue(value)
-    updateSearch(value)
+    updateSearch(value) // debounced
 
-    if (!value && processStatus.type === ProcessStatusTypes.ERROR) {
-      setProcessStatus({ type: ProcessStatusTypes.IDLE, render: '' })
+    if (!psHelpers.isIdle(rentLoader)) {
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
+        type: ProcessStatusTypes.IDLE,
+        render: '',
+      })
     }
-  }
 
-  const terminateProcess = async (timer: number = 5000) => {
-    await sleep(timer)
-    setLoading(false)
+    if (!value) {
+      setSearchResult(null)
+      loadersStore.setLoader(DOMAIN_SEARCH_LOADER, {
+        type: ProcessStatusTypes.IDLE,
+        render: '',
+      })
+    }
   }
 
   const loadDomainRecord = async (_domainName: string) => {
@@ -178,34 +190,38 @@ const HomeSearchPage: React.FC = observer(() => {
           })
         : {
             isAvailable: true,
+            error: '',
           },
       rootStore.d1dcClient.checkAvailable({
         name: _domainName,
       }),
     ])
-
     return {
       domainName: _domainName,
       domainRecord: record,
       price: price,
+      error: relayCheckDomain.error,
       isAvailable: relayCheckDomain.isAvailable && isAvailable2,
     }
   }
 
   const claimWeb2DomainWrapper = async () => {
-    setLoading(true)
+    loadersStore.setLoader(DOMAIN_RENT_LOADER, {
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>Claim web2 domain</BaseText>,
+    })
+
     try {
       await claimWeb2Domain(regTxHash)
       await sleep(1500)
-      setProcessStatus({
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
         type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Web2 domain acquired</BaseText>,
       })
-      terminateProcess()
       setWeb2Acquired(true)
     } catch (ex) {
       setWeb2Error(true)
-      setProcessStatus({
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
         type: ProcessStatusTypes.ERROR,
         render: (
           <BaseText>{`${
@@ -216,7 +232,6 @@ const HomeSearchPage: React.FC = observer(() => {
         ),
       })
       console.error(ex)
-      terminateProcess()
     }
   }
 
@@ -244,7 +259,7 @@ const HomeSearchPage: React.FC = observer(() => {
         }
 
         const message = messages[messageIndex]
-        setProcessStatus({
+        loadersStore.setLoader(DOMAIN_RENT_LOADER, {
           type: ProcessStatusTypes.PROGRESS,
           render: <BaseText>{message}</BaseText>,
         })
@@ -279,17 +294,24 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
+  const generateNFT = async () => {
+    const domain = searchResult.domainName + config.tld
+    try {
+      await relayApi().genNFT({
+        domain,
+      })
+    } catch (error) {
+      console.log(error)
+      throw new RelayError(
+        error?.response?.data?.responseText || `Unable to genereate the NFT`
+      )
+    }
+  }
+
   const handleRentDomain = async () => {
     if (!searchResult || !searchResult.domainRecord || !validation.valid) {
       return false
     }
-
-    setLoading(true)
-
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>Checking domain</BaseText>,
-    })
 
     console.log('### searchResult', searchResult)
 
@@ -306,18 +328,6 @@ const HomeSearchPage: React.FC = observer(() => {
     //   return
     // }
 
-    const _available = await rootStore.d1dcClient.checkAvailable({
-      name: searchResult.domainName,
-    })
-    if (!_available) {
-      setValidation({
-        valid: false,
-        error: 'This domain name is already registered',
-      })
-      setLoading(false)
-      return
-    }
-
     if (!searchResult.domainName) {
       setValidation({
         valid: false,
@@ -330,18 +340,45 @@ const HomeSearchPage: React.FC = observer(() => {
         valid: false,
         error: 'Domain must be alphanumerical characters',
       })
-      setLoading(false)
       return
     }
 
-    setProcessStatus({
+    // $$$ #0 validation
+    setStep({ step: 0, status: 'process' })
+    loadersStore.setLoader(DOMAIN_RENT_LOADER, {
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>Checking domain</BaseText>,
+    })
+
+    try {
+      const _available = await rootStore.d1dcClient.checkAvailable({
+        name: searchResult.domainName,
+      })
+
+      if (!_available) {
+        loadersStore.setLoader(DOMAIN_RENT_LOADER, {
+          type: ProcessStatusTypes.IDLE,
+          render: <BaseText>This domain name is already registered</BaseText>,
+        })
+      }
+    } catch (ex) {
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
+        type: ProcessStatusTypes.IDLE,
+        render: ex.message,
+      })
+      return
+    }
+
+    loadersStore.setLoader(DOMAIN_RENT_LOADER, {
       type: ProcessStatusTypes.PROGRESS,
       render: <BaseText>Processing transaction</BaseText>,
     })
 
+    // $$$ #1 connect wallet
+    setStep({ step: 1, status: 'process' })
     try {
       if (walletStore.isMetamaskAvailable && !walletStore.isConnected) {
-        setProcessStatus({
+        loadersStore.setLoader(DOMAIN_RENT_LOADER, {
           type: ProcessStatusTypes.PROGRESS,
           render: <BaseText>Connect Metamask</BaseText>,
         })
@@ -351,17 +388,17 @@ const HomeSearchPage: React.FC = observer(() => {
         return
       }
     } catch (e) {
-      setProcessStatus({
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
         type: ProcessStatusTypes.ERROR,
         render: <BaseText>{e.message}</BaseText>,
       })
-      terminateProcess(1500)
+      setStep({ step: 1, status: 'error' })
       console.log('Connect error:', e)
       return
     }
 
     try {
-      setProcessStatus({
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
         type: ProcessStatusTypes.PROGRESS,
         render: (
           <BaseText>
@@ -372,10 +409,13 @@ const HomeSearchPage: React.FC = observer(() => {
         ),
       })
 
+      // $$$ #2 Reserve domain
+      setStep({ step: 2, status: 'process' })
+
       const commitResult = await rootStore.d1dcClient.commit({
         name: searchResult.domainName.toLowerCase(),
         onTransactionHash: () => {
-          setProcessStatus({
+          loadersStore.setLoader(DOMAIN_RENT_LOADER, {
             type: ProcessStatusTypes.PROGRESS,
             render: <BaseText>Waiting for transaction confirmation</BaseText>,
           })
@@ -385,15 +425,15 @@ const HomeSearchPage: React.FC = observer(() => {
 
       if (commitResult.error) {
         console.log('Commit result failed:', commitResult.error)
-        setProcessStatus({
+        loadersStore.setLoader(DOMAIN_RENT_LOADER, {
           type: ProcessStatusTypes.ERROR,
           render: <BaseText>{commitResult.error.message}</BaseText>,
         })
-        terminateProcess(1500)
+        setStep({ step: 2, status: 'error' })
         return
       }
 
-      setProcessStatus({
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
         type: ProcessStatusTypes.PROGRESS,
         render: (
           <FlexRow>
@@ -419,7 +459,7 @@ const HomeSearchPage: React.FC = observer(() => {
       console.log('waiting for 5 seconds...')
       await sleep(5000)
 
-      setProcessStatus({
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
         type: ProcessStatusTypes.PROGRESS,
         render: (
           <BaseText>
@@ -430,6 +470,8 @@ const HomeSearchPage: React.FC = observer(() => {
         ),
       })
 
+      // $$$ #3 Rent domain
+      setStep({ step: 3, status: 'process' })
       const rentResult = await rootStore.d1dcClient.rent({
         name: searchResult.domainName.toLowerCase(),
         secret,
@@ -437,7 +479,7 @@ const HomeSearchPage: React.FC = observer(() => {
         owner: walletStore.walletAddress,
         amount: new BN(searchResult.price.amount).toString(),
         onTransactionHash: () => {
-          setProcessStatus({
+          loadersStore.setLoader(DOMAIN_RENT_LOADER, {
             type: ProcessStatusTypes.PROGRESS,
             render: <BaseText>Waiting for transaction confirmation</BaseText>,
           })
@@ -446,15 +488,15 @@ const HomeSearchPage: React.FC = observer(() => {
       console.log('rentResult', rentResult)
 
       if (rentResult.error) {
-        setProcessStatus({
+        loadersStore.setLoader(DOMAIN_RENT_LOADER, {
           type: ProcessStatusTypes.ERROR,
           render: <BaseText>{rentResult.error.message}</BaseText>,
         })
-        terminateProcess(1500)
+        setStep({ step: 3, status: 'error' })
         return
       }
 
-      setProcessStatus({
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
         type: ProcessStatusTypes.PROGRESS,
         render: (
           <FlexRow>
@@ -469,18 +511,28 @@ const HomeSearchPage: React.FC = observer(() => {
       setRegTxHash(txHash)
 
       mainApi.createDomain({ domain: searchResult.domainName, txHash })
+
+      // $$$ #4 Claim web2 domain
+      setStep({ step: 4, status: 'process' })
       await claimWeb2Domain(txHash)
       await sleep(1500)
-      setProcessStatus({
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
         type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Web2 domain acquire</BaseText>,
       })
-      terminateProcess()
+      await sleep(2000)
+      await generateNFT()
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
+        type: ProcessStatusTypes.SUCCESS,
+        render: <BaseText>NFT generated</BaseText>,
+      })
+      await sleep(2000)
       setWeb2Acquired(true)
     } catch (ex) {
+      setStep({ step: 4, status: 'error' })
       console.log('claimWeb2Domain error:', ex)
       setWeb2Error(true)
-      setProcessStatus({
+      loadersStore.setLoader(DOMAIN_RENT_LOADER, {
         type: ProcessStatusTypes.ERROR,
         render: (
           <BaseText>{`${
@@ -490,7 +542,6 @@ const HomeSearchPage: React.FC = observer(() => {
           }`}</BaseText>
         ),
       })
-      terminateProcess()
     }
   }
 
@@ -516,7 +567,10 @@ const HomeSearchPage: React.FC = observer(() => {
                   validation.valid &&
                   (searchResult ? searchResult.isAvailable : true)
                 }
-                allowClear={!isLoading}
+                allowClear={
+                  !psHelpers.isProgress(searchLoader) &&
+                  !psHelpers.isProgress(rentLoader)
+                }
                 value={inputValue}
                 placeholder={'Search domain name'}
                 icon={<FormSearch />}
@@ -524,8 +578,19 @@ const HomeSearchPage: React.FC = observer(() => {
               />
             </Box>
           </Box>
+          {!psHelpers.isIdle(rentLoader) && (
+            <Box align="center" pad="16px">
+              <RegistrationSteps
+                step={step.step}
+                status={step.status}
+                onRetry={web2Error ? claimWeb2DomainWrapper : handleRentDomain}
+                processStatus={rentLoader}
+              />
+            </Box>
+          )}
           {validation.valid &&
-          !isLoading &&
+          psHelpers.isIdle(searchLoader) &&
+          psHelpers.isIdle(rentLoader) &&
           searchResult &&
           !web2Acquired &&
           !web2Error ? (
@@ -535,6 +600,7 @@ const HomeSearchPage: React.FC = observer(() => {
                 rateONE={ratesStore.ONE_USD}
                 price={searchResult.price.formatted}
                 available={searchResult.isAvailable}
+                error={searchResult.error}
               />
               <Button
                 disabled={!validation.valid || !searchResult.isAvailable}
@@ -550,29 +616,21 @@ const HomeSearchPage: React.FC = observer(() => {
                   {validation.error}
                 </Text>
               )}
-              {processStatus.type !== ProcessStatusTypes.IDLE && (
-                <ProcessStatus status={processStatus} />
+              {!psHelpers.isIdle(searchLoader) && (
+                <ProcessStatus status={searchLoader} />
               )}
-              {processStatus.type === ProcessStatusTypes.IDLE &&
-                !inputValue && (
-                  <Box align="center">
-                    <Button
-                      as="a"
-                      href="https://harmony.one/1"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Learn More
-                    </Button>
-                  </Box>
-                )}
-            </Box>
-          )}
-          {web2Error && (
-            <Box align="center">
-              <Button onClick={claimWeb2DomainWrapper} disabled={isLoading}>
-                TRY AGAIN
-              </Button>
+              {psHelpers.isIdle(searchLoader) && !inputValue && (
+                <Box align="center">
+                  <Button
+                    as="a"
+                    href="https://harmony.one/1"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Learn More
+                  </Button>
+                </Box>
+              )}
             </Box>
           )}
         </SearchBoxContainer>
