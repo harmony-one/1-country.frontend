@@ -44,12 +44,8 @@ const WaitingRoom = observer(() => {
     }
 
     try {
-      const dom = await mainApi.loadDomain({ domain: domainName })
-
       await relayApi().createCert({
         domain,
-        txHash: dom.createdTxHash,
-        address: walletStore.walletAddress,
       })
     } catch (ex) {
       console.log('### createCert ex', ex)
