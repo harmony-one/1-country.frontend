@@ -145,12 +145,12 @@ const WaitingRoom = observer(() => {
           <WidgetModule domainName={domainName} />
         </FlexColumn>
       )}
-      <Box>
-        <BaseText>
-          if the certificate is not generated, please{' '}
-          <Link href="mailto: help@harmony.one">contact us</Link>
-        </BaseText>
-      </Box>
+      {/*<Box>*/}
+      {/*  <BaseText>*/}
+      {/*    if the certificate is not generated, please{' '}*/}
+      {/*    <Link href="mailto: help@harmony.one">contact us</Link>*/}
+      {/*  </BaseText>*/}
+      {/*</Box>*/}
       {!walletStore.isConnected && (
         <DescResponsive>
           {walletStore.isMetamaskAvailable ? (
