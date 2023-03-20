@@ -44,12 +44,8 @@ const WaitingRoom = observer(() => {
     }
 
     try {
-      const dom = await mainApi.loadDomain({ domain: domainName })
-
       await relayApi().createCert({
         domain,
-        txHash: dom.createdTxHash,
-        address: walletStore.walletAddress,
       })
     } catch (ex) {
       console.log('### createCert ex', ex)
@@ -111,7 +107,7 @@ const WaitingRoom = observer(() => {
           </h3>
           {/* <GradientText>{`${domainName}.country`}</GradientText> */}
           {!isDomainAvailable && (
-            <GradientText $size="1.17rem" style={{ marginBottom: '0.6em' }}>
+            <GradientText $size="1.17rem">
               <Timer>
                 <Timer.Minutes
                   formatValue={(value) => `${value < 10 ? `0${value}` : value}`}

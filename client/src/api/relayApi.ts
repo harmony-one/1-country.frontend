@@ -65,32 +65,22 @@ export const relayApi = () => {
         responseText,
       }
     },
-    createCert: async ({
-      domain,
-      txHash,
-      address,
-    }: {
-      domain: string
-      txHash: string
-      address: string
-    }) => {
+    createCert: async ({ domain }: { domain: string }) => {
       const {
-        data: {
-          success,
-          domainCreationDate,
-          domainExpiryDate,
-          traceId,
-          reqTime,
-          responseText,
-        },
-      } = await base.post('/cert', { domain, txHash, address })
+        data: { success, sld },
+      } = await base.post('/cert', { domain })
       return {
         success,
-        domainCreationDate,
-        domainExpiryDate,
-        traceId,
-        reqTime,
-        responseText,
+        sld,
+      }
+    },
+    genNFT: async ({ domain }: { domain: string }) => {
+      const {
+        data: { generated, metadata },
+      } = await base.post('/gen', { domain })
+      return {
+        generated,
+        metadata,
       }
     },
   }

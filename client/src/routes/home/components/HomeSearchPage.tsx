@@ -281,6 +281,20 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
+  const generateNFT = async () => {
+    const domain = searchResult.domainName + config.tld
+    try {
+      await relayApi().genNFT({
+        domain,
+      })
+    } catch (error) {
+      console.log(error)
+      throw new RelayError(
+        error?.response?.data?.responseText || `Unable to genereate the NFT`
+      )
+    }
+  }
+
   const handleRentDomain = async () => {
     if (!searchResult || !searchResult.domainRecord || !validation.valid) {
       return false
@@ -472,11 +486,17 @@ const HomeSearchPage: React.FC = observer(() => {
 
       mainApi.createDomain({ domain: searchResult.domainName, txHash })
       await claimWeb2Domain(txHash)
-      await sleep(1500)
       setProcessStatus({
         type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Web2 domain acquire</BaseText>,
       })
+      await sleep(2000)
+      await generateNFT()
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: <BaseText>NFT generated</BaseText>,
+      })
+      await sleep(2000)
       terminateProcess()
       setWeb2Acquired(true)
     } catch (ex) {
