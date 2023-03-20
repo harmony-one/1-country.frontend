@@ -48,6 +48,7 @@ class WidgetListStore extends BaseStore {
   widgetList: Widget[] = []
   txDomainLoading: boolean = false
   txDomain: string = ''
+  isActivated: boolean = false
 
   constructor(rootStore: RootStore) {
     super(rootStore)
@@ -63,6 +64,7 @@ class WidgetListStore extends BaseStore {
         deleteWidget: action,
         _deleteWidget: action,
         setWidgetLoader: observable,
+        loadIsActivated: action,
       },
       { autoBind: true }
     )
@@ -90,6 +92,8 @@ class WidgetListStore extends BaseStore {
         })
         await new Promise((resolve) => setTimeout(resolve, 5000))
       }
+
+      this.isActivated = true
 
       const result = await client.addRecordUrl({
         name: domainName,
@@ -231,6 +235,15 @@ class WidgetListStore extends BaseStore {
         this.txDomainLoading = false
       })
       return ''
+    }
+  }
+
+  async loadIsActivated(domainName: string) {
+    const client = this.getTweetClient()
+    try {
+      this.isActivated = await client.isActivated(domainName)
+    } catch (ex) {
+      console.log('### ex isActivated', ex)
     }
   }
 }

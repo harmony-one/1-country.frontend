@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { FlexColumn } from '../../components/Layout'
-import { GradientText } from '../../components/Text'
+import { BaseText, GradientText } from '../../components/Text'
 import { Container, DescResponsive } from '../home/Home.styles'
 import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
@@ -15,7 +15,7 @@ import { useSearchParams } from 'react-router-dom'
 import { relayApi } from '../../api/relayApi'
 import { mainApi } from '../../api/mainApi'
 import { Web3Button } from '@web3modal/react'
-import { Box } from 'grommet'
+import { Box } from 'grommet/components/Box'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 
 const WaitingRoom = observer(() => {
@@ -124,6 +124,13 @@ const WaitingRoom = observer(() => {
           <BaseText style={{ marginBottom: '0.5em', width: '70%' }}>
             While you wait, you can start personalizing your page
           </BaseText> */}
+          {!isDomainAvailable && (
+            <Box margin={{ bottom: '0.6em' }}>
+              <BaseText>
+                Customize you page as your domain certificate is generated
+              </BaseText>
+            </Box>
+          )}
           {isDomainAvailable && (
             <Button
               style={{ marginBottom: '2em', marginTop: '1.5em' }}
