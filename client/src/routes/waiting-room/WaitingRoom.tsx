@@ -19,13 +19,12 @@ import { Box } from 'grommet/components/Box'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 
 const WaitingRoom = observer(() => {
-  const [intervalId, setIntervalId] = useState<NodeJS.Timer>()
   const [isDomainAvailable, setIsDomainAvailable] = useState(false)
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   const domainName = searchParams.get('domain') || ''
 
-  const { walletStore } = useStores()
+  const { walletStore, domainStore } = useStores()
   const navigate = useNavigate()
 
   const fullUrl = `https://${domainName.toLowerCase()}${config.tld}`
@@ -76,7 +75,6 @@ const WaitingRoom = observer(() => {
     const interval = setInterval(() => {
       checkUrl()
     }, 15000) //for testing purposes
-    setIntervalId(interval)
 
     return () => clearInterval(interval)
   }, [])
@@ -124,7 +122,7 @@ const WaitingRoom = observer(() => {
           <BaseText style={{ marginBottom: '0.5em', width: '70%' }}>
             While you wait, you can start personalizing your page
           </BaseText> */}
-          {!isDomainAvailable && (
+          {domainStore.isOwner && !isDomainAvailable && (
             <Box margin={{ bottom: '0.6em' }}>
               <BaseText>
                 Customize you page as your domain certificate is generated
