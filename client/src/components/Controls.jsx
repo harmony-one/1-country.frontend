@@ -98,7 +98,7 @@ export const FloatingText = styled(SmallText)`
 `
 export const Link = styled.a`
   color: #47b8eb;
-  font-size: 14px;
+  font-size: inherit;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;

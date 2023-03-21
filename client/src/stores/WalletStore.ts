@@ -1,4 +1,4 @@
-import { computed, makeObservable, observable } from 'mobx'
+import { computed, makeObservable, observable, runInAction } from 'mobx'
 import {
   connect,
   watchAccount,
@@ -42,11 +42,15 @@ export class WalletStore extends BaseStore {
     )
 
     watchAccount((account) => {
-      this._account = account
+      runInAction(() => {
+        this._account = account
+      })
     })
 
     watchNetwork((network) => {
-      this._network = network
+      runInAction(() => {
+        this._network = network
+      })
     })
   }
 

@@ -158,6 +158,7 @@ const HomeSearchPage: React.FC = observer(() => {
   const handleSearchChange = (value: string) => {
     setInputValue(value)
     updateSearch(value)
+    setWeb2Error(false)
 
     if (!value && processStatus.type === ProcessStatusTypes.ERROR) {
       setProcessStatus({ type: ProcessStatusTypes.IDLE, render: '' })
