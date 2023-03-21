@@ -1,5 +1,7 @@
 import axios from 'axios'
 import config from '../../config'
+import logger from '../modules/logger';
+const log = logger.module('RelayApi');
 
 const base = axios.create({
   baseURL: config.registrar,
@@ -33,7 +35,7 @@ export const relayApi = () => {
           error,
         }
       } catch (ex) {
-        console.error('checkDomain', ex)
+        log.error('checkDomain', { error: ex })
         return { error: ex.toString() }
       }
     },
