@@ -7,6 +7,8 @@ import { HomeLabel, RecordRenewalContainer } from '../Home.styles'
 import { BaseText, SmallTextGrey, Title } from '../../../components/Text'
 import { useStores } from '../../../stores'
 import { UITx } from '../../../modules/transactions/UITx'
+import logger from '../../../modules/logger';
+const log = logger.module('DomainRecordRenewal');
 
 interface Props {}
 
@@ -42,7 +44,7 @@ export const DomainRecordRenewal: React.FC<Props> = observer(() => {
         },
       })
     } catch (ex) {
-      console.error(ex)
+      log.error('renewDomain', { error: ex });
       uiTx.setStatusFail(ex)
     }
   }

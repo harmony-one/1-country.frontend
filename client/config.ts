@@ -2,6 +2,7 @@ const debug = process.env.DEBUG
 
 const config = {
   debug,
+  sentryDSN: process.env.SENTRY_DSN || '',
   backendHost:
     process.env.BACKEND_HOST || 'https://mdo-dcobackend-01.t.hmny.io',
   registrar:
