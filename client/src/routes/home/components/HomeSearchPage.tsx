@@ -11,6 +11,9 @@ import { HomeSearchResultItem } from './HomeSearchResultItem'
 import { useStores } from '../../../stores'
 import config from '../../../../config'
 
+import logger from '../../../modules/logger';
+const log = logger.module('HomeSearchPage');
+
 import { Button, LinkWrapper } from '../../../components/Controls'
 import { BaseText, GradientText } from '../../../components/Text'
 import { FlexRow } from '../../../components/Layout'
@@ -206,7 +209,7 @@ const HomeSearchPage: React.FC = observer(() => {
       })
       terminateProcess()
       setWeb2Acquired(true)
-    } catch (ex) {
+    } catch (ex) {      
       setWeb2Error(true)
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
@@ -218,7 +221,14 @@ const HomeSearchPage: React.FC = observer(() => {
           }`}</BaseText>
         ),
       })
-      console.error(ex)
+      
+      log.error('claimWeb2DomainWrapper', { 
+        error: ex instanceof RelayError ? ex.message: ex,
+        domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
+        txHash: regTxHash,
+        address: walletStore.walletAddress,
+      })
+
       terminateProcess()
     }
   }
@@ -501,7 +511,6 @@ const HomeSearchPage: React.FC = observer(() => {
       terminateProcess()
       setWeb2Acquired(true)
     } catch (ex) {
-      console.log('claimWeb2Domain error:', ex)
       setWeb2Error(true)
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
@@ -513,6 +522,14 @@ const HomeSearchPage: React.FC = observer(() => {
           }`}</BaseText>
         ),
       })
+
+      log.error('claimWeb2Domain', { 
+        error: ex instanceof RelayError ? ex.message: ex,
+        domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
+        txHash: regTxHash,
+        address: walletStore.walletAddress,
+      })
+
       terminateProcess()
     }
   }
