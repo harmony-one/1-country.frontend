@@ -1,6 +1,7 @@
 import config from '../../config'
-
-const createKeccakHash = require('keccak')
+import { toBN } from 'web3-utils'
+import { buildERC1155Uri } from '../utils/explorer'
+import createKeccakHash from 'keccak'
 
 const SPECIAL_NAMES = ['0', '1']
 // prettier-ignore
@@ -24,6 +25,9 @@ export const nameUtils = {
 
   isValidName: (name: string) => {
     return nameUtils.VALID_NAME.test(name)
+  },
+  isValidLength: (name: string) => {
+    return name.length < 64
   },
   isTaken: (name: string) => {
     return RESERVED_NAMES.includes(name)
@@ -50,7 +54,7 @@ export const utils = {
     return '0x' + utils.hexView(bytes)
   },
 
-  keccak: (bytes: Uint8Array) => {
+  keccak: (bytes: Uint8Array | string) => {
     const k = createKeccakHash('keccak256')
     // assume Buffer is poly-filled or loaded from https://github.com/feross/buffer
     const hash = k.update(Buffer.from(bytes)).digest()
@@ -65,6 +69,33 @@ export const utils = {
     const bytes = utils.stringToBytes(str)
     const hash = utils.keccak(bytes)
     return use0x ? utils.hexString(hash) : utils.hexView(hash)
+  },
+
+  namehash: (name: string) => {
+    const parts = name.split('.')
+    const empty = new Uint8Array(32)
+    if (!name) {
+      return empty
+    }
+    let hash = empty
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const joined = new Uint8Array(64)
+      joined.set(hash)
+      joined.set(utils.keccak(parts[i]), 32)
+      hash = utils.keccak(joined)
+    }
+    return hash
+  },
+
+  buildTokenId: (domainName: string) => {
+    return toBN(utils.hexString(utils.namehash(domainName))).toString()
+  },
+
+  buildDomainExplorerURI: (domainName: string) => {
+    return buildERC1155Uri(
+      config.nameWrapperContract,
+      utils.buildTokenId(domainName)
+    )
   },
 }
 
@@ -101,8 +132,13 @@ export const validateDomainName = (domainName: string) => {
   if (!nameUtils.isValidName(domainName.toLowerCase())) {
     return {
       valid: false,
-      error:
-        'Domains may contain letters a-z and numbers 0-9.\nNo special characters are allowed', //Domains can use a mix of letters and numbers
+      error: 'Domains can use a mix of letters and numbers', //Domains can use a mix of letters and numbers
+    }
+  }
+  if (!nameUtils.isValidLength(domainName)) {
+    return {
+      valid: false,
+      error: 'Domains must be under 64 characters long',
     }
   }
   if (nameUtils.isTaken(domainName.toLowerCase())) {

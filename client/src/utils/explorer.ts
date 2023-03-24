@@ -7,6 +7,5 @@ export const buildERC1155Uri = (
   contractAddress: string,
   tokenId: string | number
 ) => {
-  console.log('### contractAddress', contractAddress)
   return `${config.explorer.erc1155}${contractAddress}/${tokenId}`
 }
