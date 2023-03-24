@@ -233,7 +233,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {domainStore.domainRecord && (
         <TransactionWidget
-          name={domainStore.domainName}
+          name={domainName}
           domainRecord={domainStore.domainRecord}
         />
       )}

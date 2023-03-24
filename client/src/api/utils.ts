@@ -97,6 +97,9 @@ export const utils = {
       utils.buildTokenId(domainName)
     )
   },
+  buildDomainImageURI: (domainName: string): string => {
+    return `${config.domainNftImagesPath}/${domainName}.png`
+  },
 }
 
 export type DomainLevel =
