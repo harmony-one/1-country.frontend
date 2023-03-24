@@ -31,6 +31,8 @@ const config = {
   hostname: process.env.REACT_APP_BASE_URL || 'https://localhost:3100',
   tld: process.env.TLD || '.dev.1.localhost:3100', // '.1.country',
   tldLink: process.env.TLD_LINK || 'dev.1.localhost:3100', // '1.country',
+  domainNftImagesPath:
+    'https://storage.googleapis.com/radical-domain-nft-images',
   walletConnect: {
     projectId:
       process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8',
