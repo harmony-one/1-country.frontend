@@ -1,12 +1,12 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Box } from 'grommet/components/Box'
-import { Spinner } from 'grommet/components/Spinner'
 import { Text } from 'grommet/components/Text'
 import Timer from '@amplication/react-compound-timer'
 import { DomainRecord } from '../../api'
 import { HarmonyLink } from '../HarmonyLink'
 import { WidgetsContainer } from './Widgets.styles'
+import { utils } from '../../api/utils'
 
 const Container = styled(WidgetsContainer)`
   gap: 0;
@@ -40,13 +40,6 @@ const ExplorerLogoWrapper = styled(Box)`
   }
 `
 
-interface Props {
-  isLoading: boolean
-  txHash: string
-  name: string
-  domainRecord: DomainRecord
-}
-
 const formatTime = (value: number) => `${value < 10 ? `0${value}` : value}`
 
 const LinkItem = styled.a`
@@ -57,13 +50,16 @@ const LinkItem = styled.a`
   overflow: hidden;
 `
 
-export const TransactionWidget: React.FC<Props> = ({
-  isLoading,
-  name,
-  txHash,
-  domainRecord,
-}) => {
-  const { renter, expirationTime, rentTime } = domainRecord
+interface Props {
+  name: string
+  domainRecord: DomainRecord
+}
+
+export const TransactionWidget: React.FC<Props> = ({ name, domainRecord }) => {
+  const { renter, expirationTime } = domainRecord
+
+  const fullDomainName = name + '.country'
+  const erc1155Uri = utils.buildDomainExplorerURI(fullDomainName)
 
   return (
     <Container style={{ padding: 0 }}>
@@ -121,15 +117,12 @@ export const TransactionWidget: React.FC<Props> = ({
           </Text>
         </Box>
         <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
-          {isLoading ? (
-            <Spinner size={'xsmall'} color="#00AEEA" />
-          ) : txHash ? (
-            <HarmonyLink
-              type={'tx'}
-              hash={txHash}
-              href={`https://explorer.harmony.one/tx/${txHash}`}
-            />
-          ) : null}
+          <HarmonyLink
+            type={'nft'}
+            text={fullDomainName}
+            href={erc1155Uri}
+            hash={utils.buildTokenId(fullDomainName)}
+          />
         </Box>
       </Box>
     </Container>

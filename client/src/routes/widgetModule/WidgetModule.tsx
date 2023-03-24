@@ -234,9 +234,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       {domainStore.domainRecord && (
         <TransactionWidget
           name={domainStore.domainName}
-          isLoading={widgetListStore.txDomainLoading}
           domainRecord={domainStore.domainRecord}
-          txHash={widgetListStore.txDomain}
         />
       )}
 
