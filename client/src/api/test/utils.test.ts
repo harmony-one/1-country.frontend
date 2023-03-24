@@ -78,3 +78,25 @@ describe('Testing validateDomainName', () => {
     })
   })
 })
+
+describe('namehash', () => {
+  it('should generate namehash', () => {
+    expect(utils.namehash('1.country')).toEqual(
+      new Uint8Array([
+        244, 76, 57, 94, 212, 222, 77, 183, 122, 43, 99, 220, 209, 6, 189, 196,
+        49, 53, 115, 252, 24, 115, 72, 69, 61, 92, 217, 130, 94, 128, 235, 151,
+      ])
+    )
+  })
+})
+
+describe('buildTokenId', () => {
+  it('should build token id', () => {
+    expect(utils.buildTokenId('solidity.country')).toEqual(
+      '57595320814075724957818091352505671515796480954782416012489579000260146841601'
+    )
+    expect(utils.buildTokenId('polygon.country')).toEqual(
+      '20694283288589844340016925037199172343245066114203336972659187450793467060874'
+    )
+  })
+})

@@ -8,7 +8,7 @@ interface Props {
   hash: string
   href?: string
   text?: string
-  type: 'address' | 'tx' | 'block'
+  type: 'address' | 'tx' | 'block' | 'nft'
   cut?: boolean
   mono?: boolean
   onClick?: MouseEventHandler<HTMLAnchorElement>
@@ -18,6 +18,7 @@ const typeMap = {
   address: config.explorer.address,
   tx: config.explorer.tx,
   block: config.explorer.block,
+  nft: '',
 }
 
 const StyledImg = styled.img`

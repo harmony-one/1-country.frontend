@@ -1,12 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Box } from 'grommet/components/Box'
-import { Spinner } from 'grommet/components/Spinner'
 import { Text } from 'grommet/components/Text'
 import Timer from '@amplication/react-compound-timer'
 import { DomainRecord } from '../../api'
-import { HarmonyLink } from '../HarmonyLink'
 import { WidgetsContainer } from './Widgets.styles'
+import { utils } from '../../api/utils'
 
 const Container = styled(WidgetsContainer)`
   gap: 0;
@@ -27,8 +26,8 @@ const dateFormat = new Intl.DateTimeFormat('en-US', {
 })
 
 const ExplorerLogoContainer = styled(Box)`
-  width: 100%;
-  height: 100%;
+  width: 120px;
+  height: 120px;
   background-color: #00aee9;
 `
 
@@ -40,13 +39,6 @@ const ExplorerLogoWrapper = styled(Box)`
   }
 `
 
-interface Props {
-  isLoading: boolean
-  txHash: string
-  name: string
-  domainRecord: DomainRecord
-}
-
 const formatTime = (value: number) => `${value < 10 ? `0${value}` : value}`
 
 const LinkItem = styled.a`
@@ -57,32 +49,36 @@ const LinkItem = styled.a`
   overflow: hidden;
 `
 
-export const TransactionWidget: React.FC<Props> = ({
-  isLoading,
-  name,
-  txHash,
-  domainRecord,
-}) => {
-  const { renter, expirationTime, rentTime } = domainRecord
+interface Props {
+  name: string
+  domainRecord: DomainRecord
+}
+
+export const TransactionWidget: React.FC<Props> = ({ name, domainRecord }) => {
+  const { renter, expirationTime } = domainRecord
+
+  const fullDomainName = name + '.country'
+  const erc1155Uri = utils.buildDomainExplorerURI(fullDomainName)
 
   return (
     <Container style={{ padding: 0 }}>
       <ExplorerLogoWrapper justify={'center'}>
-        <ExplorerLogoContainer align={'start'} pad={'12px'} justify={'center'}>
-          <Text weight={700} color={'white'} size={'20px'}>
-            Harmony
-          </Text>
-          <Text
-            weight={700}
-            color={'white'}
-            size={'14px'}
-            style={{ whiteSpace: 'nowrap' }}
-          >
-            Block Explorer
-          </Text>
+        <ExplorerLogoContainer align={'start'} justify={'center'}>
+          <a href={erc1155Uri} target="_blank">
+            <img
+              width="100%"
+              height="100%"
+              alt="domain image"
+              src={utils.buildDomainImageURI(fullDomainName)}
+            />
+          </a>
         </ExplorerLogoContainer>
       </ExplorerLogoWrapper>
-      <Box gap={'6px'} pad={{ left: '14px', top: '12px', bottom: '12px' }}>
+      <Box
+        gap={'6px'}
+        justify={'center'}
+        pad={{ left: '14px', top: '12px', bottom: '12px' }}
+      >
         <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
           <Text size={'small'} weight={'bold'}>
             Owner:
@@ -119,17 +115,6 @@ export const TransactionWidget: React.FC<Props> = ({
               ) : null}
             </Timer>
           </Text>
-        </Box>
-        <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
-          {isLoading ? (
-            <Spinner size={'xsmall'} color="#00AEEA" />
-          ) : txHash ? (
-            <HarmonyLink
-              type={'tx'}
-              hash={txHash}
-              href={`https://explorer.harmony.one/tx/${txHash}`}
-            />
-          ) : null}
         </Box>
       </Box>
     </Container>

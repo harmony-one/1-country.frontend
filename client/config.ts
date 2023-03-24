@@ -13,6 +13,9 @@ const config = {
   tweetContractAddress:
     process.env.TWEET_CONTRACT_ADDRESS ||
     '0x17cF877f9226ba382b0baDA1499576E60A547955',
+  nameWrapperContract:
+    process.env.NAME_WRAPPER_CONTRACT ||
+    '0x4cd2563118e57b19179d8dc033f2b0c5b5d69ff5',
   contractVanityURL:
     process.env.CONTRACT_VANITY_URL ||
     '0x88a1afC4134f385337Dd5F530D452079fC9E14CC', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
@@ -22,11 +25,14 @@ const config = {
     address: 'https://explorer.harmony.one/address/',
     tx: 'https://explorer.harmony.one/tx/',
     block: 'https://explorer.harmony.one/block/',
+    erc1155: 'https://explorer.harmony.one/inventory/erc1155/',
   },
   defaultRPC: process.env.DEFAULT_RPC || 'https://api.harmony.one',
   hostname: process.env.REACT_APP_BASE_URL || 'https://localhost:3100',
   tld: process.env.TLD || '.dev.1.localhost:3100', // '.1.country',
   tldLink: process.env.TLD_LINK || 'dev.1.localhost:3100', // '1.country',
+  domainNftImagesPath:
+    'https://storage.googleapis.com/radical-domain-nft-images',
   walletConnect: {
     projectId:
       process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8',
