@@ -5,6 +5,7 @@ export enum ModalIds {
   PROFILE_EDIT = 'PROFILE_EDIT',
   PROFILE_ADD_WIDGET = 'PROFILE_ADD_WIDGET',
   PROFILE_ADD_WIDGET_TEXT = 'PROFILE_ADD_WIDGET_TEXT',
+  TIP_PAGE = 'TIP_PAGE',
 }
 
 export interface LayerProps {
@@ -33,6 +34,11 @@ export type ModalMap = {
     render: ModalRender
   }
   [ModalIds.PROFILE_EDIT]: {
+    params: { data: string }
+    layerProps?: LayerProps
+    render: ModalRender
+  }
+  [ModalIds.TIP_PAGE]: {
     params: { data: string }
     layerProps?: LayerProps
     render: ModalRender
