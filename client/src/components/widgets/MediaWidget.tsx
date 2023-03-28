@@ -15,6 +15,8 @@ interface Props {
 export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   const [widget, setWidget] = useState<any>()
   const [loading, setLoading] = useState(true)
+  const [stakingIframeSrc, setStakingIframeSrc] = useState<any>()
+
   const { ref, inView } = useInView({
     /* Optional options */
     rootMargin: '0px',
@@ -38,6 +40,14 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   }
 
   useEffect(() => {
+    const stakingWidgetBaseUrl = 'https://staking-sdk-react-example.web.app/';
+
+    if(value.indexOf(stakingWidgetBaseUrl) === 0) {
+      setStakingIframeSrc(value);
+      setLoading(false);
+      return;
+    }
+
     if (isUrl(value)) {
       loadData(value)
     }
@@ -52,7 +62,20 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   return (
     <WidgetsContainer isWidgetLoading={loading} ref={ref}>
       <div style={{ paddingBottom: '2em' }}>
-        {widget && (!loading || inView) && (
+        {
+          stakingIframeSrc && (
+            <iframe 
+              width="600px"
+              height="600px"
+              style={{
+                overflow: 'hidden',
+                border: 0
+              }}
+              src={stakingIframeSrc} 
+            />
+          )
+        }
+        {!stakingIframeSrc && widget && (!loading || inView) && (
           <blockquote className="embedly-card" style={{ zIndex: '10' }}>
             <h4>
               <a href={widget.url}>{widget.title}</a>
