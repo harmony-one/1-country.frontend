@@ -123,7 +123,7 @@ export const ModalTipPage: React.FC<Props> = observer(
                   onClose()
                 }}
               >
-                Cancel
+                {`${status === 'idle' ? 'Cancel' : 'Close'}`}
               </CancelButton>
               <Button type="submit" disabled={status === 'loading'}>
                 Tip
