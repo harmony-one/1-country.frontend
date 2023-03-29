@@ -8,15 +8,16 @@ import { widgetListStore } from '../../widgetModule/WidgetListStore'
 import { DomainRecordRenewal } from './DomainRecordRenewal'
 import { HomePageFooter } from './HomePageFooter'
 import { useStores } from '../../../stores'
-
-import { DomainName } from '../../../components/Text'
-import { Container, DomainNameContainer, TipPageButton } from '../Home.styles'
 import config from '../../../../config'
 import { DomainLevel, getDomainLevel } from '../../../api/utils'
 import { getDomainName } from '../../../utils/getDomainName'
 import { ModalIds, ModalRegister } from '../../../modules/modals'
 import { modalStore } from '../../../modules/modals/ModalContext'
 import { ModalTipPage } from '../../../components/modals/ModalTipPage'
+import { FaGratipay } from 'react-icons/fa'
+
+import { DomainName } from '../../../components/Text'
+import { Container, DomainNameContainer, TipPageButton } from '../Home.styles'
 
 interface Props {}
 
@@ -74,7 +75,17 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
         </DomainName>
         {domainStore.domainRecord && domainStore.domainRecord.renter && (
           <TipPageButton>
-            <button onClick={openModal}>Tip me!</button>
+            <button onClick={openModal}>
+              Tip me
+              <FaGratipay
+                style={{
+                  color: 'red',
+                  verticalAlign: 'middle',
+                  fontSize: '1.3rem',
+                  paddingLeft: '0.3em',
+                }}
+              />
+            </button>
           </TipPageButton>
         )}
       </DomainNameContainer>

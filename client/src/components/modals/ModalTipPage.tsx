@@ -1,14 +1,15 @@
 import React, { ChangeEvent, FormEvent, useState } from 'react'
 import { observer } from 'mobx-react-lite'
+import { usePrepareSendTransaction, useSendTransaction } from 'wagmi'
+import Web3 from 'web3'
+
+import { DomainLevel } from '../../api/utils'
+
 import { ModalContent } from './ModalContent'
 import { Title } from '../Text'
 import { CancelButton, Button } from '../Controls'
 import { FlexColumn, Row } from '../Layout'
-import { usePrepareSendTransaction, useSendTransaction } from 'wagmi'
-import Web3 from 'web3'
 import { DomainName } from '../Text'
-
-import { DomainLevel } from '../../api/utils'
 import { SearchInput } from '../search-input/SearchInput'
 
 interface Props {
@@ -31,7 +32,7 @@ export const ModalTipPage: React.FC<Props> = observer(
       const { value } = event.target
       setAmount(value)
     }
-    console.log(domainName, ownerAddress)
+
     const { config } = usePrepareSendTransaction({
       request: {
         to: ownerAddress ? ownerAddress : undefined,
@@ -45,7 +46,6 @@ export const ModalTipPage: React.FC<Props> = observer(
 
     const formSubmit = (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
-      console.log('click')
       sendTransaction && sendTransaction()
     }
 
@@ -65,12 +65,11 @@ export const ModalTipPage: React.FC<Props> = observer(
               {domainName}
             </DomainName>
             <SearchInput
-              aria-label="Amount (ether)"
               name="amount"
               type="number"
               required
               onChange={onChange}
-              placeholder="Please enter the amount"
+              placeholder="Please enter the amount (ONE)"
             />
             <Row
               style={{ justifyContent: 'space-between', marginTop: '1.5em' }}
