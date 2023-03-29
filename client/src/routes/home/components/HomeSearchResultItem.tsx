@@ -22,6 +22,7 @@ interface Props {
   available?: boolean
   price: string
   rateONE: number
+  error: string
 }
 
 export const HomeSearchResultItem: React.FC<Props> = ({
@@ -29,13 +30,14 @@ export const HomeSearchResultItem: React.FC<Props> = ({
   available = false,
   price,
   rateONE,
+  error,
 }) => {
   const priceUsd = calcDomainUSDPrice(Number(price), rateONE)
   const priceOne = price
 
   return (
     <Container>
-      <div>{available ? '' : 'Domain Name Unavailable'}</div>
+      <div>{available ? '' : error ? error : 'Domain Name Unavailable'}</div>
       {available && (
         <Box gap="8px" direction="column">
           <DomainName>{name}.country</DomainName>
@@ -44,13 +46,17 @@ export const HomeSearchResultItem: React.FC<Props> = ({
             for 3 months
           </BaseText>
           <a
-              style={{ color: '#758796', textDecoration: 'none', fontSize: '0.9rem'}}
-              href="https://harmonyone.notion.site/harmonyone/Terms-Conditions-6096dbaf43f6402fb4719efaace47a5e"
-              target="_blank"
-              rel="noreferrer"
-            >
-              By registering, you agree to the Terms of Service.
-            </a>
+            style={{
+              color: '#758796',
+              textDecoration: 'none',
+              fontSize: '0.9rem',
+            }}
+            href="https://harmonyone.notion.site/harmonyone/Terms-Conditions-6096dbaf43f6402fb4719efaace47a5e"
+            target="_blank"
+            rel="noreferrer"
+          >
+            By registering, you agree to the Terms of Service.
+          </a>
         </Box>
       )}
     </Container>

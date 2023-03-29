@@ -6,3 +6,5 @@ accumulate.env
 node_modules
 .env
 yarn-error.log
+coverage
+*.log

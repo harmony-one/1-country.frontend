@@ -1,40 +1,44 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { FlexColumn } from '../../components/Layout'
-import { GradientText } from '../../components/Text'
+import { BaseText, GradientText } from '../../components/Text'
 import { Container, DescResponsive } from '../home/Home.styles'
 import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import Timer from '@amplication/react-compound-timer'
 import { WidgetModule } from '../widgetModule/WidgetModule'
-import { Button } from '../../components/Controls'
+import { Button, Link } from '../../components/Controls'
 import config from '../../../config'
 
 import { urlExists } from '../../api/checkUrl'
 import { useSearchParams } from 'react-router-dom'
 import { relayApi } from '../../api/relayApi'
-import { mainApi } from '../../api/mainApi'
 import { Web3Button } from '@web3modal/react'
-import { Box } from 'grommet'
+import { Box } from 'grommet/components/Box'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 
 const WaitingRoom = observer(() => {
-  const [intervalId, setIntervalId] = useState<NodeJS.Timer>()
   const [isDomainAvailable, setIsDomainAvailable] = useState(false)
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   const domainName = searchParams.get('domain') || ''
 
-  const { walletStore } = useStores()
+  const { walletStore, domainStore } = useStores()
   const navigate = useNavigate()
 
   const fullUrl = `https://${domainName.toLowerCase()}${config.tld}`
 
   useEffect(() => {
     if (!domainName) {
-      navigate(-1)
+      navigate('/')
     }
   }, [])
+
+  useEffect(() => {
+    if (domainStore.domainRecord && !domainStore.domainRecord.renter) {
+      navigate(`/?domain=${domainName}`)
+    }
+  }, [domainStore.domainRecord])
 
   const createCert = async (attemptsLeft = 3) => {
     const domain = `${domainName}${config.tld}`
@@ -44,12 +48,8 @@ const WaitingRoom = observer(() => {
     }
 
     try {
-      const dom = await mainApi.loadDomain({ domain: domainName })
-
       await relayApi().createCert({
         domain,
-        txHash: dom.createdTxHash,
-        address: walletStore.walletAddress,
       })
     } catch (ex) {
       console.log('### createCert ex', ex)
@@ -80,7 +80,6 @@ const WaitingRoom = observer(() => {
     const interval = setInterval(() => {
       checkUrl()
     }, 15000) //for testing purposes
-    setIntervalId(interval)
 
     return () => clearInterval(interval)
   }, [])
@@ -128,6 +127,13 @@ const WaitingRoom = observer(() => {
           <BaseText style={{ marginBottom: '0.5em', width: '70%' }}>
             While you wait, you can start personalizing your page
           </BaseText> */}
+          {domainStore.isOwner && !isDomainAvailable && (
+            <Box margin={{ bottom: '0.6em' }}>
+              <BaseText>
+                Customize you page as your domain certificate is generated
+              </BaseText>
+            </Box>
+          )}
           {isDomainAvailable && (
             <Button
               style={{ marginBottom: '2em', marginTop: '1.5em' }}
@@ -139,6 +145,12 @@ const WaitingRoom = observer(() => {
           <WidgetModule domainName={domainName} />
         </FlexColumn>
       )}
+      {/*<Box>*/}
+      {/*  <BaseText>*/}
+      {/*    if the certificate is not generated, please{' '}*/}
+      {/*    <Link href="mailto: help@harmony.one">contact us</Link>*/}
+      {/*  </BaseText>*/}
+      {/*</Box>*/}
       {!walletStore.isConnected && (
         <DescResponsive>
           {walletStore.isMetamaskAvailable ? (

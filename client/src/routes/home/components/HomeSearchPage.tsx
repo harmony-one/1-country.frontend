@@ -45,6 +45,7 @@ interface SearchResult {
   domainRecord: DomainRecord
   price: DomainPrice
   isAvailable: boolean
+  error: string
 }
 
 const HomeSearchPage: React.FC = observer(() => {
@@ -157,6 +158,7 @@ const HomeSearchPage: React.FC = observer(() => {
   const handleSearchChange = (value: string) => {
     setInputValue(value)
     updateSearch(value)
+    setWeb2Error(false)
 
     if (!value && processStatus.type === ProcessStatusTypes.ERROR) {
       setProcessStatus({ type: ProcessStatusTypes.IDLE, render: '' })
@@ -178,16 +180,17 @@ const HomeSearchPage: React.FC = observer(() => {
           })
         : {
             isAvailable: true,
+            error: '',
           },
       rootStore.d1dcClient.checkAvailable({
         name: _domainName,
       }),
     ])
-
     return {
       domainName: _domainName,
       domainRecord: record,
       price: price,
+      error: relayCheckDomain.error,
       isAvailable: relayCheckDomain.isAvailable && isAvailable2,
     }
   }
@@ -198,7 +201,6 @@ const HomeSearchPage: React.FC = observer(() => {
       await claimWeb2Domain(regTxHash)
       await sleep(1500)
       setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Web2 domain acquired</BaseText>,
       })
       terminateProcess()
@@ -275,6 +277,20 @@ const HomeSearchPage: React.FC = observer(() => {
       console.log('### ex', error?.response?.data)
       throw new RelayError(
         error?.response?.data?.responseText || `Unable to acquire web2 domain`
+      )
+    }
+  }
+
+  const generateNFT = async () => {
+    const domain = searchResult.domainName + config.tld
+    try {
+      await relayApi().genNFT({
+        domain,
+      })
+    } catch (error) {
+      console.log(error)
+      throw new RelayError(
+        error?.response?.data?.responseText || `Unable to genereate the NFT`
       )
     }
   }
@@ -470,18 +486,21 @@ const HomeSearchPage: React.FC = observer(() => {
 
       mainApi.createDomain({ domain: searchResult.domainName, txHash })
       await claimWeb2Domain(txHash)
-      await sleep(1500)
       setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>Web2 domain acquire</BaseText>,
+        render: <BaseText>Web2 domain acquired.</BaseText>,
       })
+      await sleep(2000)
+      await generateNFT()
+      setProcessStatus({
+        render: <BaseText>NFT generated.</BaseText>,
+      })
+      await sleep(2000)
       terminateProcess()
       setWeb2Acquired(true)
     } catch (ex) {
       console.log('claimWeb2Domain error:', ex)
       setWeb2Error(true)
       setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
         render: (
           <BaseText>{`${
             ex instanceof RelayError
@@ -535,6 +554,7 @@ const HomeSearchPage: React.FC = observer(() => {
                 rateONE={ratesStore.ONE_USD}
                 price={searchResult.price.formatted}
                 available={searchResult.isAvailable}
+                error={searchResult.error}
               />
               <Button
                 disabled={!validation.valid || !searchResult.isAvailable}

@@ -1,5 +1,7 @@
 import axios from 'axios'
 import config from '../../config'
+import logger from '../modules/logger';
+const log = logger.module('RelayApi');
 
 const base = axios.create({
   baseURL: config.registrar,
@@ -18,6 +20,7 @@ export const relayApi = () => {
             transferPrice,
             restorePrice,
             responseText,
+            error = '',
           },
         } = await base.post('/check-domain', { sld })
         return {
@@ -29,9 +32,10 @@ export const relayApi = () => {
           transferPrice,
           restorePrice,
           responseText,
+          error,
         }
       } catch (ex) {
-        console.error(ex)
+        log.error('checkDomain', { error: ex })
         return { error: ex.toString() }
       }
     },
@@ -63,32 +67,22 @@ export const relayApi = () => {
         responseText,
       }
     },
-    createCert: async ({
-      domain,
-      txHash,
-      address,
-    }: {
-      domain: string
-      txHash: string
-      address: string
-    }) => {
+    createCert: async ({ domain }: { domain: string }) => {
       const {
-        data: {
-          success,
-          domainCreationDate,
-          domainExpiryDate,
-          traceId,
-          reqTime,
-          responseText,
-        },
-      } = await base.post('/cert', { domain, txHash, address })
+        data: { success, sld },
+      } = await base.post('/cert', { domain })
       return {
         success,
-        domainCreationDate,
-        domainExpiryDate,
-        traceId,
-        reqTime,
-        responseText,
+        sld,
+      }
+    },
+    genNFT: async ({ domain }: { domain: string }) => {
+      const {
+        data: { generated, metadata },
+      } = await base.post('/gen', { domain })
+      return {
+        generated,
+        metadata,
       }
     },
   }
@@ -97,7 +91,6 @@ export const relayApi = () => {
 export class RelayError extends Error {
   constructor(readonly message: string) {
     super(message)
-
     this.name = 'RelayError'
   }
 }

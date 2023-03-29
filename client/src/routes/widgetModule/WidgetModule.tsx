@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { rootStore, useStores } from '../../stores'
+import { useStores } from '../../stores'
 import {
   PageWidgetContainer,
   WidgetInputContainer,
@@ -19,7 +19,7 @@ import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
 import { isEmail, isRedditUrl } from '../../utils/validation'
-import { BaseText } from '../../components/Text'
+import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
 
@@ -45,6 +45,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   useEffect(() => {
     widgetListStore.loadWidgetList(domainName)
     widgetListStore.loadDomainTx(domainName)
+    widgetListStore.loadIsActivated(domainName)
   }, [domainName])
 
   const [isLoading, setLoading] = useState(false)
@@ -199,6 +200,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             onKeyDown={enterHandler}
           />
 
+          {!widgetListStore.isActivated && (
+            <Box pad={{ top: '0.5em' }}>
+              <SmallText>
+                Your first transaction when trying to add a post is an
+                activation transaction which is followed by a post addition
+                transaction
+              </SmallText>
+            </Box>
+          )}
+
           {processStatus.type !== ProcessStatusTypes.IDLE && (
             <Box align={'center'} margin={{ top: '8px' }}>
               <ProcessStatus status={processStatus} />
@@ -222,10 +233,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {domainStore.domainRecord && (
         <TransactionWidget
-          name={domainStore.domainName}
-          isLoading={widgetListStore.txDomainLoading}
+          name={domainName}
           domainRecord={domainStore.domainRecord}
-          txHash={widgetListStore.txDomain}
         />
       )}
 
