@@ -201,7 +201,6 @@ const HomeSearchPage: React.FC = observer(() => {
       await claimWeb2Domain(regTxHash)
       await sleep(1500)
       setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Web2 domain acquired</BaseText>,
       })
       terminateProcess()
@@ -488,14 +487,12 @@ const HomeSearchPage: React.FC = observer(() => {
       mainApi.createDomain({ domain: searchResult.domainName, txHash })
       await claimWeb2Domain(txHash)
       setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>Web2 domain acquire</BaseText>,
+        render: <BaseText>Web2 domain acquired.</BaseText>,
       })
       await sleep(2000)
       await generateNFT()
       setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>NFT generated</BaseText>,
+        render: <BaseText>NFT generated.</BaseText>,
       })
       await sleep(2000)
       terminateProcess()
@@ -504,7 +501,6 @@ const HomeSearchPage: React.FC = observer(() => {
       console.log('claimWeb2Domain error:', ex)
       setWeb2Error(true)
       setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
         render: (
           <BaseText>{`${
             ex instanceof RelayError
