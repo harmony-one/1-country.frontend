@@ -1,17 +1,23 @@
-import React, { ChangeEvent, FormEvent, useState } from 'react'
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { usePrepareSendTransaction, useSendTransaction } from 'wagmi'
 import Web3 from 'web3'
 
+import {
+  ProcessStatus,
+  ProcessStatusItem,
+  ProcessStatusTypes,
+} from '../process-status/ProcessStatus'
+import { cutString } from '../../utils/string'
 import { DomainLevel } from '../../api/utils'
+import appConfig from '../../../config'
 
 import { ModalContent } from './ModalContent'
-import { Title } from '../Text'
-import { CancelButton, Button } from '../Controls'
-import { FlexColumn, Row } from '../Layout'
+import { BaseText, Title } from '../Text'
+import { CancelButton, Button, LinkWrapper } from '../Controls'
+import { FlexColumn, FlexRow, Row } from '../Layout'
 import { DomainName } from '../Text'
 import { SearchInput } from '../search-input/SearchInput'
-
 interface Props {
   onClose?: () => void
   domainName: string
@@ -19,15 +25,13 @@ interface Props {
   domainLevel: DomainLevel
 }
 
-const defaultFormFields = {
-  to: '',
-  amount: '',
-}
-
 export const ModalTipPage: React.FC<Props> = observer(
   ({ onClose, domainName, ownerAddress, domainLevel }) => {
     const [amount, setAmount] = useState('')
-
+    const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
+      type: ProcessStatusTypes.IDLE,
+      render: '',
+    })
     const onChange = (event: ChangeEvent<HTMLInputElement>) => {
       const { value } = event.target
       setAmount(value)
@@ -42,11 +46,46 @@ export const ModalTipPage: React.FC<Props> = observer(
       },
     })
 
-    const { sendTransaction } = useSendTransaction(config)
+    const { data, isSuccess, status, error, sendTransaction } =
+      useSendTransaction(config)
+
+    useEffect(() => {
+      if (error) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: error.message,
+        })
+        return
+      }
+      if (isSuccess) {
+        setProcessStatus({
+          type: ProcessStatusTypes.SUCCESS,
+          render: (
+            <FlexRow>
+              <BaseText style={{ marginRight: 8 }}>Success</BaseText>(
+              <LinkWrapper
+                target="_blank"
+                type="text"
+                href={`${appConfig.explorer.explorerUrl}${data?.hash}`}
+              >
+                <BaseText>{cutString(data?.hash)}</BaseText>
+              </LinkWrapper>
+              )
+            </FlexRow>
+          ),
+        })
+        setAmount('')
+        return
+      }
+    }, [status])
 
     const formSubmit = (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       sendTransaction && sendTransaction()
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: 'processing transaction',
+      })
     }
 
     return (
@@ -70,19 +109,25 @@ export const ModalTipPage: React.FC<Props> = observer(
               required
               onChange={onChange}
               placeholder="Please enter the amount (ONE)"
+              value={amount}
             />
+            {processStatus.type !== ProcessStatusTypes.IDLE && (
+              <ProcessStatus status={processStatus} />
+            )}
             <Row
               style={{ justifyContent: 'space-between', marginTop: '1.5em' }}
             >
               <CancelButton
-                type="submit"
+                disabled={status === 'loading'}
                 onClick={() => {
                   onClose()
                 }}
               >
                 Cancel
               </CancelButton>
-              <Button type="submit">Tip</Button>
+              <Button type="submit" disabled={status === 'loading'}>
+                Tip
+              </Button>
             </Row>
           </FlexColumn>
         </form>
