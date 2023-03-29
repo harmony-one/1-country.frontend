@@ -204,8 +204,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             <Box pad={{ top: '0.5em' }}>
               <SmallText>
                 Your first transaction when trying to add a post is an
-                activation transaction which is followed by a post addition
-                transaction
+                activation transaction, which is followed by an addition
+                transaction. Approval for both transactions are required to add
+                a post.
               </SmallText>
             </Box>
           )}
