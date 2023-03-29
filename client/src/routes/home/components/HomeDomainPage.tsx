@@ -14,7 +14,7 @@ import { getDomainName } from '../../../utils/getDomainName'
 import { ModalIds, ModalRegister } from '../../../modules/modals'
 import { modalStore } from '../../../modules/modals/ModalContext'
 import { ModalTipPage } from '../../../components/modals/ModalTipPage'
-import { FaGratipay } from 'react-icons/fa'
+import { AiFillHeart } from 'react-icons/ai'
 
 import { DomainName } from '../../../components/Text'
 import { Container, DomainNameContainer, TipPageButton } from '../Home.styles'
@@ -77,11 +77,11 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
           <TipPageButton>
             <button onClick={openModal}>
               Tip me
-              <FaGratipay
+              <AiFillHeart
                 style={{
                   color: 'red',
                   verticalAlign: 'middle',
-                  fontSize: '1.3rem',
+                  fontSize: '1.2rem',
                   paddingLeft: '0.3em',
                 }}
               />
