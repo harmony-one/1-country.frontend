@@ -54,6 +54,7 @@ const HomeSearchPage: React.FC = observer(() => {
   const { open, close, isOpen } = useWeb3Modal()
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
+  const [referral, setReferral] = useState(searchParams.get('referral') || '')
   const [isLoading, setLoading] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
@@ -195,17 +196,33 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
+  const apiRelayerCalls = async (txHash: string) => {
+    try {
+      await claimWeb2Domain(txHash)
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: <BaseText>Web2 domain acquire</BaseText>,
+      })
+      await sleep(2000)
+      await generateNFT()
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: <BaseText>NFT generated</BaseText>,
+      })
+      referral &&
+        mainApi.referral({ domain: searchResult.domainName, referral })
+      await sleep(2000)
+      terminateProcess()
+      setWeb2Acquired(true)
+    } catch (ex) {
+      throw ex
+    }
+  }
+
   const claimWeb2DomainWrapper = async () => {
     setLoading(true)
     try {
-      await claimWeb2Domain(regTxHash)
-      await sleep(1500)
-      setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>Web2 domain acquired</BaseText>,
-      })
-      terminateProcess()
-      setWeb2Acquired(true)
+      await apiRelayerCalls(regTxHash)
     } catch (ex) {
       setWeb2Error(true)
       setProcessStatus({
@@ -432,7 +449,6 @@ const HomeSearchPage: React.FC = observer(() => {
         ),
       })
 
-      console.log('Commit result:', commitResult)
       console.log('waiting for 5 seconds...')
       await sleep(5000)
 
@@ -450,7 +466,6 @@ const HomeSearchPage: React.FC = observer(() => {
       const rentResult = await rootStore.d1dcClient.rent({
         name: searchResult.domainName.toLowerCase(),
         secret,
-        //url: tweetId.toString(),
         owner: walletStore.walletAddress,
         amount: new BN(searchResult.price.amount).toString(),
         onTransactionHash: () => {
@@ -460,7 +475,6 @@ const HomeSearchPage: React.FC = observer(() => {
           })
         },
       })
-      console.log('rentResult', rentResult)
 
       if (rentResult.error) {
         setProcessStatus({
@@ -484,22 +498,8 @@ const HomeSearchPage: React.FC = observer(() => {
 
       const txHash = rentResult.txReceipt.transactionHash
       setRegTxHash(txHash)
-
       mainApi.createDomain({ domain: searchResult.domainName, txHash })
-      await claimWeb2Domain(txHash)
-      setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>Web2 domain acquire</BaseText>,
-      })
-      await sleep(2000)
-      await generateNFT()
-      setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>NFT generated</BaseText>,
-      })
-      await sleep(2000)
-      terminateProcess()
-      setWeb2Acquired(true)
+      await apiRelayerCalls(txHash)
     } catch (ex) {
       console.log('claimWeb2Domain error:', ex)
       setWeb2Error(true)
