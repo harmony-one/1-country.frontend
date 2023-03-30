@@ -18,7 +18,7 @@ import {
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
-import { isEmail, isRedditUrl } from '../../utils/validation'
+import { isEmail, isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
 import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
@@ -77,59 +77,68 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
     setLoading(true)
 
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: 'Embedding post',
-    })
+    let widget: Widget;
 
-    if (!isValidUrl(value)) {
+    if(isStakingWidgetUrl(value)) {
+      widget = {
+        type: 'staking',
+        value: value,
+      }
+    } else {
       setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: 'Invalid URL',
+        type: ProcessStatusTypes.PROGRESS,
+        render: 'Embedding post',
       })
-      setLoading(false)
-      return
-    }
 
-    if (isRedditUrl(value)) {
+      if (!isValidUrl(value)) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: 'Invalid URL',
+        })
+        setLoading(false)
+        return
+      }
+
+      if (isRedditUrl(value)) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: 'Incompatible URL. Please try a URL from another website.',
+        })
+        setLoading(false)
+        return
+      }
+      // const isTwit = isValidTwitUri(value)
+      // const isInst = isValidInstagramUri(value)
+
+      // if (!isInst && !isTwit) {
+      //   setProcessStatus({
+      //     type: ProcessStatusTypes.ERROR,
+      //     render: 'Invalid URL',
+      //   })
+      //   setLoading(false)
+      //   return
+      // }
+
       setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: 'Incompatible URL. Please try a URL from another website.',
+        type: ProcessStatusTypes.PROGRESS,
+        render: 'Checking URL',
       })
-      setLoading(false)
-      return
-    }
-    // const isTwit = isValidTwitUri(value)
-    // const isInst = isValidInstagramUri(value)
 
-    // if (!isInst && !isTwit) {
-    //   setProcessStatus({
-    //     type: ProcessStatusTypes.ERROR,
-    //     render: 'Invalid URL',
-    //   })
-    //   setLoading(false)
-    //   return
-    // }
+      const embedData = await loadEmbedJson(value).catch(() => false)
 
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: 'Checking URL',
-    })
+      if (!embedData) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: `Error processing URL. Please try using another URL`,
+        })
+        setLoading(false)
+        return
+      }
 
-    const embedData = await loadEmbedJson(value).catch(() => false)
-
-    if (!embedData) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: `Error processing URL. Please try using another URL`,
-      })
-      setLoading(false)
-      return
-    }
-
-    const widget: Widget = {
-      type: 'url',
-      value: value,
+      widget = {
+        type: 'url',
+        value: value,
+      }
     }
 
     setProcessStatus({
