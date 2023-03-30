@@ -9,7 +9,7 @@ export class UtilsStore extends BaseStore {
   }
 
   saveReferral(referral: string) {
-    cookie.set(COOKIES.REFERRAL, referral)
+    cookie.set(COOKIES.REFERRAL, referral, { expires: 365 })
   }
 
   getReferral(): string {
