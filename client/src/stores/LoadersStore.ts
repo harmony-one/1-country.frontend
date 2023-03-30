@@ -24,11 +24,18 @@ export class LoadersStore extends BaseStore {
     this._map = {}
   }
 
-  setLoader(id: string, status: ProcessStatusItem) {
-    this._map[id] = status
+  setLoader(loaderId: string, status: ProcessStatusItem) {
+    this._map[loaderId] = status
   }
 
-  getLoader(id: string): ProcessStatusItem {
-    return this._map[id] || idleLoader
+  isProgress(loaderId: string) {
+    return (
+      this._map[loaderId] &&
+      this._map[loaderId].type === ProcessStatusTypes.PROGRESS
+    )
+  }
+
+  getLoader(loaderId: string): ProcessStatusItem {
+    return this._map[loaderId] || idleLoader
   }
 }
