@@ -63,7 +63,7 @@ export const ModalTipPage: React.FC<Props> = observer(
 
     useEffect(() => {
       const closeAfterSuccess = async () => {
-        await sleep(10000)
+        await sleep(5000)
         onClose()
       }
 
@@ -111,13 +111,20 @@ export const ModalTipPage: React.FC<Props> = observer(
         <div style={{ overflowY: 'auto' }} />
         <form onSubmit={formSubmit}>
           <FlexColumn style={{ textAlign: 'center', alignItems: 'center' }}>
-            <BaseText style={{ fontSize: '1rem' }}>Tipping</BaseText>
-            <DomainName
-              level={domainLevel}
-              style={{ fontSize: '1rem', marginBottom: '1.5em' }}
+            <FlexRow
+              style={{
+                alignItems: 'center',
+                alignContent: 'center',
+                textAlign: 'center',
+                marginBottom: '1em',
+                gap: '0.3em',
+              }}
             >
-              {domainName}
-            </DomainName>
+              <BaseText style={{ fontSize: '1rem' }}>Tipping</BaseText>
+              <DomainName level={domainLevel} style={{ fontSize: '1rem' }}>
+                {domainName}
+              </DomainName>
+            </FlexRow>
             <CurrencyInput
               name="amount"
               type="text"
