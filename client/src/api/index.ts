@@ -263,9 +263,6 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         .getPrice(name)
         .call({ from: address })
       const amount = new BN(price).toString()
-      console.log(price)
-      console.log(amount)
-      console.log(web3.utils.fromWei(amount))
       return {
         amount,
         formatted: web3.utils.fromWei(amount),

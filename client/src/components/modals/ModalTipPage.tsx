@@ -57,9 +57,7 @@ export const ModalTipPage: React.FC<Props> = observer(
           : undefined,
       },
     })
-    console.log('hola', debounceUSDRate)
-    console.log(ratesStore.ONE_USD)
-    console.log(calcDomainUSDPrice(Number('11'), ratesStore.ONE_USD))
+
     const { data, isSuccess, status, error, sendTransaction } =
       useSendTransaction(config)
 
