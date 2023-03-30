@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { lazy, useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import isUrl from 'is-url'
 
 import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
 import { CloseCircle } from '../icons/CloseCircle'
+
+const StakingWidget = lazy(
+  () => import(/* webpackChunkName: "StakingWidget" */ './StakingWidget')
+)
 
 interface Props {
   value: string
@@ -15,7 +19,7 @@ interface Props {
 export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   const [widget, setWidget] = useState<any>()
   const [loading, setLoading] = useState(true)
-  const [stakingIframeSrc, setStakingIframeSrc] = useState<any>()
+  const [stakingValidator, setStakingValidator] = useState<string>('')
 
   const { ref, inView } = useInView({
     /* Optional options */
@@ -40,10 +44,8 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   }
 
   useEffect(() => {
-    const stakingWidgetBaseUrl = 'https://staking-sdk-react-example.web.app/';
-
-    if(value.indexOf(stakingWidgetBaseUrl) === 0) {
-      setStakingIframeSrc(value);
+    if(value.indexOf('staking:') === 0) {
+      setStakingValidator(value.split('staking:')[1]);
       setLoading(false);
       return;
     }
@@ -63,19 +65,9 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
     <WidgetsContainer isWidgetLoading={loading} ref={ref}>
       <div style={{ paddingBottom: '2em' }}>
         {
-          stakingIframeSrc && (
-            <iframe 
-              width="600px"
-              height="600px"
-              style={{
-                overflow: 'hidden',
-                border: 0
-              }}
-              src={stakingIframeSrc} 
-            />
-          )
+          stakingValidator && (<StakingWidget validator={stakingValidator} />)
         }
-        {!stakingIframeSrc && widget && (!loading || inView) && (
+        {!stakingValidator && widget && (!loading || inView) && (
           <blockquote className="embedly-card" style={{ zIndex: '10' }}>
             <h4>
               <a href={widget.url}>{widget.title}</a>
