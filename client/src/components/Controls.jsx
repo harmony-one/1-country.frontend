@@ -27,15 +27,16 @@ export const Button = styled.button`
 
 export const CancelButton = styled(Button)`
   background: transparent;
-  color: red;
-  border: 1px solid red;
+  color: #758796;
+  border: 1px solid #758796;
   &:hover {
-    color: indianred;
+    color: white;
     background: #ccc;
     cursor: pointer;
   }
   &:disabled {
-    color: grey;
+    color: white;
+    border: 0;
     cursor: not-allowed;
   }
 `
@@ -49,7 +50,7 @@ export const Input = styled.input`
   margin-bottom: ${(props) => props.$marginBottom || props.$margin || '32px'};
   border: none;
   border-bottom: 1px solid black;
-  font-size: 16px;
+  font-size: 1rem;
   padding: 4px;
   &:hover {
     border-bottom: 1px solid black;

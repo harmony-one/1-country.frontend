@@ -13,11 +13,12 @@ import { DomainLevel } from '../../api/utils'
 import appConfig from '../../../config'
 
 import { ModalContent } from './ModalContent'
-import { BaseText, Title } from '../Text'
 import { CancelButton, Button, LinkWrapper } from '../Controls'
 import { FlexColumn, FlexRow, Row } from '../Layout'
-import { DomainName } from '../Text'
+import { DomainName, BaseText, Title } from '../Text'
 import { SearchInput } from '../search-input/SearchInput'
+import { sleep } from '../../utils/sleep'
+import CurrencyInput from '../CurrencyInput/CurrencyInput'
 interface Props {
   onClose?: () => void
   domainName: string
@@ -41,7 +42,9 @@ export const ModalTipPage: React.FC<Props> = observer(
       request: {
         to: ownerAddress ? ownerAddress : undefined,
         value: amount
-          ? Web3.utils.toBN(Web3.utils.toWei(amount)).toString()
+          ? Web3.utils
+              .toBN(Web3.utils.toWei(amount.replace(/[ ,.\b]ONE\b/, '')))
+              .toString()
           : undefined,
       },
     })
@@ -50,6 +53,11 @@ export const ModalTipPage: React.FC<Props> = observer(
       useSendTransaction(config)
 
     useEffect(() => {
+      const closeAfterSuccess = async () => {
+        await sleep(10000)
+        onClose()
+      }
+
       if (error) {
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
@@ -74,7 +82,7 @@ export const ModalTipPage: React.FC<Props> = observer(
             </FlexRow>
           ),
         })
-        setAmount('')
+        closeAfterSuccess()
         return
       }
     }, [status])
@@ -90,29 +98,31 @@ export const ModalTipPage: React.FC<Props> = observer(
 
     return (
       <ModalContent>
-        <Title>P2P Transfer</Title>
+        {/* <Title>P2P Transfer</Title> */}
         <div style={{ overflowY: 'auto' }} />
         <form onSubmit={formSubmit}>
-          <FlexColumn style={{ textAlign: 'center' }}>
-            <span style={{ fontSize: '1rem' }}>
-              You can tip the owner of this page
-            </span>
+          <FlexColumn style={{ textAlign: 'center', alignItems: 'center' }}>
+            <BaseText style={{ fontSize: '1rem' }}>Tipping</BaseText>
             <DomainName
               level={domainLevel}
               style={{ fontSize: '1rem', marginBottom: '1.5em' }}
             >
               {domainName}
             </DomainName>
-            <SearchInput
+            <CurrencyInput
               name="amount"
-              type="number"
+              type="text"
               required
               onChange={onChange}
-              placeholder="Please enter the amount (ONE)"
+              placeholder="0 ONE"
               value={amount}
             />
             {processStatus.type !== ProcessStatusTypes.IDLE && (
-              <ProcessStatus status={processStatus} />
+              <span
+                style={{ fontSize: '0.9rem !important', paddingTop: '0.7em' }}
+              >
+                <ProcessStatus status={processStatus} />
+              </span>
             )}
             <Row
               style={{ justifyContent: 'space-between', marginTop: '1.5em' }}

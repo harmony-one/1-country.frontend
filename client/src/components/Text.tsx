@@ -1,8 +1,8 @@
 import styled, { css } from 'styled-components'
 import { DomainLevel } from '../api/utils'
-
+import { palette } from '../constants'
 export const BaseText = styled.div<{ $color?: string }>`
-  color: ${(props) => props.$color || 'inherit'};
+  color: ${(props) => props.$color || palette.default};
   font-size: 1rem;
 `
 

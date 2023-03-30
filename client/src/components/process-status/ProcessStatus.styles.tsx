@@ -14,5 +14,5 @@ export const ProcessStatusContainer = styled.div<{ colorType?: any }>`
       ? palette.PinkRed
       : props.colorType === ProcessStatusTypes.SUCCESS
       ? palette.KellyGreen
-      : ''};
+      : palette.default};
 `

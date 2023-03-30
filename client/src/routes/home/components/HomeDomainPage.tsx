@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import { toast } from 'react-toastify'
 
 import { VanityURL } from '../VanityURL'
 import { WidgetModule } from '../../widgetModule/WidgetModule'
@@ -18,6 +17,8 @@ import { AiFillHeart } from 'react-icons/ai'
 
 import { DomainName } from '../../../components/Text'
 import { Container, DomainNameContainer, TipPageButton } from '../Home.styles'
+import { useWeb3Modal } from '@web3modal/react'
+import { sleep } from '../../../utils/sleep'
 
 interface Props {}
 
@@ -25,6 +26,8 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
   const [domainName] = useState(getDomainName())
   const [level, setLevel] = useState<DomainLevel>('common')
   const { domainStore, walletStore, metaTagsStore } = useStores()
+  const [tipErrorMessage, setTipErrorMessage] = useState('')
+  const { open } = useWeb3Modal()
 
   // useEffect(() => {
   //   widgetListStore.loadDomainTx(domainStore.domainName)
@@ -46,12 +49,14 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
     window.open(`mailto:1country@harmony.one`, '_self')
   }
 
-  const openModal = (event: React.MouseEvent<HTMLSpanElement>) => {
+  const openModal = async (event: React.MouseEvent<HTMLSpanElement>) => {
     event.preventDefault()
     if (walletStore.isConnected) {
       modalStore.showModal(ModalIds.TIP_PAGE)
+      tipErrorMessage !== '' && setTipErrorMessage('')
     } else {
-      toast.error('Plase connect your wallet', { autoClose: 2000 })
+      setTipErrorMessage('Connect your wallet and try again')
+      walletStore.isMetamaskAvailable ? walletStore.connect() : open()
     }
   }
 
@@ -88,6 +93,7 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
             </button>
           </TipPageButton>
         )}
+        <span style={{ fontSize: '0.8em' }}>{tipErrorMessage}</span>
       </DomainNameContainer>
 
       {domainStore.domainRecord && domainStore.domainRecord.renter && (

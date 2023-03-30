@@ -45,30 +45,18 @@ export const DescResponsive = styled(Desc)`
 `
 
 export const DomainNameContainer = styled.div`
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-
-  @media (max-width: 640px) {
-    margin-bottom: 1em;
-  }
 `
 
 export const TipPageButton = styled(FlexRow)`
-  position: absolute;
-  right: 1em;
-  top: 0;
-
   button {
+    cursor: pointer;
     background-color: transparent;
     border: 0;
     font-size: 1rem;
     font-weight: 200;
-  }
-
-  @media (max-width: 640px) {
-    right: initial;
-    left: 50%;
-    transform: translate(-50%, 0);
-    top: 1.5em;
   }
 `
