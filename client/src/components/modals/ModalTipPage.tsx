@@ -2,23 +2,25 @@ import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { usePrepareSendTransaction, useSendTransaction } from 'wagmi'
 import Web3 from 'web3'
+import { useDebounce } from 'use-lodash-debounce'
 
 import {
   ProcessStatus,
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../process-status/ProcessStatus'
-import { cutString } from '../../utils/string'
+import { cleanOneAmount, cutString } from '../../utils/string'
 import { DomainLevel } from '../../api/utils'
 import appConfig from '../../../config'
+import { sleep } from '../../utils/sleep'
+import { useStores } from '../../stores'
 
 import { ModalContent } from './ModalContent'
 import { CancelButton, Button, LinkWrapper } from '../Controls'
 import { FlexColumn, FlexRow, Row } from '../Layout'
 import { DomainName, BaseText, Title } from '../Text'
-import { SearchInput } from '../search-input/SearchInput'
-import { sleep } from '../../utils/sleep'
 import CurrencyInput from '../CurrencyInput/CurrencyInput'
+import { calcDomainUSDPrice, formatUSDAmount } from '../../utils/domain'
 interface Props {
   onClose?: () => void
   domainName: string
@@ -28,7 +30,14 @@ interface Props {
 
 export const ModalTipPage: React.FC<Props> = observer(
   ({ onClose, domainName, ownerAddress, domainLevel }) => {
+    const { ratesStore } = useStores()
     const [amount, setAmount] = useState('')
+    const debounceUSDRate: string = useDebounce(
+      calcDomainUSDPrice(Number(cleanOneAmount(amount)), ratesStore.ONE_USD),
+      500
+    )
+    const debouncedAmount: string = useDebounce(amount, 500)
+
     const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
       type: ProcessStatusTypes.IDLE,
       render: '',
@@ -41,14 +50,16 @@ export const ModalTipPage: React.FC<Props> = observer(
     const { config } = usePrepareSendTransaction({
       request: {
         to: ownerAddress ? ownerAddress : undefined,
-        value: amount
+        value: debouncedAmount
           ? Web3.utils
-              .toBN(Web3.utils.toWei(amount.replace(/[ ,.\b]ONE\b/, '')))
+              .toBN(Web3.utils.toWei(cleanOneAmount(debouncedAmount)))
               .toString()
           : undefined,
       },
     })
-
+    console.log('hola', debounceUSDRate)
+    console.log(ratesStore.ONE_USD)
+    console.log(calcDomainUSDPrice(Number('11'), ratesStore.ONE_USD))
     const { data, isSuccess, status, error, sendTransaction } =
       useSendTransaction(config)
 
@@ -117,6 +128,13 @@ export const ModalTipPage: React.FC<Props> = observer(
               placeholder="0 ONE"
               value={amount}
             />
+            {
+              <div style={{ height: '1em' }}>
+                <BaseText style={{ fontSize: '0.8em' }}>
+                  {debouncedAmount && `${formatUSDAmount(debounceUSDRate)} USD`}
+                </BaseText>
+              </div>
+            }
             {processStatus.type !== ProcessStatusTypes.IDLE && (
               <span
                 style={{ fontSize: '0.9rem !important', paddingTop: '0.7em' }}

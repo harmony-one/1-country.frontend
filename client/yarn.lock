@@ -12053,6 +12053,11 @@ url@^0.11.0:
     punycode "1.3.2"
     querystring "0.2.0"
 
+use-lodash-debounce@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/use-lodash-debounce/-/use-lodash-debounce-1.3.0.tgz#b9807fe5131874c353220b1558fbc4b778dc6b00"
+  integrity sha512-qBLiqR+ozBXGEcdWRLjYtRv12jk34/SfPgs6gzyhyLJP1IqGITApw4GA2f2mpIxxDBs1vEuGnzz64oTVVyjDDg==
+
 use-sync-external-store@1.2.0, use-sync-external-store@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz#7dbefd6ef3fe4e767a0cf5d7287aacfb5846928a"
