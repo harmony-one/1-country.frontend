@@ -17,6 +17,7 @@ import { MetaTagsStore, metaTagsStore } from '../modules/metatags/MetaTagsStore'
 import { wagmiClient } from '../modules/wagmi/wagmiClient'
 import tweetApi, { TweetClient } from '../api/tweetApi'
 import commonApi, { CommonClient } from '../api/common'
+import { UtilsStore } from './UtilsStore'
 
 export class RootStore {
   modalStore: ModalStore
@@ -36,6 +37,7 @@ export class RootStore {
     uiTransactionStore: UITransactionStore
     metaTagsStore: MetaTagsStore
     loadersStore: LoadersStore
+    utilsStore: UtilsStore
   }
 
   constructor() {
@@ -79,6 +81,7 @@ export class RootStore {
       uiTransactionStore: this.uiTransactionStore,
       metaTagsStore: metaTagsStore,
       loadersStore: new LoadersStore(this),
+      utilsStore: new UtilsStore(this),
     }
   }
 

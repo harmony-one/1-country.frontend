@@ -14,10 +14,11 @@ import { Grommet } from 'grommet/components/Grommet'
 import config from '../config'
 import { theme } from './constants'
 import ErrorBoundary from './ErrorBoundary'
-import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
+import * as Sentry from '@sentry/react'
+import { BrowserTracing } from '@sentry/tracing'
+import { Bootstrap } from './utils/Bootstrap'
 
-console.log('### config.sentryDSN', config.sentryDSN);
+console.log('### config.sentryDSN', config.sentryDSN)
 Sentry.init({
   dsn: config.sentryDSN,
   integrations: [new BrowserTracing()],
@@ -26,9 +27,9 @@ Sentry.init({
   // of transactions for performance monitoring.
   // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
-});
+})
 
-Sentry.setTag('version', process.env.GIT_COMMIT_HASH);
+Sentry.setTag('version', process.env.GIT_COMMIT_HASH)
 
 console.log('### git commit hash', process.env.GIT_COMMIT_HASH)
 document.body.ontouchstart = function () {}
@@ -45,6 +46,7 @@ ReactDOM.render(
       <Grommet theme={theme} themeMode="light">
         <WagmiConfigProvider>
           <MetaTags />
+          <Bootstrap />
           <Routes />
           <Web3ModalProvider />
           <ModalProvider />

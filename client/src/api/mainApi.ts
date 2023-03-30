@@ -12,12 +12,22 @@ interface Domain {
 }
 
 export const mainApi = {
-  createDomain: ({ domain, txHash }: { domain: string; txHash: string }) => {
+  createDomain: ({
+    domain,
+    txHash,
+    referral,
+  }: {
+    domain: string
+    txHash: string
+    referral?: string
+  }) => {
     return base.post<{ data: Domain }>(`/domains/`, {
       domain,
       txHash,
+      referral,
     })
   },
+
   loadDomain: async ({ domain }: { domain: string }) => {
     const response = await base.get<{ data: Domain }>(`/domains/${domain}`)
     return response.data.data
