@@ -312,6 +312,13 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       const isAvailable = await contractReadOnly.methods.available(name).call()
       return isAvailable?.toString()?.toLowerCase() === 'true'
     },
+
+    // signMessage: ({ message }: { message: string }) => {
+    //   const hashMessage = web3.eth.accounts.hashMessage(
+    //     web3.utils.utf8ToHex(message)
+    //   )
+    //   return web3.eth.sign(hashMessage, address)
+    // },
   }
 }
 
