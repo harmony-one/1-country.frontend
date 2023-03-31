@@ -7,7 +7,7 @@ import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import Timer from '@amplication/react-compound-timer'
 import { WidgetModule } from '../widgetModule/WidgetModule'
-import { Button, Link } from '../../components/Controls'
+import { Button } from '../../components/Controls'
 import config from '../../../config'
 
 import { urlExists } from '../../api/checkUrl'
@@ -16,6 +16,7 @@ import { relayApi } from '../../api/relayApi'
 import { Web3Button } from '@web3modal/react'
 import { Box } from 'grommet/components/Box'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
+import { nameUtils } from '../../api/utils'
 
 const WaitingRoom = observer(() => {
   const [isDomainAvailable, setIsDomainAvailable] = useState(false)
@@ -29,7 +30,7 @@ const WaitingRoom = observer(() => {
   const fullUrl = `https://${domainName.toLowerCase()}${config.tld}`
 
   useEffect(() => {
-    if (!domainName) {
+    if (!domainName || !nameUtils.isValidName(domainName)) {
       navigate('/')
     }
   }, [])
