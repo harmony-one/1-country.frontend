@@ -575,6 +575,7 @@ const HomeSearchPage: React.FC = observer(() => {
               <HomeSearchResultItem
                 name={searchResult.domainName.toLowerCase()}
                 rateONE={ratesStore.ONE_USD}
+                domainRecord={searchResult.domainRecord}
                 price={searchResult.price.formatted}
                 available={searchResult.isAvailable}
                 error={searchResult.error}
