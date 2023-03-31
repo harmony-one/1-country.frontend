@@ -21,7 +21,7 @@ const config = {
     '0x88a1afC4134f385337Dd5F530D452079fC9E14CC', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
   explorer: {
     explorerUrl:
-      process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/{{txId}}',
+      process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/',
     address: 'https://explorer.harmony.one/address/',
     tx: 'https://explorer.harmony.one/tx/',
     block: 'https://explorer.harmony.one/block/',

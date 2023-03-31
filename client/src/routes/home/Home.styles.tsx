@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Main } from '../../components/Layout'
+import { Main, FlexRow } from '../../components/Layout'
 import { SmallTextGrey, Desc } from '../../components/Text'
 
 export const Container = styled(Main)`
@@ -42,4 +42,21 @@ export const DescResponsive = styled(Desc)`
     text-align: left;
     align-items: start;
   } */
+`
+
+export const DomainNameContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+`
+
+export const TipPageButton = styled(FlexRow)`
+  button {
+    cursor: pointer;
+    background-color: transparent;
+    border: 0;
+    font-size: 1rem;
+    font-weight: 200;
+  }
 `

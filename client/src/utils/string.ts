@@ -9,3 +9,7 @@ export const cutString = (str: string, len = 5) => {
 
   return `${str.slice(0, len)}...${str.slice(str.length - len)}`
 }
+
+export const cleanOneAmount = (str: string) => {
+  return str.replace(/[ ,.\b]ONE\b/, '')
+}
