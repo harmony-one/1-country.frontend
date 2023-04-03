@@ -94,11 +94,20 @@ export class DomainStore extends BaseStore {
 
     const loaderId = 'UPDATE_DOMAIN'
     try {
+      if (!this.stores.web2AuthStore.isAuthorized) {
+        await this.stores.web2AuthStore.auth()
+      }
+
       this.stores.loadersStore.setLoader(loaderId, {
         type: ProcessStatusTypes.PROGRESS,
         render: 'progress',
       })
-      const result = await mainApi.updateDomain({ domainName, bgColor })
+
+      const result = await mainApi.updateDomain({
+        domainName,
+        bgColor,
+        jwt: this.stores.web2AuthStore.jwt,
+      })
 
       runInAction(() => {
         this.domainExtendedInfo = result
