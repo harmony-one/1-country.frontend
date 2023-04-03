@@ -22,4 +22,9 @@ export const mainApi = {
     const response = await base.get<{ data: Domain }>(`/domains/${domain}`)
     return response.data.data
   },
+
+  loadONERate: async () => {
+    const response = await base.get<{ data: number }>(`/rates/ONE`)
+    return response.data.data
+  },
 }
