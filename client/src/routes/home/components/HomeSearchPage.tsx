@@ -66,7 +66,7 @@ const HomeSearchPage: React.FC = observer(() => {
   const [regTxHash, setRegTxHash] = useState<string>('')
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
-  const { rootStore, ratesStore, walletStore } = useStores()
+  const { rootStore, ratesStore, walletStore, utilsStore } = useStores()
 
   useEffect(() => {
     if (status === 'connecting') {
@@ -484,7 +484,13 @@ const HomeSearchPage: React.FC = observer(() => {
       const txHash = rentResult.txReceipt.transactionHash
       setRegTxHash(txHash)
 
-      mainApi.createDomain({ domain: searchResult.domainName, txHash })
+      const referral = utilsStore.getReferral()
+
+      mainApi.createDomain({
+        domain: searchResult.domainName,
+        txHash,
+        referral,
+      })
       await claimWeb2Domain(txHash)
       setProcessStatus({
         render: <BaseText>Web2 domain acquired.</BaseText>,
