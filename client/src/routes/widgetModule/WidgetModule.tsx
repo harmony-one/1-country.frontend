@@ -33,6 +33,7 @@ interface Props {
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore } = useStores()
+  const [checkIsActivated, setCheckIsActivated] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
@@ -43,9 +44,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }, [domainName])
 
   useEffect(() => {
+    const checkActivated = async () => {
+      await widgetListStore.loadIsActivated(domainName)
+      setCheckIsActivated(true)
+    }
     widgetListStore.loadWidgetList(domainName)
     widgetListStore.loadDomainTx(domainName)
-    widgetListStore.loadIsActivated(domainName)
+    checkActivated()
   }, [domainName])
 
   const [isLoading, setLoading] = useState(false)
@@ -200,7 +205,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             onKeyDown={enterHandler}
           />
 
-          {!widgetListStore.isActivated && (
+          {checkIsActivated && !widgetListStore.isActivated && (
             <Box pad={{ top: '0.5em' }}>
               <SmallText>
                 Your first transaction when trying to add a post is an
