@@ -89,10 +89,7 @@ const DetailsPage: React.FC<Props> = observer(() => {
           />
         )}
         {domainStore?.domainRecord?.renter && (
-          <TransactionWidget
-            name={domainName}
-            domainRecord={domainStore.domainRecord}
-          />
+          <TransactionWidget name={domainName} domainStore={domainStore} />
         )}
         {domainMeta && (
           <>

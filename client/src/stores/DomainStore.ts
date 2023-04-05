@@ -3,6 +3,7 @@ import { BaseStore } from './BaseStore'
 import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import { getDomainName } from '../utils/getDomainName'
 import { DCParams, DomainPrice, DomainRecord } from '../api'
+import config from '../../config'
 
 export class DomainStore extends BaseStore {
   public domainName: string = ''
@@ -12,6 +13,7 @@ export class DomainStore extends BaseStore {
       amount: '0',
       formatted: '0',
     },
+    //@ts-ignore
     lastRented: '',
     duration: 0,
   }
@@ -59,8 +61,17 @@ export class DomainStore extends BaseStore {
     if (!this.domainRecord) {
       return false
     }
-
     return this.domainRecord.expirationTime - Date.now() < 0
+  }
+
+  isGoingToExpire() {
+    if (!this.domainRecord) {
+      return false
+    }
+    const millisecondsInDay = 1000 * 60 * 60 * 24
+    const remainderDays =
+      Number(config.domain.expirationReminderDays) * millisecondsInDay
+    return this.domainRecord.expirationTime - Date.now() < remainderDays
   }
 
   async loadDCParams() {
