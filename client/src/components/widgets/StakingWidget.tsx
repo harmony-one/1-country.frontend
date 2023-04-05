@@ -12,7 +12,7 @@ const StakingWidget: React.FC<Props> = ({ validator }) => {
         padding: 10
     }
     }>
-        <Widget validator={validator} />
+        <Widget validator={validator.replace(/\s/g, "")} />
     </div >
 }
 
