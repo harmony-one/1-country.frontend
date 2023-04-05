@@ -71,6 +71,10 @@ export class DomainStore extends BaseStore {
     const millisecondsInDay = 1000 * 60 * 60 * 24
     const remainderDays =
       Number(config.domain.expirationReminderDays) * millisecondsInDay
+    console.log(
+      'isGoing',
+      this.domainRecord.expirationTime - Date.now() < remainderDays
+    )
     return this.domainRecord.expirationTime - Date.now() < remainderDays
   }
 

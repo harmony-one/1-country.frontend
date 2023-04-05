@@ -55,7 +55,7 @@ export const DomainRecordRenewal: React.FC<Props> = observer(() => {
       <Title style={{ marginTop: 16 }}>
         {domainStore.isExpired
           ? 'Renew domain ownership'
-          : 'Renew ownership reminder'}
+          : 'Renew domain reminder'}
       </Title>
       <Row style={{ justifyContent: 'center', gap: 0 }}>
         <HomeLabel>renewal price</HomeLabel>
