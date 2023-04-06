@@ -24,14 +24,14 @@ interface Props {}
 
 const HomeDomainPage: React.FC<Props> = observer(() => {
   const [domainName] = useState(getDomainName())
+  const [subPage, setSubPage] = useState(
+    window.location.pathname.split('/').pop()
+  )
   const [level, setLevel] = useState<DomainLevel>('common')
   const { domainStore, walletStore, metaTagsStore } = useStores()
   const [tipErrorMessage, setTipErrorMessage] = useState('')
   const { open } = useWeb3Modal()
 
-  // useEffect(() => {
-  //   widgetListStore.loadDomainTx(domainStore.domainName)
-  // }, [domainStore.domainName])
   useEffect(() => {
     if (domainName) {
       domainStore.loadDomainRecord(domainName)
@@ -62,6 +62,8 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
 
   const showRenewalBlock =
     walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
+
+  console.log('SUBPAGE', subPage)
 
   return (
     <Container>
