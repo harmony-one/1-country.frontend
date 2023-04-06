@@ -11,6 +11,7 @@ export const palette = {
   default: '#758796',
   WhiteGray: '#dfe1e5',
   Purple: '#00AEE9',
+  LightPurple: '#bae6f5',
   WhiteRed: '#fff2f0',
   PaleRed: '#ffccc7',
   LightRed: '#ffa39e',

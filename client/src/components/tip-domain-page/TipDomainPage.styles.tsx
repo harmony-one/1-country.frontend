@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { FlexRow } from '../Layout'
 import { palette } from '../../constants'
 
@@ -7,23 +7,36 @@ export const TipDomainPageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  height: 4em;
 `
 
-export const TipPageButton = styled(FlexRow)`
-  padding-top: 0.2em;
-  button {
-    cursor: pointer;
-    background-color: transparent;
-    border: 0;
-    font-size: 1rem;
-    font-weight: 200;
+export const TipPageButton = styled.button<{
+  iconColor?: string
+  isProcessing?: boolean
+}>`
+  border: 0;
+  display: flex;
+  background-color: transparent;
+  padding: 0.2em 0.3em 0.2em;
+  cursor: pointer;
+  align-items: center;
 
-    span {
-      padding-left: 0.3em;
-      font-size: 0.9rem;
-      color: ${palette.default}
-      font-weight: 200;
-    }
+  svg {
+    font-size: 1.2rem;
+    color: ${(props) => props.iconColor || palette.Purple};
   }
+
+  span {
+    padding-left: 0.3em;
+    font-size: 0.8rem;
+    color: ${palette.default} !important;
+    font-weight: 200;
+  }
+
+  ${(props) =>
+    props.isProcessing &&
+    css`
+      background-color: ${palette.LightPurple};
+      border: 1px solid ${palette.Purple};
+      border-radius: 5px;
+    `}
 `

@@ -24,21 +24,28 @@ import { cutString } from '../../utils/string'
 interface Props {
   domainStore: DomainStore
   isFixed: boolean
+  icon: any
+  iconColor: string
   fixedAmount?: number
+  setProcessStatus: any
 }
 
 const TipDomainPage: React.FC<Props> = ({
   isFixed = true,
   domainStore,
   fixedAmount = 100,
+  icon,
+  iconColor,
+  setProcessStatus,
 }) => {
   const { domainName } = domainStore
   const { walletStore } = useStores()
-  const [counter, setCounter] = useState(100)
-  const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
-    type: ProcessStatusTypes.IDLE,
-    render: '',
-  })
+  const [counter, setCounter] = useState(10)
+  const [isProcessing, setIsProcessing] = useState(false)
+  // const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
+  //   type: ProcessStatusTypes.IDLE,
+  //   render: '',
+  // })
 
   const { config } = usePrepareSendTransaction({
     request: {
@@ -54,6 +61,7 @@ const TipDomainPage: React.FC<Props> = ({
 
   const closeAfterSuccess = async (timer = 5000) => {
     await sleep(timer)
+    setIsProcessing(false)
     setProcessStatus({
       type: ProcessStatusTypes.IDLE,
       render: '',
@@ -100,6 +108,7 @@ const TipDomainPage: React.FC<Props> = ({
 
   const actionButton = async (event: React.MouseEvent<HTMLSpanElement>) => {
     event.preventDefault()
+    setIsProcessing(true)
     if (walletStore.isConnected) {
       if (walletStore.walletAddress !== domainStore.domainRecord.renter) {
         if (!isFixed) {
@@ -130,24 +139,15 @@ const TipDomainPage: React.FC<Props> = ({
   // disabled={processStatus.type !== ProcessStatusTypes.IDLE}
   return (
     <TipDomainPageContainer>
-      <TipPageButton>
-        <button onClick={actionButton}>
-          <AiFillHeart
-            style={{
-              color: palette.Purple,
-              verticalAlign: 'bottom',
-              fontSize: '1.3rem',
-              paddingLeft: '0.3em',
-            }}
-          />
-          {counter > 0 && <span>{counter}</span>}
-        </button>
+      <TipPageButton
+        onClick={actionButton}
+        iconColor={iconColor}
+        isProcessing={isProcessing}
+        tabIndex={-1}
+      >
+        {icon}
+        {counter > 0 && <span>{counter}</span>}
       </TipPageButton>
-      {processStatus.type !== ProcessStatusTypes.IDLE && (
-        <span style={{ fontSize: '0.9rem !important', paddingTop: '0.1em' }}>
-          <ProcessStatus status={processStatus} />
-        </span>
-      )}
       <ModalRegister
         layerProps={{ position: 'center', full: false }}
         modalId={ModalIds.TIP_PAGE}
