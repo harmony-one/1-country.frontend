@@ -12,6 +12,7 @@ export class DomainStore extends BaseStore {
       amount: '0',
       formatted: '0',
     },
+    // @ts-ignore
     lastRented: '',
     duration: 0,
   }
