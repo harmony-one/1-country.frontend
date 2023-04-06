@@ -7,9 +7,10 @@ import debounce from 'lodash.debounce'
 import { nameUtils } from '../../../api/utils'
 import BN from 'bn.js'
 import { parseTweetId } from '../../../utils/parseTweetId'
-import { TransactionReceipt } from 'web3-core'
-import logger from '../../../modules/logger';
-const log = logger.module('HomeSearchStore');
+
+import logger from '../../../modules/logger'
+import { TransactionReceipt } from '@ethersproject/abstract-provider'
+const log = logger.module('HomeSearchStore')
 
 const regx = /^[a-zA-Z0-9]{1,}((?!-)[a-zA-Z0-9]{0,}|-[a-zA-Z0-9]{1,})+$/
 
@@ -97,7 +98,7 @@ export class HomeSearchStore extends BaseStore {
         await walletStore.connect()
       }
     } catch (e) {
-      log.error('Register Domain', { error: e });
+      log.error('Register Domain', { error: e })
       return
     }
 

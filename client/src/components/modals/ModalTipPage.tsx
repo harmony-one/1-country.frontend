@@ -1,7 +1,7 @@
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { usePrepareSendTransaction, useSendTransaction } from 'wagmi'
-import Web3 from 'web3'
+import web3Utils from 'web3-utils'
 import { useDebounce } from 'use-lodash-debounce'
 
 import {
@@ -51,8 +51,8 @@ export const ModalTipPage: React.FC<Props> = observer(
       request: {
         to: ownerAddress ? ownerAddress : undefined,
         value: debouncedAmount
-          ? Web3.utils
-              .toBN(Web3.utils.toWei(cleanOneAmount(debouncedAmount)))
+          ? web3Utils
+              .toBN(web3Utils.toWei(cleanOneAmount(debouncedAmount)))
               .toString()
           : undefined,
       },

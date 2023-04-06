@@ -38,6 +38,9 @@ export class DomainStore extends BaseStore {
       .then((d1cParams) => {
         this.d1cParams = d1cParams
       })
+      .catch((ex) => {
+        console.log('### ex getParameters', ex)
+      })
   }
 
   get isOwner() {

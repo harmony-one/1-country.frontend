@@ -1,4 +1,4 @@
-import { AbiItem } from 'web3-utils'
+import { ContractInterface } from '@ethersproject/contracts'
 
 export default [
   {
@@ -326,4 +326,4 @@ export default [
     stateMutability: 'view',
     type: 'function',
   },
-] as AbiItem[]
+] as ContractInterface

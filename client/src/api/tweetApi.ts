@@ -1,9 +1,14 @@
 import config from '../../config'
 import TweetAbi from '../../abi/Tweet'
-import Web3 from 'web3'
-import { TransactionReceipt } from 'web3-core'
+import {
+  TransactionReceipt,
+  TransactionResponse,
+} from '@ethersproject/abstract-provider'
 import { CallbackProps, SendProps } from './index'
 import { utils } from './utils'
+import { defaultProvider } from './defaultProvider'
+
+import { Contract, ethers } from 'ethers'
 
 const { tweetContractAddress } = config
 
@@ -34,20 +39,25 @@ interface RemoveUrlProps extends CallbackProps {
   pos: number
 }
 
-const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
+const tweetApi = ({
+  provider,
+  address,
+}: {
+  provider: ethers.providers.Web3Provider
+  address: string
+}) => {
   // console.log('apis', web3, address)
-  if (!web3) {
+  if (!provider) {
     return
   }
 
-  const web3ReadOnly = new Web3(config.defaultRPC)
-  const contractReadOnly = new web3ReadOnly.eth.Contract(
-    TweetAbi,
+  const contractReadOnly = new Contract(
     tweetContractAddress,
-    { from: address }
+    TweetAbi,
+    defaultProvider
   )
 
-  const contract = new web3.eth.Contract(TweetAbi, tweetContractAddress)
+  const contract = contractReadOnly.connect(provider.getSigner())
 
   const send = async ({
     amount,
@@ -57,22 +67,25 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
     methodName,
     parameters,
   }: SendProps): Promise<SendResult> => {
-    console.log('send:', { methodName, parameters, amount, address })
+    console.log('send', { methodName, parameters, amount, address })
 
     try {
-      const tx = await contract.methods[methodName](...parameters)
-        .send({
-          from: address,
-          value: amount,
-        })
-        .on('transactionHash', onTransactionHash)
+      const txResponse = (await contract[methodName](...parameters, {
+        value: amount,
+      })) as TransactionResponse
+
+      onTransactionHash(txResponse.hash)
+
       if (config.debug) {
-        console.log(methodName, JSON.stringify(tx))
+        console.log(methodName, JSON.stringify(txResponse))
       }
-      console.log(methodName, tx?.events)
-      onSuccess && onSuccess(tx)
-      return { txReceipt: tx, error: null }
+
+      const txReceipt = await txResponse.wait()
+      console.log(methodName, txReceipt.events)
+      onSuccess && onSuccess(txReceipt)
+      return { txReceipt: txReceipt, error: null }
     } catch (ex) {
+      console.log('### ex', ex)
       onFailed && onFailed(ex, true)
       return { txReceipt: null, error: ex }
     }
@@ -81,7 +94,7 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
   return {
     address,
     contract,
-    web3,
+    provider,
     send,
     activate: async ({
       name,
@@ -115,7 +128,7 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
       })
     },
     numUrls({ name }: { name: string }) {
-      return contractReadOnly.methods.numUrls(name).call()
+      return contractReadOnly.numUrls(name)
     },
     removeRecordUrl: ({
       name,
@@ -133,7 +146,7 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
       })
     },
     clearUrls({ name }: { name: string }) {
-      return contractReadOnly.methods.clearUrls(name).call()
+      return contractReadOnly.clearUrls(name)
     },
     addRecordUrl: ({
       name,
@@ -151,17 +164,17 @@ const tweetApi = ({ web3, address }: { web3: Web3; address: string }) => {
       })
     },
     getRecordUrlList: async ({ name }: { name: string }) => {
-      return contractReadOnly.methods.getAllUrls(name).call()
+      return contractReadOnly.getAllUrls(name)
     },
     baseRentalPrice: () => {
-      return contractReadOnly.methods.baseRentalPrice().call()
+      return contractReadOnly.baseRentalPrice()
     },
     initialized: () => {
-      return contractReadOnly.methods.initialized().call()
+      return contractReadOnly.initialized()
     },
     isActivated: (name: string) => {
       const hash = utils.keccak256(name, true)
-      return contractReadOnly.methods.activated(hash).call()
+      return contractReadOnly.activated(hash)
     },
   }
 }
