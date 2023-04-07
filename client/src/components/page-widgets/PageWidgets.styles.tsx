@@ -52,6 +52,7 @@ export const WidgetStyledInput = styled(StyledInput)<{ valid: boolean }>`
 `
 
 export const WidgetInputContainer = styled.div`
+  position: relative;
   border: 0;
   margin-bottom: 1.5em;
   width: 100%;
@@ -60,5 +61,32 @@ export const WidgetInputContainer = styled.div`
 
   span {
     color: red;
+  }
+
+  datalist {
+    position: absolute;
+    background-color: red !important; // white;
+    border: 1px solid blue;
+    border-radius: 0 0 5px 5px;
+    border-top: none;
+    font-family: sans-serif;
+    width: 350px;
+    padding: 5px;
+    max-height: 10rem;
+    overflow-y: auto;
+  }
+
+  option {
+    background-color: white;
+    padding: 4px;
+    color: blue;
+    margin-bottom: 1px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  option:hover,
+  .active {
+    background-color: lightblue;
   }
 `

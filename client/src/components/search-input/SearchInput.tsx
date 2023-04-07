@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { Box } from 'grommet/components/Box'
 import { TextInput, TextInputProps } from 'grommet/components/TextInput'
 
@@ -71,7 +71,6 @@ export const SearchInput = (props: SearchInputProps) => {
     onSearch,
     ...restProps
   } = props
-
   const inputRef = useRef(null)
 
   const clearValue = () => {
@@ -100,17 +99,19 @@ export const SearchInput = (props: SearchInputProps) => {
   }
 
   return (
-    <Container
-      width={'100%'}
-      justify={'center'}
-      paddingLeft={props.icon ? null : '24px'}
-    >
-      <TextInputWrapper {...inputProps} />
-      {allowClear && !props.disabled && props.value && (
-        <InputSuffix>
-          <FormClose onClick={clearValue} />
-        </InputSuffix>
-      )}
-    </Container>
+    <div>
+      <Container
+        width={'100%'}
+        justify={'center'}
+        paddingLeft={props.icon ? null : '24px'}
+      >
+        <TextInputWrapper {...inputProps} />
+        {allowClear && !props.disabled && props.value && (
+          <InputSuffix>
+            <FormClose onClick={clearValue} />
+          </InputSuffix>
+        )}
+      </Container>
+    </div>
   )
 }
