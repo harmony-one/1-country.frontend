@@ -580,12 +580,20 @@ const HomeSearchPage: React.FC = observer(() => {
                 available={searchResult.isAvailable}
                 error={searchResult.error}
               />
-              <Button
-                disabled={!validation.valid || !searchResult.isAvailable}
-                onClick={handleRentDomain}
-              >
-                Register
-              </Button>
+              {searchResult.isAvailable && (
+                <Button disabled={!validation.valid} onClick={handleRentDomain}>
+                  Register
+                </Button>
+              )}
+              {!searchResult.isAvailable && validation.valid && (
+                <Button
+                  $width="auto"
+                  disabled={!validation.valid}
+                  onClick={handleRentDomain}
+                >
+                  Go to the domain
+                </Button>
+              )}
             </Box>
           ) : (
             <Box margin={{ top: '16px' }}>
