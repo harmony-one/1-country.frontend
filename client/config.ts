@@ -37,6 +37,17 @@ const config = {
     projectId:
       process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8',
   },
+  eas: {
+    easServer: process.env.EAS_SERVER ?? 'https://1ns-eas.hiddenstate.xyz',
+    easContract:
+      process.env.EAS_CONTRACT ??
+      (debug
+        ? '0x9BC52FBcCcde8cEADAEde51a25dBeD489b201e53'
+        : '0x476e14D956dca898C33262aecC81407242f8431A'),
+    message(sld: string, alias: string, forwardAddress: string): string {
+      return `You are about to authorize forwarding all emails sent to [${alias}@${sld}.${config.tld}] to [${forwardAddress}] instead`
+    },
+  },
   domain: {
     tiers: {
       LEGENDARY: process.env.TIER_LEGENDARY || 1,
