@@ -23,8 +23,6 @@ import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
 import styled from 'styled-components'
-import DataListInput from 'react-datalist-input'
-// import 'react-datalist-input/dist/styles.css'
 
 const defaultFormFields = {
   widgetValue: '',
