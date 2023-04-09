@@ -13,15 +13,12 @@ import { getDomainName } from '../../../utils/getDomainName'
 
 import { DomainName } from '../../../components/Text'
 import { Container, DomainNameContainer, TipContainer } from '../Home.styles'
-import TipDomainPage from '../../../components/tip-domain-page/TipDomainPage'
-import { AiFillHeart } from 'react-icons/ai'
-import { palette } from '../../../constants'
 import {
-  ProcessStatus,
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../../../components/process-status/ProcessStatus'
 import { FlexRow } from '../../../components/Layout'
+import EmojiSection from '../../../components/emoji-section/EmojiSection'
 
 interface Props {}
 
@@ -70,25 +67,7 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
           {domainStore.domainName}.country
         </DomainName>
         {domainStore.domainRecord && domainStore.domainRecord.renter && (
-          <TipContainer style={{ width: '100%' }}>
-            <FlexRow>
-              <TipDomainPage
-                isFixed={true}
-                domainStore={domainStore}
-                fixedAmount={100}
-                icon={<AiFillHeart />}
-                iconColor={palette.Purple}
-                setProcessStatus={setProcessStatus}
-              />
-            </FlexRow>
-            {processStatus.type !== ProcessStatusTypes.IDLE && (
-              <span
-                style={{ fontSize: '0.9rem !important', paddingTop: '0.1em' }}
-              >
-                <ProcessStatus status={processStatus} />
-              </span>
-            )}
-          </TipContainer>
+          <EmojiSection />
         )}
       </DomainNameContainer>
 
