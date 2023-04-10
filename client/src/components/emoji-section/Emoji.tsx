@@ -140,7 +140,7 @@ const Emoji: React.FC<Props> = ({
           </FlexRow>
         ),
       })
-      setCounter(counter + 1)
+      // setCounter(counter + 1)
       closeAfterSuccess()
       return
     }
@@ -148,8 +148,8 @@ const Emoji: React.FC<Props> = ({
 
   const actionButton = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setButtonClicked(true)
     if (isTipping) {
+      setButtonClicked(true)
       setIsProcessing(true)
       tipActionButton()
     } else {
