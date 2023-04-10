@@ -18,6 +18,7 @@ const Container = styled(WidgetsContainer)`
   color: rgb(83, 100, 113);
   overflow: hidden;
   min-width: 278px;
+  background-color: #ffffff;
 `
 
 const dateFormat = new Intl.DateTimeFormat('en-US', {

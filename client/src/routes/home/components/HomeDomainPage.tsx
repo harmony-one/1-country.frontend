@@ -18,7 +18,7 @@ import { AiFillHeart } from 'react-icons/ai'
 import { DomainName } from '../../../components/Text'
 import { Container, DomainNameContainer, TipPageButton } from '../Home.styles'
 import { useWeb3Modal } from '@web3modal/react'
-import { sleep } from '../../../utils/sleep'
+import { BgColorSelector } from './BgColorSelector'
 
 interface Props {}
 
@@ -104,6 +104,12 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
         <WidgetModule domainName={domainStore.domainName} />
       )}
       {showRenewalBlock && <DomainRecordRenewal />}
+      {domainStore.isOwner && (
+        <BgColorSelector
+          domainName={domainName}
+          bgColor={domainStore.bgColor}
+        />
+      )}
       <HomePageFooter />
       <div style={{ height: 200 }} />
       <ModalRegister

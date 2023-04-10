@@ -7,6 +7,7 @@ import {
   formatONEAmount,
   formatUSDAmount,
 } from '../../../utils/domain'
+import { DomainRecord } from '../../../api'
 
 const Container = styled.div`
   position: relative;
@@ -22,22 +23,41 @@ interface Props {
   available?: boolean
   price: string
   rateONE: number
+  domainRecord: DomainRecord
   error: string
 }
+
+const dateFormat = new Intl.DateTimeFormat('en-US', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+})
 
 export const HomeSearchResultItem: React.FC<Props> = ({
   name,
   available = false,
   price,
+  domainRecord,
   rateONE,
   error,
 }) => {
   const priceUsd = calcDomainUSDPrice(Number(price), rateONE)
   const priceOne = price
 
+  const showExpirationTime = domainRecord && domainRecord.expirationTime > 0
+
   return (
     <Container>
-      <div>{available ? '' : error ? error : 'Domain Name Unavailable'}</div>
+      {!available && (
+        <Box>
+          <div>{error ? error : 'Domain Name Unavailable'}</div>
+          {showExpirationTime && (
+            <BaseText>
+              Expires {dateFormat.format(domainRecord.expirationTime)}
+            </BaseText>
+          )}
+        </Box>
+      )}
+
       {available && (
         <Box gap="8px" direction="column">
           <DomainName>{name}.country</DomainName>
