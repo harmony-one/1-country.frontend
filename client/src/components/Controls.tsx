@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { SmallText } from './Text'
 
-export const Button = styled.button`
+export const Button = styled.button<{ $width?: string }>`
   font-family: 'NunitoRegular', system-ui;
   font-size: 1rem;
   font-weight: 200;
@@ -41,7 +41,12 @@ export const CancelButton = styled(Button)`
   }
 `
 
-export const Input = styled.input`
+export const Input = styled.input<{
+  $width?: string | number
+  $marginTop?: string
+  $marginBottom?: string
+  $margin?: string
+}>`
   width: ${(props) =>
     typeof props.$width === 'number'
       ? `${props.$width || 400}px`
@@ -61,7 +66,7 @@ export const Input = styled.input`
   }
 `
 
-export const LinkWrapper = styled.a`
+export const LinkWrapper = styled.a<{ $disabled?: boolean }>`
   //margin-right: 12px;
   cursor: pointer;
   text-decoration: none;
