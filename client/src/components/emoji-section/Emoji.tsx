@@ -55,7 +55,6 @@ const Emoji: React.FC<Props> = ({
 
   useEffect(() => {
     if (isTipping) {
-      setCounter(10)
       // fetch counter
     }
   }, [])
