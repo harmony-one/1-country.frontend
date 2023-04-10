@@ -1,7 +1,7 @@
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { usePrepareSendTransaction, useSendTransaction } from 'wagmi'
-import Web3 from 'web3'
+import { ethers } from 'ethers'
 import { useDebounce } from 'use-lodash-debounce'
 
 import {
@@ -21,6 +21,7 @@ import { FlexColumn, FlexRow, Row } from '../Layout'
 import { DomainName, BaseText, Title } from '../Text'
 import CurrencyInput from '../CurrencyInput/CurrencyInput'
 import { calcDomainUSDPrice, formatUSDAmount } from '../../utils/domain'
+
 interface Props {
   onClose?: () => void
   domainName: string
@@ -51,8 +52,8 @@ export const ModalTipPage: React.FC<Props> = observer(
       request: {
         to: ownerAddress ? ownerAddress : undefined,
         value: debouncedAmount
-          ? Web3.utils
-              .toBN(Web3.utils.toWei(cleanOneAmount(debouncedAmount)))
+          ? ethers.utils
+              .parseUnits(cleanOneAmount(debouncedAmount).toString(), 'ether')
               .toString()
           : undefined,
       },

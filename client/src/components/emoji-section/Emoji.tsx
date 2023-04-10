@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
+import { ethers } from 'ethers'
+import { usePrepareSendTransaction, useSendTransaction } from 'wagmi'
+
+import { cutString } from '../../utils/string'
 import { DomainStore } from '../../stores/DomainStore'
-import { EmojiButton } from './EmojiSection.styles'
 import appConfig from '../../../config'
 import { palette } from '../../constants'
 import { ProcessStatusTypes } from '../process-status/ProcessStatus'
@@ -8,12 +11,11 @@ import { sleep } from '../../utils/sleep'
 import { useStores } from '../../stores'
 import { modalStore } from '../../modules/modals/ModalContext'
 import { ModalIds } from '../../modules/modals'
-import { usePrepareSendTransaction, useSendTransaction } from 'wagmi'
-import Web3 from 'web3'
+
 import { FlexRow } from '../Layout'
 import { BaseText } from '../Text'
 import { LinkWrapper } from '../Controls'
-import { cutString } from '../../utils/string'
+import { EmojiButton } from './EmojiSection.styles'
 
 export interface TipProps {
   isFixed: boolean
@@ -48,12 +50,12 @@ const Emoji: React.FC<Props> = ({
 }) => {
   const [counter, setCounter] = useState(0)
   const { walletStore } = useStores()
-  const { isFixed, fixedAmount } = tip
   const [buttonClicked, setButtonClicked] = useState(false)
   const isTipping = type === EmojiEnumType.TIP
 
   useEffect(() => {
-    if (type === EmojiEnumType.TIP) {
+    if (isTipping) {
+      setCounter(10)
       // fetch counter
     }
   }, [])
@@ -73,8 +75,10 @@ const Emoji: React.FC<Props> = ({
     usePrepareSendTransaction({
       request: {
         to: domainStore.domainRecord.renter,
-        value: fixedAmount
-          ? Web3.utils.toBN(Web3.utils.toWei(fixedAmount + '')).toString()
+        value: tip.fixedAmount
+          ? ethers.utils
+              .parseUnits(tip.fixedAmount.toString(), 'ether')
+              .toString()
           : undefined,
       },
     })
@@ -85,7 +89,7 @@ const Emoji: React.FC<Props> = ({
   const tipActionButton = async () => {
     if (walletStore.isConnected) {
       if (walletStore.walletAddress !== domainStore.domainRecord.renter) {
-        if (!isFixed) {
+        if (!tip.isFixed) {
           modalStore.showModal(ModalIds.TIP_PAGE)
         } else {
           sendTransaction && sendTransaction()
@@ -149,6 +153,8 @@ const Emoji: React.FC<Props> = ({
     if (isTipping) {
       setIsProcessing(true)
       tipActionButton()
+    } else {
+      window.open(`mailto:1country@harmony.one`, '_self')
     }
   }
 
@@ -160,7 +166,7 @@ const Emoji: React.FC<Props> = ({
       disabled={isProcessing}
     >
       {icon}
-      {counter > 0 && <span>{counter}</span>}
+      {counter > 0 && <span style={{ alignSelf: 'bottom' }}>{counter}</span>}
     </EmojiButton>
   )
 }

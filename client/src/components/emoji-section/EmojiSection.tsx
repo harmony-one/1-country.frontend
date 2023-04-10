@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FlexColumn, FlexRow } from '../Layout'
+
 import appConfig from '../../../config'
 import { useStores } from '../../stores'
 import {
@@ -10,6 +10,8 @@ import {
 import Emoji, { EmojiEnumType } from './Emoji'
 import { ModalIds, ModalRegister } from '../../modules/modals'
 import { ModalTipPage } from '../modals/ModalTipPage'
+
+import { FlexRow } from '../Layout'
 import { EmojiSectionContainer } from './EmojiSection.styles'
 
 const EmojiSection = () => {
@@ -23,7 +25,7 @@ const EmojiSection = () => {
 
   return (
     <EmojiSectionContainer>
-      <FlexRow>
+      <FlexRow style={{ gap: '0.6em' }}>
         <Emoji
           type={EmojiEnumType.TIP}
           tip={{ isFixed: true, fixedAmount: 1 }}
@@ -51,9 +53,17 @@ const EmojiSection = () => {
           setIsProcessing={setIsProcessing}
           isProcessing={isProcessing}
         />
+        <Emoji
+          type={EmojiEnumType.EMAIL}
+          icon="📧"
+          domainStore={domainStore}
+          setProcessStatus={setProcessStatus}
+          setIsProcessing={setIsProcessing}
+          isProcessing={isProcessing}
+        />
       </FlexRow>
       {processStatus.type !== ProcessStatusTypes.IDLE && (
-        <span>
+        <span style={{ height: '1em' }}>
           <ProcessStatus status={processStatus} />
         </span>
       )}
