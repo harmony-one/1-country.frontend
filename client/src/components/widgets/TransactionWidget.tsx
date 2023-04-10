@@ -3,10 +3,9 @@ import styled from 'styled-components'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet/components/Text'
 import Timer from '@amplication/react-compound-timer'
-import { DomainRecord } from '../../api'
 import { WidgetsContainer } from './Widgets.styles'
 import { utils } from '../../api/utils'
-import { DomainStore } from '../../stores/DomainStore'
+import { useStores } from '../../stores'
 
 const Container = styled(WidgetsContainer)`
   gap: 0;
@@ -49,15 +48,15 @@ const LinkItem = styled.a`
   white-space: nowrap;
   overflow: hidden;
 `
-
 interface Props {
   name: string
-  domainStore: DomainStore
 }
-export const TransactionWidget: React.FC<Props> = ({ name, domainStore }) => {
+
+export const TransactionWidget: React.FC<Props> = ({ name }) => {
+  const { domainStore } = useStores()
   const { domainRecord } = domainStore
   const { renter, expirationTime } = domainRecord
-
+  const MILLISECONDS_IN_WEEK = 1000 * 3600 * 24 * 7
   const fullDomainName = name + '.country'
   const erc1155Uri = utils.buildDomainExplorerURI(fullDomainName)
 
@@ -114,7 +113,7 @@ export const TransactionWidget: React.FC<Props> = ({ name, domainStore }) => {
               >
                 <Timer.Days /> days
                 {domainRecord.expirationTime - Date.now() <
-                1000 * 3600 * 24 * 7 ? (
+                MILLISECONDS_IN_WEEK ? (
                   <span>
                     , <Timer.Hours /> hours, <Timer.Minutes /> min
                   </span>
