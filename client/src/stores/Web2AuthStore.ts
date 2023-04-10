@@ -68,6 +68,6 @@ export class Web2AuthStore extends BaseStore {
     const result = await mainApi.auth({ signature, address: address })
 
     this.jwt = result.token
-    cookie.set(COOKIES.JWT, result.token, { expires: 30 })
+    cookie.set(COOKIES.JWT, result.token, { expires: 90 })
   }
 }
