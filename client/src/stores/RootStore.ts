@@ -18,6 +18,7 @@ import { wagmiClient } from '../modules/wagmi/wagmiClient'
 import tweetApi, { TweetClient } from '../api/tweetApi'
 import commonApi, { CommonClient } from '../api/common'
 import { UtilsStore } from './UtilsStore'
+import { Web2AuthStore } from './Web2AuthStore'
 
 export class RootStore {
   modalStore: ModalStore
@@ -38,6 +39,7 @@ export class RootStore {
     metaTagsStore: MetaTagsStore
     loadersStore: LoadersStore
     utilsStore: UtilsStore
+    web2AuthStore: Web2AuthStore
   }
 
   constructor() {
@@ -82,6 +84,7 @@ export class RootStore {
       metaTagsStore: metaTagsStore,
       loadersStore: new LoadersStore(this),
       utilsStore: new UtilsStore(this),
+      web2AuthStore: new Web2AuthStore(this),
     }
   }
 
