@@ -17,8 +17,8 @@ import {
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../../../components/process-status/ProcessStatus'
-import { FlexRow } from '../../../components/Layout'
 import EmojiSection from '../../../components/emoji-section/EmojiSection'
+import { BgColorSelector } from './BgColorSelector'
 
 interface Props {}
 
@@ -75,6 +75,12 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
         <WidgetModule domainName={domainStore.domainName} />
       )}
       {showRenewalBlock && <DomainRecordRenewal />}
+      {domainStore.isOwner && (
+        <BgColorSelector
+          domainName={domainName}
+          bgColor={domainStore.bgColor}
+        />
+      )}
       <HomePageFooter />
       <div style={{ height: 200 }} />
     </Container>

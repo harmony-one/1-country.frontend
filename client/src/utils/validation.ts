@@ -32,3 +32,7 @@ export const isRedditUrl = (url: string) => {
     url.indexOf('//www.reddit.com') >= 0 || url.indexOf('//reddit.com') >= 0
   )
 }
+
+export const isStakingWidgetUrl = (url: string) => {
+  return url.indexOf('staking:') === 0;
+}
