@@ -21,6 +21,15 @@ const config = {
   nameWrapperContract:
     process.env.NAME_WRAPPER_CONTRACT ||
     '0x4cd2563118e57b19179d8dc033f2b0c5b5d69ff5',
+  eas: {
+    contract:
+      process.env.EAS_CONTRACT || '0xDBf0D70070D760512d214C7ccaB933e066eeb070',
+    apiHost:
+      process.env.EAS_API_HOST || 'https://1ns-eas-server.hiddenstate.xyz',
+    message(sld: string, alias: string, forwardAddress: string): string {
+      return `You are about to authorize forwarding all emails sent to [${alias}@${sld}${config.tld}] to [${forwardAddress}] instead`
+    },
+  },
   explorer: {
     explorerUrl:
       process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/',

@@ -175,3 +175,14 @@ export const daysBetween = (
   const DAY_MILLISECONDS = 1000 * 60 * 60 * 24
   return (Number(date2) - Number(date1)) / DAY_MILLISECONDS
 }
+
+export const getEthersError = (error: Error) => {
+  // @ts-ignore
+  const message = error.reason ? error.reason : error.message
+
+  if (message) {
+    return message
+  }
+
+  return ''
+}
