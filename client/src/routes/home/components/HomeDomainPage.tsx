@@ -80,7 +80,7 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
         >
           {domainStore.domainName}.country
         </DomainName>
-        {domainStore.domainRecord &&
+        {/* {domainStore.domainRecord &&
           domainStore.domainRecord.renter &&
           !domainStore.isExpired && (
             <TipPageButton>
@@ -96,7 +96,7 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
                 />
               </button>
             </TipPageButton>
-          )}
+          )} */}
         <span style={{ fontSize: '0.8em' }}>{tipErrorMessage}</span>
       </DomainNameContainer>
 
@@ -104,12 +104,12 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
         <WidgetModule domainName={domainStore.domainName} />
       )}
       {showRenewalBlock && <DomainRecordRenewal />}
-      {domainStore.isOwner && (
+      {/* {domainStore.isOwner && (
         <BgColorSelector
           domainName={domainName}
           bgColor={domainStore.bgColor}
         />
-      )}
+      )} */}
       <HomePageFooter />
       <div style={{ height: 200 }} />
       <ModalRegister
