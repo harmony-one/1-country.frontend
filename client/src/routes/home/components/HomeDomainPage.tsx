@@ -61,7 +61,9 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
   }
 
   const showRenewalBlock =
-    walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
+    walletStore.isConnected &&
+    domainStore.isOwner &&
+    domainStore.isGoingToExpire()
 
   return (
     <Container>
@@ -78,21 +80,23 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
         >
           {domainStore.domainName}.country
         </DomainName>
-        {domainStore.domainRecord && domainStore.domainRecord.renter && (
-          <TipPageButton>
-            <button onClick={openModal}>
-              Tip me
-              <AiFillHeart
-                style={{
-                  color: 'red',
-                  verticalAlign: 'middle',
-                  fontSize: '1.2rem',
-                  paddingLeft: '0.3em',
-                }}
-              />
-            </button>
-          </TipPageButton>
-        )}
+        {domainStore.domainRecord &&
+          domainStore.domainRecord.renter &&
+          !domainStore.isExpired && (
+            <TipPageButton>
+              <button onClick={openModal}>
+                Tip me
+                <AiFillHeart
+                  style={{
+                    color: 'red',
+                    verticalAlign: 'middle',
+                    fontSize: '1.2rem',
+                    paddingLeft: '0.3em',
+                  }}
+                />
+              </button>
+            </TipPageButton>
+          )}
         <span style={{ fontSize: '0.8em' }}>{tipErrorMessage}</span>
       </DomainNameContainer>
 

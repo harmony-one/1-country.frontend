@@ -246,12 +246,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         </WidgetStatusWrapper>
       ))}
 
-      {domainStore.domainRecord && (
-        <TransactionWidget
-          name={domainName}
-          domainRecord={domainStore.domainRecord}
-        />
-      )}
+      {domainStore.domainRecord && <TransactionWidget name={domainName} />}
 
       {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
         <MetamaskWidget />
