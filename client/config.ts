@@ -48,6 +48,7 @@ const config = {
     restrictedPhrases: process.env.RESTRICTED_PHRASES
       ? process.env.RESTRICTED_PHRASES.split(', ')
       : ['metamask', 'walletconnect'],
+    expirationReminderDays: process.env.EXPIRATION_REMAINDER_DAYS || 30,
   },
   emojiType: {
     ONE_ABOVE: 0,

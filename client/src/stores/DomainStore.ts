@@ -3,6 +3,7 @@ import { BaseStore } from './BaseStore'
 import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import { getDomainName } from '../utils/getDomainName'
 import { DCParams, DomainPrice, DomainRecord } from '../api'
+import config from '../../config'
 import { Domain, mainApi } from '../api/mainApi'
 import { palette } from '../constants'
 import logger from '../modules/logger'
@@ -18,7 +19,6 @@ export class DomainStore extends BaseStore {
       amount: '0',
       formatted: '0',
     },
-    lastRented: '',
     duration: 0,
   }
   public domainRecord: DomainRecord | null = null
@@ -69,10 +69,23 @@ export class DomainStore extends BaseStore {
     if (!this.domainRecord) {
       return false
     }
-
     return this.domainRecord.expirationTime - Date.now() < 0
   }
 
+  isGoingToExpire() {
+    if (!this.domainRecord) {
+      return false
+    }
+    const millisecondsInDay = 1000 * 60 * 60 * 24
+    const remainderDays =
+      Number(config.domain.expirationReminderDays) * millisecondsInDay
+    console.log(
+      'isGoing',
+      this.domainRecord.expirationTime - Date.now() < remainderDays
+    )
+    return this.domainRecord.expirationTime - Date.now() < remainderDays
+  }
+  
   get bgColor() {
     if (this.domainExtendedInfo && this.domainExtendedInfo.bgColor) {
       return this.domainExtendedInfo.bgColor
