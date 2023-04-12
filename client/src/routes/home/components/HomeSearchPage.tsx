@@ -183,7 +183,9 @@ const HomeSearchPage: React.FC = observer(() => {
     }
     if (
       _domainName.length === 3 &&
-      RESERVED_DOMAINS.find((value) => value === _domainName)
+      RESERVED_DOMAINS.find(
+        (value) => value.toLowerCase() === _domainName.toLowerCase()
+      )
     ) {
       return {
         isAvailable: true,
@@ -204,6 +206,9 @@ const HomeSearchPage: React.FC = observer(() => {
         name: _domainName,
       }),
     ])
+    console.log('WEB3', _domainName, isAvailable2)
+    console.log('WEB2', _domainName, relayCheckDomain.isAvailable)
+
     return {
       domainName: _domainName,
       domainRecord: record,
@@ -216,8 +221,21 @@ const HomeSearchPage: React.FC = observer(() => {
   const claimWeb2DomainWrapper = async () => {
     setLoading(true)
     try {
-      await claimWeb2Domain(regTxHash)
-      await sleep(1500)
+      if (
+        searchResult.domainName.length !== 3 ||
+        !RESERVED_DOMAINS.find(
+          (value) =>
+            value.toLowerCase() === searchResult.domainName.toLowerCase()
+        )
+      ) {
+        await claimWeb2Domain(regTxHash)
+      }
+      await sleep(2000)
+      await generateNFT()
+      setProcessStatus({
+        render: <BaseText>NFT generated.</BaseText>,
+      })
+      await sleep(2000)
       setProcessStatus({
         render: <BaseText>Web2 domain acquired</BaseText>,
       })
@@ -339,19 +357,6 @@ const HomeSearchPage: React.FC = observer(() => {
     })
 
     console.log('### searchResult', searchResult)
-
-    // const { isAvailable } = await relayApi().checkDomain({
-    //   sld: searchResult.domainName,
-    // })
-    //
-    // if (!isAvailable) {
-    //   setValidation({
-    //     valid: false,
-    //     error: 'This domain name is already registered',
-    //   })
-    //   setLoading(false)
-    //   return
-    // }
 
     const _available = await rootStore.d1dcClient.checkAvailable({
       name: searchResult.domainName,
@@ -522,7 +527,15 @@ const HomeSearchPage: React.FC = observer(() => {
         txHash,
         referral,
       })
-      await claimWeb2Domain(txHash)
+      if (
+        searchResult.domainName.length !== 3 ||
+        !RESERVED_DOMAINS.find(
+          (value) =>
+            value.toLowerCase() === searchResult.domainName.toLowerCase()
+        )
+      ) {
+        await claimWeb2Domain(txHash)
+      }
       setProcessStatus({
         render: <BaseText>Web2 domain acquired.</BaseText>,
       })
