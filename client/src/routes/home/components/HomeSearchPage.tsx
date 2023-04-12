@@ -36,6 +36,7 @@ import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { relayApi, RelayError } from '../../../api/relayApi'
 import qs from 'qs'
 import { mainApi } from '../../../api/mainApi'
+import { RESERVED_DOMAINS } from '../../../utils/reservedDomains'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -173,18 +174,32 @@ const HomeSearchPage: React.FC = observer(() => {
     setLoading(false)
   }
 
+  const relayCheck = (_domainName: string) => {
+    if (_domainName.length <= 2) {
+      return {
+        isAvailable: true,
+        error: '',
+      }
+    }
+    if (
+      _domainName.length === 3 &&
+      RESERVED_DOMAINS.find((value) => value === _domainName)
+    ) {
+      return {
+        isAvailable: true,
+        error: '',
+      }
+    }
+    return relayApi().checkDomain({
+      sld: _domainName,
+    })
+  }
+
   const loadDomainRecord = async (_domainName: string) => {
     const [record, price, relayCheckDomain, isAvailable2] = await Promise.all([
       rootStore.d1dcClient.getRecord({ name: _domainName }),
       rootStore.d1dcClient.getPrice({ name: _domainName }),
-      _domainName.length > 2
-        ? relayApi().checkDomain({
-            sld: _domainName,
-          })
-        : {
-            isAvailable: true,
-            error: '',
-          },
+      relayCheck(_domainName),
       rootStore.d1dcClient.checkAvailable({
         name: _domainName,
       }),
