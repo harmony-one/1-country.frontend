@@ -3,10 +3,17 @@ import { RootStore } from './RootStore'
 import { BaseStore } from './BaseStore'
 import { COOKIES } from '../constants'
 import { nameUtils } from '../api/utils'
+import { makeObservable, observable } from 'mobx'
 
 export class UtilsStore extends BaseStore {
+  post: string
+
   constructor(rootStore: RootStore) {
     super(rootStore)
+
+    makeObservable(this, {
+      post: observable,
+    })
   }
 
   saveReferral(referral: string) {

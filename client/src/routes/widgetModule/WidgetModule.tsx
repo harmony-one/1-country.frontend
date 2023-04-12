@@ -18,7 +18,11 @@ import {
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
-import { isEmail, isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
+import {
+  isEmail,
+  isRedditUrl,
+  isStakingWidgetUrl,
+} from '../../utils/validation'
 import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
@@ -32,12 +36,18 @@ interface Props {
 }
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
-  const { domainStore, walletStore } = useStores()
+  const { domainStore, walletStore, utilsStore } = useStores()
   const [checkIsActivated, setCheckIsActivated] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
   })
+
+  useEffect(() => {
+    if (utilsStore.post) {
+      console.log('post to add', utilsStore.post)
+    }
+  }, [])
 
   useEffect(() => {
     domainStore.loadDomainRecord(domainName)
@@ -82,9 +92,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
     setLoading(true)
 
-    let widget: Widget;
+    let widget: Widget
 
-    if(isStakingWidgetUrl(value)) {
+    if (isStakingWidgetUrl(value)) {
       widget = {
         type: 'staking',
         value: value,
