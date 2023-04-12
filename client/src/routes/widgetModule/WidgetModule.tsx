@@ -26,6 +26,8 @@ import {
 import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
+import { sleep } from '../../utils/sleep'
+import config from '../../../config'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -44,10 +46,24 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   })
 
   useEffect(() => {
-    if (utilsStore.post) {
-      console.log('post to add', utilsStore.post)
+    const addingPost = async () => {
+      await addPost(utilsStore.post, true)
     }
-  }, [])
+    const connectWallet = async () => {
+      await walletStore.connect()
+    }
+    try {
+      if (utilsStore.post) {
+        if (!walletStore.isConnected) {
+          connectWallet()
+        }
+        domainStore.isOwner && addingPost()
+      }
+    } catch (e) {
+      console.log('Adding post from URL', { error: e })
+      return
+    }
+  }, [walletStore.isConnected])
 
   useEffect(() => {
     domainStore.loadDomainRecord(domainName)
@@ -79,25 +95,22 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     setFormFields({ ...formFields, widgetValue: '' })
   }
 
-  const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Enter') {
-      return
-    }
-    event.preventDefault()
-    const value = (event.target as HTMLInputElement).value || ''
-
-    if (isEmail(value)) {
-      window.open(`mailto:1country@harmony.one`, '_self')
-      return
-    }
+  const addPost = async (url: string, fromUrl = false) => {
     setLoading(true)
 
     let widget: Widget
+    if (fromUrl) {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: <BaseText>Adding post from url</BaseText>,
+      })
+      await sleep(3000)
+    }
 
-    if (isStakingWidgetUrl(value)) {
+    if (isStakingWidgetUrl(url)) {
       widget = {
         type: 'staking',
-        value: value,
+        value: url,
       }
     } else {
       setProcessStatus({
@@ -105,7 +118,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         render: 'Embedding post',
       })
 
-      if (!isValidUrl(value)) {
+      if (!isValidUrl(url)) {
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
           render: 'Invalid URL',
@@ -114,7 +127,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         return
       }
 
-      if (isRedditUrl(value)) {
+      if (isRedditUrl(url)) {
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
           render: 'Incompatible URL. Please try a URL from another website.',
@@ -122,24 +135,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         setLoading(false)
         return
       }
-      // const isTwit = isValidTwitUri(value)
-      // const isInst = isValidInstagramUri(value)
-
-      // if (!isInst && !isTwit) {
-      //   setProcessStatus({
-      //     type: ProcessStatusTypes.ERROR,
-      //     render: 'Invalid URL',
-      //   })
-      //   setLoading(false)
-      //   return
-      // }
-
       setProcessStatus({
         type: ProcessStatusTypes.PROGRESS,
         render: 'Checking URL',
       })
-
-      const embedData = await loadEmbedJson(value).catch(() => false)
+      await sleep(1000)
+      const embedData = await loadEmbedJson(url).catch(() => false)
 
       if (!embedData) {
         setProcessStatus({
@@ -152,7 +153,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       widget = {
         type: 'url',
-        value: value,
+        value: url,
       }
     }
 
@@ -188,6 +189,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       })
       resetProcessStatus()
       resetInput()
+      if (fromUrl) {
+        history.pushState(null, '', `\\`) // deleting url param from browser
+        utilsStore.post = undefined
+      }
     } catch (ex) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
@@ -195,6 +200,20 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       })
       setLoading(false)
     }
+  }
+
+  const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') {
+      return
+    }
+    event.preventDefault()
+    const value = (event.target as HTMLInputElement).value || ''
+
+    if (isEmail(value)) {
+      window.open(`mailto:1country@harmony.one`, '_self')
+      return
+    }
+    addPost(value)
   }
 
   const onChange = (value: string) => {
