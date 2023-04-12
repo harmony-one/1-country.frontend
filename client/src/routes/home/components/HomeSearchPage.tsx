@@ -641,16 +641,26 @@ const HomeSearchPage: React.FC = observer(() => {
               )}
               {processStatus.type === ProcessStatusTypes.IDLE &&
                 !inputValue && (
-                  <Box align="center">
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <Button
+                      as="a"
+                      href="https://harmony.one/buy"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ marginRight: '10px' }}
+                    >
+                      Buy ONE
+                    </Button>
                     <Button
                       as="a"
                       href="https://harmony.one/1"
                       target="_blank"
                       rel="noreferrer"
+                      style={{ marginLeft: '10px' }}
                     >
                       Learn More
                     </Button>
-                  </Box>
+                  </div>
                 )}
             </Box>
           )}
