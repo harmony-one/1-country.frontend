@@ -62,6 +62,7 @@ export class RootStore {
       if (result && result.chain.id === config.chainParameters.id) {
         const { account, provider } = result
 
+        // @ts-expect-error FallbackProvide is not assignable
         const provider2 = new ethers.providers.Web3Provider(provider)
         this.updateClients(provider2, account)
       } else {
@@ -88,7 +89,10 @@ export class RootStore {
     }
   }
 
-  updateClients(provider: ethers.providers.Web3Provider, address: string) {
+  updateClients(
+    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
+    address: string
+  ) {
     console.log('### dc client updated', address)
 
     this.d1dcClient = apis({ provider, address })

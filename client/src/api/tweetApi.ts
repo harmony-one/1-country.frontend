@@ -43,7 +43,7 @@ const tweetApi = ({
   provider,
   address,
 }: {
-  provider: ethers.providers.Web3Provider
+  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
   address: string
 }) => {
   // console.log('apis', web3, address)
@@ -81,7 +81,6 @@ const tweetApi = ({
       }
 
       const txReceipt = await txResponse.wait()
-      console.log(methodName, txReceipt.events)
       onSuccess && onSuccess(txReceipt)
       return { txReceipt: txReceipt, error: null }
     } catch (ex) {
