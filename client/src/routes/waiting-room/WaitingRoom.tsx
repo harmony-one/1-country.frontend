@@ -17,6 +17,7 @@ import { Web3Button } from '@web3modal/react'
 import { Box } from 'grommet/components/Box'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { nameUtils } from '../../api/utils'
+import { RESERVED_DOMAINS } from '../../utils/reservedDomains'
 
 const WaitingRoom = observer(() => {
   const [isDomainAvailable, setIsDomainAvailable] = useState(false)
@@ -28,6 +29,16 @@ const WaitingRoom = observer(() => {
   const navigate = useNavigate()
 
   const fullUrl = `https://${domainName.toLowerCase()}${config.tld}`
+
+  const attemps =
+    domainName.length === 3 &&
+    RESERVED_DOMAINS.find(
+      (value) => value.toLowerCase() === domainName.toLowerCase()
+    )
+      ? 1
+      : 3
+
+  console.log('Cert attemps', attemps)
 
   useEffect(() => {
     if (!domainName || !nameUtils.isValidName(domainName)) {
@@ -41,7 +52,7 @@ const WaitingRoom = observer(() => {
     }
   }, [domainStore.domainRecord])
 
-  const createCert = async (attemptsLeft = 3) => {
+  const createCert = async (attemptsLeft = attemps) => {
     const domain = `${domainName}${config.tld}`
 
     if (!walletStore.walletAddress) {

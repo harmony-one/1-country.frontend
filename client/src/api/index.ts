@@ -189,14 +189,13 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     },
     renewDomain: async ({
       name,
-      url,
       amount,
       onFailed,
       onTransactionHash,
       onSuccess,
     }: RenewDomainProps) => {
       return send({
-        parameters: [name, url],
+        parameters: [name],
         methodName: 'renew',
         amount,
         onFailed,
@@ -215,8 +214,6 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       const amount = web3.utils.toWei(
         new BN(config.infoRevealPrice[info]).toString()
       )
-      console.log('reveal info', name, info, config.infoRevealPrice[info])
-      console.log('reveal info address', address)
       try {
         if (name) {
           let revealMethod = ''
@@ -287,7 +284,6 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         contractReadOnly.methods.duration().call(),
         contractReadOnly.methods.nameExpires(name).call(),
       ])
-
       return {
         renter:
           !ownerAddress || ownerAddress === Constants.EmptyAddress
