@@ -5,7 +5,7 @@ import { TwitterTimelineEmbed, TwitterTweetEmbed } from 'react-twitter-embed'
 import { useInView } from 'react-intersection-observer'
 import isUrl from 'is-url'
 
-import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
+import { WidgetControls, WidgetsContainer } from './Widgets.styles'
 import { parseTweetId } from '../../utils/parseTweetId'
 import { CloseCircle } from '../icons/CloseCircle'
 import { TwitterWidgetPlaceholder } from './TwitterWidgetPlaceholder'
@@ -103,9 +103,9 @@ const TwitterWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
         )}
       </div>
       {isOwner && (
-        <DeleteWidgetButton onClick={onDelete}>
+        <WidgetControls onClick={onDelete}>
           <CloseCircle />
-        </DeleteWidgetButton>
+        </WidgetControls>
       )}
     </WidgetsContainer>
   )
