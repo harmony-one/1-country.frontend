@@ -205,14 +205,13 @@ const apis = ({
     },
     renewDomain: async ({
       name,
-      url,
       amount,
       onFailed,
       onTransactionHash,
       onSuccess,
     }: RenewDomainProps) => {
       return send({
-        parameters: [name, url],
+        parameters: [name],
         methodName: 'renew',
         amount,
         onFailed,
@@ -231,8 +230,6 @@ const apis = ({
       const amount = web3Utils.toWei(
         new BN(config.infoRevealPrice[info]).toString()
       )
-      console.log('reveal info', name, info, config.infoRevealPrice[info])
-      console.log('reveal info address', address)
       try {
         if (name) {
           let revealMethod = ''
@@ -295,7 +292,6 @@ const apis = ({
         contractReadOnly.duration(),
         contractReadOnly.nameExpires(name),
       ])
-
       return {
         renter:
           !ownerAddress || ownerAddress === Constants.EmptyAddress
@@ -320,6 +316,13 @@ const apis = ({
       const isAvailable = await contractReadOnly.available(name)
       return isAvailable?.toString()?.toLowerCase() === 'true'
     },
+
+    // signMessage: ({ message }: { message: string }) => {
+    //   const hashMessage = web3.eth.accounts.hashMessage(
+    //     web3.utils.utf8ToHex(message)
+    //   )
+    //   return web3.eth.sign(hashMessage, address)
+    // },
   }
 }
 

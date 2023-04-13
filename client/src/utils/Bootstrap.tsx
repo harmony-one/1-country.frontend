@@ -1,18 +1,30 @@
 import React, { useEffect } from 'react'
 import { useStores } from '../stores'
-import { useSearchParams } from 'react-router-dom'
+import qs from 'qs'
 
 interface Props {}
+
+const getReferralId = (queryString: string): string => {
+  const queryParams = qs.parse(queryString, {
+    ignoreQueryPrefix: true,
+  })
+
+  return Object.entries(queryParams).reduce((pv, [name, value]) => {
+    if (value === '') {
+      return name
+    }
+
+    return pv
+  }, '')
+}
 
 export const Bootstrap: React.FC<Props> = () => {
   const { utilsStore } = useStores()
 
-  const [searchParams] = useSearchParams()
-
   useEffect(() => {
-    const referral = searchParams.get('referral')
+    const referral = getReferralId(window.location.search)
 
-    if (searchParams.get('referral')) {
+    if (referral) {
       utilsStore.saveReferral(referral)
     }
   }, [])

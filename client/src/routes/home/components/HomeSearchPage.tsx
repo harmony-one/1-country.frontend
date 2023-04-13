@@ -36,6 +36,7 @@ import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { relayApi, RelayError } from '../../../api/relayApi'
 import qs from 'qs'
 import { mainApi } from '../../../api/mainApi'
+import { RESERVED_DOMAINS } from '../../../utils/reservedDomains'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -174,22 +175,41 @@ const HomeSearchPage: React.FC = observer(() => {
     setLoading(false)
   }
 
+  const relayCheck = (_domainName: string) => {
+    if (_domainName.length <= 2) {
+      return {
+        isAvailable: true,
+        error: '',
+      }
+    }
+    if (
+      _domainName.length === 3 &&
+      RESERVED_DOMAINS.find(
+        (value) => value.toLowerCase() === _domainName.toLowerCase()
+      )
+    ) {
+      return {
+        isAvailable: true,
+        error: '',
+      }
+    }
+    return relayApi().checkDomain({
+      sld: _domainName,
+    })
+  }
+
   const loadDomainRecord = async (_domainName: string) => {
     const [record, price, relayCheckDomain, isAvailable2] = await Promise.all([
       rootStore.d1dcClient.getRecord({ name: _domainName }),
       rootStore.d1dcClient.getPrice({ name: _domainName }),
-      _domainName.length > 2
-        ? relayApi().checkDomain({
-            sld: _domainName,
-          })
-        : {
-            isAvailable: true,
-            error: '',
-          },
+      relayCheck(_domainName),
       rootStore.d1dcClient.checkAvailable({
         name: _domainName,
       }),
     ])
+    console.log('WEB3', _domainName, isAvailable2)
+    console.log('WEB2', _domainName, relayCheckDomain.isAvailable)
+
     return {
       domainName: _domainName,
       domainRecord: record,
@@ -202,8 +222,21 @@ const HomeSearchPage: React.FC = observer(() => {
   const claimWeb2DomainWrapper = async () => {
     setLoading(true)
     try {
-      await claimWeb2Domain(regTxHash)
-      await sleep(1500)
+      if (
+        searchResult.domainName.length !== 3 ||
+        !RESERVED_DOMAINS.find(
+          (value) =>
+            value.toLowerCase() === searchResult.domainName.toLowerCase()
+        )
+      ) {
+        await claimWeb2Domain(regTxHash)
+      }
+      await sleep(2000)
+      await generateNFT()
+      setProcessStatus({
+        render: <BaseText>NFT generated.</BaseText>,
+      })
+      await sleep(2000)
       setProcessStatus({
         render: <BaseText>Web2 domain acquired</BaseText>,
       })
@@ -306,6 +339,12 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
+  const handleGoToDomain = (searchResult: SearchResult) => {
+    window.location.href = `https://${searchResult.domainName.toLowerCase()}${
+      config.tld
+    }`
+  }
+
   const handleRentDomain = async () => {
     if (!searchResult || !searchResult.domainRecord || !validation.valid) {
       return false
@@ -319,19 +358,6 @@ const HomeSearchPage: React.FC = observer(() => {
     })
 
     console.log('### searchResult', searchResult)
-
-    // const { isAvailable } = await relayApi().checkDomain({
-    //   sld: searchResult.domainName,
-    // })
-    //
-    // if (!isAvailable) {
-    //   setValidation({
-    //     valid: false,
-    //     error: 'This domain name is already registered',
-    //   })
-    //   setLoading(false)
-    //   return
-    // }
 
     const _available = await rootStore.d1dcClient.checkAvailable({
       name: searchResult.domainName,
@@ -502,7 +528,15 @@ const HomeSearchPage: React.FC = observer(() => {
         txHash,
         referral,
       })
-      await claimWeb2Domain(txHash)
+      if (
+        searchResult.domainName.length !== 3 ||
+        !RESERVED_DOMAINS.find(
+          (value) =>
+            value.toLowerCase() === searchResult.domainName.toLowerCase()
+        )
+      ) {
+        await claimWeb2Domain(txHash)
+      }
       setProcessStatus({
         render: <BaseText>Web2 domain acquired.</BaseText>,
       })
@@ -576,16 +610,25 @@ const HomeSearchPage: React.FC = observer(() => {
               <HomeSearchResultItem
                 name={searchResult.domainName.toLowerCase()}
                 rateONE={ratesStore.ONE_USD}
+                domainRecord={searchResult.domainRecord}
                 price={searchResult.price.formatted}
                 available={searchResult.isAvailable}
                 error={searchResult.error}
               />
-              <Button
-                disabled={!validation.valid || !searchResult.isAvailable}
-                onClick={handleRentDomain}
-              >
-                Register
-              </Button>
+              {searchResult.isAvailable && (
+                <Button disabled={!validation.valid} onClick={handleRentDomain}>
+                  Register
+                </Button>
+              )}
+              {!searchResult.isAvailable && validation.valid && (
+                <Button
+                  $width="auto"
+                  disabled={!validation.valid}
+                  onClick={() => handleGoToDomain(searchResult)}
+                >
+                  Go to the domain
+                </Button>
+              )}
             </Box>
           ) : (
             <Box margin={{ top: '16px' }}>
@@ -599,16 +642,26 @@ const HomeSearchPage: React.FC = observer(() => {
               )}
               {processStatus.type === ProcessStatusTypes.IDLE &&
                 !inputValue && (
-                  <Box align="center">
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <Button
+                      as="a"
+                      href="https://harmony.one/buy"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ marginRight: '10px' }}
+                    >
+                      Buy ONE
+                    </Button>
                     <Button
                       as="a"
                       href="https://harmony.one/1"
                       target="_blank"
                       rel="noreferrer"
+                      style={{ marginLeft: '10px' }}
                     >
                       Learn More
                     </Button>
-                  </Box>
+                  </div>
                 )}
             </Box>
           )}

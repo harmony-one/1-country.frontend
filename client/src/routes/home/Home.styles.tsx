@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Main, FlexRow } from '../../components/Layout'
+import { Main, FlexRow, FlexColumn } from '../../components/Layout'
 import { SmallTextGrey, Desc } from '../../components/Text'
 
 export const Container = styled(Main)`
@@ -51,12 +51,8 @@ export const DomainNameContainer = styled.div`
   width: 100%;
 `
 
-export const TipPageButton = styled(FlexRow)`
-  button {
-    cursor: pointer;
-    background-color: transparent;
-    border: 0;
-    font-size: 1rem;
-    font-weight: 200;
-  }
+export const TipContainer = styled(FlexColumn)`
+  align-content: center;
+  height: 1.7em;
+  align-items: center;
 `

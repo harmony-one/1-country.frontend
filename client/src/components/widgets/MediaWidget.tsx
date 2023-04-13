@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { lazy, useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import isUrl from 'is-url'
 
 import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
 import { CloseCircle } from '../icons/CloseCircle'
+
+const StakingWidget = lazy(
+  () => import(/* webpackChunkName: "StakingWidget" */ './StakingWidget')
+)
 
 interface Props {
   value: string
@@ -15,6 +19,8 @@ interface Props {
 export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   const [widget, setWidget] = useState<any>()
   const [loading, setLoading] = useState(true)
+  const [stakingValidator, setStakingValidator] = useState<string>('')
+
   const { ref, inView } = useInView({
     /* Optional options */
     rootMargin: '0px',
@@ -38,6 +44,12 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   }
 
   useEffect(() => {
+    if(value.indexOf('staking:') === 0) {
+      setStakingValidator(value.split('staking:')[1]);
+      setLoading(false);
+      return;
+    }
+
     if (isUrl(value)) {
       loadData(value)
     }
@@ -52,7 +64,10 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   return (
     <WidgetsContainer isWidgetLoading={loading} ref={ref}>
       <div style={{ paddingBottom: '2em' }}>
-        {widget && (!loading || inView) && (
+        {
+          stakingValidator && (<StakingWidget validator={stakingValidator} />)
+        }
+        {!stakingValidator && widget && (!loading || inView) && (
           <blockquote className="embedly-card" style={{ zIndex: '10' }}>
             <h4>
               <a href={widget.url}>{widget.title}</a>
