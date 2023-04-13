@@ -1,16 +1,15 @@
 @use 'three-dots' with (
-  $dot-color: #00AEE9,
-  $dot-width: 8px,
-  $dot-height: 8px,
-);   
+  $dot-color: #00aee9,
+  $dot-width: 6px,
+  $dot-height: 6px
+);
 @import '../assets/fonts/nunito.css';
 
 :root {
   --text-color: #758796;
   --background-color: #fff;
 
-
-  --toastify-color-info: #00AEE9;
+  --toastify-color-info: #00aee9;
 }
 
 html {
@@ -18,7 +17,7 @@ html {
 }
 
 input {
-  color: var(--text-color)
+  color: var(--text-color);
 }
 
 button {
@@ -37,4 +36,3 @@ body {
   margin-left: auto;
   margin-right: auto;
 }
-
