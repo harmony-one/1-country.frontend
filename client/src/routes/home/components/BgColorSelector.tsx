@@ -7,6 +7,7 @@ import { Box } from 'grommet/components/Box'
 import styled from 'styled-components'
 
 // peach, light blue, light purple
+// https://www.schemecolor.com/soft-cuddle.php
 const colorOptions = [
   {
     label: 'White',
