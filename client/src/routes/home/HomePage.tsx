@@ -19,9 +19,10 @@ const HomeDomainPage = lazy(
 )
 
 export const HomePage = observer(() => {
-  const [domainName] = useState(getDomainName())
+  // const [domainName] = useState(getDomainName())
 
   const { domainStore } = useStores()
+  const { domainName } = domainStore
 
   // useDefaultNetwork()
 

@@ -145,7 +145,6 @@ export class DomainStore extends BaseStore {
     if (!domainName) {
       return
     }
-
     try {
       const [domainRecord, domainPrice, domainExtendedInfo] = await Promise.all(
         [

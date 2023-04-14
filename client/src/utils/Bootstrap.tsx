@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useStores } from '../stores'
+import isValidUrl from 'is-url'
 import qs from 'qs'
 
 interface Props {}
 
-const getReferralId = (queryString: string): string => {
+const getParamName = (queryString: string): string => {
   const queryParams = qs.parse(queryString, {
     ignoreQueryPrefix: true,
   })
@@ -19,13 +20,19 @@ const getReferralId = (queryString: string): string => {
 }
 
 export const Bootstrap: React.FC<Props> = () => {
-  const { utilsStore } = useStores()
+  const { utilsStore, domainStore } = useStores()
+  const { domainName } = domainStore
 
   useEffect(() => {
-    const referral = getReferralId(window.location.search)
-
-    if (referral) {
-      utilsStore.saveReferral(referral)
+    const paramName = getParamName(window.location.search)
+    if (domainName === '') {
+      if (paramName) {
+        utilsStore.saveReferral(paramName)
+      }
+    } else {
+      if (paramName && isValidUrl(paramName)) {
+        utilsStore.post = paramName
+      }
     }
   }, [])
 

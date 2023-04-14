@@ -29,7 +29,7 @@ const config = {
   },
   defaultRPC: process.env.DEFAULT_RPC || 'https://api.harmony.one',
   hostname: process.env.REACT_APP_BASE_URL || 'https://localhost:3100',
-  tld: process.env.TLD || '.dev.1.localhost:3100', // '.1.country',
+  tld: process.env.TLD || '.dev.1.localhost:3100', // '.country',
   tldLink: process.env.TLD_LINK || 'dev.1.localhost:3100', // '1.country',
   domainNftImagesPath:
     'https://storage.googleapis.com/radical-domain-nft-images',
