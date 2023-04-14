@@ -130,7 +130,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "ethers": "^5.7.2",
     "grommet": "^2.29.1",
-    "harmony-staking-widget": "^1.0.5",
+    "harmony-staking-widget": "^1.0.10",
     "humanize-duration": "^3.27.3",
     "is-url": "^1.2.4",
     "lint-staged": "^13.1.2",
