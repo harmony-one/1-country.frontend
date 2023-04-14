@@ -7,12 +7,11 @@
     "debug": "DEBUG=1 webpack serve --mode=development",
     "local": "DEBUG=true webpack serve --mode=development",
     "build": "webpack --mode=production --config webpack.config.js",
-    "prepare": "cd .. && husky install client/.husky",
     "test": "jest",
     "type": "module"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,html,css}": "npx prettier --check"
+    "*.{js,jsx,ts,html,css}": "npx prettier --check"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
@@ -130,7 +129,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "ethers": "^5.7.2",
     "grommet": "^2.29.1",
-    "harmony-staking-widget": "^1.0.5",
+    "harmony-staking-widget": "^1.0.10",
     "humanize-duration": "^3.27.3",
     "is-url": "^1.2.4",
     "lint-staged": "^13.1.2",
