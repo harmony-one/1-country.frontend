@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 
-import { VanityURL } from '../VanityURL'
 import { WidgetModule } from '../../widgetModule/WidgetModule'
 import { widgetListStore } from '../../widgetModule/WidgetListStore'
 import { DomainRecordRenewal } from './DomainRecordRenewal'
@@ -55,10 +54,10 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
 
   return (
     <Container>
-      <VanityURL
-        record={domainStore.domainRecord}
-        name={domainStore.domainName}
-      />
+      {/*<VanityURL*/}
+      {/*  record={domainStore.domainRecord}*/}
+      {/*  name={domainStore.domainName}*/}
+      {/*/>*/}
       <div style={{ height: '2em' }} />
       <DomainNameContainer>
         <DomainName

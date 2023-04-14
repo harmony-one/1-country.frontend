@@ -1,5 +1,5 @@
-import Web3 from 'web3'
 import { action, makeObservable, observable } from 'mobx'
+import { ethers } from 'ethers'
 import config from '../../config'
 import { modalStore } from '../modules/modals/ModalContext'
 import { ModalStore } from '../modules/modals/ModalStore'
@@ -18,6 +18,7 @@ import { wagmiClient } from '../modules/wagmi/wagmiClient'
 import tweetApi, { TweetClient } from '../api/tweetApi'
 import commonApi, { CommonClient } from '../api/common'
 import { UtilsStore } from './UtilsStore'
+import { defaultProvider } from '../api/defaultProvider'
 import { Web2AuthStore } from './Web2AuthStore'
 
 export class RootStore {
@@ -52,8 +53,7 @@ export class RootStore {
       { autoBind: true }
     )
 
-    const web3 = new Web3(config.defaultRPC)
-    this.updateClients(web3, Constants.EmptyAddress)
+    this.updateClients(defaultProvider, Constants.EmptyAddress)
 
     wagmiClient.autoConnect().then((result) => {
       console.log('### wagmi autoConnect')
@@ -61,9 +61,10 @@ export class RootStore {
       // web3 should works with harmony network
       if (result && result.chain.id === config.chainParameters.id) {
         const { account, provider } = result
-        // @ts-ignore-error
-        const web3 = new Web3(provider)
-        this.updateClients(web3, account)
+
+        // @ts-expect-error FallbackProvide is not assignable
+        const provider2 = new ethers.providers.Web3Provider(provider)
+        this.updateClients(provider2, account)
       } else {
         console.log('### wallet connect to wrong network')
       }
@@ -88,15 +89,15 @@ export class RootStore {
     }
   }
 
-  updateClients(web3: Web3, address: string) {
+  updateClients(
+    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
+    address: string
+  ) {
     console.log('### dc client updated', address)
 
-    this.d1dcClient = apis({ web3, address })
-    this.tweetClient = tweetApi({ web3, address })
+    this.d1dcClient = apis({ provider, address })
+    this.tweetClient = tweetApi({ provider, address })
     // @ts-ignore
-    this.commonClient = commonApi(
-      this.d1dcClient.contract,
-      this.tweetClient.contract
-    )
+    this.commonClient = commonApi(this.d1dcClient, this.tweetClient)
   }
 }

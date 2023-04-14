@@ -1,4 +1,5 @@
 import { computed, makeObservable, observable, runInAction } from 'mobx'
+import { ethers } from 'ethers'
 import {
   connect,
   watchAccount,
@@ -6,7 +7,6 @@ import {
   GetNetworkResult,
   GetAccountResult,
 } from '@wagmi/core'
-import Web3 from 'web3'
 import { BaseStore } from './BaseStore'
 import { RootStore } from './RootStore'
 import { metamaskConnector, wagmiClient } from '../modules/wagmi/wagmiClient'
@@ -77,13 +77,14 @@ export class WalletStore extends BaseStore {
     return metamaskConnector && metamaskConnector.ready
   }
 
-  setProvider(provider: any, address: string) {
-    const web3 = new Web3(provider)
-    this.rootStore.updateClients(web3, address)
+  setProvider(provider: unknown, address: string) {
+    const web3Provider = new ethers.providers.Web3Provider(provider)
+
+    this.rootStore.updateClients(web3Provider, address)
   }
 
   connect() {
-    return connect<typeof wagmiClient.provider>({
+    return connect({
       chainId: config.chainParameters.id,
       connector: metamaskConnector,
     }).then((result) => {
