@@ -4,13 +4,25 @@ import debounce from 'lodash.debounce'
 import { observer } from 'mobx-react-lite'
 import BN from 'bn.js'
 import { useSearchParams } from 'react-router-dom'
-import { Box } from 'grommet/components/Box'
-import { Text } from 'grommet/components/Text'
 
+import { useAccount, useDisconnect } from 'wagmi'
+import { useWeb3Modal, Web3Button } from '@web3modal/react'
+import qs from 'qs'
+
+import { sleep } from '../../../utils/sleep'
+import {
+  ProcessStatus,
+  ProcessStatusItem,
+  ProcessStatusTypes,
+} from '../../../components/process-status/ProcessStatus'
+import { relayApi, RelayError } from '../../../api/relayApi'
+import { cutString } from '../../../utils/string'
+import { buildTxUri } from '../../../utils/explorer'
 import { HomeSearchResultItem } from './HomeSearchResultItem'
 import { useStores } from '../../../stores'
 import config from '../../../../config'
-
+import { mainApi } from '../../../api/mainApi'
+import { RESERVED_DOMAINS } from '../../../utils/reservedDomains'
 import logger from '../../../modules/logger'
 const log = logger.module('HomeSearchPage')
 
@@ -19,24 +31,12 @@ import { BaseText, GradientText } from '../../../components/Text'
 import { FlexRow } from '../../../components/Layout'
 import { DomainPrice, DomainRecord } from '../../../api'
 import { nameUtils, validateDomainName } from '../../../api/utils'
-import { Container } from '../Home.styles'
-import { cutString } from '../../../utils/string'
-import {
-  ProcessStatus,
-  ProcessStatusItem,
-  ProcessStatusTypes,
-} from '../../../components/process-status/ProcessStatus'
-import { buildTxUri } from '../../../utils/explorer'
-import { useAccount, useDisconnect } from 'wagmi'
-import { useWeb3Modal, Web3Button } from '@web3modal/react'
 import { TypedText } from './Typed'
-import { sleep } from '../../../utils/sleep'
 import { SearchInput } from '../../../components/search-input/SearchInput'
 import { FormSearch } from 'grommet-icons/icons/FormSearch'
-import { relayApi, RelayError } from '../../../api/relayApi'
-import qs from 'qs'
-import { mainApi } from '../../../api/mainApi'
-import { RESERVED_DOMAINS } from '../../../utils/reservedDomains'
+import { Box } from 'grommet/components/Box'
+import { Text } from 'grommet/components/Text'
+import { Container } from '../Home.styles'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -642,7 +642,13 @@ const HomeSearchPage: React.FC = observer(() => {
               )}
               {processStatus.type === ProcessStatusTypes.IDLE &&
                 !inputValue && (
-                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
                     <Button
                       as="a"
                       href="https://harmony.one/buy"
