@@ -8,8 +8,8 @@ interface Props {
 const StakingWidget: React.FC<Props> = ({ validator }) => {
     return <div style={{
         borderRadius: 12,
-        border: '0px solid rgb(207,217,222)',
-        padding: "10px 20px 0px 20px",
+        border: '1px solid rgb(207,217,222)',
+        padding: "20px",
         maxWidth: '100vw',
         width: 500
     }
