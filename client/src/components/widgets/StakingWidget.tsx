@@ -11,7 +11,7 @@ const StakingWidget: React.FC<Props> = ({ validator }) => {
         border: '1px solid rgb(207,217,222)',
         padding: "20px",
         maxWidth: '100vw',
-        width: 450
+        width: 500
     }
     }>
         <Widget validator={validator.replace(/\s/g, "")} />
