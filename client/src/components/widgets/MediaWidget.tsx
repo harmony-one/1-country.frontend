@@ -24,7 +24,7 @@ interface Props {
 
 export const MediaWidget: React.FC<Props> = ({ value, uuid, isOwner, isPinned, onDelete, onPin }) => {
   const [widget, setWidget] = useState<any>()
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setLoading] = useState(true)
   const [stakingValidator, setStakingValidator] = useState<string>('')
 
   const { ref, inView } = useInView({
@@ -42,9 +42,9 @@ export const MediaWidget: React.FC<Props> = ({ value, uuid, isOwner, isPinned, o
       if (result) {
         setWidget(result)
       }
-      setLoading(false)
     } catch (ex) {
       console.log('### embedly ex', ex)
+    } finally {
       setLoading(false)
     }
   }
@@ -64,23 +64,22 @@ export const MediaWidget: React.FC<Props> = ({ value, uuid, isOwner, isPinned, o
         'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'
       )
     }
-    setLoading(false)
   }, [value])
 
   return (
     <Box>
-      {isPinned &&
+      {isPinned && !isLoading &&
         <Box direction={'row'} gap={'8px'} style={{ textAlign: 'left' }}>
           <Pin />
           <Text size={'small'}>Pinned {widget && widget.url && widget.url.includes('twitter') ? 'Tweet' : 'Link'}</Text>
         </Box>
       }
-      <WidgetsContainer isWidgetLoading={loading} ref={ref}>
+      <WidgetsContainer isWidgetLoading={isLoading} ref={ref}>
         <Box pad={{ bottom: '2em' }}>
           {
             stakingValidator && (<StakingWidget validator={stakingValidator} />)
           }
-          {!stakingValidator && widget && (!loading || inView) && (
+          {!stakingValidator && widget && (!isLoading || inView) && (
             <blockquote className="embedly-card" style={{ zIndex: '10' }}>
               <h4>
                 <a href={widget.url}>{widget.title}</a>
