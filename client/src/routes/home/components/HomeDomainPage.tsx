@@ -18,6 +18,7 @@ import {
 } from '../../../components/process-status/ProcessStatus'
 import EmojiSection from '../../../components/emoji-section/EmojiSection'
 import { BgColorSelector } from './BgColorSelector'
+import { VanityURL } from '../VanityURL'
 
 interface Props {}
 
@@ -54,10 +55,10 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
 
   return (
     <Container>
-      {/*<VanityURL*/}
-      {/*  record={domainStore.domainRecord}*/}
-      {/*  name={domainStore.domainName}*/}
-      {/*/>*/}
+      <VanityURL
+        record={domainStore.domainRecord}
+        name={domainStore.domainName}
+      />
       <div style={{ height: '2em' }} />
       <DomainNameContainer>
         <DomainName
@@ -67,9 +68,9 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
         >
           {domainStore.domainName}.country
         </DomainName>
-        {(domainStore.domainRecord && domainStore.domainRecord.renter && !domainStore.isExpired) && (
-          <EmojiSection />
-        )}
+        {domainStore.domainRecord &&
+          domainStore.domainRecord.renter &&
+          !domainStore.isExpired && <EmojiSection />}
       </DomainNameContainer>
 
       {domainStore.domainRecord && domainStore.domainRecord.renter && (

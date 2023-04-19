@@ -38,7 +38,7 @@ interface Props {
 }
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
-  const { domainStore, walletStore, utilsStore } = useStores()
+  const { domainStore, walletStore, utilsStore, rootStore } = useStores()
   const [checkIsActivated, setCheckIsActivated] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
@@ -202,6 +202,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
   }
 
+  const isVanityUrl = (value: string) => {
+    return true
+  }
+
   const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== 'Enter') {
       return
@@ -213,6 +217,52 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       window.open(`mailto:1country@harmony.one`, '_self')
       return
     }
+
+    // if (isVanityUrl(value)) {
+    //   console.log('here i am')
+    //   const aliasName = 'medium' //linkedin
+    //   const url = 'https://medium.com/syncedreview/microsofts-parameter-efficient-z-code-language-model-beats-the-200x-larger-gpt3-175b-on-5c05f3dbf1a6'
+    //   const exist = await rootStore.vanityUrlClient.existURL({
+    //     name: domainName,
+    //     aliasName: aliasName,
+    //   })
+    //   const fco = await rootStore.vanityUrlClient.getUrl({
+    //     name: domainName,
+    //     aliasName: aliasName,
+    //   })
+    //   console.log('url', fco)
+    //   console.log(aliasName, domainName, exist)
+    //   const exist2 = await rootStore.vanityUrlClient.existURL({
+    //     name: domainName,
+    //     aliasName: 'linkedin',
+    //   })
+    //   console.log('linkedin', domainName, exist2)
+    //   // const vanity = await rootStore.vanityUrlClient.addNewURL({
+    //   //   name: domainName,
+    //   //   aliasName: aliasName,
+    //   //   url: url,
+    //   //   price: '1',
+    //   //   onTransactionHash: () => {
+    //   //     setProcessStatus({
+    //   //       type: ProcessStatusTypes.PROGRESS,
+    //   //       render: <BaseText>Waiting for transaction confirmation</BaseText>,
+    //   //     })
+    //   //   },
+    //   //   onSuccess: ({ transactionHash }) => {
+    //   //     console.log('success', transactionHash)
+    //   //     setProcessStatus({
+    //   //       type: ProcessStatusTypes.PROGRESS,
+    //   //       render: <BaseText><a href={url}>{`${domainName}${config.tld}/${aliasName}`}</a> created</BaseText>,
+    //   //     })
+    //   //   },
+    //   //   onFailed: (ex: Error) => {
+    //   //     console.log('ERRROR', ex)
+    //   //   }
+    //   // })
+    //   // console.log('FCOOOOOO', vanity)
+    //   return
+    // }
+
     addPost(value)
   }
 

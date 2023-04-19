@@ -132,8 +132,6 @@ const apis = ({
     methodName,
     parameters,
   }: SendProps): Promise<SendResult> => {
-    console.log('send', { methodName, parameters, amount, address })
-
     try {
       const txResponse = (await contract[methodName](...parameters, {
         value: amount,
