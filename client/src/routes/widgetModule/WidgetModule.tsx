@@ -18,16 +18,15 @@ import {
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
-import {
-  isEmail,
-  isRedditUrl,
-  isStakingWidgetUrl,
-} from '../../utils/validation'
+import { isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
 import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
 import { sleep } from '../../utils/sleep'
 import config from '../../../config'
+import commandValidator, {
+  CommandValidatorEnum,
+} from '../../utils/commandValidator'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -202,8 +201,47 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
   }
 
-  const isVanityUrl = (value: string) => {
-    return true
+  const vanityHandler = async (vanity: any) => {
+    console.log('here i am')
+    setLoading(true)
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>{`Creating ${vanity.aliasName} url`}</BaseText>,
+    })
+    const result = await rootStore.vanityUrlClient.addNewURL({
+      name: domainName,
+      aliasName: vanity.aliasName,
+      url: vanity.url,
+      price: config.vanityUrl.price + '',
+      onTransactionHash: () => {
+        setProcessStatus({
+          type: ProcessStatusTypes.PROGRESS,
+          render: <BaseText>Waiting for transaction confirmation</BaseText>,
+        })
+      },
+      onSuccess: ({ transactionHash }) => {
+        console.log('success', transactionHash)
+        setProcessStatus({
+          type: ProcessStatusTypes.SUCCESS,
+          render: (
+            <BaseText>
+              <a
+                href={vanity.url}
+              >{`${domainName}${config.tld}/${vanity.aliasName}`}</a>{' '}
+              created
+            </BaseText>
+          ),
+        })
+      },
+      onFailed: (ex: Error) => {
+        console.log('ERRROR', ex)
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>Error creating Vanity URL</BaseText>,
+        })
+      },
+    })
+    setLoading(false)
   }
 
   const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -213,57 +251,28 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     event.preventDefault()
     const value = (event.target as HTMLInputElement).value || ''
 
-    if (isEmail(value)) {
-      window.open(`mailto:1country@harmony.one`, '_self')
-      return
+    const command = commandValidator(value)
+
+    switch (command.type) {
+      case CommandValidatorEnum.VANITY:
+        console.log(CommandValidatorEnum.VANITY)
+        vanityHandler(command)
+        break
+      case CommandValidatorEnum.EMAIL_ALIAS:
+        console.log(CommandValidatorEnum.EMAIL_ALIAS, command)
+        // works with value => email and value => aliasName=email
+        window.open(`mailto:1country@harmony.one`, '_self')
+        break
+      case CommandValidatorEnum.URL:
+        console.log(CommandValidatorEnum.URL)
+        addPost(value)
+        break
+      default:
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: 'Invalid input',
+        })
     }
-
-    // if (isVanityUrl(value)) {
-    //   console.log('here i am')
-    //   const aliasName = 'medium' //linkedin
-    //   const url = 'https://medium.com/syncedreview/microsofts-parameter-efficient-z-code-language-model-beats-the-200x-larger-gpt3-175b-on-5c05f3dbf1a6'
-    //   const exist = await rootStore.vanityUrlClient.existURL({
-    //     name: domainName,
-    //     aliasName: aliasName,
-    //   })
-    //   const fco = await rootStore.vanityUrlClient.getUrl({
-    //     name: domainName,
-    //     aliasName: aliasName,
-    //   })
-    //   console.log('url', fco)
-    //   console.log(aliasName, domainName, exist)
-    //   const exist2 = await rootStore.vanityUrlClient.existURL({
-    //     name: domainName,
-    //     aliasName: 'linkedin',
-    //   })
-    //   console.log('linkedin', domainName, exist2)
-    //   // const vanity = await rootStore.vanityUrlClient.addNewURL({
-    //   //   name: domainName,
-    //   //   aliasName: aliasName,
-    //   //   url: url,
-    //   //   price: '1',
-    //   //   onTransactionHash: () => {
-    //   //     setProcessStatus({
-    //   //       type: ProcessStatusTypes.PROGRESS,
-    //   //       render: <BaseText>Waiting for transaction confirmation</BaseText>,
-    //   //     })
-    //   //   },
-    //   //   onSuccess: ({ transactionHash }) => {
-    //   //     console.log('success', transactionHash)
-    //   //     setProcessStatus({
-    //   //       type: ProcessStatusTypes.PROGRESS,
-    //   //       render: <BaseText><a href={url}>{`${domainName}${config.tld}/${aliasName}`}</a> created</BaseText>,
-    //   //     })
-    //   //   },
-    //   //   onFailed: (ex: Error) => {
-    //   //     console.log('ERRROR', ex)
-    //   //   }
-    //   // })
-    //   // console.log('FCOOOOOO', vanity)
-    //   return
-    // }
-
-    addPost(value)
   }
 
   const onChange = (value: string) => {

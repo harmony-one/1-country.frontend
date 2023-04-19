@@ -16,9 +16,6 @@ const config = {
   nameWrapperContract:
     process.env.NAME_WRAPPER_CONTRACT ||
     '0x4cd2563118e57b19179d8dc033f2b0c5b5d69ff5',
-  contractVanityURL:
-    process.env.VANITY_URL_CONTRACT ||
-    '0xc8288E9cC4159B83f6510b7F3103e25f2cc4CA30', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
   explorer: {
     explorerUrl:
       process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/',
@@ -36,6 +33,12 @@ const config = {
   walletConnect: {
     projectId:
       process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8',
+  },
+  vanityUrl: {
+    price: 0,
+    contractVanityURL:
+      process.env.VANITY_URL_CONTRACT ||
+      '0xc8288E9cC4159B83f6510b7F3103e25f2cc4CA30', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
   },
   domain: {
     tiers: {

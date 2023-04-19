@@ -28,7 +28,7 @@ const vanityApis = ({
   }
 
   const contractReadOnly = new Contract(
-    config.contractVanityURL,
+    config.vanityUrl.contractVanityURL,
     VanityURLAbi,
     defaultProvider
   )
