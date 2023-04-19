@@ -3,6 +3,9 @@ const regexPatterns = {
   VANITY: /^(\w+)=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // alias=url
   EMAIL: /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // email
   EMAIL_ALIAS: /^(\w+)=([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // alias=email
+  STAKING: /^one1[a-zA-HJ-NP-Z0-9]{38}$/, // oneAddress
+  // STAKING_COMMAND_OLD: /^staking: ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress
+  STAKING_COMMAND: /^staking=(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress
 }
 
 export enum CommandValidatorEnum {
