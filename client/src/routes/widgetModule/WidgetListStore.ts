@@ -4,7 +4,7 @@ import { RootStore } from '../../stores/RootStore'
 import { rootStore } from '../../stores'
 import { CallbackProps } from '../../api'
 import isUrl from 'is-url'
-import { mainApi } from '../../api/mainApi'
+import {Link, mainApi} from '../../api/mainApi'
 import {
   ProcessStatusItem,
   ProcessStatusTypes,
@@ -14,6 +14,8 @@ export interface Widget {
   id?: number
   type: string
   value: string
+  uuid?: string
+  isPinned?: boolean
 }
 
 const parseRawUrl = (url: string): Widget => {
@@ -37,11 +39,20 @@ const buildUrlFromWidget = (widget: Widget) => {
   return widget.type + ':' + widget.value
 }
 
-const mapUrlToWidget = (url: string, index: number): Widget => {
+const mapUrlToWidget = (url: string, index: number, dbLink?: Link): Widget => {
   return {
     id: index,
     ...parseRawUrl(url),
+    uuid: dbLink ? dbLink.id: null,
+    isPinned: dbLink ? dbLink.isPinned : false,
   }
+}
+
+const sortWidgets = (a: Widget, b: Widget) => {
+  if(b.isPinned || a.isPinned) {
+    return +b.isPinned - +a.isPinned
+  }
+  return b.id - a.id
 }
 
 class WidgetListStore extends BaseStore {
@@ -103,6 +114,9 @@ class WidgetListStore extends BaseStore {
         onTransactionHash,
       })
 
+      const linkId = this.widgetList.length.toString()
+      await mainApi.addLink(domainName, linkId, widget.value)
+
       await this.loadWidgetList(domainName)
       return result
     } catch (ex) {
@@ -124,8 +138,31 @@ class WidgetListStore extends BaseStore {
     return this.stores.loadersStore.getLoader(id)
   }
 
-  async deleteWidget(props: { widgetId: number; domainName: string }) {
-    const { widgetId, domainName } = props
+  async pinWidget (widgetId: string, isPinned: boolean) {
+    try {
+      await mainApi.pinLink(widgetId, isPinned)
+      runInAction(() => {
+        this.widgetList = this.widgetList.map(widget => {
+          if(widget.uuid !== widgetId) {
+            return {
+              ...widget,
+              isPinned: false // Only one widget can be pinned
+            }
+          }
+          return {
+            ...widget,
+            isPinned
+          }
+        }).sort(sortWidgets)
+      })
+    } catch (e) {
+      console.error('Cannot pin widget', e.message)
+    }
+  }
+
+  async deleteWidget(props: { widgetId: number; widgetUuid?: string, domainName: string }) {
+    const { widgetId, widgetUuid, domainName } = props
+    console.log('delete widget', props)
 
     const processStatus = this.getWidgetLoader(widgetId)
     if (processStatus.type !== ProcessStatusTypes.IDLE) {
@@ -155,6 +192,10 @@ class WidgetListStore extends BaseStore {
           render: result.error.message,
         })
         throw result.error
+      }
+
+      if(widgetUuid) {
+        await mainApi.deleteLink(widgetUuid)
       }
 
       this.setWidgetLoader(widgetId, {
@@ -214,8 +255,20 @@ class WidgetListStore extends BaseStore {
     const client = this.getTweetClient()
     const urlList = await client.getRecordUrlList({ name: domainName })
 
+    let dbLinks: Link[] = []
+    try {
+      const { data } = await mainApi.getLinks(domainName)
+      dbLinks = data.data
+    } catch (e) {
+      console.error('Cannot load database links', e.message)
+    }
+
     runInAction(() => {
-      this.widgetList = urlList.map(mapUrlToWidget).reverse()
+      this.widgetList = urlList.map((url: string, index: number) => {
+        const dbLink = dbLinks.find((dbLink) => dbLink.linkId === index.toString())
+        return mapUrlToWidget(url, index, dbLink)
+      })
+        .sort(sortWidgets)
     })
   }
 

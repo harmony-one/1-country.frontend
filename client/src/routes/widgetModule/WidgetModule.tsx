@@ -183,10 +183,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         })
         return
       }
+
       setProcessStatus({
         type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Url successfully added</BaseText>,
       })
+
       resetProcessStatus()
       resetInput()
       if (fromUrl) {
@@ -223,8 +225,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
   }
 
-  const deleteWidget = async (widgetId: number) => {
-    widgetListStore.deleteWidget({ widgetId, domainName })
+  const deleteWidget = (widget: Widget) => {
+    return widgetListStore.deleteWidget({ widgetId: widget.id, widgetUuid: widget.uuid, domainName })
+  }
+
+  const pinWidget = (widget: Widget, isPinned: boolean) => {
+    return widgetListStore.pinWidget(widget.uuid, isPinned)
   }
 
   const showInput = walletStore.isConnected && domainStore.isOwner
@@ -264,13 +270,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {widgetListStore.widgetList.map((widget, index) => (
         <WidgetStatusWrapper
-          key={widget.id + widget.value}
+          key={widget.id + widget.value + (+widget.isPinned)}
           loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
         >
           <MediaWidget
             value={widget.value}
+            uuid={widget.uuid}
+            isPinned={widget.isPinned}
             isOwner={domainStore.isOwner}
-            onDelete={() => deleteWidget(widget.id)}
+            onDelete={() => deleteWidget(widget)}
+            onPin={(isPinned: boolean) => pinWidget(widget, isPinned)}
           />
         </WidgetStatusWrapper>
       ))}

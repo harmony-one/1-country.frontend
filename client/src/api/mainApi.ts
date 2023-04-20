@@ -13,6 +13,17 @@ export interface Domain {
   owner: string
 }
 
+export interface Link {
+  id: string
+  domainId: string
+  linkId: string
+  url: string
+  isPinned: boolean
+  rank: number
+  createdAt: Date
+  updatedAt: Date
+}
+
 export const mainApi = {
   createDomain: ({
     domain,
@@ -71,6 +82,23 @@ export const mainApi = {
 
     return response.data.data
   },
+
+  addLink: (domainName: string, linkId: string, url: string) => {
+    return base.post<{ data: Link }>(`/links/`, {
+      domainName,
+      linkId,
+      url
+    })
+  },
+
+  pinLink: (id: string, isPinned: boolean) => base.post<{ data: Link }>(`/links/pin`, {
+    id,
+    isPinned
+  }),
+
+  getLinks: (domainName: string) => base.get<{ data: Link[] }>(`/links?domain=${domainName}`),
+
+  deleteLink: (id: string) => base.delete<{ data: string }>(`/links/${id}`),
 
   auth: async ({
     signature,

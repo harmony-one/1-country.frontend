@@ -2,9 +2,12 @@ import React, { lazy, useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import isUrl from 'is-url'
 
-import { DeleteWidgetButton, WidgetsContainer } from './Widgets.styles'
+import {WidgetControls, WidgetsContainer} from './Widgets.styles'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
 import { CloseCircle } from '../icons/CloseCircle'
+import {Box} from "grommet/components/Box";
+import {Text} from "grommet/components/Text";
+import {Pin} from "../icons/Pin";
 
 const StakingWidget = lazy(
   () => import(/* webpackChunkName: "StakingWidget" */ './StakingWidget')
@@ -12,13 +15,16 @@ const StakingWidget = lazy(
 
 interface Props {
   value: string
+  uuid: string
+  isPinned: boolean
   isOwner?: boolean
+  onPin: (isPinned: boolean) => void
   onDelete: () => void
 }
 
-export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
+export const MediaWidget: React.FC<Props> = ({ value, uuid, isOwner, isPinned, onDelete, onPin }) => {
   const [widget, setWidget] = useState<any>()
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setLoading] = useState(true)
   const [stakingValidator, setStakingValidator] = useState<string>('')
 
   const { ref, inView } = useInView({
@@ -36,9 +42,9 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
       if (result) {
         setWidget(result)
       }
-      setLoading(false)
     } catch (ex) {
       console.log('### embedly ex', ex)
+    } finally {
       setLoading(false)
     }
   }
@@ -58,29 +64,43 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
         'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'
       )
     }
-    setLoading(false)
   }, [value])
 
   return (
-    <WidgetsContainer isWidgetLoading={loading} ref={ref}>
-      <div style={{ paddingBottom: '2em' }}>
-        {
-          stakingValidator && (<StakingWidget validator={stakingValidator} />)
-        }
-        {!stakingValidator && widget && (!loading || inView) && (
-          <blockquote className="embedly-card" style={{ zIndex: '10' }}>
-            <h4>
-              <a href={widget.url}>{widget.title}</a>
-            </h4>
-            <p>{widget.description}</p>
-          </blockquote>
+    <Box>
+      {isPinned && !isLoading &&
+        <Box direction={'row'} gap={'8px'} style={{ textAlign: 'left' }}>
+          <Pin />
+          <Text size={'small'}>Pinned {widget && widget.url && widget.url.includes('twitter') ? 'Tweet' : 'Link'}</Text>
+        </Box>
+      }
+      <WidgetsContainer isWidgetLoading={isLoading} ref={ref}>
+        <Box pad={{ bottom: '2em' }}>
+          {
+            stakingValidator && (<StakingWidget validator={stakingValidator} />)
+          }
+          {!stakingValidator && widget && (!isLoading || inView) && (
+            <blockquote className="embedly-card" style={{ zIndex: '10' }}>
+              <h4>
+                <a href={widget.url}>{widget.title}</a>
+              </h4>
+              <p>{widget.description}</p>
+            </blockquote>
+          )}
+        </Box>
+        {isOwner && (
+          <WidgetControls direction={'row'} gap={'16px'} align={'center'}>
+            {uuid &&
+              <Box onClick={() => onPin(!isPinned)}>
+                <Text>{isPinned ? 'Unpin' : `Pin ${widget && widget.url.includes('twitter') ? 'Tweet' : 'Link'}`}</Text>
+              </Box>
+            }
+            <Box onClick={onDelete} style={{ opacity: '0.5' }}>
+              <CloseCircle />
+            </Box>
+          </WidgetControls>
         )}
-      </div>
-      {isOwner && (
-        <DeleteWidgetButton onClick={onDelete}>
-          <CloseCircle />
-        </DeleteWidgetButton>
-      )}
-    </WidgetsContainer>
+      </WidgetsContainer>
+    </Box>
   )
 }
