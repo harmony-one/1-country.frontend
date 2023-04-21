@@ -25,6 +25,7 @@ import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrappe
 import { sleep } from '../../utils/sleep'
 import config from '../../../config'
 import commandValidator, {
+  CommandValidator,
   CommandValidatorEnum,
 } from '../../utils/commandValidator'
 
@@ -45,21 +46,22 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   })
 
   useEffect(() => {
-    const addingPost = async () => {
-      await addPost(utilsStore.post, true)
+    const handlingCommand = async () => {
+      await commandHandler(utilsStore.command, true)
     }
     const connectWallet = async () => {
       await walletStore.connect()
     }
     try {
-      if (utilsStore.post) {
+      console.log('utilsStore.command', utilsStore.command)
+      if (utilsStore.command) {
         if (!walletStore.isConnected) {
           connectWallet()
         }
-        domainStore.isOwner && addingPost()
+        domainStore.isOwner && handlingCommand()
       }
     } catch (e) {
-      console.log('Adding post from URL', { error: e })
+      console.log('Handling command from URL', { error: e })
       return
     }
   }, [walletStore.isConnected])
@@ -188,10 +190,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       })
       resetProcessStatus()
       resetInput()
-      if (fromUrl) {
-        history.pushState(null, '', `\\`) // deleting url param from browser
-        utilsStore.post = undefined
-      }
     } catch (ex) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
@@ -201,14 +199,23 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
   }
 
-  const vanityHandler = async (vanity: any) => {
-    console.log('here i am')
+  const vanityHandler = async (vanity: CommandValidator) => {
+    const urlExists = await rootStore.vanityUrlClient.existURL({
+      name: domainName,
+      aliasName: vanity.aliasName,
+    })
+    const method = urlExists ? 'updateURL' : 'addNewURL'
+    console.log('CHECKING', vanity.aliasName, urlExists)
     setLoading(true)
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>{`Creating ${vanity.aliasName} url`}</BaseText>,
+      render: (
+        <BaseText>{`${urlExists ? 'Updating' : 'Creating'} ${
+          vanity.aliasName
+        } url`}</BaseText>
+      ),
     })
-    const result = await rootStore.vanityUrlClient.addNewURL({
+    const result = await rootStore.vanityUrlClient[method]({
       name: domainName,
       aliasName: vanity.aliasName,
       url: vanity.url,
@@ -227,8 +234,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             <BaseText>
               <a
                 href={vanity.url}
-              >{`${domainName}${config.tld}/${vanity.aliasName}`}</a>{' '}
-              created
+              >{`${domainName}${config.tld}/${vanity.aliasName}`}</a>
+              {` ${urlExists ? 'updated' : 'created'}`}
             </BaseText>
           ),
         })
@@ -237,21 +244,19 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         console.log('ERRROR', ex)
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
-          render: <BaseText>Error creating Vanity URL</BaseText>,
+          render: (
+            <BaseText>
+              Error ${urlExists ? 'updating' : 'creating'} Vanity URL
+            </BaseText>
+          ),
         })
       },
     })
     setLoading(false)
   }
 
-  const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Enter') {
-      return
-    }
-    event.preventDefault()
-    const value = (event.target as HTMLInputElement).value || ''
-
-    const command = commandValidator(value)
+  const commandHandler = (text: string, fromUrl = false) => {
+    const command = commandValidator(text)
 
     switch (command.type) {
       case CommandValidatorEnum.VANITY:
@@ -265,7 +270,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         break
       case CommandValidatorEnum.URL:
         console.log(CommandValidatorEnum.URL)
-        addPost(value)
+        addPost(text, fromUrl)
         break
       default:
         setProcessStatus({
@@ -273,6 +278,20 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           render: 'Invalid input',
         })
     }
+    if (fromUrl) {
+      sleep(3000)
+      history.pushState(null, '', `\\`)
+      utilsStore.command = undefined
+    }
+  }
+
+  const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') {
+      return
+    }
+    event.preventDefault()
+    const value = (event.target as HTMLInputElement).value || ''
+    commandHandler(value)
   }
 
   const onChange = (value: string) => {

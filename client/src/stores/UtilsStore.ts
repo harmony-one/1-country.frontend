@@ -6,13 +6,13 @@ import { nameUtils } from '../api/utils'
 import { makeObservable, observable } from 'mobx'
 
 export class UtilsStore extends BaseStore {
-  post: string
+  command: string
 
   constructor(rootStore: RootStore) {
     super(rootStore)
 
     makeObservable(this, {
-      post: observable,
+      command: observable,
     })
   }
 
