@@ -15,6 +15,10 @@ interface AddNewUrlProps extends CallbackProps {
   url: string
   price: string
 }
+interface DeleteUrlProps extends CallbackProps {
+  name: string
+  aliasName: string
+}
 
 const vanityApis = ({
   provider,
@@ -84,6 +88,23 @@ const vanityApis = ({
         onTransactionHash,
       })
     },
+    updateURL: async ({
+      name,
+      aliasName,
+      url,
+      price,
+      onFailed,
+      onSuccess,
+      onTransactionHash,
+    }: AddNewUrlProps) => {
+      return send({
+        parameters: [name, aliasName, url, ethers.utils.parseEther(price)],
+        methodName: 'updateURL',
+        onFailed,
+        onSuccess,
+        onTransactionHash,
+      })
+    },
     existURL: async ({
       name,
       aliasName,
@@ -105,6 +126,21 @@ const vanityApis = ({
         aliasName
       )
       return vanityURL[0]
+    },
+    deleteUrl: async ({
+      name,
+      aliasName,
+      onFailed,
+      onSuccess,
+      onTransactionHash,
+    }: DeleteUrlProps) => {
+      return send({
+        parameters: [name, aliasName],
+        methodName: 'deleteURL',
+        onFailed,
+        onSuccess,
+        onTransactionHash,
+      })
     },
   }
 }
