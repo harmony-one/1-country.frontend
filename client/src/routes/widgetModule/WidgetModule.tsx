@@ -182,19 +182,21 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           type: ProcessStatusTypes.ERROR,
           render: <BaseText>{result.error.message}</BaseText>,
         })
+        resetProcessStatus(5000)
         return
       }
       setProcessStatus({
         type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Url successfully added</BaseText>,
       })
-      resetProcessStatus()
+      resetProcessStatus(5000)
       resetInput()
     } catch (ex) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
         render: <BaseText>{ex.message}</BaseText>,
       })
+      resetProcessStatus(4000)
       setLoading(false)
     }
   }
@@ -205,14 +207,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       aliasName: vanity.aliasName,
     })
     const method = urlExists ? 'updateURL' : 'addNewURL'
-    console.log('CHECKING', vanity.aliasName, urlExists)
     setLoading(true)
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
       render: (
-        <BaseText>{`${urlExists ? 'Updating' : 'Creating'} ${
-          vanity.aliasName
-        } url`}</BaseText>
+        <BaseText>{`${
+          urlExists ? 'Updating' : 'Creating'
+        } ${`${domainName}${config.tld}/${vanity.aliasName}`} url`}</BaseText>
       ),
     })
     const result = await rootStore.vanityUrlClient[method]({
@@ -246,12 +247,14 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           type: ProcessStatusTypes.ERROR,
           render: (
             <BaseText>
-              Error ${urlExists ? 'updating' : 'creating'} Vanity URL
+              Error {urlExists ? 'updating' : 'creating'} Vanity URL
             </BaseText>
           ),
         })
       },
     })
+    resetProcessStatus(5000)
+    resetInput()
     setLoading(false)
   }
 
@@ -324,7 +327,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             onSearch={onChange}
             onKeyDown={enterHandler}
           />
-
           {checkIsActivated && !widgetListStore.isActivated && (
             <Box pad={{ top: '0.5em' }}>
               <SmallText>
