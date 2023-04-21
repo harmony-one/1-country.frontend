@@ -4,8 +4,8 @@ const regexPatterns = {
   EMAIL: /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // email
   EMAIL_ALIAS: /^(\w+)=([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // alias=email
   STAKING: /^one1[a-zA-HJ-NP-Z0-9]{38}$/, // oneAddress
-  RENEW: /^renew$/i,
   STAKING_COMMAND: /^staking[:=]? ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress or staking=oneAddress
+  RENEW: /^renew$/i, // renew
 }
 
 export enum CommandValidatorEnum {
