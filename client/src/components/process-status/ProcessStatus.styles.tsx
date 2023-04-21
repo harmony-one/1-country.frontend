@@ -6,6 +6,7 @@ export const ProcessStatusContainer = styled.div<{ colorType?: any }>`
   display: flex;
   width: 100%;
   word-break: break-all;
+  white-space: pre-line;
   max-width: 550px;
   flex-direction: column;
   align-items: center;

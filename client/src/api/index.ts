@@ -68,7 +68,7 @@ interface RentProps extends CallbackProps {
 
 interface RenewDomainProps extends CallbackProps {
   name: string
-  url: string
+  url?: string
   amount: string
 }
 

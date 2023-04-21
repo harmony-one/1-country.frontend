@@ -4,7 +4,7 @@ const regexPatterns = {
   EMAIL: /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // email
   EMAIL_ALIAS: /^(\w+)=([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // alias=email
   STAKING: /^one1[a-zA-HJ-NP-Z0-9]{38}$/, // oneAddress
-  // STAKING_COMMAND_OLD: /^staking: ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress
+  RENEW: /^renew$/i,
   STAKING_COMMAND: /^staking[:=]? ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress or staking=oneAddress
 }
 
@@ -14,6 +14,7 @@ export enum CommandValidatorEnum {
   VANITY = 'VANITY',
   EMAIL_ALIAS = 'EMAIL_ALIAS', // Includes EMAIL case.
   STAKING = 'STAKING',
+  RENEW = 'RENEW',
 }
 
 export interface CommandValidator {
@@ -21,6 +22,7 @@ export interface CommandValidator {
   aliasName?: string
   url?: string
   email?: string
+  command?: string
 }
 
 const commandValidator = (text: string): CommandValidator => {
@@ -71,6 +73,13 @@ const commandValidator = (text: string): CommandValidator => {
     return {
       type: CommandValidatorEnum.STAKING,
       url: `staking:${match[1]}`,
+    }
+  }
+
+  if (regexPatterns.RENEW.test(text)) {
+    return {
+      type: CommandValidatorEnum.RENEW,
+      command: text,
     }
   }
 

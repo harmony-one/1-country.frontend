@@ -27,8 +27,8 @@ import config from '../../../config'
 import commandValidator, {
   CommandValidator,
   CommandValidatorEnum,
-} from '../../utils/commandValidator'
-
+} from '../../utils/command-handler/commandValidator'
+import { renewCommand } from '../../utils/command-handler/DcCommandHandler'
 const defaultFormFields = {
   widgetValue: '',
 }
@@ -258,6 +258,22 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     setLoading(false)
   }
 
+  const renewCommandHandler = async () => {
+    setLoading(true)
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
+    })
+    if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
+      await walletStore.connect()
+    }
+    const amount = domainStore.domainPrice.amount
+    await renewCommand(domainName, amount, rootStore, setProcessStatus)
+    resetProcessStatus(5000)
+    resetInput()
+    setLoading(false)
+  }
+
   const commandHandler = (text: string, fromUrl = false) => {
     const command = commandValidator(text)
 
@@ -278,6 +294,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       case CommandValidatorEnum.STAKING:
         console.log(CommandValidatorEnum.STAKING)
         addPost(command.url, fromUrl)
+        break
+      case CommandValidatorEnum.RENEW:
+        console.log(CommandValidatorEnum.RENEW)
+        renewCommandHandler()
         break
       default:
         setProcessStatus({
