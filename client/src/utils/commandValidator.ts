@@ -13,6 +13,7 @@ export enum CommandValidatorEnum {
   URL = 'URL',
   VANITY = 'VANITY',
   EMAIL_ALIAS = 'EMAIL_ALIAS', // Includes EMAIL case.
+  STAKING = 'STAKING',
 }
 
 export interface CommandValidator {
@@ -23,6 +24,7 @@ export interface CommandValidator {
 }
 
 const commandValidator = (text: string): CommandValidator => {
+  console.log('commandValidator', text)
   if (regexPatterns.URL.test(text)) {
     return {
       type: CommandValidatorEnum.URL,
@@ -53,6 +55,21 @@ const commandValidator = (text: string): CommandValidator => {
       type: CommandValidatorEnum.EMAIL_ALIAS,
       aliasName: match[1],
       email: match[2],
+    }
+  }
+
+  if (regexPatterns.STAKING.test(text)) {
+    return {
+      type: CommandValidatorEnum.STAKING,
+      url: `staking:${text}`,
+    }
+  }
+
+  if (regexPatterns.STAKING_COMMAND.test(text)) {
+    const match = text.match(regexPatterns.STAKING_COMMAND)
+    return {
+      type: CommandValidatorEnum.STAKING,
+      url: match[2],
     }
   }
 

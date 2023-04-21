@@ -272,6 +272,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         console.log(CommandValidatorEnum.URL)
         addPost(text, fromUrl)
         break
+      case CommandValidatorEnum.STAKING:
+        console.log(CommandValidatorEnum.STAKING)
+        addPost(command.url, fromUrl)
+        break
       default:
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
