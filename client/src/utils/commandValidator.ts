@@ -67,9 +67,10 @@ const commandValidator = (text: string): CommandValidator => {
 
   if (regexPatterns.STAKING_COMMAND.test(text)) {
     const match = text.match(regexPatterns.STAKING_COMMAND)
+    console.log(match)
     return {
       type: CommandValidatorEnum.STAKING,
-      url: match[2],
+      url: `staking:${match[1]}`,
     }
   }
 
