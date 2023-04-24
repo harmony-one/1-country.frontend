@@ -44,9 +44,9 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
     })
   }, [domainStore.domainName])
 
-  const handleClickDomain = () => {
-    window.open(`mailto:1country@harmony.one`, '_self')
-  }
+  // const handleClickDomain = () => {
+  //   window.open(`mailto:1country@harmony.one`, '_self')
+  // }
 
   const showRenewalBlock =
     walletStore.isConnected &&
@@ -63,10 +63,12 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
       <DomainNameContainer>
         <DomainName
           level={level}
-          onClick={handleClickDomain}
+          // onClick={handleClickDomain}
           style={{ cursor: widgetListStore.txDomain && 'pointer' }}
         >
-          {domainStore.domainName}.country
+          <a href="mailto:1country@harmony.one">
+            {domainStore.domainName}.country
+          </a>
         </DomainName>
         {domainStore.domainRecord &&
           domainStore.domainRecord.renter &&
