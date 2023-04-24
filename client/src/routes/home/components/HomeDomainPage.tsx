@@ -11,7 +11,7 @@ import { DomainLevel, getDomainLevel } from '../../../api/utils'
 import { getDomainName } from '../../../utils/getDomainName'
 
 import { DomainName } from '../../../components/Text'
-import { Container, DomainNameContainer, TipContainer } from '../Home.styles'
+import { Container, DomainNameContainer } from '../Home.styles'
 import {
   ProcessStatusItem,
   ProcessStatusTypes,

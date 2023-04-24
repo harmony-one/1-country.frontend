@@ -409,7 +409,10 @@ const HomeSearchPage: React.FC = observer(() => {
         render: <BaseText>{e.message}</BaseText>,
       })
       terminateProcess(1500)
-      console.log('Connect error:', e)
+      if (e.name === 'UserRejectedRequestError') {
+        open()
+      }
+      console.log('Connect error:', { e })
       return
     }
 

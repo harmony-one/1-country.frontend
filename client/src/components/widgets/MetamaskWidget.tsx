@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { WidgetsContainer } from './Widgets.styles'
 import { observer } from 'mobx-react-lite'
 import { useStores } from '../../stores'
+import { useWeb3Modal } from '@web3modal/react'
 
 const Container = styled(WidgetsContainer)`
   border: none;
@@ -19,8 +20,16 @@ interface Props {}
 
 export const MetamaskWidget: React.FC<Props> = observer(() => {
   const { walletStore } = useStores()
-  const handleClick = () => {
-    walletStore.connect()
+  const { open } = useWeb3Modal()
+
+  const handleClick = async () => {
+    try {
+      await walletStore.connect()
+    } catch (e) {
+      if (e.name === 'UserRejectedRequestError') {
+        open()
+      }
+    }
   }
   return (
     <Container onClick={handleClick}>

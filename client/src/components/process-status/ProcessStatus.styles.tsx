@@ -4,6 +4,7 @@ import { ProcessStatusTypes } from './ProcessStatus'
 
 export const ProcessStatusContainer = styled.div<{ colorType?: any }>`
   display: flex;
+  margin: 0 auto;
   width: 100%;
   word-break: break-all;
   white-space: pre-line;

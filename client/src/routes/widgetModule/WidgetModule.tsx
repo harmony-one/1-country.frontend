@@ -29,6 +29,7 @@ import commandValidator, {
   CommandValidatorEnum,
 } from '../../utils/command-handler/commandValidator'
 import { renewCommand } from '../../utils/command-handler/DcCommandHandler'
+import { useWeb3Modal } from '@web3modal/react'
 const defaultFormFields = {
   widgetValue: '',
 }
@@ -44,13 +45,24 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     type: ProcessStatusTypes.IDLE,
     render: '',
   })
+  const { open } = useWeb3Modal()
 
   useEffect(() => {
     const handlingCommand = async () => {
       await commandHandler(utilsStore.command, true)
     }
     const connectWallet = async () => {
-      await walletStore.connect()
+      try {
+        if (walletStore.isMetamaskAvailable) {
+          await walletStore.connect()
+        } else {
+          open()
+        }
+      } catch (e) {
+        if (e.name === 'UserRejectedRequestError') {
+          open()
+        }
+      }
     }
     try {
       console.log('utilsStore.command', utilsStore.command)
@@ -268,12 +280,22 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       await walletStore.connect()
     }
     const amount = domainStore.domainPrice.amount
-    await renewCommand(domainName, amount, rootStore, setProcessStatus)
+    console.log('here fco')
+    const result = await renewCommand(
+      domainName,
+      amount,
+      rootStore,
+      setProcessStatus
+    )
+    console.log('here fco2', result)
+    await domainStore.loadDomainRecord(domainName)
+    console.log('here fco3')
     resetProcessStatus(5000)
     resetInput()
     setLoading(false)
   }
 
+  console.log('domain record', domainStore.domainRecord.expirationTime)
   const commandHandler = (text: string, fromUrl = false) => {
     const command = commandValidator(text)
 
