@@ -140,6 +140,7 @@ const OpenWidgetsPage = observer(() => {
       {widgetList.length > 0 &&
         widgetList.map((widget) => (
           <MediaWidget
+            domainName={domainStore.domainName}
             isOwner
             key={widget.id}
             value={widget.value}

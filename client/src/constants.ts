@@ -25,6 +25,11 @@ export const palette = {
 
 export const theme: ThemeType = {
   global: {
+    focus: {
+      border: {
+        color: "transparent",
+      },
+    },
     palette,
     colors: {
       brand: palette.Purple,
