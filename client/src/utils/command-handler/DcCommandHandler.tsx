@@ -30,9 +30,16 @@ export const renewCommand = async (
         })
       },
       onFailed: (ex: Error) => {
+        console.log('ERROR', ex)
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
-          render: <BaseText>{ex.message}</BaseText>,
+          render: (
+            <BaseText>
+              {ex.message.length > 50
+                ? ex.message.substring(0, 50) + '...'
+                : ex.message}
+            </BaseText>
+          ),
         })
       },
     })

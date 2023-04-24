@@ -204,10 +204,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       resetProcessStatus(5000)
       resetInput()
     } catch (ex) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{ex.message}</BaseText>,
-      })
+      ;<BaseText>
+        {ex.message.length > 50
+          ? ex.message.substring(0, 50) + '...'
+          : ex.message}
+      </BaseText>
       resetProcessStatus(4000)
       setLoading(false)
     }
@@ -280,16 +281,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       await walletStore.connect()
     }
     const amount = domainStore.domainPrice.amount
-    console.log('here fco')
     const result = await renewCommand(
       domainName,
       amount,
       rootStore,
       setProcessStatus
     )
-    console.log('here fco2', result)
     await domainStore.loadDomainRecord(domainName)
-    console.log('here fco3')
     resetProcessStatus(5000)
     resetInput()
     setLoading(false)
