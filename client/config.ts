@@ -19,6 +19,11 @@ const config = {
   contractVanityURL:
     process.env.CONTRACT_VANITY_URL ||
     '0x88a1afC4134f385337Dd5F530D452079fC9E14CC', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
+  emoji: {
+    contractEmoji:
+      process.env.CONTRACT_EMOJI ||
+      '0x79c2B0EA1065540eD46244C9eFC11A076eD7A5BF',
+  },
   explorer: {
     explorerUrl:
       process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/',
