@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { useWeb3Modal } from '@web3modal/react'
+import isValidUrl from 'is-url'
+
 import { useStores } from '../../stores'
 import {
   PageWidgetContainer,
@@ -7,7 +10,7 @@ import {
 import { observer } from 'mobx-react-lite'
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
-import isValidUrl from 'is-url'
+
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
 import {
@@ -15,12 +18,6 @@ import {
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../../components/process-status/ProcessStatus'
-import { SearchInput } from '../../components/search-input/SearchInput'
-import { MediaWidget } from '../../components/widgets/MediaWidget'
-import { loadEmbedJson } from '../../modules/embedly/embedly'
-import { isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
-import { BaseText, SmallText } from '../../components/Text'
-import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
 import { sleep } from '../../utils/sleep'
 import config from '../../../config'
@@ -29,7 +26,16 @@ import commandValidator, {
   CommandValidatorEnum,
 } from '../../utils/command-handler/commandValidator'
 import { renewCommand } from '../../utils/command-handler/DcCommandHandler'
-import { useWeb3Modal } from '@web3modal/react'
+import { relayApi } from '../../api/relayApi'
+import { daysBetween } from '../../api/utils'
+
+import { SearchInput } from '../../components/search-input/SearchInput'
+import { MediaWidget } from '../../components/widgets/MediaWidget'
+import { loadEmbedJson } from '../../modules/embedly/embedly'
+import { isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
+import { BaseText, SmallText } from '../../components/Text'
+import { Box } from 'grommet/components/Box'
+
 const defaultFormFields = {
   widgetValue: '',
 }
@@ -273,27 +279,56 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const renewCommandHandler = async () => {
     setLoading(true)
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
-    })
-    if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
-      await walletStore.connect()
+    try {
+      const nftData = await relayApi().getNFTMetadata({
+        domain: `${domainName}${config.tld}`,
+      })
+      const days = daysBetween(
+        nftData['registrationDate'],
+        domainStore.domainRecord.expirationTime
+      )
+      console.log({ nftData })
+      console.log(days)
+      if (days <= config.domain.renewalLimit) {
+        setProcessStatus({
+          type: ProcessStatusTypes.PROGRESS,
+          render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
+        })
+        if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
+          await walletStore.connect()
+        }
+        const amount = domainStore.domainPrice.amount
+        const result = await renewCommand(
+          domainName,
+          amount,
+          rootStore,
+          setProcessStatus
+        )
+
+        await domainStore.loadDomainRecord(domainName)
+
+        resetInput()
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>{`Error: Renewal Limit Reached`}</BaseText>,
+        })
+      }
+      resetProcessStatus(5000)
+      setLoading(false)
+    } catch (error) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: (
+          <BaseText>{`Error while renewing ${domainName}${config.tld}`}</BaseText>
+        ),
+      })
+      console.log(error)
+      resetProcessStatus(5000)
+      setLoading(false)
     }
-    const amount = domainStore.domainPrice.amount
-    const result = await renewCommand(
-      domainName,
-      amount,
-      rootStore,
-      setProcessStatus
-    )
-    await domainStore.loadDomainRecord(domainName)
-    resetProcessStatus(5000)
-    resetInput()
-    setLoading(false)
   }
 
-  console.log('domain record', domainStore.domainRecord.expirationTime)
   const commandHandler = (text: string, fromUrl = false) => {
     const command = commandValidator(text)
 

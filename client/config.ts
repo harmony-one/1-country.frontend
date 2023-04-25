@@ -9,7 +9,7 @@ const config = {
     process.env.REGISTRAR_RELAYER ||
     'https://1ns-registrar-relayer.hiddenstate.xyz',
   contract:
-    process.env.CONTRACT || '0xeFC73fB07660464aA03A5790D011DA0512c5854f',
+    process.env.CONTRACT || '0x547942748Cc8840FEc23daFdD01E6457379B446D',
   tweetContractAddress:
     process.env.TWEET_CONTRACT_ADDRESS ||
     '0x17cF877f9226ba382b0baDA1499576E60A547955',
@@ -42,16 +42,17 @@ const config = {
   },
   domain: {
     tiers: {
-      LEGENDARY: process.env.TIER_LEGENDARY || 1,
-      SUPER_RARE: process.env.TIER_SUPER_RARE || 6,
-      RARE: process.env.TIER_RARE || 9,
-      COMMON: process.env.TIER_COMMON || 10,
+      LEGENDARY: Number(process.env.TIER_LEGENDARY) || 1,
+      SUPER_RARE: Number(process.env.TIER_SUPER_RARE) || 6,
+      RARE: Number(process.env.TIER_RARE) || 9,
+      COMMON: Number(process.env.TIER_COMMON) || 10,
     },
-    reserved: process.env.DOMAIN_RESERVED_LENGTH || 6,
+    reserved: Number(process.env.DOMAIN_RESERVED_LENGTH) || 6,
     restrictedPhrases: process.env.RESTRICTED_PHRASES
       ? process.env.RESTRICTED_PHRASES.split(', ')
       : ['metamask', 'walletconnect'],
     expirationReminderDays: process.env.EXPIRATION_REMAINDER_DAYS || 30,
+    renewalLimit: Number(process.env.RENEWAL_LIMIT) || 90, // one time
   },
   emojiType: {
     ONE_ABOVE: 0,

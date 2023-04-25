@@ -64,12 +64,10 @@ export const TransactionWidget: React.FC<Props> = observer(({ name }) => {
   const timerRef = useRef(null)
 
   useEffect(() => {
-    console.log('useEffect', domainRecord.expirationTime)
     if (timerRef.current) {
       timerRef.current.setTime(expirationTime - Date.now())
     }
   }, [expirationTime])
-
   return (
     <Container style={{ padding: 0 }}>
       <ExplorerLogoWrapper justify={'center'}>
