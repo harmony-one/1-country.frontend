@@ -1,5 +1,5 @@
 import React from 'react'
-import { FlexColumn } from '../../../components/Layout'
+import { CurationContainer } from '../Home.styles'
 import bugSnapshot from '../../../../assets/images/snapshots/bug-snapshot.png'
 import tokkisSnapshot from '../../../../assets/images/snapshots/tokkis-snapshot.png'
 import mintbesSnapshot from '../../../../assets/images/snapshots/mintbes-snapshot.png'
@@ -34,13 +34,13 @@ const PageCuration: React.FC<PageCuration> = ({ url, icon, img }) => {
   }
 
   return (
-    <FlexColumn
+    <CurationContainer
       onClick={clickHandler}
       style={{ marginTop: '2em', cursor: 'pointer' }}
     >
       <span style={{ fontSize: '1.5rem' }}>{icon}</span>
       <img src={img} />
-    </FlexColumn>
+    </CurationContainer>
   )
 }
 
