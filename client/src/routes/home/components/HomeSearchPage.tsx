@@ -37,6 +37,7 @@ import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet/components/Text'
 import { Container } from '../Home.styles'
+import PageCuration, { PAGE_CURATION_LIST } from './PageCuration'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -680,6 +681,14 @@ const HomeSearchPage: React.FC = observer(() => {
           )}
         </SearchBoxContainer>
       </FlexRow>
+      {PAGE_CURATION_LIST.map((page, index) => (
+        <PageCuration
+          url={page.url}
+          img={page.img}
+          icon={page.icon}
+          key={index}
+        />
+      ))}
     </Container>
   )
 })
