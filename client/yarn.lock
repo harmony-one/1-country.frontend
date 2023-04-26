@@ -4385,6 +4385,11 @@ atomic-sleep@^1.0.0:
   resolved "https://registry.yarnpkg.com/atomic-sleep/-/atomic-sleep-1.0.0.tgz#eb85b77a601fc932cfe432c5acd364a9e2c9075b"
   integrity sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==
 
+audio-recorder-polyfill@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/audio-recorder-polyfill/-/audio-recorder-polyfill-0.4.1.tgz#4290eca3d8edf49eb6daba59592aacf357b6e5b7"
+  integrity sha512-SS4qVOzuVwlS/tjQdd0uR+9cCKBTkx4jsAdjM+rMNqoTEWf6bMnBSTfv+FO4Zn9ngxviJOxhkgRWWXsAMqM96Q==
+
 available-typed-arrays@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/available-typed-arrays/-/available-typed-arrays-1.0.5.tgz#92f95616501069d07d10edb2fc37d3e1c65123b7"
@@ -13101,6 +13106,11 @@ webidl-conversions@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-3.0.1.tgz#24534275e2a7bc6be7bc86611cc16ae0a5654871"
   integrity sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==
+
+webm-to-wav-converter@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/webm-to-wav-converter/-/webm-to-wav-converter-1.1.0.tgz#01479ce3d2e0ded25d8fb34b656fe0429cc98a3b"
+  integrity sha512-fOtPan5a46N3Lss8mPJ8KGgJ0id+Sa7k8Glj6g7Rlt6SBWsLGjgZ3FIO0P1Y+r/GDe5Z/+fgaDGedS6ORPyksQ==
 
 webpack-bundle-analyzer@^3.6.1:
   version "3.9.0"

@@ -30,6 +30,7 @@ export class Web2AuthStore extends BaseStore {
   }
 
   async restoreAuth() {
+    // #5 Check and restore auth
     const jwt = cookie.get(COOKIES.JWT) || null
 
     if (!jwt) {
@@ -57,16 +58,20 @@ export class Web2AuthStore extends BaseStore {
 
     const address = this.stores.walletStore.walletAddress
 
+    // #1 Request message
     const { message } = await mainApi.requestNonce({ address })
 
+    // #2 Sign message
     const signature = await this.getDCClient().web3.eth.personal.sign(
       message,
       address,
       ''
     )
 
+    // #3 Auth
     const result = await mainApi.auth({ signature, address: address })
 
+    // #4 Save token
     this.jwt = result.token
     cookie.set(COOKIES.JWT, result.token, { expires: 90 })
   }
