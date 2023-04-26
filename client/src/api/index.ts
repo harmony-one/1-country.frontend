@@ -133,10 +133,11 @@ const apis = ({
     parameters,
   }: SendProps): Promise<SendResult> => {
     try {
+      console.log('send', amount, parameters)
       const txResponse = (await contract[methodName](...parameters, {
         value: amount,
+        // gasLimit: ethers.utils.hexlify(300000),
       })) as TransactionResponse
-
       onTransactionHash(txResponse.hash)
 
       if (config.debug) {
@@ -171,7 +172,6 @@ const apis = ({
         address,
         secretHash
       )
-
       return send({
         onFailed,
         onSuccess,

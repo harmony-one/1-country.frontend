@@ -290,6 +290,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       console.log({ nftData })
       console.log(days)
       if (days <= config.domain.renewalLimit) {
+        //days <= config.domain.renewalLimit) { // <=
         setProcessStatus({
           type: ProcessStatusTypes.PROGRESS,
           render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
@@ -297,13 +298,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
           await walletStore.connect()
         }
-        const amount = domainStore.domainPrice.amount
-        const result = await renewCommand(
-          domainName,
-          amount,
-          rootStore,
-          setProcessStatus
+        console.log(
+          'domainStore.domainPrice.amount',
+          domainStore.domainPrice.amount
         )
+        const amount = domainStore.domainPrice.amount
+        await renewCommand(domainName, amount, rootStore, setProcessStatus)
 
         await domainStore.loadDomainRecord(domainName)
 
