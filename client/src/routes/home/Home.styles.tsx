@@ -56,3 +56,29 @@ export const TipContainer = styled(FlexColumn)`
   height: 1.7em;
   align-items: center;
 `
+export const PageCurationSection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: 1300px) {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+  }
+`
+
+export const CurationContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  height: 22em;
+
+  img {
+    height: 20em;
+  }
+
+  span {
+    position: absolute;
+    bottom: 0;
+  }
+`
