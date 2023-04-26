@@ -38,8 +38,8 @@ const PageCuration: React.FC<PageCuration> = ({ url, icon, img }) => {
       onClick={clickHandler}
       style={{ marginTop: '2em', cursor: 'pointer' }}
     >
-      <span style={{ fontSize: '1.5rem' }}>{icon}</span>
       <img src={img} />
+      <span style={{ fontSize: '1.5rem' }}>{icon}</span>
     </CurationContainer>
   )
 }
