@@ -198,7 +198,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       if (result.error) {
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
-          render: <BaseText>{result.error.message}</BaseText>,
+          render: (
+            <BaseText>
+              {result.error.message.length > 50
+                ? result.error.message.substring(0, 50) + '...'
+                : result.error.message}
+            </BaseText>
+          ),
         })
         resetProcessStatus(5000)
         return
@@ -290,7 +296,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       console.log({ nftData })
       console.log(days)
       if (days <= config.domain.renewalLimit) {
-        //days <= config.domain.renewalLimit) { // <=
         setProcessStatus({
           type: ProcessStatusTypes.PROGRESS,
           render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,

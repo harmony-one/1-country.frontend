@@ -44,10 +44,16 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   }
 
   useEffect(() => {
-    if(value.indexOf('staking:') === 0) {
-      setStakingValidator(value.split('staking:')[1]);
-      setLoading(false);
-      return;
+    if (value.indexOf('staking:') === 0) {
+      if (value.indexOf('staking:') === 0) {
+        const output = value.replace(
+          /(?<=^staking:)(?:\s*staking:)+|(?:staking:\s*)+(?=staking:$)/gi,
+          ''
+        )
+        setStakingValidator(output.split('staking:')[1])
+        setLoading(false)
+        return
+      }
     }
 
     if (isUrl(value)) {
@@ -64,9 +70,7 @@ export const MediaWidget: React.FC<Props> = ({ value, isOwner, onDelete }) => {
   return (
     <WidgetsContainer isWidgetLoading={loading} ref={ref}>
       <div style={{ paddingBottom: '2em' }}>
-        {
-          stakingValidator && (<StakingWidget validator={stakingValidator} />)
-        }
+        {stakingValidator && <StakingWidget validator={stakingValidator} />}
         {!stakingValidator && widget && (!loading || inView) && (
           <blockquote className="embedly-card" style={{ zIndex: '10' }}>
             <h4>
