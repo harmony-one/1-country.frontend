@@ -38,7 +38,7 @@ const PageCuration: React.FC<PageCuration> = ({ url, icon, img }) => {
       onClick={clickHandler}
       style={{ marginTop: '2em', cursor: 'pointer' }}
     >
-      <img src={img} />
+      <img src={img} loading="lazy" />
       <span style={{ fontSize: '1.5rem' }}>{icon}</span>
     </CurationContainer>
   )
