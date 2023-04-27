@@ -1,5 +1,6 @@
 const ethers = require('ethers')
 const moment = require('moment')
+const puppeteer = require('puppeteer')
 const RpcProvider = new ethers.JsonRpcProvider('https://api.harmony.one')
 
 const dcContract = new ethers.Contract(
@@ -29,11 +30,11 @@ const dcContract = new ethers.Contract(
       {
         internalType: 'uint256',
         name: '',
-        type: 'uint256',
+        type: 'uint256'
       },
     ],
     stateMutability: 'view',
-    type: 'function',
+    type: 'function'
   }, {
     inputs: [
       {
@@ -80,6 +81,12 @@ const tweetContract = new ethers.Contract(
   RpcProvider
 )
 
+let browser
+puppeteer.launch({ headless: 'new' }).then((data) => {
+  console.log('Puppeteer started')
+  browser = data
+})
+
 const getDomainData = async (domainName) => {
   const [ownerAddress, rentTime, expirationTime] = await Promise.all([
     dcContract.ownerOf(domainName).catch(() => ''),
@@ -90,17 +97,37 @@ const getDomainData = async (domainName) => {
   // console.log('Domain name:', domainName, 'owner: ', ownerAddress, 'rentTime', rentTime, 'expirationTime', expirationTime, 'startTime', startTime)
 
   const domainUrls = await tweetContract.getAllUrls(domainName)
-  let latestUrl = domainUrls[domainUrls.length - 1]
-  if (latestUrl) {
-    if (latestUrl.includes('url:')) {
-      latestUrl = latestUrl.replace('url:', '')
+  let url = domainUrls[domainUrls.length - 1]
+  let imageUrl = 'https://storage.googleapis.com/dot-country-prod/countryLogo.png' // default image
+
+  if (url) {
+    if (url.includes('url:')) {
+      url = url.replace('url:', '')
     }
+  }
+
+  if (url) {
+    // const browser = await puppeteer.launch({ headless: 'new' })
+    const page = await browser.newPage()
+    await page.goto(url)
+    const ogImageSelector = 'meta[property="og:image"]'
+    await page.waitForSelector(ogImageSelector, { timeout: 1000 })
+
+    const metaImageEl = await page.$(ogImageSelector)
+    const metaImageContent = await page.evaluate(el => el.content, metaImageEl)
+    console.log('og:image content: ', metaImageContent)
+    if (metaImageContent) {
+      imageUrl = metaImageContent
+    }
+    // await browser.close()
+    // console.log('close')
   }
 
   return {
     ownerAddress,
     startTime,
-    latestUrl
+    url,
+    imageUrl
   }
 }
 

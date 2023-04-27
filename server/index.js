@@ -12,15 +12,15 @@ app.get(['/index.html', '/'], async (req, res, next) => {
   try {
     const [domainName] = req.get('host').split('.')
 
-    const { ownerAddress, startTime, latestUrl } = await getDomainData(domainName)
+    const { ownerAddress, startTime, url, imageUrl } = await getDomainData(domainName)
 
     const description = `By ${ownerAddress} since ${startTime}`
     htmlData = htmlData
-      .replace('__META_OG_TITLE__', `${domainName}.country: ${latestUrl}`)
+      .replace('__META_OG_TITLE__', `${domainName}.country: ${url}`)
       .replace('__META_DESCRIPTION__', description)
       .replace('__META_OG_DESCRIPTION__', description)
-      .replace('__META_OG_IMAGE__', '')
-      .replace('__META_OG_URL__', latestUrl)
+      .replace('__META_OG_IMAGE__', imageUrl)
+      .replace('__META_OG_URL__', url)
 
     return res.send(htmlData)
   } catch (e) {
