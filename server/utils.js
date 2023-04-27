@@ -1,7 +1,10 @@
 const ethers = require('ethers')
 const moment = require('moment')
 const puppeteer = require('puppeteer')
+const NodeCache = require('node-cache')
 const RpcProvider = new ethers.JsonRpcProvider('https://api.harmony.one')
+
+const metadataCache = new NodeCache({ stdTTL: 60 * 60 * 24, checkperiod: 600 })
 
 const dcContract = new ethers.Contract(
   '0x547942748Cc8840FEc23daFdD01E6457379B446D',
@@ -88,6 +91,13 @@ puppeteer.launch({ headless: 'new' }).then((data) => {
 })
 
 const getDomainData = async (domainName) => {
+  console.log(`Start fetching domain "${domainName}" data`)
+  const cachedValue = metadataCache.get(domainName)
+  if (cachedValue) {
+    console.log('Found cached value', cachedValue)
+    return JSON.parse(cachedValue)
+  }
+
   const [ownerAddress, rentTime, expirationTime] = await Promise.all([
     dcContract.ownerOf(domainName).catch(() => ''),
     dcContract.duration(),
@@ -123,12 +133,16 @@ const getDomainData = async (domainName) => {
     // console.log('close')
   }
 
-  return {
+  const result = {
     ownerAddress,
     startTime,
     url,
     imageUrl
   }
+
+  metadataCache.set(domainName, JSON.stringify(result))
+
+  return result
 }
 
 module.exports = {
