@@ -85,7 +85,16 @@ const tweetContract = new ethers.Contract(
 )
 
 let browser
-puppeteer.launch({ headless: 'new' }).then((data) => {
+puppeteer.launch({
+  headless: 'new',
+  args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-gpu',
+    '--single-process'
+  ],
+  // executablePath: '/usr/bin/chromium-browser'
+}).then((data) => {
   console.log('Puppeteer started')
   browser = data
 })

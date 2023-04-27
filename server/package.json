@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "start": "node index.js"
   },
   "dependencies": {
     "ethers": "^6.3.0",
