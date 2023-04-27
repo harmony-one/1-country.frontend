@@ -13,6 +13,7 @@ import config from "../../../config";
 import {Anchor} from "grommet";
 import {useLocation} from "react-router";
 import {toast} from "react-toastify";
+import {getLevenshteinDistance} from "../../utils/string";
 
 const StakingWidget = lazy(
   () => import(/* webpackChunkName: "StakingWidget" */ './StakingWidget')
@@ -45,7 +46,32 @@ export const MediaWidget: React.FC<Props> = ({ domainName, value, uuid, isOwner,
   useEffect(() => {
     const scrollToAnchor = (hash: string) => {
       try {
-        document.querySelector(hash).scrollIntoView();
+        let element = document.querySelector(hash)
+        if(!element) {
+          const elements = document.querySelectorAll('a[id]')
+          let minDistance = Infinity
+          let minDistanceElement = null
+          const hashValue = hash.substring(1)
+
+          // Iterate through all links with hashes to calculate closer link
+          for(let i = 0; i < elements.length; i++) {
+            const el = elements[i]
+            const distance = getLevenshteinDistance(hashValue, el.id)
+            console.log('Hash:', hashValue, 'link hash: ', el.id, ', distance:', distance)
+            if(distance < minDistance) {
+              minDistance = distance
+              minDistanceElement = el
+            }
+          }
+          console.log('Closest link: ', minDistanceElement ? minDistanceElement.id : null, ', distance ', minDistance)
+          if(minDistance < 20) {
+            element = minDistanceElement
+          }
+        }
+        if(element) {
+          console.log('Scroll to link with hash', element.id)
+          element.scrollIntoView();
+        }
       } catch(e) {}
     }
 
