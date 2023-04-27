@@ -7701,8 +7701,7 @@ harmony-staking-sdk@^1.0.6:
     dotenv "^16.0.3"
     web3 "^1.8.1"
     web3-utils "^1.8.2"
-
-harmony-staking-widget@^1.0.5:
+harmony-staking-widget@^1.0.14:
   version "1.0.14"
   resolved "https://registry.yarnpkg.com/harmony-staking-widget/-/harmony-staking-widget-1.0.14.tgz#2ba62e457fd2f81dd3e8ee12fa9a42db55102b8e"
   integrity sha512-BURWRBuYv5FosiCDa0R/1zrVGxmHF0KkPMi8A9rjEtHOtc8TuwVjGt1J2cz8kKJJlDDPepvsr4hYRA92PUJz1A==

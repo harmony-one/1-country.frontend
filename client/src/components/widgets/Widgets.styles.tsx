@@ -1,12 +1,11 @@
 import styled from 'styled-components'
+import {Box} from "grommet/components/Box";
 
-export const DeleteWidgetButton = styled.button`
-  cursor: pointer;
+export const WidgetControls = styled(Box)`
   position: absolute;
   top: 0;
   right: 0;
   font-size: 2em;
-  opacity: 0;
   color: #758796;
   z-index: 99;
   background-color: transparent;
@@ -21,11 +20,7 @@ export const WidgetsContainer = styled.div<{ isWidgetLoading?: boolean }>`
   gap: 1em;
   position: relative;
 
-  ${DeleteWidgetButton} {
-    opacity: ${(props) => (props.isWidgetLoading ? 0 : 0.5)};
+  ${WidgetControls} {
+    visibility: ${(props) => (props.isWidgetLoading ? 'hidden' : 'visible')};
   }
-
-  // &:hover ${DeleteWidgetButton} {
-  //   opacity: ${(props) => (props.isWidgetLoading ? 0 : 0.5)};
-  // }
 `
