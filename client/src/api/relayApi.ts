@@ -1,11 +1,22 @@
 import axios from 'axios'
 import config from '../../config'
-import logger from '../modules/logger';
-const log = logger.module('RelayApi');
+import logger from '../modules/logger'
+import _ from 'lodash'
+const log = logger.module('RelayApi')
 
 const base = axios.create({
   baseURL: config.registrar,
 })
+
+export interface ParsedNftMetada {
+  expirationDate: string
+  image: string
+  name: string
+  registrationDate: string
+  tier: string
+  length: number
+}
+
 export const relayApi = () => {
   return {
     checkDomain: async ({ sld }: { sld: string }) => {
@@ -83,6 +94,40 @@ export const relayApi = () => {
       return {
         generated,
         metadata,
+      }
+    },
+    getNFTMetadata: async ({
+      domain,
+    }: {
+      domain: string
+    }): Promise<ParsedNftMetada> => {
+      const {
+        data: { metadata },
+      } = await base.post('/gen', { domain })
+      if (metadata) {
+        const metaDataUrl = metadata.erc721Metadata
+          ? metadata.erc721Metadata
+          : metadata.erc1155Metadata
+        const {
+          data: { name, image, attributes },
+        } = await axios.get(metaDataUrl)
+        if (attributes) {
+          const attr = attributes.reduce(
+            (
+              acc: { [x: string]: any },
+              obj: { trait_type: string; value: any }
+            ) => {
+              acc[_.camelCase(obj.trait_type)] = obj.value
+              return acc
+            },
+            {}
+          )
+          return {
+            name,
+            image,
+            ...attr,
+          }
+        }
       }
     },
   }

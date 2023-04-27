@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { useWeb3Modal } from '@web3modal/react'
+import isValidUrl from 'is-url'
+
 import { useStores } from '../../stores'
 import {
   PageWidgetContainer,
@@ -7,7 +10,7 @@ import {
 import { observer } from 'mobx-react-lite'
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
-import isValidUrl from 'is-url'
+
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
 import {
@@ -15,19 +18,23 @@ import {
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../../components/process-status/ProcessStatus'
-import { SearchInput } from '../../components/search-input/SearchInput'
-import { MediaWidget } from '../../components/widgets/MediaWidget'
-import { loadEmbedJson } from '../../modules/embedly/embedly'
-import {
-  isEmail,
-  isRedditUrl,
-  isStakingWidgetUrl,
-} from '../../utils/validation'
-import { BaseText, SmallText } from '../../components/Text'
-import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
 import { sleep } from '../../utils/sleep'
 import config from '../../../config'
+import commandValidator, {
+  CommandValidator,
+  CommandValidatorEnum,
+} from '../../utils/command-handler/commandValidator'
+import { renewCommand } from '../../utils/command-handler/DcCommandHandler'
+import { relayApi } from '../../api/relayApi'
+import { daysBetween } from '../../api/utils'
+
+import { SearchInput } from '../../components/search-input/SearchInput'
+import { MediaWidget } from '../../components/widgets/MediaWidget'
+import { loadEmbedJson } from '../../modules/embedly/embedly'
+import { isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
+import { BaseText, SmallText } from '../../components/Text'
+import { Box } from 'grommet/components/Box'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -38,29 +45,41 @@ interface Props {
 }
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
-  const { domainStore, walletStore, utilsStore } = useStores()
+  const { domainStore, walletStore, utilsStore, rootStore } = useStores()
   const [checkIsActivated, setCheckIsActivated] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
   })
+  const { open } = useWeb3Modal()
 
   useEffect(() => {
-    const addingPost = async () => {
-      await addPost(utilsStore.post, true)
+    const handlingCommand = async () => {
+      await commandHandler(utilsStore.command, true)
     }
     const connectWallet = async () => {
-      await walletStore.connect()
+      try {
+        if (walletStore.isMetamaskAvailable) {
+          await walletStore.connect()
+        } else {
+          open()
+        }
+      } catch (e) {
+        if (e.name === 'UserRejectedRequestError') {
+          open()
+        }
+      }
     }
     try {
-      if (utilsStore.post) {
+      console.log('utilsStore.command', utilsStore.command)
+      if (utilsStore.command) {
         if (!walletStore.isConnected) {
           connectWallet()
         }
-        domainStore.isOwner && addingPost()
+        domainStore.isOwner && handlingCommand()
       }
     } catch (e) {
-      console.log('Adding post from URL', { error: e })
+      console.log('Handling command from URL', { error: e })
       return
     }
   }, [walletStore.isConnected])
@@ -179,8 +198,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       if (result.error) {
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
-          render: <BaseText>{result.error.message}</BaseText>,
+          render: (
+            <BaseText>
+              {result.error.message.length > 50
+                ? result.error.message.substring(0, 50) + '...'
+                : result.error.message}
+            </BaseText>
+          ),
         })
+        resetProcessStatus(5000)
         return
       }
 
@@ -188,19 +214,162 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Url successfully added</BaseText>,
       })
-
-      resetProcessStatus()
+      resetProcessStatus(5000)
       resetInput()
-      if (fromUrl) {
-        history.pushState(null, '', `\\`) // deleting url param from browser
-        utilsStore.post = undefined
-      }
     } catch (ex) {
+      ;<BaseText>
+        {ex.message.length > 50
+          ? ex.message.substring(0, 50) + '...'
+          : ex.message}
+      </BaseText>
+      resetProcessStatus(4000)
+      setLoading(false)
+    }
+  }
+
+  const vanityHandler = async (vanity: CommandValidator) => {
+    const urlExists = await rootStore.vanityUrlClient.existURL({
+      name: domainName,
+      aliasName: vanity.aliasName,
+    })
+    const method = urlExists ? 'updateURL' : 'addNewURL'
+    setLoading(true)
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: (
+        <BaseText>{`${
+          urlExists ? 'Updating' : 'Creating'
+        } ${`${domainName}${config.tld}/${vanity.aliasName}`} url`}</BaseText>
+      ),
+    })
+    const result = await rootStore.vanityUrlClient[method]({
+      name: domainName,
+      aliasName: vanity.aliasName,
+      url: vanity.url,
+      price: config.vanityUrl.price + '',
+      onTransactionHash: () => {
+        setProcessStatus({
+          type: ProcessStatusTypes.PROGRESS,
+          render: <BaseText>Waiting for transaction confirmation</BaseText>,
+        })
+      },
+      onSuccess: ({ transactionHash }) => {
+        console.log('success', transactionHash)
+        setProcessStatus({
+          type: ProcessStatusTypes.SUCCESS,
+          render: (
+            <BaseText>
+              <a
+                href={vanity.url}
+              >{`${domainName}${config.tld}/${vanity.aliasName}`}</a>
+              {` ${urlExists ? 'updated' : 'created'}`}
+            </BaseText>
+          ),
+        })
+      },
+      onFailed: (ex: Error) => {
+        console.log('ERRROR', ex)
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: (
+            <BaseText>
+              Error {urlExists ? 'updating' : 'creating'} Vanity URL
+            </BaseText>
+          ),
+        })
+      },
+    })
+    resetProcessStatus(5000)
+    resetInput()
+    setLoading(false)
+  }
+
+  const renewCommandHandler = async () => {
+    setLoading(true)
+    try {
+      const nftData = await relayApi().getNFTMetadata({
+        domain: `${domainName}${config.tld}`,
+      })
+      const days = daysBetween(
+        nftData['registrationDate'],
+        domainStore.domainRecord.expirationTime
+      )
+      console.log({ nftData })
+      console.log(days)
+      if (days <= config.domain.renewalLimit) {
+        setProcessStatus({
+          type: ProcessStatusTypes.PROGRESS,
+          render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
+        })
+        if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
+          await walletStore.connect()
+        }
+        console.log(
+          'domainStore.domainPrice.amount',
+          domainStore.domainPrice.amount
+        )
+        const amount = domainStore.domainPrice.amount
+        await renewCommand(domainName, amount, rootStore, setProcessStatus)
+
+        await domainStore.loadDomainRecord(domainName)
+
+        resetInput()
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>{`Error: Renewal Limit Reached`}</BaseText>,
+        })
+      }
+      resetProcessStatus(5000)
+      setLoading(false)
+    } catch (error) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{ex.message}</BaseText>,
+        render: (
+          <BaseText>{`Error while renewing ${domainName}${config.tld}`}</BaseText>
+        ),
       })
+      console.log(error)
+      resetProcessStatus(5000)
       setLoading(false)
+    }
+  }
+
+  const commandHandler = (text: string, fromUrl = false) => {
+    const command = commandValidator(text)
+
+    switch (command.type) {
+      case CommandValidatorEnum.VANITY:
+        console.log(CommandValidatorEnum.VANITY)
+        vanityHandler(command)
+        break
+      case CommandValidatorEnum.EMAIL_ALIAS:
+        console.log(CommandValidatorEnum.EMAIL_ALIAS, command)
+        // works with value => email and value => aliasName=email
+        window.open(`mailto:1country@harmony.one`, '_self')
+        break
+      case CommandValidatorEnum.URL:
+        console.log(CommandValidatorEnum.URL)
+        addPost(text, fromUrl)
+        break
+      case CommandValidatorEnum.STAKING:
+        console.log(CommandValidatorEnum.STAKING)
+        addPost(command.url, fromUrl)
+        break
+      case CommandValidatorEnum.RENEW:
+        console.log(CommandValidatorEnum.RENEW)
+        renewCommandHandler()
+        break
+      default:
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: 'Invalid input',
+        })
+    }
+    if (fromUrl) {
+      sleep(3000)
+      history.pushState(null, '', `\\`)
+      utilsStore.command = undefined
     }
   }
 
@@ -210,12 +379,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
     event.preventDefault()
     const value = (event.target as HTMLInputElement).value || ''
-
-    if (isEmail(value)) {
-      window.open(`mailto:1country@harmony.one`, '_self')
-      return
-    }
-    addPost(value)
+    commandHandler(value)
   }
 
   const onChange = (value: string) => {
@@ -248,7 +412,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             onSearch={onChange}
             onKeyDown={enterHandler}
           />
-
           {checkIsActivated && !widgetListStore.isActivated && (
             <Box pad={{ top: '0.5em' }}>
               <SmallText>

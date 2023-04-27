@@ -50,10 +50,16 @@ export const MediaWidget: React.FC<Props> = ({ value, uuid, isOwner, isPinned, o
   }
 
   useEffect(() => {
-    if(value.indexOf('staking:') === 0) {
-      setStakingValidator(value.split('staking:')[1]);
-      setLoading(false);
-      return;
+    if (value.indexOf('staking:') === 0) {
+      if (value.indexOf('staking:') === 0) {
+        const output = value.replace(
+          /(?<=^staking:)(?:\s*staking:)+|(?:staking:\s*)+(?=staking:$)/gi,
+          ''
+        )
+        setStakingValidator(output.split('staking:')[1])
+        setLoading(false)
+        return
+      }
     }
 
     if (isUrl(value)) {

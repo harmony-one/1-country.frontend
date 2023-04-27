@@ -20,12 +20,16 @@ import commonApi, { CommonClient } from '../api/common'
 import { UtilsStore } from './UtilsStore'
 import { defaultProvider } from '../api/defaultProvider'
 import { Web2AuthStore } from './Web2AuthStore'
+import vanityApis, {
+  VanityURLClient,
+} from '../api/vanity-url/vanityContractClient'
 
 export class RootStore {
   modalStore: ModalStore
   ratesStore: RatesStore
   d1dcClient: D1DCClient
   tweetClient: TweetClient
+  vanityUrlClient: VanityURLClient
   commonClient: CommonClient
   domainStore: DomainStore
   walletStore: WalletStore
@@ -97,6 +101,7 @@ export class RootStore {
 
     this.d1dcClient = apis({ provider, address })
     this.tweetClient = tweetApi({ provider, address })
+    this.vanityUrlClient = vanityApis({ provider, address })
     // @ts-ignore
     this.commonClient = commonApi(this.d1dcClient, this.tweetClient)
   }

@@ -88,7 +88,7 @@ export class DomainStore extends BaseStore {
     )
     return this.domainRecord.expirationTime - Date.now() < remainderDays
   }
-  
+
   get bgColor() {
     if (this.domainExtendedInfo && this.domainExtendedInfo.bgColor) {
       return this.domainExtendedInfo.bgColor
@@ -157,7 +157,6 @@ export class DomainStore extends BaseStore {
           mainApi.loadDomain({ domain: domainName }).catch(() => null),
         ]
       )
-
       runInAction(() => {
         this.domainPrice = domainPrice
         this.domainRecord = domainRecord
