@@ -160,11 +160,11 @@ export const MediaWidget: React.FC<Props> = ({ domainName, value, uuid, isOwner,
           )}
         </Box>
         <WidgetControls direction={'row'} gap={'16px'} align={'center'}>
-          {widget &&
+          {/* {widget &&
             <Box onClick={onShareClicked}>
               <FiLink size={'16px'} />
             </Box>
-          }
+          } */}
           {isOwner && uuid &&
             <Box onClick={() => onPin(!isPinned)}>
               <Text>{isPinned ? 'Unpin' : `Pin ${widget && widget.url.includes('twitter') ? 'Tweet' : 'Link'}`}</Text>
