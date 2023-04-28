@@ -6,6 +6,8 @@ const regexPatterns = {
   STAKING: /^one1[a-zA-HJ-NP-Z0-9]{38}$/, // oneAddress
   STAKING_COMMAND: /^staking[:=]? ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress or staking=oneAddress
   RENEW: /^renew$/i, // renew
+  PIN: /^pin (https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i, // pin url
+  UNPIN: /^unpin$/i, // unpin url
 }
 
 export enum CommandValidatorEnum {
@@ -15,6 +17,8 @@ export enum CommandValidatorEnum {
   EMAIL_ALIAS = 'EMAIL_ALIAS', // Includes EMAIL case.
   STAKING = 'STAKING',
   RENEW = 'RENEW',
+  PIN = 'PIN',
+  UNPIN = 'UNPIN'
 }
 
 export interface CommandValidator {
@@ -80,6 +84,22 @@ const commandValidator = (text: string): CommandValidator => {
     return {
       type: CommandValidatorEnum.RENEW,
       command: text,
+    }
+  }
+
+  if (regexPatterns.PIN.test(text)) {
+    const [, url] = text.split(' ')
+    return {
+      type: CommandValidatorEnum.PIN,
+      command: text,
+      url
+    }
+  }
+
+  if (regexPatterns.UNPIN.test(text)) {
+    return {
+      type: CommandValidatorEnum.UNPIN,
+      command: text
     }
   }
 

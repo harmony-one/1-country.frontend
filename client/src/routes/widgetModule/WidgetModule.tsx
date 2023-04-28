@@ -335,6 +335,59 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
   }
 
+  const pinCommandHandler = async (command: CommandValidator) => {
+    console.log('pinCommandHandler:', command)
+    setLoading(true)
+    try {
+      const { url } = command
+
+      await addPost(url)
+      const widget = widgetListStore.getWidgetByUrl(url)
+      console.log('Post added', widget)
+      if(widget) {
+        await widgetListStore.pinWidget(widget.uuid, true)
+      }
+    } catch (e) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: (
+          <BaseText>{`Error while pinning url`}</BaseText>
+        ),
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const unpinCommandHandler = async (command: CommandValidator) => {
+    console.log('pinCommandHandler:', command)
+    setLoading(true)
+    try {
+      const widget = widgetListStore.widgetList.find((widget) => widget.isPinned)
+      console.log('Widget to unpin:', widget)
+      if(widget) {
+        await widgetListStore.pinWidget(widget.uuid, false)
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.SUCCESS,
+          render: (
+            <BaseText>{`No pinned widgets. To add pinned widget type "pin URL".`}</BaseText>
+          ),
+        })
+        console.log('Cannot find pinned widget')
+      }
+    } catch (e) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: (
+          <BaseText>{`Error while unpinning url`}</BaseText>
+        ),
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const commandHandler = (text: string, fromUrl = false) => {
     const command = commandValidator(text)
 
@@ -359,6 +412,14 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       case CommandValidatorEnum.RENEW:
         console.log(CommandValidatorEnum.RENEW)
         renewCommandHandler()
+        break
+      case CommandValidatorEnum.PIN:
+        console.log(CommandValidatorEnum.PIN)
+        pinCommandHandler(command)
+        break
+      case CommandValidatorEnum.UNPIN:
+        console.log(CommandValidatorEnum.UNPIN)
+        unpinCommandHandler(command)
         break
       default:
         setProcessStatus({
@@ -391,10 +452,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const deleteWidget = (widget: Widget) => {
     return widgetListStore.deleteWidget({ widgetId: widget.id, widgetUuid: widget.uuid, domainName })
-  }
-
-  const pinWidget = (widget: Widget, isPinned: boolean) => {
-    return widgetListStore.pinWidget(widget.uuid, isPinned)
   }
 
   const showInput = walletStore.isConnected && domainStore.isOwner
@@ -443,7 +500,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             isPinned={widget.isPinned}
             isOwner={domainStore.isOwner}
             onDelete={() => deleteWidget(widget)}
-            onPin={(isPinned: boolean) => pinWidget(widget, isPinned)}
           />
         </WidgetStatusWrapper>
       ))}

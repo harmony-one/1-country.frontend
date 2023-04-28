@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
+import {action, makeObservable, observable, runInAction, toJS} from 'mobx'
 import { BaseStore } from '../../stores/BaseStore'
 import { RootStore } from '../../stores/RootStore'
 import { rootStore } from '../../stores'
@@ -139,25 +139,21 @@ class WidgetListStore extends BaseStore {
   }
 
   async pinWidget (widgetId: string, isPinned: boolean) {
-    try {
-      await mainApi.pinLink(widgetId, isPinned)
-      runInAction(() => {
-        this.widgetList = this.widgetList.map(widget => {
-          if(widget.uuid !== widgetId) {
-            return {
-              ...widget,
-              isPinned: false // Only one widget can be pinned
-            }
-          }
+    await mainApi.pinLink(widgetId, isPinned)
+    runInAction(() => {
+      this.widgetList = this.widgetList.map(widget => {
+        if(widget.uuid !== widgetId) {
           return {
             ...widget,
-            isPinned
+            isPinned: false // Only one widget can be pinned
           }
-        }).sort(sortWidgets)
-      })
-    } catch (e) {
-      console.error('Cannot pin widget', e.message)
-    }
+        }
+        return {
+          ...widget,
+          isPinned
+        }
+      }).sort(sortWidgets)
+    })
   }
 
   async deleteWidget(props: { widgetId: number; widgetUuid?: string, domainName: string }) {
@@ -297,6 +293,14 @@ class WidgetListStore extends BaseStore {
       this.isActivated = await client.isActivated(domainName)
     } catch (ex) {
       console.log('### ex isActivated', ex)
+    }
+  }
+
+  getWidgetByUrl (url: string) {
+    const widget = this.widgetList
+      .find(widget => widget.value === url)
+    if(widget) {
+      return toJS(widget)
     }
   }
 }

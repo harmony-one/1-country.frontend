@@ -25,11 +25,10 @@ interface Props {
   uuid: string
   isPinned: boolean
   isOwner?: boolean
-  onPin: (isPinned: boolean) => void
   onDelete: () => void
 }
 
-export const MediaWidget: React.FC<Props> = ({ domainName, value, uuid, isOwner, isPinned, onDelete, onPin }) => {
+export const MediaWidget: React.FC<Props> = ({ domainName, value, uuid, isOwner, isPinned, onDelete }) => {
   const [widget, setWidget] = useState<any>()
   const [isLoading, setLoading] = useState(true)
   const [stakingValidator, setStakingValidator] = useState<string>('')
@@ -165,11 +164,6 @@ export const MediaWidget: React.FC<Props> = ({ domainName, value, uuid, isOwner,
               <FiLink size={'16px'} />
             </Box>
           } */}
-          {isOwner && uuid &&
-            <Box onClick={() => onPin(!isPinned)}>
-              <Text>{isPinned ? 'Unpin' : `Pin ${widget && widget.url.includes('twitter') ? 'Tweet' : 'Link'}`}</Text>
-            </Box>
-          }
           {isOwner &&
             <Box onClick={onDelete} style={{ opacity: '0.5' }}>
               <CloseCircle />
