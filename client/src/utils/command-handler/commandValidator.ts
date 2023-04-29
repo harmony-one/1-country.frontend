@@ -1,10 +1,11 @@
-const regexPatterns = {
+export const regexPatterns = {
   URL: /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i, // url
   VANITY: /^(\w+)=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // alias=url
   EMAIL: /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // email
   EMAIL_ALIAS: /^(\w+)=([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // alias=email
   STAKING: /^one1[a-zA-HJ-NP-Z0-9]{38}$/, // oneAddress
   STAKING_COMMAND: /^staking[:=]? ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress or staking=oneAddress
+  IFRAME: /^(?:<iframe[^>]*)(?:(?:\/>)|(?:>.*?<\/iframe>))$/, // iframe
   RENEW: /^renew$/i, // renew
 }
 
@@ -14,6 +15,7 @@ export enum CommandValidatorEnum {
   VANITY = 'VANITY',
   EMAIL_ALIAS = 'EMAIL_ALIAS', // Includes EMAIL case.
   STAKING = 'STAKING',
+  IFRAME = 'IFRAME',
   RENEW = 'RENEW',
 }
 
@@ -57,6 +59,13 @@ const commandValidator = (text: string): CommandValidator => {
       type: CommandValidatorEnum.EMAIL_ALIAS,
       aliasName: match[1],
       email: match[2],
+    }
+  }
+
+  if (regexPatterns.IFRAME.test(text)) {
+    return {
+      type: CommandValidatorEnum.IFRAME,
+      url: text,
     }
   }
 

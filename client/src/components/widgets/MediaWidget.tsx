@@ -14,6 +14,7 @@ import {Anchor} from "grommet";
 import {useLocation} from "react-router";
 import {toast} from "react-toastify";
 import {getLevenshteinDistance} from "../../utils/string";
+import IframeWidget from './IframeWidget'
 
 const StakingWidget = lazy(
   () => import(/* webpackChunkName: "StakingWidget" */ './StakingWidget')
@@ -22,6 +23,7 @@ const StakingWidget = lazy(
 interface Props {
   domainName: string
   value: string
+  type: string
   uuid: string
   isPinned: boolean
   isOwner?: boolean
@@ -29,7 +31,7 @@ interface Props {
   onDelete: () => void
 }
 
-export const MediaWidget: React.FC<Props> = ({ domainName, value, uuid, isOwner, isPinned, onDelete, onPin }) => {
+export const MediaWidget: React.FC<Props> = ({ domainName, value, type, uuid, isOwner, isPinned, onDelete, onPin }) => {
   const [widget, setWidget] = useState<any>()
   const [isLoading, setLoading] = useState(true)
   const [stakingValidator, setStakingValidator] = useState<string>('')
@@ -148,7 +150,10 @@ export const MediaWidget: React.FC<Props> = ({ domainName, value, uuid, isOwner,
       <WidgetsContainer isWidgetLoading={isLoading} ref={ref}>
         <Box pad={{ bottom: '2em' }}>
           {
-            stakingValidator && (<StakingWidget validator={stakingValidator} />)
+            type === 'staking' && (<StakingWidget validator={stakingValidator} />)
+          }
+          {
+            type === 'iframe' && (<IframeWidget id={value} />)
           }
           {!stakingValidator && widget && (!isLoading || inView) && (
             <blockquote className="embedly-card" style={{ zIndex: '10' }}>
