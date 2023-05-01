@@ -451,7 +451,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }
 
   const deleteWidget = (widget: Widget) => {
-    return widgetListStore.deleteWidget({ widgetId: widget.id, widgetUuid: widget.uuid, domainName })
+    return widgetListStore.deleteWidget({ widgetId: widget.id, widgetUuid: widget.uuid, domainName, isPinned: widget.isPinned })
   }
 
   const showInput = walletStore.isConnected && domainStore.isOwner

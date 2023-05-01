@@ -156,8 +156,8 @@ class WidgetListStore extends BaseStore {
     })
   }
 
-  async deleteWidget(props: { widgetId: number; widgetUuid?: string, domainName: string }) {
-    const { widgetId, widgetUuid, domainName } = props
+  async deleteWidget(props: { widgetId: number; widgetUuid?: string, domainName: string, isPinned: boolean }) {
+    const { widgetId, widgetUuid, domainName, isPinned } = props
     console.log('delete widget', props)
 
     const processStatus = this.getWidgetLoader(widgetId)
@@ -191,6 +191,10 @@ class WidgetListStore extends BaseStore {
       }
 
       if(widgetUuid) {
+        if(isPinned) {
+          await mainApi.pinLink(widgetUuid, false)
+        }
+
         await mainApi.deleteLink(widgetUuid)
       }
 
