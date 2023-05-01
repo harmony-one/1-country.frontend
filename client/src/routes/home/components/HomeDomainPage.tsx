@@ -70,9 +70,9 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
             {domainStore.domainName}.country
           </a>
         </DomainName>
-        {domainStore.domainRecord &&
+        {/* {domainStore.domainRecord &&
           domainStore.domainRecord.renter &&
-          !domainStore.isExpired && <EmojiSection />}
+          !domainStore.isExpired && <EmojiSection />} */}
       </DomainNameContainer>
 
       {domainStore.domainRecord && domainStore.domainRecord.renter && (
