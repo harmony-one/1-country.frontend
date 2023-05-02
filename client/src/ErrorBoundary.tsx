@@ -27,13 +27,13 @@ class ErrorBoundary extends Component<Props, State> {
 
   public async componentDidMount() {
     if (!this.state.hasError) {
-      await appHealthy()
+      appHealthy()
     }
   }
 
   public async componentDidUpdate(prevProps: Props, prevState: State) {
     if (prevState.hasError && !this.state.hasError) {
-      await appHealthy()
+      appHealthy()
     }
   }
 
