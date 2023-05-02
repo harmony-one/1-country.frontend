@@ -102,7 +102,7 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
           bgColor={domainStore.bgColor}
         />
       )} */}
-      {isMobile && (
+      {isMobile && !unhideQrCode && (
         <QrCodeButton onClick={showQrCode}>
           <FaShareAltSquare style={{ width: '4em', height: '3em' }} />
         </QrCodeButton>
