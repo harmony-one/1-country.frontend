@@ -2,6 +2,7 @@ const ethers = require('ethers')
 const moment = require('moment')
 const puppeteer = require('puppeteer')
 const NodeCache = require('node-cache')
+let { toBech32 } = require('./bech32')
 const RpcProvider = new ethers.JsonRpcProvider('https://api.harmony.one')
 
 const metadataCache = new NodeCache({ stdTTL: 60 * 60 * 24, checkperiod: 600 })
@@ -112,18 +113,28 @@ const getDomainData = async (domainName) => {
     dcContract.duration(),
     dcContract.nameExpires(domainName)
   ])
+
+  if (!ownerAddress) {
+    throw new Error('No owner address')
+  }
+
+  const ownerAddressOne = toBech32(ownerAddress.replace('0x', '').toLowerCase(), 'one')
+
+  console.log(`ownerAddress: ${ownerAddress} (${ownerAddressOne})`)
+
   const startTime = moment((parseInt(expirationTime) - parseInt(rentTime)) * 1000).format('DD/MM/YYYY')
-  // console.log('Domain name:', domainName, 'owner: ', ownerAddress, 'rentTime', rentTime, 'expirationTime', expirationTime, 'startTime', startTime)
 
   const domainUrls = await tweetContract.getAllUrls(domainName)
   let url = domainUrls[domainUrls.length - 1]
-  let imageUrl = 'https://storage.googleapis.com/dot-country-prod/countryLogo.png' // default image
+  let imageUrl = ''
 
   if (url) {
     if (url.includes('url:')) {
       url = url.replace('url:', '')
     }
   }
+
+  console.log('url: ', url)
 
   if (url) {
     // const browser = await puppeteer.launch({ headless: 'new' })
@@ -134,7 +145,6 @@ const getDomainData = async (domainName) => {
 
     const metaImageEl = await page.$(ogImageSelector)
     const metaImageContent = await page.evaluate(el => el.content, metaImageEl)
-    console.log('og:image content: ', metaImageContent)
     if (metaImageContent) {
       imageUrl = metaImageContent
     }
@@ -144,6 +154,7 @@ const getDomainData = async (domainName) => {
 
   const result = {
     ownerAddress,
+    ownerAddressOne,
     startTime,
     url,
     imageUrl

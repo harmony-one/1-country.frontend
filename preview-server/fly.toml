@@ -1,12 +1,12 @@
-# fly.toml app configuration file generated for one-country-server on 2023-04-27T17:27:06+01:00
+# fly.toml app configuration file generated for 1country-dynamic-preview on 2023-05-02T13:58:42+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "one-country-server"
+app = "1country-dynamic-preview"
 kill_signal = "SIGINT"
 kill_timeout = 5
-primary_region = "mad"
+primary_region = "lax"
 processes = []
 
 [build]

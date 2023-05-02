@@ -1,5 +1,0 @@
-node_modules
-**/node_modules
-client/dist
-client/netlify
-server/node_modules
