@@ -1,21 +1,24 @@
 import React from 'react'
-import { Widget } from 'harmony-staking-widget';
+import { Widget } from 'harmony-staking-widget'
 
 interface Props {
-    validator: string;
+  validator: string
 }
 
 const StakingWidget: React.FC<Props> = ({ validator }) => {
-    return <div style={{
+  return (
+    <div
+      style={{
         borderRadius: 12,
         border: '1px solid rgb(207,217,222)',
-        padding: "20px",
-        maxWidth: '100vw',
-        width: 500
-    }
-    }>
-        <Widget validator={validator.replace(/\s/g, "")} />
-    </div >
+        padding: '20px',
+        maxWidth: '80vw',
+        width: 500,
+      }}
+    >
+      <Widget validator={validator.replace(/\s/g, '')} />
+    </div>
+  )
 }
 
-export default StakingWidget;
+export default StakingWidget
