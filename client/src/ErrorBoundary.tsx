@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
-import logger from './modules/logger';
-const log = logger.module('Main');
+import logger from './modules/logger'
+import { appHealthy } from './api/betteruptime'
+const log = logger.module('Main')
 
 interface Props {
   children?: ReactNode
@@ -23,6 +24,13 @@ class ErrorBoundary extends Component<Props, State> {
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     log.error('Uncaught error:', { error, errorInfo })
   }
+
+  // componentDidUpdate(prevProps: Props, prevState: State) {
+  //   if (prevState.hasError && !this.state.hasError) {
+  //     // Page loaded successfully after an error
+  //     console.log('here i am appHealthy') //('up')
+  //   }
+  // }
 
   public render() {
     if (this.state.hasError) {
