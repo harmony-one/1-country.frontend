@@ -85,20 +85,20 @@ const tweetContract = new ethers.Contract(
   RpcProvider
 )
 
-let browser
-puppeteer.launch({
-  headless: 'new',
-  args: [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-gpu',
-    '--single-process'
-  ],
-  // executablePath: '/usr/bin/chromium-browser'
-}).then((data) => {
-  console.log('Puppeteer started')
-  browser = data
-})
+// let browser
+// puppeteer.launch({
+//   headless: 'new',
+//   args: [
+//     '--no-sandbox',
+//     '--disable-setuid-sandbox',
+//     '--disable-gpu',
+//     '--single-process'
+//   ],
+//   // executablePath: '/usr/bin/chromium-browser'
+// }).then((data) => {
+//   console.log('Puppeteer started')
+//   browser = data
+// })
 
 const getDomainData = async (domainName) => {
   console.log(`Start fetching domain "${domainName}" data`)
@@ -137,19 +137,19 @@ const getDomainData = async (domainName) => {
   console.log('url: ', url)
 
   if (url) {
-    // const browser = await puppeteer.launch({ headless: 'new' })
+    const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] })
     const page = await browser.newPage()
     await page.goto(url)
     const ogImageSelector = 'meta[property="og:image"]'
-    await page.waitForSelector(ogImageSelector, { timeout: 1000 })
+    await page.waitForSelector(ogImageSelector, { timeout: 5000 })
 
     const metaImageEl = await page.$(ogImageSelector)
     const metaImageContent = await page.evaluate(el => el.content, metaImageEl)
     if (metaImageContent) {
       imageUrl = metaImageContent
     }
-    // await browser.close()
-    // console.log('close')
+    await browser.close()
+    console.log('close')
   }
 
   const result = {
