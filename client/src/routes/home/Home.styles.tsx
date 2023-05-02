@@ -3,6 +3,7 @@ import { Main, FlexRow, FlexColumn } from '../../components/Layout'
 import { SmallTextGrey, Desc } from '../../components/Text'
 
 export const Container = styled(Main)`
+  position: relative;
   margin: 0 auto;
   padding: 0 24px 24px;
   width: 100%;
@@ -80,5 +81,42 @@ export const CurationContainer = styled.div`
   span {
     position: absolute;
     bottom: 0;
+  }
+`
+
+export const QrCodeButton = styled.div`
+  width: 4em;
+  height: 3em;
+  color: #00aee9;
+  position: fixed;
+  bottom: 1em;
+  left: 1em;
+  cursor: pointer;
+  z-index: 999;
+  opacity: 0.5;
+`
+
+export const QrContainer = styled.div`
+  display: block;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: rgba(0, 0, 0, 0.85);
+`
+export const QrCode = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  z-index: 100;
+
+  img {
+    border-radius: 25px;
   }
 `

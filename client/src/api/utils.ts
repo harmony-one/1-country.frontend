@@ -173,5 +173,5 @@ export const daysBetween = (
   date2: string | number
 ): number => {
   const DAY_MILLISECONDS = 1000 * 60 * 60 * 24
-  return (Number(date2) - Number(date1)) / DAY_MILLISECONDS
+  return Math.ceil((Number(date2) - Number(date1)) / DAY_MILLISECONDS)
 }
