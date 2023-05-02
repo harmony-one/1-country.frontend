@@ -1,13 +1,10 @@
 import axios from 'axios'
 import config from '../../config'
 
-export const appHealthy = async (status: string) => {
+export const appHealthy = async () => {
   axios
-    .post(
-      `https://betteruptime.com/api/v1/heartbeat/${config.betteruptime.heartbeatId}/submit`,
-      {
-        status: status,
-      }
+    .get(
+      `https://betteruptime.com/api/v1/heartbeat/${config.betteruptime.heartbeatId}`
     )
     .catch((err) => {
       console.log(err)

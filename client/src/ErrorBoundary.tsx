@@ -25,12 +25,17 @@ class ErrorBoundary extends Component<Props, State> {
     log.error('Uncaught error:', { error, errorInfo })
   }
 
-  // componentDidUpdate(prevProps: Props, prevState: State) {
-  //   if (prevState.hasError && !this.state.hasError) {
-  //     // Page loaded successfully after an error
-  //     console.log('here i am appHealthy') //('up')
-  //   }
-  // }
+  public async componentDidMount() {
+    if (!this.state.hasError) {
+      await appHealthy()
+    }
+  }
+
+  public async componentDidUpdate(prevProps: Props, prevState: State) {
+    if (prevState.hasError && !this.state.hasError) {
+      await appHealthy()
+    }
+  }
 
   public render() {
     if (this.state.hasError) {
