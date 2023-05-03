@@ -26,7 +26,7 @@ const EmojiSection = () => {
   return (
     <EmojiSectionContainer>
       <FlexRow style={{ gap: '0.6em' }}>
-        <Emoji
+        {/* <Emoji
           type={EmojiEnumType.TIP}
           tip={{ isFixed: true, fixedAmount: 1 }}
           icon="☝️"
@@ -52,15 +52,24 @@ const EmojiSection = () => {
           setProcessStatus={setProcessStatus}
           setIsProcessing={setIsProcessing}
           isProcessing={isProcessing}
-        />
+        /> */}
         <Emoji
+          type={EmojiEnumType.TIP}
+          tip={{ isFixed: false, fixedAmount: 10 }}
+          icon="💸"
+          domainStore={domainStore}
+          setProcessStatus={setProcessStatus}
+          setIsProcessing={setIsProcessing}
+          isProcessing={isProcessing}
+        />
+        {/* <Emoji
           type={EmojiEnumType.EMAIL}
           icon="📧"
           domainStore={domainStore}
           setProcessStatus={setProcessStatus}
           setIsProcessing={setIsProcessing}
           isProcessing={isProcessing}
-        />
+        /> */}
       </FlexRow>
       {processStatus.type !== ProcessStatusTypes.IDLE && (
         <span style={{ height: '1em' }}>
