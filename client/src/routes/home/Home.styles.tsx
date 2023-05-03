@@ -85,8 +85,8 @@ export const CurationContainer = styled.div`
 `
 
 export const QrCodeButton = styled.div`
-  width: 4em;
-  height: 3em;
+  width: 4.2em;
+  height: 2.5em;
   color: #00aee9;
   position: fixed;
   bottom: 1em;

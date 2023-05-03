@@ -27,7 +27,7 @@ import {
 import EmojiSection from '../../../components/emoji-section/EmojiSection'
 import { BgColorSelector } from './BgColorSelector'
 import { VanityURL } from '../VanityURL'
-import { FaShareAltSquare } from 'react-icons/fa'
+import { MdOutlineQrCodeScanner } from 'react-icons/md'
 
 interface Props {}
 
@@ -61,7 +61,7 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
 
   const showQrCode = async (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation()
-    setQrCode(getQrCode({ url: `${domainName}${config.tld}`, size: '300' }))
+    setQrCode(getQrCode({ url: `https://${domainName}${config.tld}`, size: '300' }))
     setUnhideQrCode(true)
   }
 
@@ -104,7 +104,7 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
       )} */}
       {isMobile && !unhideQrCode && (
         <QrCodeButton onClick={showQrCode}>
-          <FaShareAltSquare style={{ width: '4em', height: '3em' }} />
+          <MdOutlineQrCodeScanner style={{ width: '3em', height: '3em' }} />
         </QrCodeButton>
       )}
       {unhideQrCode && (
