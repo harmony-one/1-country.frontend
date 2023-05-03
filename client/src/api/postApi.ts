@@ -12,18 +12,12 @@ import { Contract, ethers } from 'ethers'
 
 const { postContract } = config
 
-console.log('TWEET CONTRACT ADDRESS', postContract)
+console.log('Post CONTRACT ADDRESS', postContract)
 
 export interface SendResult {
   txReceipt: TransactionReceipt
   error: Error
 }
-
-interface ActivateProps extends CallbackProps {
-  name: string
-  amount: string
-}
-
 interface UpdatePostProps extends CallbackProps {
   name: string
   newUrl: string
@@ -100,24 +94,6 @@ const postApi = ({
     contract,
     provider,
     send,
-    // activate: async ({
-    //   name,
-    //   amount,
-    //   onFailed,
-    //   onSuccess,
-    //   onTransactionHash,
-    // }: ActivateProps) => {
-    //   return send({
-    //     amount,
-    //     parameters: [name],
-    //     methodName: 'activate',
-    //     onFailed,
-    //     onSuccess,
-    //     onTransactionHash,
-    //   })
-    // },
-
-    // (name: string, postId: number, newURL: string)
     updatePost: async ({
       // updateURL
       name,
@@ -197,16 +173,9 @@ const postApi = ({
       // getRecordUrlList
       return contractReadOnly.getPosts(name)
     },
-    baseRentalPrice: () => {
-      return contractReadOnly.baseRentalPrice()
-    },
-    initialized: () => {
-      return contractReadOnly.initialized()
-    },
-    isActivated: (name: string) => {
-      const hash = utils.keccak256(name, true)
-      return contractReadOnly.activated(hash)
-    },
+    // baseRentalPrice: () => {
+    //   return contractReadOnly.baseRentalPrice()
+    // },
   }
 }
 

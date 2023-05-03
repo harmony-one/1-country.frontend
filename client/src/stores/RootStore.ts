@@ -23,11 +23,13 @@ import { Web2AuthStore } from './Web2AuthStore'
 import vanityApis, {
   VanityURLClient,
 } from '../api/vanity-url/vanityContractClient'
+import postApi, { PostClient } from '../api/postApi'
 
 export class RootStore {
   modalStore: ModalStore
   ratesStore: RatesStore
   d1dcClient: D1DCClient
+  postClient: PostClient
   tweetClient: TweetClient
   vanityUrlClient: VanityURLClient
   commonClient: CommonClient
@@ -100,6 +102,7 @@ export class RootStore {
     console.log('### dc client updated', address)
 
     this.d1dcClient = apis({ provider, address })
+    this.postClient = postApi({ provider, address })
     this.tweetClient = tweetApi({ provider, address })
     this.vanityUrlClient = vanityApis({ provider, address })
     // @ts-ignore

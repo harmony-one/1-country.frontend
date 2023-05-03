@@ -2,32 +2,187 @@ import { ContractInterface } from '@ethersproject/contracts'
 
 export default [
   {
+    anonymous: false,
     inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'previousAdmin',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'newAdmin',
+        type: 'address',
+      },
+    ],
+    name: 'AdminChanged',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'beacon',
+        type: 'address',
+      },
+    ],
+    name: 'BeaconUpgraded',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'implementation',
+        type: 'address',
+      },
+    ],
+    name: 'Upgraded',
+    type: 'event',
+  },
+  {
+    stateMutability: 'payable',
+    type: 'fallback',
+  },
+  {
+    inputs: [],
+    name: 'admin',
+    outputs: [
+      {
+        internalType: 'address',
+        name: 'admin_',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newAdmin',
+        type: 'address',
+      },
+    ],
+    name: 'changeAdmin',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'implementation',
+    outputs: [
+      {
+        internalType: 'address',
+        name: 'implementation_',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newImplementation',
+        type: 'address',
+      },
+    ],
+    name: 'upgradeTo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newImplementation',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes',
+      },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    stateMutability: 'payable',
+    type: 'receive',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
+      },
+    ],
+    name: 'Initialized',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'by',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'string',
+        name: 'name',
+        type: 'string',
+      },
       {
         components: [
           {
             internalType: 'uint256',
-            name: 'baseRentalPrice',
+            name: 'postId',
             type: 'uint256',
           },
           {
-            internalType: 'address',
-            name: 'revenueAccount',
-            type: 'address',
+            internalType: 'string',
+            name: 'url',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'nameSpace',
+            type: 'string',
           },
           {
             internalType: 'address',
-            name: 'dc',
+            name: 'owner',
             type: 'address',
           },
         ],
-        internalType: 'struct Tweet.InitConfiguration',
-        name: '_initConfig',
+        indexed: false,
+        internalType: 'struct Post.PostInfo',
+        name: 'post',
         type: 'tuple',
       },
     ],
-    stateMutability: 'nonpayable',
-    type: 'constructor',
+    name: 'NewPostAdded',
+    type: 'event',
   },
   {
     anonymous: false,
@@ -65,138 +220,115 @@ export default [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: 'address',
+        name: 'by',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'string',
+        name: 'name',
+        type: 'string',
+      },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'postId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'string',
+            name: 'url',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'nameSpace',
+            type: 'string',
+          },
+          {
+            internalType: 'address',
+            name: 'owner',
+            type: 'address',
+          },
+        ],
         indexed: false,
+        internalType: 'struct Post.PostInfo',
+        name: 'post',
+        type: 'tuple',
+      },
+    ],
+    name: 'PostDeleted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'by',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'string',
+        name: 'name',
+        type: 'string',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'postId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'string',
+        name: 'oldURL',
+        type: 'string',
+      },
+      {
+        indexed: false,
+        internalType: 'string',
+        name: 'newURL',
+        type: 'string',
+      },
+      {
+        indexed: true,
+        internalType: 'string',
+        name: 'nameSpace',
+        type: 'string',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'PostUpdated',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: 'address',
         name: 'from',
         type: 'address',
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: 'address',
         name: 'to',
         type: 'address',
       },
     ],
     name: 'RevenueAccountChanged',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-    ],
-    name: 'TweetActivated',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'renter',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'string',
-        name: 'url',
-        type: 'string',
-      },
-    ],
-    name: 'URLAdded',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'renter',
-        type: 'address',
-      },
-    ],
-    name: 'URLCleared',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'renter',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'string',
-        name: 'url',
-        type: 'string',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'position',
-        type: 'uint256',
-      },
-    ],
-    name: 'URLRemoved',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'renter',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'string',
-        name: 'oldUrl',
-        type: 'string',
-      },
-      {
-        indexed: false,
-        internalType: 'string',
-        name: 'newUrl',
-        type: 'string',
-      },
-    ],
-    name: 'URLUpdated',
     type: 'event',
   },
   {
@@ -216,76 +348,23 @@ export default [
     inputs: [
       {
         internalType: 'string',
-        name: 'name',
+        name: '_name',
+        type: 'string',
+      },
+      {
+        internalType: 'string[]',
+        name: '_urls',
+        type: 'string[]',
+      },
+      {
+        internalType: 'string',
+        name: '_nameSpace',
         type: 'string',
       },
     ],
-    name: 'activate',
+    name: 'addNewPost',
     outputs: [],
     stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    name: 'activated',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: 'url',
-        type: 'string',
-      },
-    ],
-    name: 'addURL',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'baseRentalPrice',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-    ],
-    name: 'clearUrls',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -293,7 +372,7 @@ export default [
     name: 'dc',
     outputs: [
       {
-        internalType: 'contract IDC',
+        internalType: 'address',
         name: '',
         type: 'address',
       },
@@ -302,8 +381,19 @@ export default [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'finishInitialization',
+    inputs: [
+      {
+        internalType: 'string',
+        name: '_name',
+        type: 'string',
+      },
+      {
+        internalType: 'uint256[]',
+        name: '_postIds',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'deletePost',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -312,16 +402,16 @@ export default [
     inputs: [
       {
         internalType: 'string',
-        name: 'name',
+        name: '_name',
         type: 'string',
       },
     ],
-    name: 'getAllUrls',
+    name: 'getPostCount',
     outputs: [
       {
-        internalType: 'string[]',
-        name: '',
-        type: 'string[]',
+        internalType: 'uint256',
+        name: 'postCount',
+        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -330,12 +420,58 @@ export default [
   {
     inputs: [
       {
-        internalType: 'bytes32[]',
-        name: 'keys',
-        type: 'bytes32[]',
+        internalType: 'string',
+        name: '_name',
+        type: 'string',
       },
     ],
-    name: 'initializeActivation',
+    name: 'getPosts',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'postId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'string',
+            name: 'url',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'nameSpace',
+            type: 'string',
+          },
+          {
+            internalType: 'address',
+            name: 'owner',
+            type: 'address',
+          },
+        ],
+        internalType: 'struct Post.PostInfo[]',
+        name: '',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_dc',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_revenueAccount',
+        type: 'address',
+      },
+    ],
+    name: 'initialize',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -344,47 +480,21 @@ export default [
     inputs: [
       {
         internalType: 'bytes32',
-        name: 'key',
+        name: '',
         type: 'bytes32',
       },
       {
-        internalType: 'string[]',
-        name: '_urls',
-        type: 'string[]',
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    name: 'initializeUrls',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'initialized',
+    name: 'isPostDeleted',
     outputs: [
       {
         internalType: 'bool',
         name: '',
         type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-    ],
-    name: 'numUrls',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -426,19 +536,40 @@ export default [
   {
     inputs: [
       {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
       },
       {
         internalType: 'uint256',
-        name: 'pos',
+        name: '',
         type: 'uint256',
       },
     ],
-    name: 'removeUrl',
-    outputs: [],
-    stateMutability: 'nonpayable',
+    name: 'posts',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'postId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'string',
+        name: 'url',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: 'nameSpace',
+        type: 'string',
+      },
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -464,25 +595,12 @@ export default [
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: '_baseRentalPrice',
-        type: 'uint256',
-      },
-    ],
-    name: 'setBaseRentalPrice',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
         internalType: 'address',
         name: '_dc',
         type: 'address',
       },
     ],
-    name: 'setDC',
+    name: 'setDCAddress',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -514,6 +632,34 @@ export default [
     type: 'function',
   },
   {
+    inputs: [
+      {
+        internalType: 'string',
+        name: '_name',
+        type: 'string',
+      },
+      {
+        internalType: 'address',
+        name: '_receiver',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: '_isAllNameSpace',
+        type: 'bool',
+      },
+      {
+        internalType: 'string',
+        name: '_nameSpace',
+        type: 'string',
+      },
+    ],
+    name: 'trasnferPostOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
     inputs: [],
     name: 'unpause',
     outputs: [],
@@ -523,25 +669,24 @@ export default [
   {
     inputs: [
       {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
+        internalType: 'string',
+        name: '_name',
+        type: 'string',
       },
       {
         internalType: 'uint256',
-        name: '',
+        name: '_postId',
         type: 'uint256',
       },
-    ],
-    name: 'urls',
-    outputs: [
       {
         internalType: 'string',
-        name: '',
+        name: '_newURL',
         type: 'string',
       },
     ],
-    stateMutability: 'view',
+    name: 'updatePost',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -550,5 +695,26 @@ export default [
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_logic',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'admin_',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes',
+        name: '_data',
+        type: 'bytes',
+      },
+    ],
+    stateMutability: 'payable',
+    type: 'constructor',
   },
 ] as ContractInterface

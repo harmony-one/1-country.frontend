@@ -46,9 +46,7 @@ interface Props {
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore, utilsStore, rootStore } = useStores()
-  const [subPage, setSubPage] = useState(
-    window.location.pathname.split('/').pop()
-  )
+  const [subPage, setSubPage] = useState('')
   const [checkIsActivated, setCheckIsActivated] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
@@ -56,7 +54,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   })
   const { open } = useWeb3Modal()
 
-  console.log('SUBPAGE', subPage)
+  useEffect(() => {
+    const sub = window.location.pathname.split('/').pop()
+    console.log('subpage', sub)
+    if (sub) {
+      setSubPage(sub)
+    }
+  }, [])
 
   useEffect(() => {
     const handlingCommand = async () => {
@@ -94,13 +98,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }, [domainName])
 
   useEffect(() => {
-    const checkActivated = async () => {
-      await widgetListStore.loadIsActivated(domainName)
-      setCheckIsActivated(true)
-    }
+    // const checkActivated = async () => {
+    //   await widgetListStore.loadIsActivated(domainName)
+    //   setCheckIsActivated(true)
+    // }
     widgetListStore.loadWidgetList(domainName)
     widgetListStore.loadDomainTx(domainName)
-    checkActivated()
+    // checkActivated()
   }, [domainName])
 
   const [isLoading, setLoading] = useState(false)
@@ -188,8 +192,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
     try {
       const result = await widgetListStore.createWidget({
-        widget,
+        widget: [widget],
         domainName,
+        nameSpace: subPage || '',
         onTransactionHash: () => {
           setProcessStatus({
             type: ProcessStatusTypes.PROGRESS,
