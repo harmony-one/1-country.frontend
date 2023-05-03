@@ -46,12 +46,17 @@ interface Props {
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore, utilsStore, rootStore } = useStores()
+  const [subPage, setSubPage] = useState(
+    window.location.pathname.split('/').pop()
+  )
   const [checkIsActivated, setCheckIsActivated] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
   })
   const { open } = useWeb3Modal()
+
+  console.log('SUBPAGE', subPage)
 
   useEffect(() => {
     const handlingCommand = async () => {
@@ -390,7 +395,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }
 
   const deleteWidget = (widget: Widget) => {
-    return widgetListStore.deleteWidget({ widgetId: widget.id, widgetUuid: widget.uuid, domainName })
+    return widgetListStore.deleteWidget({
+      widgetId: widget.id,
+      widgetUuid: widget.uuid,
+      domainName,
+    })
   }
 
   const pinWidget = (widget: Widget, isPinned: boolean) => {
@@ -433,7 +442,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {widgetListStore.widgetList.map((widget, index) => (
         <WidgetStatusWrapper
-          key={widget.id + widget.value + (+widget.isPinned)}
+          key={widget.id + widget.value + +widget.isPinned}
           loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
         >
           <MediaWidget
