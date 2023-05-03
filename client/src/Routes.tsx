@@ -6,6 +6,9 @@ import { HomePageLoader } from './routes/home/components/HomePageLoader'
 const StatsPage = lazy(
   () => import(/* webpackChunkName: "Others" */ './routes/stats/Stats')
 )
+const StatusPage = lazy(
+  () => import(/* webpackChunkName: "Others" */ './routes/status/Status')
+)
 const WaitingRoom = lazy(
   () =>
     import(
@@ -34,6 +37,7 @@ const AppRoutes = () => {
         <Route path="new/" element={<WaitingRoom />} />
         <Route path="new/:domainName" element={<WaitingRoom />} />
         <Route path="home/" element={<OpenWidgetsPage />} />
+        <Route path="status/" element={<StatusPage />} />
         <Route path="stats/" element={<StatsPage />} />
         <Route path="details/" element={<DetailsPage />} />
         <Route path="live/" element={<LiveStreamPage />} />
