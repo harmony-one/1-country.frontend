@@ -8,13 +8,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const CopyPlugin = require('copy-webpack-plugin')
 
-let commitHash = ''
-try {
-  commitHash = require('child_process')
-    .execSync('git rev-parse --short HEAD')
-    .toString()
-    .trim()
-} catch (e) {}
+const commitHash = require('child_process')
+  .execSync('git rev-parse --short HEAD')
+  .toString()
+  .trim()
 
 console.log(!process.env.HTTP)
 
