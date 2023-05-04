@@ -1,3 +1,5 @@
+import { regexPatterns } from "./command-handler/commandValidator"
+
 const twitterStatusRegex = /\/status(es)?\/(\d+)/
 
 export function isValidTwitUri(uri: string) {
@@ -35,4 +37,8 @@ export const isRedditUrl = (url: string) => {
 
 export const isStakingWidgetUrl = (url: string) => {
   return url.indexOf('staking:') === 0;
+}
+
+export const isIframeWidget = (text: string) => {
+  return regexPatterns.IFRAME.test(text);
 }
