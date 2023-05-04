@@ -5,7 +5,7 @@ import {
 } from '@ethersproject/abstract-provider'
 
 import config from '../../../config'
-import VanityURLAbi from '../../../abi/VanityUrl'
+import VanityURLAbi from '../../../contracts/abi/VanityUrl'
 import { defaultProvider } from '../defaultProvider'
 import { CallbackProps, SendProps, SendResult } from '../index'
 

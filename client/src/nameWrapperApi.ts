@@ -1,5 +1,5 @@
 import axios from 'axios'
-import ERC1155 from '../abi/ERC1155'
+import ERC1155 from '../contracts/abi/ERC1155'
 import { utils } from './api/utils'
 import config from '../config'
 
