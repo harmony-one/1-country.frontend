@@ -75,7 +75,7 @@ export const HomeSearchResultItem: React.FC<Props> = ({
             target="_blank"
             rel="noreferrer"
           >
-            By registering, you agree to the Terms of Service.
+            By registering, you agree to the <u>Terms of Service</u>.
           </a>
         </Box>
       )}
