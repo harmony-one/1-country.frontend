@@ -26,7 +26,9 @@ export interface Link {
 
 export interface HtmlWidget {
   id: string
-  html: string;
+  attributes: {
+    any: string;
+  };
   title: string;
   owner: string;
 }
@@ -107,9 +109,9 @@ export const mainApi = {
 
   deleteLink: (id: string) => base.delete<{ data: string }>(`/links/${id}`),
 
-  addHtmlWidget: (html: string, owner = '', title = '') => {
+  addHtmlWidget: (attributes: { any: string }, owner = '', title = '') => {
     return base.post<HtmlWidget>(`/widgets/`, {
-      html,
+      attributes,
       owner,
       title
     })

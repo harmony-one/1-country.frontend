@@ -37,6 +37,7 @@ import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import axios from 'axios'
 import { mainApi } from '../../api/mainApi'
+import { getElementAttributes } from '../../utils/getElAttributes'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -134,10 +135,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         value: url,
       }
     } else if (isIframeWidget(url)) { 
-      console.log(111, url);
-
       const createWidgetRes = await mainApi.addHtmlWidget(
-        url,
+        getElementAttributes(url),
         walletStore.walletAddress
       );
 

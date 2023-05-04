@@ -112,7 +112,10 @@ export const MediaWidget: React.FC<Props> = ({ domainName, value, type, uuid, is
 
     if (isUrl(value)) {
       loadData(value)
+    } else {
+      setLoading(false);
     }
+
     if (value === '1621679626610425857') {
       loadData(
         'https://twitter.com/harmonyprotocol/status/1621679626610425857?s=20&t=SabcyoqiOYxnokTn5fEacg'

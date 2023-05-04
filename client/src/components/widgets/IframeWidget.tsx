@@ -1,20 +1,39 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react'
-import unescape from 'lodash.unescape';
+import React, { useEffect, useRef, useState } from 'react'
 import { mainApi } from '../../api/mainApi';
 
 interface Props {
     id: string;
 }
 
+const IFRAME_WIDTH = '550px';
+
 const IframeWidget: React.FC<Props> = ({ id }) => {
-    const [html, setHtml] = useState(null);
+    const containerElement = useRef<HTMLDivElement>();
+
+    const [attributes, setAttributes] = useState(null);
 
     useEffect(() => {
-        mainApi.getHtmlWidget(id).then(res => setHtml(unescape(res.data?.html)))
+        mainApi.getHtmlWidget(id).then(res => setAttributes({
+            ...res.data?.attributes,
+            width: IFRAME_WIDTH
+        }))
     }, [id]);
 
-    return <div dangerouslySetInnerHTML={{ __html: html }} />
+    useEffect(() => {
+        if (attributes && containerElement) {
+            const iframeElement = document.createElement('iframe');
+
+            for (let key in attributes) {
+                iframeElement.setAttribute(key, attributes[key]);
+            }
+
+            containerElement.current.innerHTML = '';
+
+            containerElement.current.appendChild(iframeElement);
+        }
+    }, [attributes, containerElement]);
+
+    return <div ref={containerElement} style={{ width: IFRAME_WIDTH }} />
 }
 
 export default IframeWidget;
