@@ -383,20 +383,46 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             console.log('result', tx)
             const landingPage = `${command.aliasName}.${domainName}${config.tld}`
             const fullUrl = `https://${landingPage}`
-            setProcessStatus({
-              type: ProcessStatusTypes.RUNNING,
-              render: (
-                <BaseText>
-                  Creating your Notion page...
-                </BaseText>
-              ),
+            setTimeout(() => {
+              setProcessStatus({
+                type: ProcessStatusTypes.RUNNING,
+                render: (
+                  <BaseText>
+                    Creating your Notion page...
+                  </BaseText>
+                ),
+              });
+            }, 7500);
+            fetch('https://1ns-registrar-relayer.hiddenstate.xyz/enable-subdomains', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ domain: `${domainName}.country` })
             })
+            .then(response => response.json())
+            .then(data => {
+              if (data.error) {
+                if (data.error === 'already enabled') {
+                  console.log('Allowed!')
+                } else {
+                  console.log('Not Allowed!')
+                }
+              } else if (data.success) {
+                console.log('Allowed!')
+              } else {
+                console.log('Not Allowed!')
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error)
+            })      
             setTimeout(() => {
               setProcessStatus({
                 type: ProcessStatusTypes.SUCCESS,
                 render: (
                   <BaseText>
-                    Notion page embedded!. View your notion page here: {' '}
+                    Notion page created!. View your notion page here: {' '}
                     <span
                       onClick={() => {
                         window.location.assign(fullUrl)
@@ -412,9 +438,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
               resetProcessStatus(10000)
               resetInput()
               setLoading(false)
-            }, 5000)
+            }, 10000)
           }
-        } catch (e) {
+        }  catch (e) {
           console.log(e)
           setProcessStatus({
             type: ProcessStatusTypes.ERROR,
