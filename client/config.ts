@@ -15,7 +15,7 @@ const config = {
     '0x17cF877f9226ba382b0baDA1499576E60A547955',
   ews: {
     contract:
-      process.env.EWS_CONTRACT || '0x0F7e6eE8E1ad920bBEF36D27635d894F604CeFC8',
+      process.env.EWS_CONTRACT || '0x067B394Cbd08D08e565f886DEFDE906A7E42FB93',
     server: process.env.EWS_SERVER ?? 'https://1ns-embedder.hiddenstate.xyz',
   },
   nameWrapperContract:

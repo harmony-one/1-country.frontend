@@ -17,7 +17,7 @@ export enum CommandValidatorEnum {
   EMAIL_ALIAS = 'EMAIL_ALIAS', // Includes EMAIL case.
   STAKING = 'STAKING',
   RENEW = 'RENEW',
-  NOTION = 'NOTION',
+  NOTION = 'NOTION', // includes NOTION_COMMAND
 }
 
 export interface CommandValidator {
@@ -31,8 +31,16 @@ export interface CommandValidator {
 const commandValidator = (text: string): CommandValidator => {
   console.log('commandValidator', text)
 
-  if (regexPatterns.NOTION.test(text)) {
+  if (regexPatterns.NOTION_COMMAND.test(text)) {
     const match = text.match(regexPatterns.NOTION_COMMAND)
+    return {
+      type: CommandValidatorEnum.NOTION,
+      aliasName: match[1],
+      url: match[2],
+    }
+  }
+
+  if (regexPatterns.NOTION.test(text)) {
     return {
       type: CommandValidatorEnum.NOTION,
       aliasName: 'www',
@@ -93,15 +101,6 @@ const commandValidator = (text: string): CommandValidator => {
     return {
       type: CommandValidatorEnum.RENEW,
       command: text,
-    }
-  }
-
-  if (regexPatterns.NOTION_COMMAND.test(text)) {
-    const match = text.match(regexPatterns.NOTION_COMMAND)
-    return {
-      type: CommandValidatorEnum.NOTION,
-      aliasName: match[1],
-      url: match[2],
     }
   }
 

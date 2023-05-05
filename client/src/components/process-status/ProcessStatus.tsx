@@ -4,7 +4,6 @@ import { ProcessStatusContainer } from './ProcessStatus.styles'
 export enum ProcessStatusTypes {
   IDLE = 'IDLE',
   PROGRESS = 'PROGRESS',
-  RUNNING = 'RUNNING',
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR',
 }

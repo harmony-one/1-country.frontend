@@ -39,6 +39,7 @@ import { addNotionPageCommand } from '../../utils/command-handler/NotionCommandH
 import { ewsApi } from '../../api/ews/ewsApi'
 import { isValidNotionPageId } from '../../../contracts/ews-common/notion-utils'
 import { useNavigate } from 'react-router'
+import { urlExists } from '../../api/checkUrl'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -380,49 +381,21 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             setProcessStatus
           )
           if (tx) {
+            await relayApi().enableSubdomains(domainName)
             console.log('result', tx)
             const landingPage = `${command.aliasName}.${domainName}${config.tld}`
             const fullUrl = `https://${landingPage}`
-            setTimeout(() => {
-              setProcessStatus({
-                type: ProcessStatusTypes.RUNNING,
-                render: (
-                  <BaseText>
-                    Creating your Notion page...
-                  </BaseText>
-                ),
-              });
-            }, 7500);
-            fetch('https://1ns-registrar-relayer.hiddenstate.xyz/enable-subdomains', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ domain: `${domainName}.country` })
+            setProcessStatus({
+              type: ProcessStatusTypes.PROGRESS,
+              render: <BaseText>Creating your Notion page...</BaseText>,
             })
-            .then(response => response.json())
-            .then(data => {
-              if (data.error) {
-                if (data.error === 'already enabled') {
-                  console.log('Allowed!')
-                } else {
-                  console.log('Not Allowed!')
-                }
-              } else if (data.success) {
-                console.log('Allowed!')
-              } else {
-                console.log('Not Allowed!')
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error)
-            })      
-            setTimeout(() => {
+            await sleep(5000)
+            if (await urlExists(fullUrl)) {
               setProcessStatus({
                 type: ProcessStatusTypes.SUCCESS,
                 render: (
                   <BaseText>
-                    Notion page created!. View your notion page here: {' '}
+                    Notion page created!. View your notion page here:{' '}
                     <span
                       onClick={() => {
                         window.location.assign(fullUrl)
@@ -435,16 +408,30 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
                   </BaseText>
                 ),
               })
-              resetProcessStatus(10000)
               resetInput()
-              setLoading(false)
-            }, 10000)
+            } else {
+              setProcessStatus({
+                type: ProcessStatusTypes.ERROR,
+                render: (
+                  <BaseText>
+                    Error processing the URL. Check {landingPage} later
+                  </BaseText>
+                ),
+              })
+            }
+            resetProcessStatus(10000)
+            setLoading(false)
           }
-        }  catch (e) {
+        } catch (e) {
           console.log(e)
           setProcessStatus({
             type: ProcessStatusTypes.ERROR,
-            render: <BaseText>Error adding internal pages. Please try adding your Notion page again.</BaseText>,
+            render: (
+              <BaseText>
+                Error adding internal pages. Please try adding your Notion page
+                again.
+              </BaseText>
+            ),
           })
           resetProcessStatus(10000)
           setLoading(false)
@@ -453,7 +440,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       } else {
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
-          render: <BaseText>Invalid Notion page id. Please try another Notion URL.</BaseText>,
+          render: (
+            <BaseText>
+              Invalid Notion page id. Please try another Notion URL.
+            </BaseText>
+          ),
         })
         resetProcessStatus(10000)
         setLoading(false)
