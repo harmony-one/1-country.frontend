@@ -1,6 +1,14 @@
 import styled from 'styled-components'
 
 export const NotionPageContainer = styled.div`
+  color: #000;
+
+  &::-moz-selection {
+    background-color: blue;
+  }
+  &::selection {
+    background-color: blue;
+  }
   :root {
     --notion-font: ui-sans-serif, system-ui, apple-system, BlinkMacSystemFont,
       'Segoe UI', Helvetica, 'Apple Color Emoji', Arial, sans-serif,
@@ -961,6 +969,9 @@ export const NotionPageContainer = styled.div`
     overflow: hidden;
     width: 100%;
     max-width: 100%;
+    border-radius: 4px;
+    border: 1px solid #c2c9d0;
+    margin-bottom: .5em;
   }
 
   @media (max-width: 640px) {
@@ -1009,6 +1020,7 @@ export const NotionPageContainer = styled.div`
     text-overflow: ellipsis;
     min-height: 24px;
     margin-bottom: 2px;
+    color: #000;
   }
 
   .notion-bookmark-description {
@@ -1038,6 +1050,7 @@ export const NotionPageContainer = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: #000;
   }
 
   .notion-bookmark-link-icon img {
@@ -2030,6 +2043,7 @@ export const NotionPageContainer = styled.div`
 
   .notion-collection-card-property .notion-page-title-text {
     border-bottom: 0 none;
+    color: black;
   }
 
   .notion-collection-card-property
@@ -2041,12 +2055,15 @@ export const NotionPageContainer = styled.div`
   .notion-page-title-text {
     position: relative;
     top: 1px;
-    border-bottom: 1px solid var(--fg-color-1);
+    // border-bottom: 1px solid var(--fg-color-1);
     line-height: 1.3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: 500;
+    border-bottom-color: #c2c9d0;
+    border-bottom-width: 0.5px;
+    text-decoration: underline;
   }
 
   /* removes double underline with links */
