@@ -16,7 +16,6 @@ import {
 import { MetaTagsStore, metaTagsStore } from '../modules/metatags/MetaTagsStore'
 import { wagmiClient } from '../modules/wagmi/wagmiClient'
 import tweetApi, { TweetClient } from '../api/tweetApi'
-import { ewsContractApi, EwsClient } from '../api/ews/ewsApi'
 import commonApi, { CommonClient } from '../api/common'
 import { UtilsStore } from './UtilsStore'
 import { defaultProvider } from '../api/defaultProvider'
@@ -30,7 +29,6 @@ export class RootStore {
   ratesStore: RatesStore
   d1dcClient: D1DCClient
   tweetClient: TweetClient
-  ewsClient: EwsClient
   vanityUrlClient: VanityURLClient
   commonClient: CommonClient
   domainStore: DomainStore
@@ -104,7 +102,6 @@ export class RootStore {
     this.d1dcClient = apis({ provider, address })
     this.tweetClient = tweetApi({ provider, address })
     this.vanityUrlClient = vanityApis({ provider, address })
-    this.ewsClient = ewsContractApi({ provider, address })
     // @ts-ignore
     this.commonClient = commonApi(this.d1dcClient, this.tweetClient)
   }

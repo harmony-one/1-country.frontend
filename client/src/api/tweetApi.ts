@@ -1,5 +1,5 @@
 import config from '../../config'
-import TweetAbi from '../../contracts/abi/Tweet'
+import TweetAbi from '../../abi/Tweet'
 import {
   TransactionReceipt,
   TransactionResponse,

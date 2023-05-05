@@ -17,7 +17,6 @@ import ErrorBoundary from './ErrorBoundary'
 import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
 import { Bootstrap } from './utils/Bootstrap'
-import { GlobalStyles } from './components/global'
 
 console.log('### config.sentryDSN', config.sentryDSN)
 Sentry.init({
@@ -45,7 +44,6 @@ ReactDOM.render(
   <ErrorBoundary>
     <BrowserRouter>
       <Grommet theme={theme} themeMode="light">
-        <GlobalStyles />
         <WagmiConfigProvider>
           <MetaTags />
           <Bootstrap />

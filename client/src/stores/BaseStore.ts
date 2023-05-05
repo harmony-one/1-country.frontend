@@ -15,10 +15,6 @@ export class BaseStore {
     return this.rootStore.tweetClient
   }
 
-  getEwsClient() {
-    return this.rootStore.ewsClient
-  }
-
   getCommonClient() {
     return this.rootStore.commonClient
   }

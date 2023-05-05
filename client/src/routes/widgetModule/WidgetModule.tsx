@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useWeb3Modal } from '@web3modal/react'
 import isValidUrl from 'is-url'
-import axios from 'axios'
 
 import { useStores } from '../../stores'
 import {
@@ -29,13 +28,6 @@ import commandValidator, {
 import { renewCommand } from '../../utils/command-handler/DcCommandHandler'
 import { relayApi } from '../../api/relayApi'
 import { daysBetween } from '../../api/utils'
-import { addNotionPageCommand } from '../../utils/command-handler/NotionCommandHandler'
-import { ewsApi } from '../../api/ews/ewsApi'
-import { isValidNotionPageId } from '../../../contracts/ews-common/notion-utils'
-import { useNavigate } from 'react-router'
-import { urlExists } from '../../api/checkUrl'
-import { mainApi } from '../../api/mainApi'
-import { getElementAttributes } from '../../utils/getElAttributes'
 
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
@@ -43,6 +35,9 @@ import { loadEmbedJson } from '../../modules/embedly/embedly'
 import { isIframeWidget, isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
 import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
+import axios from 'axios'
+import { mainApi } from '../../api/mainApi'
+import { getElementAttributes } from '../../utils/getElAttributes'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -54,7 +49,6 @@ interface Props {
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore, utilsStore, rootStore } = useStores()
-  const navigate = useNavigate()
   const [checkIsActivated, setCheckIsActivated] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
@@ -225,7 +219,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             </BaseText>
           ),
         })
-        resetProcessStatus(10000)
+        resetProcessStatus(5000)
         return
       }
 
@@ -233,7 +227,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Url successfully added</BaseText>,
       })
-      resetProcessStatus(10000)
+      resetProcessStatus(5000)
       resetInput()
     } catch (ex) {
       ;<BaseText>
@@ -298,7 +292,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         })
       },
     })
-    resetProcessStatus(10000)
+    resetProcessStatus(5000)
     resetInput()
     setLoading(false)
   }
@@ -339,7 +333,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           render: <BaseText>{`Error: Renewal Limit Reached`}</BaseText>,
         })
       }
-      resetProcessStatus(10000)
+      resetProcessStatus(5000)
       setLoading(false)
     } catch (error) {
       setProcessStatus({
@@ -349,142 +343,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         ),
       })
       console.log(error)
-      resetProcessStatus(10000)
-      setLoading(false)
-    }
-  }
-
-  const addNotionPageHandler = async (command: CommandValidator) => {
-    setLoading(true)
-    const url = command.url
-    try {
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: <BaseText>Validating Notion URL</BaseText>,
-      })
-      const notionPageId = await ewsApi.parseNotionPageIdFromRawUrl(command.url)
-
-      if (notionPageId === null) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              Failed to extract notion page id. Please verify your Notion URL.
-            </BaseText>
-          ),
-        })
-        resetProcessStatus(10000)
-        setLoading(false)
-        return
-      }
-
-      if (isValidNotionPageId(notionPageId) && notionPageId !== '') {
-        try {
-          const internalPagesId = await ewsApi.getSameSitePageIds(
-            notionPageId,
-            0
-          )
-          const tx = await addNotionPageCommand(
-            domainStore.domainName,
-            command.aliasName,
-            notionPageId,
-            internalPagesId,
-            rootStore,
-            setProcessStatus
-          )
-          console.log('addNotionPageCommand', tx)
-          if (tx) {
-            await sleep(7500)
-            await relayApi().enableSubdomains(domainName)
-            const landingPage = `${command.aliasName}.${domainName}${config.tld}`
-            const fullUrl = `https://${landingPage}`
-            setProcessStatus({
-              type: ProcessStatusTypes.PROGRESS,
-              render: <BaseText>Creating your Notion page...</BaseText>,
-            })
-            await sleep(5000)
-            if (await urlExists(fullUrl)) {
-              setProcessStatus({
-                type: ProcessStatusTypes.SUCCESS,
-                render: (
-                  <BaseText>
-                    Notion page created!. View your notion page here:{' '}
-                    <span
-                      onClick={() => {
-                        window.location.assign(fullUrl)
-                        navigate('/')
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <u>{`${landingPage}`}</u>
-                    </span>
-                  </BaseText>
-                ),
-              })
-              resetInput()
-            } else {
-              setProcessStatus({
-                type: ProcessStatusTypes.ERROR,
-                render: (
-                  <BaseText>
-                    Error processing the URL. Check {landingPage} later
-                  </BaseText>
-                ),
-              })
-            }
-            resetProcessStatus(10000)
-            setLoading(false)
-          }
-        } catch (e) {
-          console.log(e)
-          setProcessStatus({
-            type: ProcessStatusTypes.ERROR,
-            render: (
-              <BaseText>
-                Error adding internal pages. Please try adding your Notion page
-                again.
-              </BaseText>
-            ),
-          })
-          resetProcessStatus(10000)
-          setLoading(false)
-          return
-        }
-      } else {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              Invalid Notion page id. Please try another Notion URL.
-            </BaseText>
-          ),
-        })
-        resetProcessStatus(10000)
-        setLoading(false)
-      }
-    } catch (e) {
-      console.log(e)
-      if (Object.prototype.toString.call(e) === '[object Error]') {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              {`Unable to parse the Notion URL provided. Please try a different Notion URL. \n ${e.toString()}`}
-            </BaseText>
-          ),
-        })
-      } else {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              Error processing the URL. Please verify it is a valid Notion URL.
-            </BaseText>
-          ),
-        })
-      }
-      console.log(e)
-      resetProcessStatus(10000)
+      resetProcessStatus(5000)
       setLoading(false)
     }
   }
@@ -518,12 +377,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         console.log(CommandValidatorEnum.RENEW)
         renewCommandHandler()
         break
-      case CommandValidatorEnum.NOTION:
-        console.log('here i am')
-        addNotionPageHandler(command)
-        console.log(CommandValidatorEnum.NOTION, command)
-        // renewCommandHandler()
-        break
       default:
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
@@ -554,11 +407,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }
 
   const deleteWidget = (widget: Widget) => {
-    return widgetListStore.deleteWidget({
-      widgetId: widget.id,
-      widgetUuid: widget.uuid,
-      domainName,
-    })
+    return widgetListStore.deleteWidget({ widgetId: widget.id, widgetUuid: widget.uuid, domainName })
   }
 
   const pinWidget = (widget: Widget, isPinned: boolean) => {
@@ -601,7 +450,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {widgetListStore.widgetList.map((widget, index) => (
         <WidgetStatusWrapper
-          key={widget.id + widget.value + +widget.isPinned}
+          key={widget.id + widget.value + (+widget.isPinned)}
           loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
         >
           <MediaWidget
