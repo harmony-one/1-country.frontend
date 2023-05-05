@@ -3,87 +3,15 @@ const moment = require('moment')
 const puppeteer = require('puppeteer')
 const NodeCache = require('node-cache')
 const { toBech32 } = require('./bech32')
-const RpcProvider = new ethers.JsonRpcProvider('https://api.harmony.one')
+const { dcContractAddress, tweetContractAddress } = require('./config')
+const dcAbi = require('./abi/dcAbi.json')
+const tweetAbi = require('./abi/tweetAbi.json')
 
+const provider = new ethers.JsonRpcProvider('https://api.harmony.one')
 const metadataCache = new NodeCache({ stdTTL: 60 * 60 * 24, checkperiod: 600 })
 
-const dcContract = new ethers.Contract(
-  '0x547942748Cc8840FEc23daFdD01E6457379B446D',
-  [{
-    inputs: [
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string'
-      }
-    ],
-    name: 'ownerOf',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  }, {
-    inputs: [],
-    name: 'duration',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  }, {
-    inputs: [
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string'
-      }
-    ],
-    name: 'nameExpires',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  }],
-  RpcProvider
-)
-
-const tweetContract = new ethers.Contract(
-  '0x9af78379C99f8b92aC4fc11aAB69212b6B6F95d0',
-  [{
-    inputs: [
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string'
-      }
-    ],
-    name: 'getAllUrls',
-    outputs: [
-      {
-        internalType: 'string[]',
-        name: '',
-        type: 'string[]'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  }],
-  RpcProvider
-)
+const dcContract = new ethers.Contract(dcContractAddress, dcAbi, provider)
+const tweetContract = new ethers.Contract(tweetContractAddress, tweetAbi, provider)
 
 const getDomainData = async (domainName) => {
   console.log(`Start fetching domain "${domainName}" data`)
@@ -123,7 +51,7 @@ const getDomainData = async (domainName) => {
   console.log('url: ', url)
 
   if (url) {
-    const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] })
+    const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] })
     const page = await browser.newPage()
     await page.goto(url)
     const ogImageSelector = 'meta[property="og:image"]'

@@ -5,10 +5,10 @@ const path = require('path')
 const { getDomainData } = require('./utils')
 const PORT = process.env.PORT || 3000
 
-const indexPath = path.resolve(__dirname, 'index.html')
+const templatePath = path.resolve(__dirname, 'template.html')
 
 app.get(['/index.html', '/'], async (req, res, next) => {
-  let htmlData = fs.readFileSync(indexPath, 'utf8')
+  let htmlData = fs.readFileSync(templatePath, 'utf8')
 
   const host = req.get('host')
   const domainName = req.query.domainName || host.split('.')[0] || ''
@@ -23,7 +23,13 @@ app.get(['/index.html', '/'], async (req, res, next) => {
   let type = 'website'
 
   try {
-    const { type: ogType, ownerAddress, startTime, url: ogUrl, imageUrl: ogImageUrl } = await getDomainData(domainName)
+    const {
+      type: ogType,
+      ownerAddress,
+      startTime,
+      url: ogUrl,
+      imageUrl: ogImageUrl
+    } = await getDomainData(domainName)
 
     title = `${domainName}.country: ${ogUrl}`
     description = `By ${ownerAddress} since ${startTime}`
