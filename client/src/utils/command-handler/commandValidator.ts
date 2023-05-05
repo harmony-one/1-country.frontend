@@ -6,6 +6,7 @@ const regexPatterns = {
   STAKING: /^one1[a-zA-HJ-NP-Z0-9]{38}$/, // oneAddress
   STAKING_COMMAND: /^staking[:=]? ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress or staking=oneAddress
   RENEW: /^renew$/i, // renew
+  NOTION: /^(\w+)\.=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, ///^(\w+).=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // subdomain.=url (with notion as substring)
 }
 
 export enum CommandValidatorEnum {
@@ -15,6 +16,7 @@ export enum CommandValidatorEnum {
   EMAIL_ALIAS = 'EMAIL_ALIAS', // Includes EMAIL case.
   STAKING = 'STAKING',
   RENEW = 'RENEW',
+  NOTION = 'NOTION',
 }
 
 export interface CommandValidator {
@@ -80,6 +82,15 @@ const commandValidator = (text: string): CommandValidator => {
     return {
       type: CommandValidatorEnum.RENEW,
       command: text,
+    }
+  }
+
+  if (regexPatterns.NOTION.test(text)) {
+    const match = text.match(regexPatterns.NOTION)
+    return {
+      type: CommandValidatorEnum.NOTION,
+      aliasName: match[1],
+      url: match[2],
     }
   }
 

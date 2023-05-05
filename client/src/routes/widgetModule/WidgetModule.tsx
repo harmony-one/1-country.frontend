@@ -35,6 +35,9 @@ import { loadEmbedJson } from '../../modules/embedly/embedly'
 import { isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
 import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
+import { addNotionPageCommand } from '../../utils/command-handler/NotionCommandHandler'
+import { ewsApi } from '../../api/ews/ewsApi'
+import { isValidNotionPageId } from '../../../contracts/ews-common/notion-utils'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -335,6 +338,56 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
   }
 
+  const addNotionPageHandler = async (command: CommandValidator) => {
+    setLoading(true)
+    try {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: <BaseText>Validating Notion URL</BaseText>,
+      })
+      const notionPageId = await ewsApi.parseNotionPageIdFromRawUrl(command.url)
+      console.log('pageId', notionPageId)
+      if (!isValidNotionPageId(notionPageId) && notionPageId !== '') {
+        if (
+          addNotionPageCommand(
+            domainStore.domainName,
+            command.aliasName,
+            notionPageId,
+            rootStore,
+            setProcessStatus
+          )
+        ) {
+          setProcessStatus({
+            type: ProcessStatusTypes.SUCCESS,
+            render: <BaseText>Notion page embedded</BaseText>,
+          })
+          resetProcessStatus(5000)
+          resetInput()
+          setLoading(false)
+        }
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>Invalid Notion URL</BaseText>,
+        })
+        resetProcessStatus(5000)
+        setLoading(false)
+      }
+    } catch (e) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: (
+          <BaseText>
+            Error processing the URL. Please verify its a valid Notion URL
+          </BaseText>
+        ),
+      })
+      console.log(e)
+      resetProcessStatus(5000)
+      setLoading(false)
+    }
+  }
+
   const commandHandler = (text: string, fromUrl = false) => {
     const command = commandValidator(text)
 
@@ -359,6 +412,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       case CommandValidatorEnum.RENEW:
         console.log(CommandValidatorEnum.RENEW)
         renewCommandHandler()
+        break
+      case CommandValidatorEnum.NOTION:
+        console.log('here i am')
+        addNotionPageHandler(command)
+        console.log(CommandValidatorEnum.NOTION, command)
+        // renewCommandHandler()
         break
       default:
         setProcessStatus({
@@ -390,7 +449,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }
 
   const deleteWidget = (widget: Widget) => {
-    return widgetListStore.deleteWidget({ widgetId: widget.id, widgetUuid: widget.uuid, domainName })
+    return widgetListStore.deleteWidget({
+      widgetId: widget.id,
+      widgetUuid: widget.uuid,
+      domainName,
+    })
   }
 
   const pinWidget = (widget: Widget, isPinned: boolean) => {
@@ -433,7 +496,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {widgetListStore.widgetList.map((widget, index) => (
         <WidgetStatusWrapper
-          key={widget.id + widget.value + (+widget.isPinned)}
+          key={widget.id + widget.value + +widget.isPinned}
           loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
         >
           <MediaWidget

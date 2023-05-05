@@ -13,7 +13,7 @@ const base = axios.create({ baseURL: config.ews.server, timeout: 10000 })
 //   success?: boolean
 //   error?: string
 // }
-export const apis = {
+export const ewsApi = {
   getNotionPage: async (id: string): Promise<ExtendedRecordMap> => {
     const { data } = await base.get('/notion', { params: { id } })
     return data
@@ -51,36 +51,10 @@ export const EWSTypes: Record<string, EWSType> = {
   EWS_SUBSTACK: 2,
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Client {
-  ews: EWS
-  hasMaintainerRole: (address: string) => Promise<boolean>
-  getAllowMaintainerAccess: (sld: string) => Promise<boolean>
-  getBaseFees: () => Promise<BigNumber>
-  getPerPageFees: () => Promise<BigNumber>
-  getPerSubdomainFees: () => Promise<BigNumber>
-  getLandingPage: (sld: string, subdomain: string) => Promise<string>
-  getAllowedPages: (sld: string, subdomain: string) => Promise<string[]>
-  update: (
-    sld: string,
-    subdomain: string,
-    ewsType: EWSType,
-    page: string,
-    pages: string[],
-    landingPageOnly: boolean
-  ) => Promise<ContractTransaction>
-  appendAllowedPages: (
-    sld: string,
-    subdomain: string,
-    pages: string[]
-  ) => Promise<ContractTransaction>
-  remove: (sld: string, subdomain: string) => Promise<ContractTransaction>
-}
-
-export const buildClient = (
+export const ewsContractApi = (
   provider?: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
   signer?: string
-): Client => {
+) => {
   const etherProvider =
     provider ?? new ethers.providers.StaticJsonRpcProvider(config.defaultRPC)
   let ews = new ethers.Contract(
@@ -169,3 +143,5 @@ export const buildClient = (
     },
   }
 }
+
+export type EwsClient = ReturnType<typeof ewsContractApi>
