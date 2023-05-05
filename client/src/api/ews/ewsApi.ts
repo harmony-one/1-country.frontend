@@ -141,7 +141,7 @@ export const ewsContractApi = ({
         page,
         pages,
         landingPageOnly,
-        { value: fees, gasLimit: ethers.utils.hexlify(300000) }
+        { value: fees } // gasLimit: ethers.utils.hexlify(300000)
       )
     },
     appendAllowedPages: async (

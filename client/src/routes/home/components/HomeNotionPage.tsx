@@ -136,10 +136,11 @@ const HomeNotionPage: React.FC = () => {
     }
   }, [rootStore.ewsClient, sld, subdomain])
 
+  console.log('pageId + sld domain', pageId, sld, subdomain)
   // if (initializing) {
   //   return <LoadingScreen />
   // }
-  console.log('pageId', pageId)
+
   if (!pageId) {
     return (
       <BlankPage>
@@ -147,9 +148,9 @@ const HomeNotionPage: React.FC = () => {
           <BaseText>
             This site has not connected with any notion page <br />
             <br />
-            If you are the owner, please visit{' '}
+            {/* If you are the owner, please visit{' '}
             <LinkWrapper href={'/manage'}>here</LinkWrapper> to configure the
-            site
+            site */}
           </BaseText>
         </FlexColumn>
       </BlankPage>

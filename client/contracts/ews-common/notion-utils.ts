@@ -89,3 +89,10 @@ export const isValidNotionPageId = (id: string): boolean => {
   }
   return true
 }
+
+export const getValidSubpagesIds = (subpages: string[]): string[] => {
+  if (subpages.length === 0) {
+    return subpages
+  }
+  return subpages.filter((page) => isValidNotionPageId(page))
+}
