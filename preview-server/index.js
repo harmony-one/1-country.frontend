@@ -20,21 +20,24 @@ app.get(['/index.html', '/'], async (req, res, next) => {
   let description = 'Harmony\'s .country domains allow a seamless transition between Web2 and Web3. You can use your .country domain for both traditional websites and decentralized applications, making it easier to access everything you need from one place!'
   let imageUrl = 'https://storage.googleapis.com/dot-country-prod/countryLogo.png'
   let url = 'https://1.country'
+  let type = 'website'
 
   try {
-    const { ownerAddressOne, startTime, url: domainUrl, imageUrl: domainImageUrl } = await getDomainData(domainName)
+    const { type: ogType, ownerAddress, startTime, url: ogUrl, imageUrl: ogImageUrl } = await getDomainData(domainName)
 
-    title = `${domainName}.country: ${domainUrl}`
-    description = `By ${ownerAddressOne} since ${startTime}`
-    imageUrl = domainImageUrl
-    url = domainUrl
+    title = `${domainName}.country: ${ogUrl}`
+    description = `By ${ownerAddress} since ${startTime}`
+    imageUrl = ogImageUrl
+    url = ogUrl
+    type = ogType
   } catch (e) {
-    console.log('Domain data fetch error: ', e)
+    console.error('Cannot get domain data: ', e)
   }
 
   console.log(`Host ${host} preview: title "${title}", description "${description}", imageUrl: ${imageUrl}, url: ${url}`)
 
   htmlData = htmlData
+    .replaceAll('__META_OG_TYPE__', type)
     .replaceAll('__META_OG_TITLE__', title)
     .replaceAll('__META_DESCRIPTION__', description)
     .replaceAll('__META_OG_DESCRIPTION__', description)

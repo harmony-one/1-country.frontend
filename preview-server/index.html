@@ -2,9 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 900px;
+        }
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        td {
+            font-size: 12px;
+        }
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="description" content="__META_DESCRIPTION__"/>
+    <meta name="og:type" content="__META_OG_TYPE__"/>
     <meta name="og:title" content="__META_OG_TITLE__"/>
     <meta name="og:description" content="__META_OG_DESCRIPTION__"/>
     <meta name="og:image" content="__META_OG_IMAGE__"/>
@@ -13,11 +28,28 @@
 </head>
 <body>
 <div>
-    <div>Dynamic preview page</div>
-    <div>og:title __META_OG_TITLE__</div>
-    <div>og:description __META_DESCRIPTION__</div>
-    <div>og:image __META_OG_IMAGE__</div>
-    <div>og:url __META_OG_URL__</div>
+    <div>
+        <div>Dynamic preview page</div>
+        <div><b>DEBUG INFO</b></div>
+        <div>
+            <table>
+                <tr>
+                    <th>og:type</th>
+                    <th>og:title</th>
+                    <th>og:description</th>
+                    <th>og:image</th>
+                    <th>og:url</th>
+                </tr>
+                <tr>
+                    <td>__META_OG_TYPE__</td>
+                    <td>__META_OG_TITLE__</td>
+                    <td>__META_DESCRIPTION__</td>
+                    <td>__META_OG_IMAGE__</td>
+                    <td>__META_OG_URL__</td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>
 </body>
 </html>

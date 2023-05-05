@@ -2,7 +2,7 @@ const ethers = require('ethers')
 const moment = require('moment')
 const puppeteer = require('puppeteer')
 const NodeCache = require('node-cache')
-let { toBech32 } = require('./bech32')
+const { toBech32 } = require('./bech32')
 const RpcProvider = new ethers.JsonRpcProvider('https://api.harmony.one')
 
 const metadataCache = new NodeCache({ stdTTL: 60 * 60 * 24, checkperiod: 600 })
@@ -85,21 +85,6 @@ const tweetContract = new ethers.Contract(
   RpcProvider
 )
 
-// let browser
-// puppeteer.launch({
-//   headless: 'new',
-//   args: [
-//     '--no-sandbox',
-//     '--disable-setuid-sandbox',
-//     '--disable-gpu',
-//     '--single-process'
-//   ],
-//   // executablePath: '/usr/bin/chromium-browser'
-// }).then((data) => {
-//   console.log('Puppeteer started')
-//   browser = data
-// })
-
 const getDomainData = async (domainName) => {
   console.log(`Start fetching domain "${domainName}" data`)
   const cachedValue = metadataCache.get(domainName)
@@ -120,12 +105,13 @@ const getDomainData = async (domainName) => {
 
   const ownerAddressOne = toBech32(ownerAddress.replace('0x', '').toLowerCase(), 'one')
 
-  console.log(`ownerAddress: ${ownerAddress} (${ownerAddressOne})`)
+  console.log(`Owner address: ${ownerAddress} (${ownerAddressOne})`)
 
   const startTime = moment((parseInt(expirationTime) - parseInt(rentTime)) * 1000).format('DD/MM/YYYY')
 
   const domainUrls = await tweetContract.getAllUrls(domainName)
-  let url = domainUrls[domainUrls.length - 1]
+  const type = 'website'
+  let url = domainUrls[domainUrls.length - 1] || ''
   let imageUrl = ''
 
   if (url) {
@@ -153,8 +139,8 @@ const getDomainData = async (domainName) => {
   }
 
   const result = {
-    ownerAddress,
-    ownerAddressOne,
+    type,
+    ownerAddress: ownerAddressOne,
     startTime,
     url,
     imageUrl
