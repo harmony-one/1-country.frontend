@@ -211,7 +211,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             </BaseText>
           ),
         })
-        resetProcessStatus(5000)
+        resetProcessStatus(10000)
         return
       }
 
@@ -219,7 +219,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Url successfully added</BaseText>,
       })
-      resetProcessStatus(5000)
+      resetProcessStatus(10000)
       resetInput()
     } catch (ex) {
       ;<BaseText>
@@ -284,7 +284,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         })
       },
     })
-    resetProcessStatus(5000)
+    resetProcessStatus(10000)
     resetInput()
     setLoading(false)
   }
@@ -325,7 +325,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           render: <BaseText>{`Error: Renewal Limit Reached`}</BaseText>,
         })
       }
-      resetProcessStatus(5000)
+      resetProcessStatus(10000)
       setLoading(false)
     } catch (error) {
       setProcessStatus({
@@ -335,7 +335,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         ),
       })
       console.log(error)
-      resetProcessStatus(5000)
+      resetProcessStatus(10000)
       setLoading(false)
     }
   }
@@ -355,11 +355,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           type: ProcessStatusTypes.ERROR,
           render: (
             <BaseText>
-              Failed to extract notion page id. Please check the url.
+              Failed to extract notion page id. Please verify your Notion URL.
             </BaseText>
           ),
         })
-        resetProcessStatus(5000)
+        resetProcessStatus(10000)
         setLoading(false)
         return
       }
@@ -384,43 +384,52 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             const landingPage = `${command.aliasName}.${domainName}${config.tld}`
             const fullUrl = `https://${landingPage}`
             setProcessStatus({
-              type: ProcessStatusTypes.SUCCESS,
+              type: ProcessStatusTypes.RUNNING,
               render: (
                 <BaseText>
-                  Notion page embedded!. You can visit{' '}
-                  <span
-                    onClick={() => {
-                      window.location.assign(fullUrl)
-                      navigate('/')
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <u>{`${landingPage}`}</u>
-                  </span>
+                  Creating your Notion page...
                 </BaseText>
               ),
             })
-            resetProcessStatus(20000)
-            resetInput()
-            setLoading(false)
-            return
+            setTimeout(() => {
+              setProcessStatus({
+                type: ProcessStatusTypes.SUCCESS,
+                render: (
+                  <BaseText>
+                    Notion page embedded!. View your notion page here: {' '}
+                    <span
+                      onClick={() => {
+                        window.location.assign(fullUrl)
+                        navigate('/')
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <u>{`${landingPage}`}</u>
+                    </span>
+                  </BaseText>
+                ),
+              })
+              resetProcessStatus(10000)
+              resetInput()
+              setLoading(false)
+            }, 5000)
           }
         } catch (e) {
           console.log(e)
           setProcessStatus({
             type: ProcessStatusTypes.ERROR,
-            render: <BaseText>Error adding internal pages</BaseText>,
+            render: <BaseText>Error adding internal pages. Please try adding your Notion page again.</BaseText>,
           })
-          resetProcessStatus(5000)
+          resetProcessStatus(10000)
           setLoading(false)
           return
         }
       } else {
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
-          render: <BaseText>Invalid Notion page id</BaseText>,
+          render: <BaseText>Invalid Notion page id. Please try another Notion URL.</BaseText>,
         })
-        resetProcessStatus(5000)
+        resetProcessStatus(10000)
         setLoading(false)
       }
     } catch (e) {
@@ -430,7 +439,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           type: ProcessStatusTypes.ERROR,
           render: (
             <BaseText>
-              {`Unable to parse the url to extract notion page id. Error: ${e.toString()}`}
+              {`Unable to parse the Notion URL provided. Please try a different Notion URL. \n ${e.toString()}`}
             </BaseText>
           ),
         })
@@ -439,13 +448,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           type: ProcessStatusTypes.ERROR,
           render: (
             <BaseText>
-              Error processing the URL. Please verify its a valid Notion URL
+              Error processing the URL. Please verify it is a valid Notion URL.
             </BaseText>
           ),
         })
       }
       console.log(e)
-      resetProcessStatus(5000)
+      resetProcessStatus(10000)
       setLoading(false)
     }
   }
