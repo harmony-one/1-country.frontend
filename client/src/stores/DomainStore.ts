@@ -44,9 +44,9 @@ export class DomainStore extends BaseStore {
     )
 
     this.domainName = getDomainName()
-    console.log('JAJAJAJ')
-    this.subdomain = getSubdomain()
 
+    this.subdomain = getSubdomain()
+    console.log('url', this.domainName, this.subdomain)
     this.getCommonClient()
       .getParameters()
       .then((d1cParams) => {

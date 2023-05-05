@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { renderToString } from 'react-dom/server'
 
-import { apis, buildClient } from '../../../api/ews/ewsApi'
+import { ewsApi, ewsContractApi } from '../../../api/ews/ewsApi'
 import { NotionRenderer } from 'react-notion-x'
 import 'react-notion-x/src/styles.css'
 import 'prismjs/themes/prism-tomorrow.css'
@@ -77,7 +77,7 @@ const Tweet = ({ id }: { id: string }): JSX.Element => {
 }
 
 const HomeNotionPage: React.FC = () => {
-  const [client] = useState(buildClient())
+  const [client] = useState(ewsContractApi())
   const [page, setPage] = useState<ExtendedRecordMap>()
   // const [pageId, setPageId] = useState<string>('ae42787a7d774e3bb86dcd897f720a0b')
   const [pageId, setPageId] = useState<string>('')
@@ -101,7 +101,7 @@ const HomeNotionPage: React.FC = () => {
     const renderedPageId = pageIdOverride || pageId
     try {
       const getNotion = async () => {
-        const records = await apis.getNotionPage(renderedPageId)
+        const records = await ewsApi.getNotionPage(renderedPageId)
         setPage(records)
       }
       getNotion()

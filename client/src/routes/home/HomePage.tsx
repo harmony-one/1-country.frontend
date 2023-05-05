@@ -24,7 +24,7 @@ export const HomePage = observer(() => {
   const { domainStore } = useStores()
   const { domainName, subdomain } = domainStore
 
-  // useDefaultNetwork()
+  console.log('HomePage', domainName, subdomain)
 
   useEffect(() => {
     const isNewDomain =
