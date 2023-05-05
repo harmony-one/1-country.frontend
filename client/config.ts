@@ -35,6 +35,9 @@ const config = {
   tldLink: process.env.TLD_LINK || 'dev.1.localhost:3100', // '1.country',
   domainNftImagesPath:
     'https://storage.googleapis.com/radical-domain-nft-images',
+  betteruptime: {
+    heartbeatId: process.env.HEARTBEAT_ID,
+  },
   walletConnect: {
     projectId:
       process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8',

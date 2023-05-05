@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useWeb3Modal } from '@web3modal/react'
 import isValidUrl from 'is-url'
+import axios from 'axios'
 
 import { useStores } from '../../stores'
 import {
@@ -28,18 +29,20 @@ import commandValidator, {
 import { renewCommand } from '../../utils/command-handler/DcCommandHandler'
 import { relayApi } from '../../api/relayApi'
 import { daysBetween } from '../../api/utils'
-
-import { SearchInput } from '../../components/search-input/SearchInput'
-import { MediaWidget } from '../../components/widgets/MediaWidget'
-import { loadEmbedJson } from '../../modules/embedly/embedly'
-import { isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
-import { BaseText, SmallText } from '../../components/Text'
-import { Box } from 'grommet/components/Box'
 import { addNotionPageCommand } from '../../utils/command-handler/NotionCommandHandler'
 import { ewsApi } from '../../api/ews/ewsApi'
 import { isValidNotionPageId } from '../../../contracts/ews-common/notion-utils'
 import { useNavigate } from 'react-router'
 import { urlExists } from '../../api/checkUrl'
+import { mainApi } from '../../api/mainApi'
+import { getElementAttributes } from '../../utils/getElAttributes'
+
+import { SearchInput } from '../../components/search-input/SearchInput'
+import { MediaWidget } from '../../components/widgets/MediaWidget'
+import { loadEmbedJson } from '../../modules/embedly/embedly'
+import { isIframeWidget, isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
+import { BaseText, SmallText } from '../../components/Text'
+import { Box } from 'grommet/components/Box'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -136,6 +139,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       widget = {
         type: 'staking',
         value: url,
+      }
+    } else if (isIframeWidget(url)) { 
+      const createWidgetRes = await mainApi.addHtmlWidget(
+        getElementAttributes(url),
+        walletStore.walletAddress
+      );
+
+      widget = {
+        type: 'iframe',
+        value: createWidgetRes.data.id,
       }
     } else {
       setProcessStatus({
@@ -497,6 +510,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         console.log(CommandValidatorEnum.STAKING)
         addPost(command.url, fromUrl)
         break
+      case CommandValidatorEnum.IFRAME:
+        console.log(CommandValidatorEnum.IFRAME)
+        addPost(command.url, fromUrl)
+        break  
       case CommandValidatorEnum.RENEW:
         console.log(CommandValidatorEnum.RENEW)
         renewCommandHandler()
@@ -590,6 +607,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           <MediaWidget
             domainName={domainName}
             value={widget.value}
+            type={widget.type}
             uuid={widget.uuid}
             isPinned={widget.isPinned}
             isOwner={domainStore.isOwner}

@@ -24,6 +24,15 @@ export interface Link {
   updatedAt: Date
 }
 
+export interface HtmlWidget {
+  id: string
+  attributes: {
+    any: string;
+  };
+  title: string;
+  owner: string;
+}
+
 export const mainApi = {
   createDomain: ({
     domain,
@@ -99,6 +108,16 @@ export const mainApi = {
   getLinks: (domainName: string) => base.get<{ data: Link[] }>(`/links?domain=${domainName}`),
 
   deleteLink: (id: string) => base.delete<{ data: string }>(`/links/${id}`),
+
+  addHtmlWidget: (attributes: { any: string }, owner = '', title = '') => {
+    return base.post<HtmlWidget>(`/widgets/`, {
+      attributes,
+      owner,
+      title
+    })
+  },
+  
+  getHtmlWidget: (id: string) => base.get<HtmlWidget>(`/widgets/${id}`),
 
   auth: async ({
     signature,
