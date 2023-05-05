@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { renderToString } from 'react-dom/server'
 
-import { ewsApi, ewsContractApi } from '../../../api/ews/ewsApi'
+import { ewsApi } from '../../../api/ews/ewsApi'
 import { NotionRenderer } from 'react-notion-x'
 import 'react-notion-x/src/styles.css'
 import 'prismjs/themes/prism-tomorrow.css'
@@ -25,7 +24,7 @@ import {
   isValidNotionPageId,
 } from '../../../../contracts/ews-common/notion-utils'
 import { type ExtendedRecordMap } from 'notion-types'
-import { getPath, getSld, getSubdomain } from '../../../api/ews/utils'
+import { getPath } from '../../../api/ews/utils'
 import { Navigate } from 'react-router-dom'
 import { LinkWrapper } from '../../../components/Controls'
 import { FlexColumn, FlexRow, Main } from '../../../components/Layout'
@@ -33,6 +32,7 @@ import { Helmet } from 'react-helmet'
 import config from '../../../../config'
 import { BaseText } from '../../../components/Text'
 import { NotionPageContainer } from '../Notion.styles'
+import { useStores } from '../../../stores'
 
 interface LinkReplacerConfig {
   children: JSX.Element
@@ -77,15 +77,15 @@ const Tweet = ({ id }: { id: string }): JSX.Element => {
 }
 
 const HomeNotionPage: React.FC = () => {
-  const [client] = useState(ewsContractApi())
   const [page, setPage] = useState<ExtendedRecordMap>()
-  // const [pageId, setPageId] = useState<string>('ae42787a7d774e3bb86dcd897f720a0b')
   const [pageId, setPageId] = useState<string>('')
-  // const [allowedPageIds, setAllowedPageIds] = useState<string[]>(['7bebb4bb632c4fd985a0f816518b853f', '82036c958834437786427b83ca55bfbe'])
   const [allowedPageIds, setAllowedPageIds] = useState<string[]>([])
-  const sld = getSld()
-  const subdomain = getSubdomain()
+
   const pageIdOverride = getPath().slice(1)
+  const { rootStore, domainStore } = useStores()
+
+  const sld = domainStore.domainName
+  const subdomain = domainStore.subdomain
 
   useEffect(() => {
     if (!pageId) {
@@ -112,20 +112,20 @@ const HomeNotionPage: React.FC = () => {
 
   useEffect(() => {
     // @ts-expect-error debugging
-    window.client = client
-  }, [client])
+    window.client = rootStore.ewsClient
+  }, [rootStore.ewsClient])
 
   useEffect(() => {
-    if (!client || !sld) {
+    if (!rootStore.ewsClient || !sld) {
       return
     }
     try {
       const getPages = async () => {
         return await Promise.all([
-          client.getLandingPage(sld, subdomain).then((e) => {
+          rootStore.ewsClient.getLandingPage(sld, subdomain).then((e) => {
             setPageId(e)
           }),
-          client.getAllowedPages(sld, subdomain).then((e) => {
+          rootStore.ewsClient.getAllowedPages(sld, subdomain).then((e) => {
             setAllowedPageIds(e)
           }),
         ])
@@ -134,7 +134,7 @@ const HomeNotionPage: React.FC = () => {
     } catch (e) {
       console.log(e)
     }
-  }, [client, sld, subdomain])
+  }, [rootStore.ewsClient, sld, subdomain])
 
   // if (initializing) {
   //   return <LoadingScreen />

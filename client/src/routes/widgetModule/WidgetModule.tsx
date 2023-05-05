@@ -347,16 +347,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       })
       const notionPageId = await ewsApi.parseNotionPageIdFromRawUrl(command.url)
       console.log('pageId', notionPageId)
-      if (!isValidNotionPageId(notionPageId) && notionPageId !== '') {
-        if (
-          addNotionPageCommand(
-            domainStore.domainName,
-            command.aliasName,
-            notionPageId,
-            rootStore,
-            setProcessStatus
-          )
-        ) {
+      if (isValidNotionPageId(notionPageId) && notionPageId !== '') {
+        const tx = await addNotionPageCommand(
+          domainStore.domainName,
+          command.aliasName,
+          notionPageId,
+          rootStore,
+          setProcessStatus
+        )
+        if (tx) {
+          console.log('result', tx)
           setProcessStatus({
             type: ProcessStatusTypes.SUCCESS,
             render: <BaseText>Notion page embedded</BaseText>,
@@ -364,11 +364,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           resetProcessStatus(5000)
           resetInput()
           setLoading(false)
+          return
         }
       } else {
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
-          render: <BaseText>Invalid Notion URL</BaseText>,
+          render: <BaseText>Invalid Notion page id</BaseText>,
         })
         resetProcessStatus(5000)
         setLoading(false)

@@ -1,10 +1,16 @@
 import config from '../../../config'
 import EWSAbi from '../../../contracts/abi/EWS'
-import { type BigNumber, type ContractTransaction, ethers } from 'ethers'
+import {
+  type BigNumber,
+  type ContractTransaction,
+  ethers,
+  Contract,
+} from 'ethers'
 import axios from 'axios'
 import { type ExtendedRecordMap } from 'notion-types'
 import { type EWS } from '../../../contracts/typechain-types'
 import { isValidNotionPageId } from '../../../contracts/ews-common/notion-utils'
+import { defaultProvider } from '../defaultProvider'
 console.log('axios', config.ews.server)
 
 const base = axios.create({ baseURL: config.ews.server, timeout: 10000 })
@@ -51,36 +57,51 @@ export const EWSTypes: Record<string, EWSType> = {
   EWS_SUBSTACK: 2,
 }
 
-export const ewsContractApi = (
-  provider?: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
-  signer?: string
-) => {
-  const etherProvider =
-    provider ?? new ethers.providers.StaticJsonRpcProvider(config.defaultRPC)
-  let ews = new ethers.Contract(
+export const ewsContractApi = ({
+  provider,
+  address,
+}: {
+  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
+  address: string
+}) => {
+  const contractReadOnly = new Contract(
     config.ews.contract,
     EWSAbi,
-    etherProvider
-  ) as EWS
+    defaultProvider
+  )
+
+  const contract = contractReadOnly.connect(provider.getSigner())
+
+  // ews
+  // const etherProvider =
+  //   provider ?? new ethers.providers.StaticJsonRpcProvider(config.defaultRPC)
+  // let ews = new ethers.Contract(
+  //   config.ews.contract,
+  //   EWSAbi,
+  //   etherProvider
+  // ) as EWS
+
+  // const signer = provider.getSigner()
   // console.log('EWS CONTRACT', ews)
   // console.log('signer', signer)
-  if (signer) {
-    ews = ews.connect(signer)
-  }
+  // if (signer) {
+  //   ews = ews.connect(signer)
+  // }
   return {
-    ews,
+    contract,
+    address,
     getBaseFees: async (): Promise<BigNumber> => {
-      return await ews.landingPageFee()
+      return await contract.landingPageFee()
     },
     getPerPageFees: async (): Promise<BigNumber> => {
-      return await ews.perAdditionalPageFee()
+      return await contractReadOnly.perAdditionalPageFee()
     },
     getPerSubdomainFees: async (): Promise<BigNumber> => {
-      return ews.perSubdomainFee()
+      return contractReadOnly.perSubdomainFee()
     },
     getLandingPage: async (sld: string, subdomain: string): Promise<string> => {
       console.log('getLandingPage', sld, subdomain)
-      const response = await ews.getLandingPage(
+      const response = await contractReadOnly.getLandingPage(
         ethers.utils.id(sld),
         ethers.utils.id(subdomain)
       )
@@ -91,13 +112,13 @@ export const ewsContractApi = (
       sld: string,
       subdomain: string
     ): Promise<string[]> => {
-      return await ews.getAllowedPages(
+      return await contractReadOnly.getAllowedPages(
         ethers.utils.id(sld),
         ethers.utils.id(subdomain)
       )
     },
     getAllowMaintainerAccess: async (sld: string): Promise<boolean> => {
-      return await ews.getAllowMaintainerAccess(ethers.utils.id(sld))
+      return contractReadOnly.getAllowMaintainerAccess(ethers.utils.id(sld))
     },
     update: async (
       sld: string,
@@ -107,19 +128,20 @@ export const ewsContractApi = (
       pages: string[],
       landingPageOnly: boolean
     ): Promise<ContractTransaction> => {
-      const fees = await ews.getFees(
+      const fees = await contractReadOnly.getFees(
         sld,
         subdomain,
         landingPageOnly ? 0 : pages.length
       )
-      return await ews.update(
+      console.log('here are the fees', fees)
+      return await contract.update(
         sld,
         subdomain,
         ewsType,
         page,
         pages,
         landingPageOnly,
-        { value: fees }
+        { value: fees, gasLimit: ethers.utils.hexlify(300000) }
       )
     },
     appendAllowedPages: async (
@@ -127,8 +149,8 @@ export const ewsContractApi = (
       subdomain: string,
       pages: string[]
     ): Promise<ContractTransaction> => {
-      const additionalFees = await ews.perAdditionalPageFee()
-      return await ews.appendAllowedPages(sld, subdomain, pages, {
+      const additionalFees = await contractReadOnly.perAdditionalPageFee()
+      return await contract.appendAllowedPages(sld, subdomain, pages, {
         value: additionalFees.mul(pages.length),
       })
     },
@@ -136,10 +158,13 @@ export const ewsContractApi = (
       sld: string,
       subdomain: string
     ): Promise<ContractTransaction> => {
-      return await ews.remove(sld, subdomain)
+      return await contract.remove(sld, subdomain)
     },
     hasMaintainerRole: async (address: string): Promise<boolean> => {
-      return await ews.hasRole(await ews.MAINTAINER_ROLE(), address)
+      return await contractReadOnly.hasRole(
+        await contractReadOnly.MAINTAINER_ROLE(),
+        address
+      )
     },
   }
 }

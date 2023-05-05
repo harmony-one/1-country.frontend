@@ -17,6 +17,7 @@ export const addNotionPageCommand = async (
   setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
 ) => {
   try {
+    console.log('addNotionPageCommand', notionPageId)
     const tx = await store.ewsClient.update(
       domainName,
       subdomain,
@@ -28,6 +29,7 @@ export const addNotionPageCommand = async (
     console.log('HELLO', tx)
     return true
   } catch (e) {
+    console.log(e)
     setProcessStatus({
       type: ProcessStatusTypes.ERROR,
       render: <BaseText>Error embedding Notion Page</BaseText>,

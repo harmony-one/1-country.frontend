@@ -104,7 +104,7 @@ export class RootStore {
     this.d1dcClient = apis({ provider, address })
     this.tweetClient = tweetApi({ provider, address })
     this.vanityUrlClient = vanityApis({ provider, address })
-    this.ewsClient = ewsContractApi(provider, address)
+    this.ewsClient = ewsContractApi({ provider, address })
     // @ts-ignore
     this.commonClient = commonApi(this.d1dcClient, this.tweetClient)
   }
