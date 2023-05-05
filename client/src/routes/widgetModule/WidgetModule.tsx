@@ -38,6 +38,7 @@ import { Box } from 'grommet/components/Box'
 import { addNotionPageCommand } from '../../utils/command-handler/NotionCommandHandler'
 import { ewsApi } from '../../api/ews/ewsApi'
 import { isValidNotionPageId } from '../../../contracts/ews-common/notion-utils'
+import { useNavigate } from 'react-router'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -49,6 +50,7 @@ interface Props {
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore, utilsStore, rootStore } = useStores()
+  const navigate = useNavigate()
   const [checkIsActivated, setCheckIsActivated] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
@@ -340,14 +342,30 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const addNotionPageHandler = async (command: CommandValidator) => {
     setLoading(true)
+    const url = command.url
     try {
       setProcessStatus({
         type: ProcessStatusTypes.PROGRESS,
         render: <BaseText>Validating Notion URL</BaseText>,
       })
       const notionPageId = await ewsApi.parseNotionPageIdFromRawUrl(command.url)
-      console.log('pageId', notionPageId)
+
+      if (notionPageId === null) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: (
+            <BaseText>
+              Failed to extract notion page id. Please check the url.
+            </BaseText>
+          ),
+        })
+        resetProcessStatus(5000)
+        setLoading(false)
+        return
+      }
+
       if (isValidNotionPageId(notionPageId) && notionPageId !== '') {
+        await sleep(1000)
         const tx = await addNotionPageCommand(
           domainStore.domainName,
           command.aliasName,
@@ -357,11 +375,26 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         )
         if (tx) {
           console.log('result', tx)
+          const landingPage = `${command.aliasName}.${domainName}${config.tld}`
+          const fullUrl = `https://${landingPage}`
           setProcessStatus({
             type: ProcessStatusTypes.SUCCESS,
-            render: <BaseText>Notion page embedded</BaseText>,
+            render: (
+              <BaseText>
+                Notion page embedded!. You can visit{' '}
+                <span
+                  onClick={() => {
+                    window.location.assign(fullUrl)
+                    navigate('/')
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <u>{`${landingPage}`}</u>
+                </span>
+              </BaseText>
+            ),
           })
-          resetProcessStatus(5000)
+          resetProcessStatus(20000)
           resetInput()
           setLoading(false)
           return
@@ -375,14 +408,26 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         setLoading(false)
       }
     } catch (e) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: (
-          <BaseText>
-            Error processing the URL. Please verify its a valid Notion URL
-          </BaseText>
-        ),
-      })
+      console.log(e)
+      if (Object.prototype.toString.call(e) === '[object Error]') {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: (
+            <BaseText>
+              {`Unable to parse the url to extract notion page id. Error: ${e.toString()}`}
+            </BaseText>
+          ),
+        })
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: (
+            <BaseText>
+              Error processing the URL. Please verify its a valid Notion URL
+            </BaseText>
+          ),
+        })
+      }
       console.log(e)
       resetProcessStatus(5000)
       setLoading(false)

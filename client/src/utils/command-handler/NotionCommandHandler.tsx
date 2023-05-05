@@ -17,7 +17,10 @@ export const addNotionPageCommand = async (
   setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
 ) => {
   try {
-    console.log('addNotionPageCommand', notionPageId)
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>Waiting for a transaction to be signed</BaseText>,
+    })
     const tx = await store.ewsClient.update(
       domainName,
       subdomain,
