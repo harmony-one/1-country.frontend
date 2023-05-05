@@ -371,7 +371,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             notionPageId,
             0
           )
-          console.log('internalPagesId', internalPagesId)
           const tx = await addNotionPageCommand(
             domainStore.domainName,
             command.aliasName,
@@ -380,9 +379,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             rootStore,
             setProcessStatus
           )
+          console.log('addNotionPageCommand', tx)
           if (tx) {
+            await sleep(7500)
             await relayApi().enableSubdomains(domainName)
-            console.log('result', tx)
             const landingPage = `${command.aliasName}.${domainName}${config.tld}`
             const fullUrl = `https://${landingPage}`
             setProcessStatus({

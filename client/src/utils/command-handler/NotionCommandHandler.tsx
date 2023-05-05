@@ -28,13 +28,13 @@ export const addNotionPageCommand = async (
       internalPageIds,
       false
     )
-    return true
+    return tx
   } catch (e) {
     console.log(e)
     setProcessStatus({
       type: ProcessStatusTypes.ERROR,
       render: <BaseText>Error embedding Notion Page</BaseText>,
     })
-    return false
+    return null
   }
 }
