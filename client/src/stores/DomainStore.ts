@@ -1,7 +1,7 @@
 import { RootStore } from './RootStore'
 import { BaseStore } from './BaseStore'
 import { action, computed, makeObservable, observable, runInAction } from 'mobx'
-import { getDomainName } from '../utils/getDomainName'
+import { getDomainName, getSubdomain } from '../utils/urlHandler'
 import { DCParams, DomainPrice, DomainRecord } from '../api'
 import config from '../../config'
 import { Domain, mainApi } from '../api/mainApi'
@@ -13,6 +13,7 @@ const log = logger.module('DomainStore')
 
 export class DomainStore extends BaseStore {
   public domainName: string = ''
+  public subdomain: string = ''
   public domainPrice: DomainPrice | null = null
   public d1cParams: DCParams = {
     baseRentalPrice: {
@@ -31,6 +32,7 @@ export class DomainStore extends BaseStore {
       this,
       {
         domainName: observable,
+        subdomain: observable,
         domainRecord: observable,
         loadDomainRecord: action,
         isOwner: computed,
@@ -43,6 +45,8 @@ export class DomainStore extends BaseStore {
 
     this.domainName = getDomainName()
 
+    this.subdomain = getSubdomain()
+    console.log('url', this.domainName, this.subdomain)
     this.getCommonClient()
       .getParameters()
       .then((d1cParams) => {

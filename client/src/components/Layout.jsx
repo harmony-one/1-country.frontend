@@ -35,7 +35,7 @@ export const Main = styled(FlexColumn)`
 
 const ModalContainer = styled.div`
   position: fixed;
-  z-index: ${props => props.$zIndex || 5};
+  z-index: ${(props) => props.$zIndex || 5};
   width: 100%;
   height: 100%;
   display: flex;
@@ -60,16 +60,21 @@ const ModalBody = styled(FlexColumn)`
   overflow: auto;
 `
 
-export const Modal = ({ style, shadowStyle, children, zIndex, visible, onCancel }) => {
+export const Modal = ({
+  style,
+  shadowStyle,
+  children,
+  zIndex,
+  visible,
+  onCancel,
+}) => {
   if (!visible) {
     return <></>
   }
   return (
     <ModalContainer $zIndex={zIndex}>
       <ModalShadow style={shadowStyle} onClick={onCancel} />
-      <ModalBody style={style}>
-        {children}
-      </ModalBody>
+      <ModalBody style={style}>{children}</ModalBody>
     </ModalContainer>
   )
 }

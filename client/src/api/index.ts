@@ -1,5 +1,5 @@
 import config from '../../config'
-import DCv2Abi from '../../abi/DCv2'
+import DCv2Abi from '../../contracts/abi/DCv2'
 import Constants from '../constants'
 import BN from 'bn.js'
 import { Contract, ethers } from 'ethers'
