@@ -8,7 +8,7 @@ import { HomePageFooter } from './HomePageFooter'
 import { useStores } from '../../../stores'
 import config from '../../../../config'
 import { DomainLevel, getDomainLevel } from '../../../api/utils'
-import { getDomainName } from '../../../utils/getDomainName'
+import { getDomainName } from '../../../utils/urlHandler'
 
 import { DomainName } from '../../../components/Text'
 import { Container, DomainNameContainer } from '../Home.styles'

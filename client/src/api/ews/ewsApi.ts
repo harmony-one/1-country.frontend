@@ -1,11 +1,12 @@
-import config from '../../config'
-import EWSAbi from '../../contracts/abi/EWS'
-import IDCAbi from '../../contracts/abi/DCv2'
+import config from '../../../config'
+import EWSAbi from '../../../contracts/abi/EWS'
 import { type BigNumber, type ContractTransaction, ethers } from 'ethers'
 import axios from 'axios'
 import { type ExtendedRecordMap } from 'notion-types'
-import { type EWS, type IDC } from '../../contracts/typechain-types'
-import { isValidNotionPageId } from '../../contracts/ews-common/notion-utils'
+import { type EWS } from '../../../contracts/typechain-types'
+import { isValidNotionPageId } from '../../../contracts/ews-common/notion-utils'
+console.log('axios', config.ews.server)
+
 const base = axios.create({ baseURL: config.ews.server, timeout: 10000 })
 
 // interface APIResponse {
@@ -53,11 +54,8 @@ export const EWSTypes: Record<string, EWSType> = {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Client {
   ews: EWS
-  dc: () => Promise<IDC>
   hasMaintainerRole: (address: string) => Promise<boolean>
-  getOwner: (sld: string) => Promise<string>
   getAllowMaintainerAccess: (sld: string) => Promise<boolean>
-  getExpirationTime: (sld: string) => Promise<number>
   getBaseFees: () => Promise<BigNumber>
   getPerPageFees: () => Promise<BigNumber>
   getPerSubdomainFees: () => Promise<BigNumber>
@@ -90,36 +88,13 @@ export const buildClient = (
     EWSAbi,
     etherProvider
   ) as EWS
-  let _dc: IDC
-  const dc = async (): Promise<IDC> => {
-    if (_dc) {
-      return _dc
-    }
-    const dcAddress = await ews.dc()
-    _dc = new ethers.Contract(dcAddress, IDCAbi, etherProvider) as IDC
-    if (signer) {
-      _dc = _dc.connect(signer)
-    }
-    return _dc
-  }
-  dc().catch((e) => {
-    console.error(e)
-  })
+  // console.log('EWS CONTRACT', ews)
+  // console.log('signer', signer)
   if (signer) {
     ews = ews.connect(signer)
   }
   return {
     ews,
-    dc,
-    getOwner: async (sld: string) => {
-      const c = await dc()
-      return await c.ownerOf(sld)
-    },
-    getExpirationTime: async (sld: string) => {
-      const c = await dc()
-      const r = await c.nameExpires(sld)
-      return r.toNumber() * 1000
-    },
     getBaseFees: async (): Promise<BigNumber> => {
       return await ews.landingPageFee()
     },
@@ -130,10 +105,13 @@ export const buildClient = (
       return ews.perSubdomainFee()
     },
     getLandingPage: async (sld: string, subdomain: string): Promise<string> => {
-      return await ews.getLandingPage(
+      console.log('getLandingPage', sld, subdomain)
+      const response = await ews.getLandingPage(
         ethers.utils.id(sld),
         ethers.utils.id(subdomain)
       )
+      console.log('getLandingPage response', response)
+      return response
     },
     getAllowedPages: async (
       sld: string,

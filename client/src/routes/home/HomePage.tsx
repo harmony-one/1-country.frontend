@@ -1,9 +1,11 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react'
+import React, { Suspense, lazy, useEffect } from 'react'
+import { observer } from 'mobx-react-lite'
+
 import config from '../../../config'
 import { useStores } from '../../stores'
-import { observer } from 'mobx-react-lite'
-import { getDomainName } from '../../utils/getDomainName'
+
 import { HomePageLoader } from './components/HomePageLoader'
+import HomeNotionPage from './components/HomeNotionPage'
 
 const HomeSearchPage = lazy(
   () =>
@@ -19,10 +21,8 @@ const HomeDomainPage = lazy(
 )
 
 export const HomePage = observer(() => {
-  // const [domainName] = useState(getDomainName())
-
   const { domainStore } = useStores()
-  const { domainName } = domainStore
+  const { domainName, subdomain } = domainStore
 
   // useDefaultNetwork()
 
@@ -34,6 +34,13 @@ export const HomePage = observer(() => {
     }
   }, [domainStore.domainRecord])
 
+  if (subdomain !== '') {
+    return (
+      <Suspense fallback={<HomePageLoader />}>
+        <HomeNotionPage />
+      </Suspense>
+    )
+  }
   if (domainName === '') {
     return (
       <Suspense fallback={<HomePageLoader />}>

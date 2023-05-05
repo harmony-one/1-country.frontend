@@ -16,8 +16,7 @@ const config = {
   ews: {
     contract:
       process.env.EWS_CONTRACT || '0x0F7e6eE8E1ad920bBEF36D27635d894F604CeFC8',
-    server:
-      process.env.EWS_SERVER ?? 'https://1ns-embedder-server.hiddenstate.xyz',
+    server: process.env.EWS_SERVER ?? 'https://1ns-embedder.hiddenstate.xyz',
   },
   nameWrapperContract:
     process.env.NAME_WRAPPER_CONTRACT ||
