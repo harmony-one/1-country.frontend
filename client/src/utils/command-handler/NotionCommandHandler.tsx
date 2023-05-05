@@ -5,14 +5,13 @@ import {
   ProcessStatusTypes,
 } from '../../components/process-status/ProcessStatus'
 import { RootStore } from '../../stores/RootStore'
-import { EWSTypes, ewsApi } from '../../api/ews/ewsApi'
-import { BN } from 'bn.js'
-import { rootStore } from '../../stores'
+import { EWSTypes } from '../../api/ews/ewsApi'
 
 export const addNotionPageCommand = async (
   domainName: string,
   subdomain: string,
   notionPageId: string,
+  internalPageIds: string[],
   store: RootStore,
   setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
 ) => {
@@ -26,10 +25,9 @@ export const addNotionPageCommand = async (
       subdomain,
       EWSTypes.EWS_NOTION,
       notionPageId,
-      [],
+      internalPageIds,
       false
     )
-    console.log('HELLO', tx)
     return true
   } catch (e) {
     console.log(e)

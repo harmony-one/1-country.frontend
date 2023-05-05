@@ -365,37 +365,53 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       }
 
       if (isValidNotionPageId(notionPageId) && notionPageId !== '') {
-        await sleep(1000)
-        const tx = await addNotionPageCommand(
-          domainStore.domainName,
-          command.aliasName,
-          notionPageId,
-          rootStore,
-          setProcessStatus
-        )
-        if (tx) {
-          console.log('result', tx)
-          const landingPage = `${command.aliasName}.${domainName}${config.tld}`
-          const fullUrl = `https://${landingPage}`
+        try {
+          const internalPagesId = await ewsApi.getSameSitePageIds(
+            notionPageId,
+            0
+          )
+          console.log('internalPagesId', internalPagesId)
+          const tx = await addNotionPageCommand(
+            domainStore.domainName,
+            command.aliasName,
+            notionPageId,
+            internalPagesId,
+            rootStore,
+            setProcessStatus
+          )
+          if (tx) {
+            console.log('result', tx)
+            const landingPage = `${command.aliasName}.${domainName}${config.tld}`
+            const fullUrl = `https://${landingPage}`
+            setProcessStatus({
+              type: ProcessStatusTypes.SUCCESS,
+              render: (
+                <BaseText>
+                  Notion page embedded!. You can visit{' '}
+                  <span
+                    onClick={() => {
+                      window.location.assign(fullUrl)
+                      navigate('/')
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <u>{`${landingPage}`}</u>
+                  </span>
+                </BaseText>
+              ),
+            })
+            resetProcessStatus(20000)
+            resetInput()
+            setLoading(false)
+            return
+          }
+        } catch (e) {
+          console.log(e)
           setProcessStatus({
-            type: ProcessStatusTypes.SUCCESS,
-            render: (
-              <BaseText>
-                Notion page embedded!. You can visit{' '}
-                <span
-                  onClick={() => {
-                    window.location.assign(fullUrl)
-                    navigate('/')
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <u>{`${landingPage}`}</u>
-                </span>
-              </BaseText>
-            ),
+            type: ProcessStatusTypes.ERROR,
+            render: <BaseText>Error adding internal pages</BaseText>,
           })
-          resetProcessStatus(20000)
-          resetInput()
+          resetProcessStatus(5000)
           setLoading(false)
           return
         }
