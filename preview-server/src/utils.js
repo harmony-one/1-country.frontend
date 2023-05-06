@@ -61,7 +61,7 @@ const getDomainData = async (domainName) => {
       const page = await browser.newPage()
 
       await page.goto(url)
-      await page.waitForNetworkIdle({ timeout: 10000 })
+      await page.waitForNetworkIdle({ timeout: 5000 })
 
       const pageImages = await page.$$eval('img', (imgs) => {
         return imgs.map((x) => x.src)
@@ -70,7 +70,8 @@ const getDomainData = async (domainName) => {
       const pageImage = pageImages.find((url) =>
         !url.includes('sprite') &&
         !url.includes('icon') &&
-        !url.includes('profile')
+        !url.includes('profile') &&
+        !url.includes('base64')
       )
       if (pageImage) {
         imageUrl = pageImage
