@@ -50,6 +50,22 @@ export const mainApi = {
     })
   },
 
+  rentDomainForFree: ({
+    name,
+    owner,
+    freeRentKey,
+  }: {
+    name: string
+    owner: string
+    freeRentKey: string
+  }) => {
+    return axios.post<{ transactionHash: string }>(`${config.freeRentBackendHost}/rent`, {
+      domainName: name,
+      ownerAddress: owner,
+      freeRentKey,
+    })
+  },
+
   loadDomain: async ({ domain }: { domain: string }) => {
     const response = await base.get<{ data: Domain }>(`/domains/${domain}`)
     return response.data.data
