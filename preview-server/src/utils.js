@@ -3,7 +3,7 @@ const moment = require('moment')
 const puppeteer = require('puppeteer')
 const NodeCache = require('node-cache')
 const { toBech32 } = require('./bech32')
-const { dcContractAddress, tweetContractAddress } = require('./config')
+const { dcContractAddress, tweetContractAddress, minPreviewImageSize } = require('./config')
 const dcAbi = require('./abi/dcAbi.json')
 const tweetAbi = require('./abi/tweetAbi.json')
 
@@ -53,17 +53,42 @@ const getDomainData = async (domainName) => {
   if (url) {
     const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] })
     const page = await browser.newPage()
-    await page.goto(url)
-    const ogImageSelector = 'meta[property="og:image"]'
-    await page.waitForSelector(ogImageSelector, { timeout: 5000 })
 
-    const metaImageEl = await page.$(ogImageSelector)
-    const metaImageContent = await page.evaluate(el => el.content, metaImageEl)
-    if (metaImageContent) {
-      imageUrl = metaImageContent
+    // page.on('response', async response => {
+    //   const responseUrl = response.url()
+    //   if (response.request().resourceType() === 'image') {
+    //     response.buffer().then(file => {
+    //       allPageImages.push({ url: responseUrl, size: file.length })
+    //     })
+    //   }
+    // })
+
+    await page.goto(url)
+    await page.waitForNetworkIdle({ timeout: 10000 })
+
+    const pageImages = await page.$$eval('img', (imgs) => {
+      return imgs.map((x) => x.src)
+    })
+
+    const pageImage = pageImages.find((url) =>
+      !url.includes('sprite') &&
+      !url.includes('icon') &&
+      !url.includes('profile')
+    )
+    if (pageImage) {
+      imageUrl = pageImage
     }
+
+    // Try to get image from og:image meta tag
+    if (!imageUrl) {
+      const ogImageEl = await page.$('meta[property="og:image"]')
+      const ogImageContent = await page.evaluate(el => el.content, ogImageEl)
+      if (ogImageContent) {
+        imageUrl = ogImageContent
+      }
+    }
+
     await browser.close()
-    console.log('close')
   }
 
   const result = {
