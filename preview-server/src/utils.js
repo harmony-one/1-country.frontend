@@ -45,12 +45,16 @@ const getDomainData = async (domainName) => {
   if (url) {
     if (url.includes('url:')) {
       url = url.replace('url:', '')
+    } else if (url.includes('staking:')) {
+      const validatorAddress = url.replaceAll('staking:', '').trim()
+      url = `https://staking.harmony.one/validators/mainnet/${validatorAddress}`
+      imageUrl = `https://api.stake.hmny.io/networks/mainnet/validators/${validatorAddress}/avatar`
     }
   }
 
   console.log('url: ', url)
 
-  if (url) {
+  if (url && !imageUrl) {
     const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] })
     const page = await browser.newPage()
 
