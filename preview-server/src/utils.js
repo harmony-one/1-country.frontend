@@ -55,44 +55,40 @@ const getDomainData = async (domainName) => {
   console.log('url: ', url)
 
   if (url && !imageUrl) {
-    const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] })
-    const page = await browser.newPage()
+    const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] })
 
-    // page.on('response', async response => {
-    //   const responseUrl = response.url()
-    //   if (response.request().resourceType() === 'image') {
-    //     response.buffer().then(file => {
-    //       allPageImages.push({ url: responseUrl, size: file.length })
-    //     })
-    //   }
-    // })
+    try {
+      const page = await browser.newPage()
 
-    await page.goto(url)
-    await page.waitForNetworkIdle({ timeout: 10000 })
+      await page.goto(url)
+      await page.waitForNetworkIdle({ timeout: 10000 })
 
-    const pageImages = await page.$$eval('img', (imgs) => {
-      return imgs.map((x) => x.src)
-    })
+      const pageImages = await page.$$eval('img', (imgs) => {
+        return imgs.map((x) => x.src)
+      })
 
-    const pageImage = pageImages.find((url) =>
-      !url.includes('sprite') &&
-      !url.includes('icon') &&
-      !url.includes('profile')
-    )
-    if (pageImage) {
-      imageUrl = pageImage
-    }
-
-    // Try to get image from og:image meta tag
-    if (!imageUrl) {
-      const ogImageEl = await page.$('meta[property="og:image"]')
-      const ogImageContent = await page.evaluate(el => el.content, ogImageEl)
-      if (ogImageContent) {
-        imageUrl = ogImageContent
+      const pageImage = pageImages.find((url) =>
+        !url.includes('sprite') &&
+        !url.includes('icon') &&
+        !url.includes('profile')
+      )
+      if (pageImage) {
+        imageUrl = pageImage
       }
-    }
 
-    await browser.close()
+      // Try to get image from og:image meta tag
+      if (!imageUrl) {
+        const ogImageEl = await page.$('meta[property="og:image"]')
+        const ogImageContent = await page.evaluate(el => el.content, ogImageEl)
+        if (ogImageContent) {
+          imageUrl = ogImageContent
+        }
+      }
+    } catch (e) {
+      console.log('Puppeteer error:', e)
+    } finally {
+      await browser.close()
+    }
   }
 
   const result = {
