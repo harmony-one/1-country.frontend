@@ -153,7 +153,7 @@ export const MediaWidget: React.FC<Props> = ({ domainName, value, uuid, isOwner,
 
   return (
     <Anchor id={getAnchorLink()}>
-      {isPinned && !isLoading && (
+      {(isPinned && !isLoading && isOwner) && (
         <Box direction={'row'} gap={'8px'} style={{ textAlign: 'left' }}>
           <Pin />
           <Text size={'small'}>
@@ -182,6 +182,11 @@ export const MediaWidget: React.FC<Props> = ({ domainName, value, uuid, isOwner,
               <FiLink size={'16px'} />
             </Box>
           } */}
+          {(isPinned && !isOwner) &&
+            <Box margin={{ top: '8px', right: '8px' }}>
+              <Pin />
+            </Box>
+          }
           {isOwner &&
             <Box onClick={onDelete} style={{ opacity: '0.5' }}>
               <CloseCircle />
