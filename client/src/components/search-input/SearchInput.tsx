@@ -1,38 +1,10 @@
 import React, { useRef } from 'react'
 import { Box } from 'grommet/components/Box'
-import { TextInput, TextInputProps } from 'grommet/components/TextInput'
+import { TextInputProps } from 'grommet/components/TextInput'
 
 import { FormClose } from 'grommet-icons/icons/FormClose'
 import styled, { css } from 'styled-components'
-import { palette } from '../../constants'
-
-const TextInputWrapper = styled(TextInput)<{ isValid?: boolean }>`
-  border-radius: 20px;
-  box-shadow: none;
-  font-weight: 400;
-  border: 1px solid #dfe1e5;
-  color: #333437;
-  transition: border-color 250ms, box-shadow 250ms;
-
-  &:focus,
-  &:hover {
-    background-color: #fff;
-    box-shadow: 0 1px 5px rgb(32 33 36 / 26%);
-    border-color: rgba(223, 225, 229, 0);
-  }
-
-  ${(props) =>
-    !props.isValid &&
-    css`
-      border-color: ${palette.PinkRed};
-
-      &:hover,
-      &:focus {
-        border-color: ${palette.LightRed};
-        box-shadow: 0 1px 6px rgb(255 77 79 / 26%);
-      }
-    `}
-`
+import { TextInput } from '../TextInput'
 
 const InputSuffix = styled(Box)`
   position: absolute;
@@ -105,7 +77,7 @@ export const SearchInput = (props: SearchInputProps) => {
       justify={'center'}
       paddingLeft={props.icon ? null : '24px'}
     >
-      <TextInputWrapper {...inputProps} />
+      <TextInput {...inputProps} />
       {allowClear && !props.disabled && props.value && (
         <InputSuffix>
           <FormClose onClick={clearValue} />

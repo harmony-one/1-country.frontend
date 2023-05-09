@@ -27,10 +27,10 @@ export interface Link {
 export interface HtmlWidget {
   id: string
   attributes: {
-    any: string;
-  };
-  title: string;
-  owner: string;
+    any: string
+  }
+  title: string
+  owner: string
 }
 
 export const mainApi = {
@@ -48,6 +48,25 @@ export const mainApi = {
       txHash,
       referral,
     })
+  },
+
+  rentDomainForFree: ({
+    name,
+    owner,
+    freeRentKey,
+  }: {
+    name: string
+    owner: string
+    freeRentKey: string
+  }) => {
+    return axios.post<{ transactionHash: string }>(
+      `${config.freeRentBackendHost}/rent`,
+      {
+        domainName: name,
+        ownerAddress: owner,
+        freeRentKey,
+      }
+    )
   },
 
   loadDomain: async ({ domain }: { domain: string }) => {
@@ -96,16 +115,18 @@ export const mainApi = {
     return base.post<{ data: Link }>(`/links/`, {
       domainName,
       linkId,
-      url
+      url,
     })
   },
 
-  pinLink: (id: string, isPinned: boolean) => base.post<{ data: Link }>(`/links/pin`, {
-    id,
-    isPinned
-  }),
+  pinLink: (id: string, isPinned: boolean) =>
+    base.post<{ data: Link }>(`/links/pin`, {
+      id,
+      isPinned,
+    }),
 
-  getLinks: (domainName: string) => base.get<{ data: Link[] }>(`/links?domain=${domainName}`),
+  getLinks: (domainName: string) =>
+    base.get<{ data: Link[] }>(`/links?domain=${domainName}`),
 
   deleteLink: (id: string) => base.delete<{ data: string }>(`/links/${id}`),
 
@@ -113,10 +134,10 @@ export const mainApi = {
     return base.post<HtmlWidget>(`/widgets/`, {
       attributes,
       owner,
-      title
+      title,
     })
   },
-  
+
   getHtmlWidget: (id: string) => base.get<HtmlWidget>(`/widgets/${id}`),
 
   auth: async ({
