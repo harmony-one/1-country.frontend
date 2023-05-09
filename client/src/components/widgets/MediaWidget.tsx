@@ -161,7 +161,8 @@ export const MediaWidget: React.FC<Props> = ({
   }
 
   return (
-    <Anchor id={getAnchorLink()}>
+    <div>
+      <Anchor id={getAnchorLink()} />
       {isPinned && !isLoading && (
         <Box direction={'row'} gap={'8px'} style={{ textAlign: 'left' }}>
           <Pin />
@@ -211,6 +212,6 @@ export const MediaWidget: React.FC<Props> = ({
           )}
         </WidgetControls>
       </WidgetsContainer>
-    </Anchor>
+    </div>
   )
 }

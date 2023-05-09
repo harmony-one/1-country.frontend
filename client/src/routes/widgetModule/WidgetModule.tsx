@@ -445,7 +445,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           key={widget.id + widget.value + +widget.isPinned}
           loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
         >
-          Hola {widget.uuid} {widget.id}
           <MediaWidget
             domainName={domainName}
             value={widget.value}
