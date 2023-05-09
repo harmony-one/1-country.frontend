@@ -9,6 +9,9 @@ import {
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../../components/process-status/ProcessStatus'
+import { PostInfo } from '../../api/postApi'
+import { BigNumber, ethers } from 'ethers'
+import { BN } from 'bn.js'
 
 export interface Widget {
   id?: number
@@ -19,6 +22,7 @@ export interface Widget {
 }
 
 const parseRawUrl = (url: string): Widget => {
+  console.log('parseRawUrl', url)
   const [type, ...rest] = url.split(':')
 
   let value = rest.join(':')
@@ -44,6 +48,7 @@ const buildUrlFromWidgets = (widgets: Widget[]) => {
 }
 
 const mapUrlToWidget = (url: string, index: number, dbLink?: Link): Widget => {
+  console.log('mapUrlToWidget', url, index, dbLink)
   return {
     id: index,
     ...parseRawUrl(url),
@@ -140,7 +145,7 @@ class WidgetListStore extends BaseStore {
       const linkId = this.widgetList.length.toString()
       await mainApi.addLinks(domainName, linkId, widget)
 
-      await this.loadWidgetList(domainName)
+      await this.loadWidgetList(domainName, nameSpace)
       return result
     } catch (ex) {
       console.log('### add url error', ex)
@@ -189,8 +194,9 @@ class WidgetListStore extends BaseStore {
     widgetId: number
     widgetUuid?: string
     domainName: string
+    nameSpace: string
   }) {
-    const { widgetId, widgetUuid, domainName } = props
+    const { widgetId, widgetUuid, domainName, nameSpace } = props
     console.log('delete widget', props)
 
     const processStatus = this.getWidgetLoader(widgetId)
@@ -238,7 +244,7 @@ class WidgetListStore extends BaseStore {
           render: '',
         })
 
-        this.loadWidgetList(domainName)
+        this.loadWidgetList(domainName, nameSpace)
       }, 3000)
     } catch (ex) {
       this.setWidgetLoader(widgetId, {
@@ -260,7 +266,7 @@ class WidgetListStore extends BaseStore {
   ) {
     const { domainName, widgetId, onSuccess, onTransactionHash, onFailed } =
       props
-
+    console.log('_deleteWidget', domainName, widgetId)
     try {
       if (!this.stores.walletStore.isConnected) {
         await this.stores.walletStore.connect()
@@ -276,24 +282,23 @@ class WidgetListStore extends BaseStore {
       const client = this.getPostClient()
       const result = await client.deletePost({
         name: domainName,
-        postIds: [widgetId], // expecting an array
+        postIds: [ethers.BigNumber.from(widgetId)], // expecting an array
         onSuccess,
         onFailed,
         onTransactionHash,
       })
-
+      console.log('DELETE RESULT', result)
       return result
     } catch (ex) {
       console.log('### error delete url', ex)
     }
   }
 
-  async loadWidgetList(domainName: string) {
+  async loadWidgetList(domainName: string, nameSpace: string) {
     // const client = this.getTweetClient()
     // const urlList = await client.getRecordUrlList({ name: domainName })
     const client = this.getPostClient()
     const urlList = await client.getPosts({ name: domainName })
-
     let dbLinks: Link[] = []
     try {
       const { data } = await mainApi.getLinks(domainName)
@@ -304,11 +309,14 @@ class WidgetListStore extends BaseStore {
 
     runInAction(() => {
       this.widgetList = urlList
-        .map((url: string, index: number) => {
+        .filter((post) => {
+          return post.nameSpace === nameSpace
+        })
+        .map((post: PostInfo, index: number) => {
           const dbLink = dbLinks.find(
             (dbLink) => dbLink.linkId === index.toString()
           )
-          return mapUrlToWidget(url, index, dbLink)
+          return mapUrlToWidget(post.url, post.postId.toNumber(), dbLink) //index
         })
         .sort(sortWidgets)
     })
@@ -332,15 +340,6 @@ class WidgetListStore extends BaseStore {
       return ''
     }
   }
-
-  // async loadIsActivated(domainName: string) {
-  //   const client = this.getTweetClient()
-  //   try {
-  //     this.isActivated = await client.isActivated(domainName)
-  //   } catch (ex) {
-  //     console.log('### ex isActivated', ex)
-  //   }
-  // }
 }
 
 export const widgetListStore = new WidgetListStore(rootStore)

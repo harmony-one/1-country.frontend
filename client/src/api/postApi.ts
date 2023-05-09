@@ -5,10 +5,8 @@ import {
   TransactionResponse,
 } from '@ethersproject/abstract-provider'
 import { CallbackProps, SendProps } from './index'
-import { utils } from './utils'
 import { defaultProvider } from './defaultProvider'
-
-import { Contract, ethers } from 'ethers'
+import { BigNumber, Contract, ethers } from 'ethers'
 
 const { postContract } = config
 
@@ -32,7 +30,7 @@ interface AddPostProps extends CallbackProps {
 
 interface DeletePostProps extends CallbackProps {
   name: string
-  postIds: number[]
+  postIds: BigNumber[]
 }
 
 interface TransferPostOwnershipProps extends CallbackProps {
@@ -40,6 +38,13 @@ interface TransferPostOwnershipProps extends CallbackProps {
   receiver: string
   isAllNameSpace: boolean
   nameSpace: string
+}
+
+export interface PostInfo {
+  postId: BigNumber // starts from 0
+  url: string
+  nameSpace: string
+  owner: string
 }
 
 const postApi = ({
@@ -143,9 +148,11 @@ const postApi = ({
       onSuccess,
       onTransactionHash,
     }: AddPostProps) => {
+      console.log('before add post')
       return send({
+        // amount,
         parameters: [name, urls, nameSpace],
-        methodName: 'addURL',
+        methodName: 'addNewPost',
         onFailed,
         onSuccess,
         onTransactionHash,
@@ -163,13 +170,13 @@ const postApi = ({
       // getRecordUrlList
       return send({
         parameters: [name, receiver, isAllNameSpace, nameSpace],
-        methodName: 'addURL',
+        methodName: 'trasnferPostOwnership',
         onFailed,
         onSuccess,
         onTransactionHash,
       })
     },
-    getPosts: async ({ name }: { name: string }) => {
+    getPosts: async ({ name }: { name: string }): Promise<PostInfo[]> => {
       // getRecordUrlList
       return contractReadOnly.getPosts(name)
     },

@@ -55,14 +55,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { open } = useWeb3Modal()
 
   useEffect(() => {
-    const sub = window.location.pathname.split('/').pop()
-    console.log('subpage', sub)
-    if (sub) {
-      setSubPage(sub)
-    }
-  }, [])
-
-  useEffect(() => {
     const handlingCommand = async () => {
       await commandHandler(utilsStore.command, true)
     }
@@ -98,11 +90,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }, [domainName])
 
   useEffect(() => {
-    // const checkActivated = async () => {
-    //   await widgetListStore.loadIsActivated(domainName)
-    //   setCheckIsActivated(true)
-    // }
-    widgetListStore.loadWidgetList(domainName)
+    const sub = window.location.pathname.split('/').pop()
+    console.log('sub', sub)
+    if (sub) {
+      setSubPage(sub)
+    }
+    console.log('useffect', domainName, subPage)
+    widgetListStore.loadWidgetList(domainName, sub)
     widgetListStore.loadDomainTx(domainName)
     // checkActivated()
   }, [domainName])
@@ -404,6 +398,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       widgetId: widget.id,
       widgetUuid: widget.uuid,
       domainName,
+      nameSpace: subPage,
     })
   }
 
@@ -450,6 +445,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           key={widget.id + widget.value + +widget.isPinned}
           loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
         >
+          Hola {widget.uuid} {widget.id}
           <MediaWidget
             domainName={domainName}
             value={widget.value}
