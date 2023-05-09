@@ -140,6 +140,7 @@
     "lodash.unescape": "^4.0.1",
     "mobx": "^6.7.0",
     "mobx-react-lite": "^3.4.0",
+    "normalize-url": "7.2.0",
     "notion-types": "^6.16.0",
     "qs": "^6.11.0",
     "react": "^17.0.2",
