@@ -140,6 +140,19 @@ export const TransactionWidget: React.FC<Props> = observer(({ name }) => {
             </Text>
           </Box>
         )}
+        {!domainStore.isExpired && domainStore.domainName.length <= 3 && (
+          <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
+            <Text
+              size={'small'}
+              // weight={'bold'}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              <a href="https://t.me/+RQf_CIiLL3ZiOTYx" target="_blank">
+                Join the 1.country 3-character club!
+              </a>
+            </Text>
+          </Box>
+        )}
       </Box>
     </Container>
   )
