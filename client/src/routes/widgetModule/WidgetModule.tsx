@@ -40,9 +40,14 @@ import { getElementAttributes } from '../../utils/getElAttributes'
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
-import { isIframeWidget, isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
+import {
+  isIframeWidget,
+  isRedditUrl,
+  isStakingWidgetUrl,
+} from '../../utils/validation'
 import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
+import { Text } from 'grommet'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -140,11 +145,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         type: 'staking',
         value: url,
       }
-    } else if (isIframeWidget(url)) { 
+    } else if (isIframeWidget(url)) {
       const createWidgetRes = await mainApi.addHtmlWidget(
         getElementAttributes(url),
         walletStore.walletAddress
-      );
+      )
 
       widget = {
         type: 'iframe',
@@ -513,7 +518,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       case CommandValidatorEnum.IFRAME:
         console.log(CommandValidatorEnum.IFRAME)
         addPost(command.url, fromUrl)
-        break  
+        break
       case CommandValidatorEnum.RENEW:
         console.log(CommandValidatorEnum.RENEW)
         renewCommandHandler()
@@ -618,7 +623,25 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       ))}
 
       {domainStore.domainRecord && <TransactionWidget name={domainName} />}
-
+      {!domainStore.isExpired &&
+        domainStore.domainName.length <= 3 &&
+        walletStore.isConnected && (
+          <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
+            <Text
+              size={'small'}
+              // weight={'bold'}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              <a
+                href="https://t.me/+RQf_CIiLL3ZiOTYx"
+                target="_blank"
+                style={{ textDecoration: 'none' }}
+              >
+                Join the 1.country 3-character club
+              </a>
+            </Text>
+          </Box>
+        )}
       {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
         <MetamaskWidget />
       )}
