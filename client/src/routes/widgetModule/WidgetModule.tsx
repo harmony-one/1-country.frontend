@@ -186,7 +186,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
     try {
       const result = await widgetListStore.createWidget({
-        widget: [widget],
+        widgets: [widget],
         domainName,
         nameSpace: subPage || '',
         onTransactionHash: () => {
@@ -395,8 +395,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const deleteWidget = (widget: Widget) => {
     return widgetListStore.deleteWidget({
-      widgetId: widget.id,
-      widgetUuid: widget.uuid,
+      widgets: [widget],
       domainName,
       nameSpace: subPage,
     })
@@ -421,7 +420,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             onSearch={onChange}
             onKeyDown={enterHandler}
           />
-          {checkIsActivated && !widgetListStore.isActivated && (
+          {/* {checkIsActivated && !widgetListStore.isActivated && (
             <Box pad={{ top: '0.5em' }}>
               <SmallText>
                 Your first transaction when trying to add a post is an
@@ -430,7 +429,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
                 a post.
               </SmallText>
             </Box>
-          )}
+          )} */}
 
           {processStatus.type !== ProcessStatusTypes.IDLE && (
             <Box align={'center'} margin={{ top: '8px' }}>

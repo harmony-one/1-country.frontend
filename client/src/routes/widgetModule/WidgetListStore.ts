@@ -68,7 +68,6 @@ class WidgetListStore extends BaseStore {
   widgetList: Widget[] = []
   txDomainLoading: boolean = false
   txDomain: string = ''
-  isActivated: boolean = false
 
   constructor(rootStore: RootStore) {
     super(rootStore)
@@ -84,7 +83,6 @@ class WidgetListStore extends BaseStore {
         deleteWidget: action,
         _deleteWidget: action,
         setWidgetLoader: observable,
-        // loadIsActivated: action,
       },
       { autoBind: true }
     )
@@ -92,13 +90,13 @@ class WidgetListStore extends BaseStore {
 
   async createWidget(
     props: {
-      widget: Widget[]
+      widgets: Widget[]
       domainName: string
       nameSpace: string
     } & CallbackProps
   ) {
     const {
-      widget,
+      widgets,
       domainName,
       nameSpace,
       onTransactionHash,
@@ -111,39 +109,19 @@ class WidgetListStore extends BaseStore {
         await this.stores.walletStore.connect()
       }
 
-      const client = this.getPostClient() //.getTweetClient()
-      // const isActivated = await client.isActivated(domainName)
-      // console.log('isActivated', isActivated)
-
-      // if (!isActivated) {
-      //   const rentalPrice = await client.baseRentalPrice()
-      //   await client.activate({
-      //     name: domainName,
-      //     amount: rentalPrice,
-      //   })
-      //   await new Promise((resolve) => setTimeout(resolve, 5000))
-      // }
-
-      this.isActivated = true
+      const client = this.getPostClient()
 
       const result = await client.addNewPost({
         name: domainName,
-        urls: buildUrlFromWidgets(widget),
+        urls: buildUrlFromWidgets(widgets),
         nameSpace: nameSpace,
         onSuccess,
         onFailed,
         onTransactionHash,
       })
-      // .addRecordUrl({
-      //   name: domainName,
-      //   url: buildUrlFromWidget(widget),
-      //   onSuccess,
-      //   onFailed,
-      //   onTransactionHash,
-      // })
 
       const linkId = this.widgetList.length.toString()
-      await mainApi.addLinks(domainName, linkId, widget)
+      await mainApi.addLinks(domainName, linkId, widgets)
 
       await this.loadWidgetList(domainName, nameSpace)
       return result
@@ -190,21 +168,28 @@ class WidgetListStore extends BaseStore {
     }
   }
 
+  async deleteLinks(widgets: Widget[]) {
+    await widgets.map((widget) => {
+      if (widget.uuid) {
+        mainApi.deleteLink(widget.uuid)
+      }
+    })
+  }
+
   async deleteWidget(props: {
-    widgetId: number
-    widgetUuid?: string
+    widgets: Widget[]
     domainName: string
     nameSpace: string
   }) {
-    const { widgetId, widgetUuid, domainName, nameSpace } = props
+    const { widgets, domainName, nameSpace } = props
     console.log('delete widget', props)
 
-    const processStatus = this.getWidgetLoader(widgetId)
+    const processStatus = this.getWidgetLoader(widgets[0].id)
     if (processStatus.type !== ProcessStatusTypes.IDLE) {
       return
     }
 
-    this.setWidgetLoader(widgetId, {
+    this.setWidgetLoader(widgets[0].id, {
       type: ProcessStatusTypes.PROGRESS,
       render: 'Waiting for a transaction to be signed',
     })
@@ -212,9 +197,9 @@ class WidgetListStore extends BaseStore {
     try {
       const result = await this._deleteWidget({
         domainName,
-        widgetId,
+        widgets,
         onTransactionHash: () => {
-          this.setWidgetLoader(widgetId, {
+          this.setWidgetLoader(widgets[0].id, {
             type: ProcessStatusTypes.PROGRESS,
             render: 'Waiting for transaction confirmation',
           })
@@ -222,24 +207,22 @@ class WidgetListStore extends BaseStore {
       })
 
       if (result.error) {
-        this.setWidgetLoader(widgetId, {
+        this.setWidgetLoader(widgets[0].id, {
           type: ProcessStatusTypes.ERROR,
           render: result.error.message,
         })
         throw result.error
       }
 
-      if (widgetUuid) {
-        await mainApi.deleteLink(widgetUuid)
-      }
+      await this.deleteLinks(widgets)
 
-      this.setWidgetLoader(widgetId, {
+      this.setWidgetLoader(widgets[0].id, {
         type: ProcessStatusTypes.SUCCESS,
         render: 'Url successfully removed',
       })
 
       setTimeout(() => {
-        this.setWidgetLoader(widgetId, {
+        this.setWidgetLoader(widgets[0].id, {
           type: ProcessStatusTypes.IDLE,
           render: '',
         })
@@ -247,13 +230,13 @@ class WidgetListStore extends BaseStore {
         this.loadWidgetList(domainName, nameSpace)
       }, 3000)
     } catch (ex) {
-      this.setWidgetLoader(widgetId, {
+      this.setWidgetLoader(widgets[0].id, {
         type: ProcessStatusTypes.ERROR,
         render: ex.message,
       })
 
       setTimeout(() => {
-        this.setWidgetLoader(widgetId, {
+        this.setWidgetLoader(widgets[0].id, {
           type: ProcessStatusTypes.IDLE,
           render: '',
         })
@@ -262,27 +245,21 @@ class WidgetListStore extends BaseStore {
   }
 
   async _deleteWidget(
-    props: { domainName: string; widgetId: number } & CallbackProps
+    props: { domainName: string; widgets: Widget[] } & CallbackProps
   ) {
-    const { domainName, widgetId, onSuccess, onTransactionHash, onFailed } =
+    const { domainName, widgets, onSuccess, onTransactionHash, onFailed } =
       props
-    console.log('_deleteWidget', domainName, widgetId)
+    console.log('_deleteWidget', domainName, { widgets })
     try {
       if (!this.stores.walletStore.isConnected) {
         await this.stores.walletStore.connect()
       }
-      // const client = this.getTweetClient()
-      // const result = await client.removeRecordUrl({
-      //   name: domainName,
-      //   pos: widgetId,
-      //   onSuccess,
-      //   onFailed,
-      //   onTransactionHash,
-      // })
       const client = this.getPostClient()
       const result = await client.deletePost({
         name: domainName,
-        postIds: [ethers.BigNumber.from(widgetId)], // expecting an array
+        postIds: widgets.map((widget: Widget) =>
+          ethers.BigNumber.from(widget.id)
+        ),
         onSuccess,
         onFailed,
         onTransactionHash,
@@ -295,8 +272,6 @@ class WidgetListStore extends BaseStore {
   }
 
   async loadWidgetList(domainName: string, nameSpace: string) {
-    // const client = this.getTweetClient()
-    // const urlList = await client.getRecordUrlList({ name: domainName })
     const client = this.getPostClient()
     const urlList = await client.getPosts({ name: domainName })
     let dbLinks: Link[] = []
