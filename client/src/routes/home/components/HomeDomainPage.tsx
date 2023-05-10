@@ -8,16 +8,18 @@ import { HomePageFooter } from './HomePageFooter'
 import { useStores } from '../../../stores'
 import config from '../../../../config'
 import { DomainLevel, getDomainLevel } from '../../../api/utils'
-import { getDomainName } from '../../../utils/getDomainName'
-
-import { DomainName } from '../../../components/Text'
-import { Container, DomainNameContainer, TipContainer } from '../Home.styles'
+import { getDomainName } from '../../../utils/urlHandler'
+import { BgColorSelector } from './BgColorSelector'
 import {
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../../../components/process-status/ProcessStatus'
 import EmojiSection from '../../../components/emoji-section/EmojiSection'
-import { BgColorSelector } from './BgColorSelector'
+import { VanityURL } from '../VanityURL'
+
+import { DomainName } from '../../../components/Text'
+import { Container, DomainNameContainer } from '../Home.styles'
+import 'react-notion-x/src/styles.css'
 
 interface Props {}
 
@@ -43,9 +45,9 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
     })
   }, [domainStore.domainName])
 
-  const handleClickDomain = () => {
-    window.open(`mailto:1country@harmony.one`, '_self')
-  }
+  // const handleClickDomain = () => {
+  //   window.open(`mailto:1country@harmony.one`, '_self')
+  // }
 
   const showRenewalBlock =
     walletStore.isConnected &&
@@ -54,22 +56,24 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
 
   return (
     <Container>
-      {/*<VanityURL*/}
-      {/*  record={domainStore.domainRecord}*/}
-      {/*  name={domainStore.domainName}*/}
-      {/*/>*/}
+      <VanityURL
+        record={domainStore.domainRecord}
+        name={domainStore.domainName}
+      />
       <div style={{ height: '2em' }} />
       <DomainNameContainer>
         <DomainName
           level={level}
-          onClick={handleClickDomain}
+          // onClick={handleClickDomain}
           style={{ cursor: widgetListStore.txDomain && 'pointer' }}
         >
-          {domainStore.domainName}.country
+          <a href="mailto:1country@harmony.one">
+            {domainStore.domainName}.country
+          </a>
         </DomainName>
-        {(domainStore.domainRecord && domainStore.domainRecord.renter && !domainStore.isExpired) && (
-          <EmojiSection />
-        )}
+        {/* {domainStore.domainRecord &&
+          domainStore.domainRecord.renter &&
+          !domainStore.isExpired && <EmojiSection />} */}
       </DomainNameContainer>
 
       {domainStore.domainRecord && domainStore.domainRecord.renter && (

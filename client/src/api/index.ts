@@ -1,5 +1,5 @@
 import config from '../../config'
-import DCv2Abi from '../../abi/DCv2'
+import DCv2Abi from '../../contracts/abi/DCv2'
 import Constants from '../constants'
 import BN from 'bn.js'
 import { Contract, ethers } from 'ethers'
@@ -68,7 +68,7 @@ interface RentProps extends CallbackProps {
 
 interface RenewDomainProps extends CallbackProps {
   name: string
-  url: string
+  url?: string
   amount: string
 }
 
@@ -132,13 +132,12 @@ const apis = ({
     methodName,
     parameters,
   }: SendProps): Promise<SendResult> => {
-    console.log('send', { methodName, parameters, amount, address })
-
     try {
+      console.log('send', amount, parameters)
       const txResponse = (await contract[methodName](...parameters, {
         value: amount,
+        // gasLimit: ethers.utils.hexlify(300000),
       })) as TransactionResponse
-
       onTransactionHash(txResponse.hash)
 
       if (config.debug) {
@@ -173,7 +172,6 @@ const apis = ({
         address,
         secretHash
       )
-
       return send({
         onFailed,
         onSuccess,

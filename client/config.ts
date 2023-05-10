@@ -9,16 +9,18 @@ const config = {
     process.env.REGISTRAR_RELAYER ||
     'https://1ns-registrar-relayer.hiddenstate.xyz',
   contract:
-    process.env.CONTRACT || '0xeFC73fB07660464aA03A5790D011DA0512c5854f',
+    process.env.CONTRACT || '0x547942748Cc8840FEc23daFdD01E6457379B446D',
   tweetContractAddress:
     process.env.TWEET_CONTRACT_ADDRESS ||
     '0x17cF877f9226ba382b0baDA1499576E60A547955',
+  ews: {
+    contract:
+      process.env.EWS_CONTRACT || '0x067B394Cbd08D08e565f886DEFDE906A7E42FB93',
+    server: process.env.EWS_SERVER ?? 'https://1ns-embedder.hiddenstate.xyz',
+  },
   nameWrapperContract:
     process.env.NAME_WRAPPER_CONTRACT ||
     '0x4cd2563118e57b19179d8dc033f2b0c5b5d69ff5',
-  contractVanityURL:
-    process.env.CONTRACT_VANITY_URL ||
-    '0x88a1afC4134f385337Dd5F530D452079fC9E14CC', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
   explorer: {
     explorerUrl:
       process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/',
@@ -33,22 +35,32 @@ const config = {
   tldLink: process.env.TLD_LINK || 'dev.1.localhost:3100', // '1.country',
   domainNftImagesPath:
     'https://storage.googleapis.com/radical-domain-nft-images',
+  betteruptime: {
+    heartbeatId: process.env.HEARTBEAT_ID,
+  },
   walletConnect: {
     projectId:
       process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8',
   },
+  vanityUrl: {
+    price: 0,
+    contractVanityURL:
+      process.env.VANITY_URL_CONTRACT ||
+      '0xc8288E9cC4159B83f6510b7F3103e25f2cc4CA30', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
+  },
   domain: {
     tiers: {
-      LEGENDARY: process.env.TIER_LEGENDARY || 1,
-      SUPER_RARE: process.env.TIER_SUPER_RARE || 6,
-      RARE: process.env.TIER_RARE || 9,
-      COMMON: process.env.TIER_COMMON || 10,
+      LEGENDARY: Number(process.env.TIER_LEGENDARY) || 1,
+      SUPER_RARE: Number(process.env.TIER_SUPER_RARE) || 6,
+      RARE: Number(process.env.TIER_RARE) || 9,
+      COMMON: Number(process.env.TIER_COMMON) || 10,
     },
-    reserved: process.env.DOMAIN_RESERVED_LENGTH || 6,
+    reserved: Number(process.env.DOMAIN_RESERVED_LENGTH) || 6,
     restrictedPhrases: process.env.RESTRICTED_PHRASES
       ? process.env.RESTRICTED_PHRASES.split(', ')
       : ['metamask', 'walletconnect'],
     expirationReminderDays: process.env.EXPIRATION_REMAINDER_DAYS || 30,
+    renewalLimit: Number(process.env.RENEWAL_LIMIT) || 90, // one time
   },
   emojiType: {
     ONE_ABOVE: 0,

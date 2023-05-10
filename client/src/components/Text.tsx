@@ -24,6 +24,13 @@ export const DomainName = styled.div<{ size?: string; level: DomainLevel }>`
   font-family: NunitoBold, system-ui;
   font-weight: bold;
 
+  a,
+  a:hover,
+  a:focus,
+  a:active {
+    text-decoration: none;
+    color: inherit;
+  }
   ${(props) => {
     switch (props.level) {
       case 'reserved':

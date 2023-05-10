@@ -36,7 +36,8 @@ import { SearchInput } from '../../../components/search-input/SearchInput'
 import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet/components/Text'
-import { Container } from '../Home.styles'
+import { Container, PageCurationSection } from '../Home.styles'
+import PageCuration, { PAGE_CURATION_LIST } from './PageCuration'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -409,7 +410,10 @@ const HomeSearchPage: React.FC = observer(() => {
         render: <BaseText>{e.message}</BaseText>,
       })
       terminateProcess(1500)
-      console.log('Connect error:', e)
+      if (e.name === 'UserRejectedRequestError') {
+        open()
+      }
+      console.log('Connect error:', { e })
       return
     }
 
@@ -680,6 +684,16 @@ const HomeSearchPage: React.FC = observer(() => {
           )}
         </SearchBoxContainer>
       </FlexRow>
+      <PageCurationSection>
+        {PAGE_CURATION_LIST.map((page, index) => (
+          <PageCuration
+            url={page.url}
+            img={page.img}
+            icon={page.icon}
+            key={index}
+          />
+        ))}
+      </PageCurationSection>
     </Container>
   )
 })

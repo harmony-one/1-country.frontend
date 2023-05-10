@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { useWeb3Modal } from '@web3modal/react'
+import isValidUrl from 'is-url'
+import axios from 'axios'
+
 import { useStores } from '../../stores'
 import {
   PageWidgetContainer,
@@ -7,7 +11,7 @@ import {
 import { observer } from 'mobx-react-lite'
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
-import isValidUrl from 'is-url'
+
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
 import {
@@ -15,19 +19,30 @@ import {
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../../components/process-status/ProcessStatus'
-import { SearchInput } from '../../components/search-input/SearchInput'
-import { MediaWidget } from '../../components/widgets/MediaWidget'
-import { loadEmbedJson } from '../../modules/embedly/embedly'
-import {
-  isEmail,
-  isRedditUrl,
-  isStakingWidgetUrl,
-} from '../../utils/validation'
-import { BaseText, SmallText } from '../../components/Text'
-import { Box } from 'grommet/components/Box'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
 import { sleep } from '../../utils/sleep'
 import config from '../../../config'
+import commandValidator, {
+  CommandValidator,
+  CommandValidatorEnum,
+} from '../../utils/command-handler/commandValidator'
+import { renewCommand } from '../../utils/command-handler/DcCommandHandler'
+import { relayApi } from '../../api/relayApi'
+import { daysBetween } from '../../api/utils'
+import { addNotionPageCommand } from '../../utils/command-handler/NotionCommandHandler'
+import { ewsApi } from '../../api/ews/ewsApi'
+import { isValidNotionPageId } from '../../../contracts/ews-common/notion-utils'
+import { useNavigate } from 'react-router'
+import { urlExists } from '../../api/checkUrl'
+import { mainApi } from '../../api/mainApi'
+import { getElementAttributes } from '../../utils/getElAttributes'
+
+import { SearchInput } from '../../components/search-input/SearchInput'
+import { MediaWidget } from '../../components/widgets/MediaWidget'
+import { loadEmbedJson } from '../../modules/embedly/embedly'
+import { isIframeWidget, isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
+import { BaseText, SmallText } from '../../components/Text'
+import { Box } from 'grommet/components/Box'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -38,29 +53,42 @@ interface Props {
 }
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
-  const { domainStore, walletStore, utilsStore } = useStores()
+  const { domainStore, walletStore, utilsStore, rootStore } = useStores()
+  const navigate = useNavigate()
   const [checkIsActivated, setCheckIsActivated] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
   })
+  const { open } = useWeb3Modal()
 
   useEffect(() => {
-    const addingPost = async () => {
-      await addPost(utilsStore.post, true)
+    const handlingCommand = async () => {
+      await commandHandler(utilsStore.command, true)
     }
     const connectWallet = async () => {
-      await walletStore.connect()
+      try {
+        if (walletStore.isMetamaskAvailable) {
+          await walletStore.connect()
+        } else {
+          open()
+        }
+      } catch (e) {
+        if (e.name === 'UserRejectedRequestError') {
+          open()
+        }
+      }
     }
     try {
-      if (utilsStore.post) {
+      console.log('utilsStore.command', utilsStore.command)
+      if (utilsStore.command) {
         if (!walletStore.isConnected) {
           connectWallet()
         }
-        domainStore.isOwner && addingPost()
+        domainStore.isOwner && handlingCommand()
       }
     } catch (e) {
-      console.log('Adding post from URL', { error: e })
+      console.log('Handling command from URL', { error: e })
       return
     }
   }, [walletStore.isConnected])
@@ -111,6 +139,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       widget = {
         type: 'staking',
         value: url,
+      }
+    } else if (isIframeWidget(url)) { 
+      const createWidgetRes = await mainApi.addHtmlWidget(
+        getElementAttributes(url),
+        walletStore.walletAddress
+      );
+
+      widget = {
+        type: 'iframe',
+        value: createWidgetRes.data.id,
       }
     } else {
       setProcessStatus({
@@ -179,8 +217,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       if (result.error) {
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
-          render: <BaseText>{result.error.message}</BaseText>,
+          render: (
+            <BaseText>
+              {result.error.message.length > 50
+                ? result.error.message.substring(0, 50) + '...'
+                : result.error.message}
+            </BaseText>
+          ),
         })
+        resetProcessStatus(10000)
         return
       }
 
@@ -188,19 +233,307 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         type: ProcessStatusTypes.SUCCESS,
         render: <BaseText>Url successfully added</BaseText>,
       })
-
-      resetProcessStatus()
+      resetProcessStatus(10000)
       resetInput()
-      if (fromUrl) {
-        history.pushState(null, '', `\\`) // deleting url param from browser
-        utilsStore.post = undefined
-      }
     } catch (ex) {
+      ;<BaseText>
+        {ex.message.length > 50
+          ? ex.message.substring(0, 50) + '...'
+          : ex.message}
+      </BaseText>
+      resetProcessStatus(4000)
+      setLoading(false)
+    }
+  }
+
+  const vanityHandler = async (vanity: CommandValidator) => {
+    const urlExists = await rootStore.vanityUrlClient.existURL({
+      name: domainName,
+      aliasName: vanity.aliasName,
+    })
+    const method = urlExists ? 'updateURL' : 'addNewURL'
+    setLoading(true)
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: (
+        <BaseText>{`${
+          urlExists ? 'Updating' : 'Creating'
+        } ${`${domainName}${config.tld}/${vanity.aliasName}`} url`}</BaseText>
+      ),
+    })
+    const result = await rootStore.vanityUrlClient[method]({
+      name: domainName,
+      aliasName: vanity.aliasName,
+      url: vanity.url,
+      price: config.vanityUrl.price + '',
+      onTransactionHash: () => {
+        setProcessStatus({
+          type: ProcessStatusTypes.PROGRESS,
+          render: <BaseText>Waiting for transaction confirmation</BaseText>,
+        })
+      },
+      onSuccess: ({ transactionHash }) => {
+        console.log('success', transactionHash)
+        setProcessStatus({
+          type: ProcessStatusTypes.SUCCESS,
+          render: (
+            <BaseText>
+              <a
+                href={vanity.url}
+              >{`${domainName}${config.tld}/${vanity.aliasName}`}</a>
+              {` ${urlExists ? 'updated' : 'created'}`}
+            </BaseText>
+          ),
+        })
+      },
+      onFailed: (ex: Error) => {
+        console.log('ERRROR', ex)
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: (
+            <BaseText>
+              Error {urlExists ? 'updating' : 'creating'} Vanity URL
+            </BaseText>
+          ),
+        })
+      },
+    })
+    resetProcessStatus(10000)
+    resetInput()
+    setLoading(false)
+  }
+
+  const renewCommandHandler = async () => {
+    setLoading(true)
+    try {
+      const nftData = await relayApi().getNFTMetadata({
+        domain: `${domainName}${config.tld}`,
+      })
+      const days = daysBetween(
+        nftData['registrationDate'],
+        domainStore.domainRecord.expirationTime
+      )
+      console.log({ nftData })
+      console.log(days)
+      if (days <= config.domain.renewalLimit) {
+        setProcessStatus({
+          type: ProcessStatusTypes.PROGRESS,
+          render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
+        })
+        if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
+          await walletStore.connect()
+        }
+        console.log(
+          'domainStore.domainPrice.amount',
+          domainStore.domainPrice.amount
+        )
+        const amount = domainStore.domainPrice.amount
+        await renewCommand(domainName, amount, rootStore, setProcessStatus)
+
+        await domainStore.loadDomainRecord(domainName)
+
+        resetInput()
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>{`Error: Renewal Limit Reached`}</BaseText>,
+        })
+      }
+      resetProcessStatus(10000)
+      setLoading(false)
+    } catch (error) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{ex.message}</BaseText>,
+        render: (
+          <BaseText>{`Error while renewing ${domainName}${config.tld}`}</BaseText>
+        ),
       })
+      console.log(error)
+      resetProcessStatus(10000)
       setLoading(false)
+    }
+  }
+
+  const addNotionPageHandler = async (command: CommandValidator) => {
+    setLoading(true)
+    const url = command.url
+    try {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: <BaseText>Validating Notion URL</BaseText>,
+      })
+      const notionPageId = await ewsApi.parseNotionPageIdFromRawUrl(command.url)
+
+      if (notionPageId === null) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: (
+            <BaseText>
+              Failed to extract notion page id. Please verify your Notion URL.
+            </BaseText>
+          ),
+        })
+        resetProcessStatus(10000)
+        setLoading(false)
+        return
+      }
+
+      if (isValidNotionPageId(notionPageId) && notionPageId !== '') {
+        try {
+          const internalPagesId = await ewsApi.getSameSitePageIds(
+            notionPageId,
+            0
+          )
+          const tx = await addNotionPageCommand(
+            domainStore.domainName,
+            command.aliasName,
+            notionPageId,
+            internalPagesId,
+            rootStore,
+            setProcessStatus
+          )
+          console.log('addNotionPageCommand', tx)
+          if (tx) {
+            await sleep(7500)
+            await relayApi().enableSubdomains(domainName)
+            const landingPage = `${command.aliasName}.${domainName}${config.tld}`
+            const fullUrl = `https://${landingPage}`
+            setProcessStatus({
+              type: ProcessStatusTypes.PROGRESS,
+              render: <BaseText>Creating your Notion page...</BaseText>,
+            })
+            await sleep(5000)
+            if (await urlExists(fullUrl)) {
+              setProcessStatus({
+                type: ProcessStatusTypes.SUCCESS,
+                render: (
+                  <BaseText>
+                    Notion page created!. View your notion page here:{' '}
+                    <span
+                      onClick={() => {
+                        window.location.assign(fullUrl)
+                        navigate('/')
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <u>{`${landingPage}`}</u>
+                    </span>
+                  </BaseText>
+                ),
+              })
+              resetInput()
+            } else {
+              setProcessStatus({
+                type: ProcessStatusTypes.ERROR,
+                render: (
+                  <BaseText>
+                    Error processing the URL. Check {landingPage} later
+                  </BaseText>
+                ),
+              })
+            }
+            resetProcessStatus(10000)
+            setLoading(false)
+          }
+        } catch (e) {
+          console.log(e)
+          setProcessStatus({
+            type: ProcessStatusTypes.ERROR,
+            render: (
+              <BaseText>
+                Error adding internal pages. Please try adding your Notion page
+                again.
+              </BaseText>
+            ),
+          })
+          resetProcessStatus(10000)
+          setLoading(false)
+          return
+        }
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: (
+            <BaseText>
+              Invalid Notion page id. Please try another Notion URL.
+            </BaseText>
+          ),
+        })
+        resetProcessStatus(10000)
+        setLoading(false)
+      }
+    } catch (e) {
+      console.log(e)
+      if (Object.prototype.toString.call(e) === '[object Error]') {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: (
+            <BaseText>
+              {`Unable to parse the Notion URL provided. Please try a different Notion URL. \n ${e.toString()}`}
+            </BaseText>
+          ),
+        })
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: (
+            <BaseText>
+              Error processing the URL. Please verify it is a valid Notion URL.
+            </BaseText>
+          ),
+        })
+      }
+      console.log(e)
+      resetProcessStatus(10000)
+      setLoading(false)
+    }
+  }
+
+  const commandHandler = (text: string, fromUrl = false) => {
+    const command = commandValidator(text)
+
+    switch (command.type) {
+      case CommandValidatorEnum.VANITY:
+        console.log(CommandValidatorEnum.VANITY)
+        vanityHandler(command)
+        break
+      case CommandValidatorEnum.EMAIL_ALIAS:
+        console.log(CommandValidatorEnum.EMAIL_ALIAS, command)
+        // works with value => email and value => aliasName=email
+        window.open(`mailto:1country@harmony.one`, '_self')
+        break
+      case CommandValidatorEnum.URL:
+        console.log(CommandValidatorEnum.URL)
+        addPost(text, fromUrl)
+        break
+      case CommandValidatorEnum.STAKING:
+        console.log(CommandValidatorEnum.STAKING)
+        addPost(command.url, fromUrl)
+        break
+      case CommandValidatorEnum.IFRAME:
+        console.log(CommandValidatorEnum.IFRAME)
+        addPost(command.url, fromUrl)
+        break  
+      case CommandValidatorEnum.RENEW:
+        console.log(CommandValidatorEnum.RENEW)
+        renewCommandHandler()
+        break
+      case CommandValidatorEnum.NOTION:
+        console.log('here i am')
+        addNotionPageHandler(command)
+        console.log(CommandValidatorEnum.NOTION, command)
+        // renewCommandHandler()
+        break
+      default:
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: 'Invalid input',
+        })
+    }
+    if (fromUrl) {
+      sleep(3000)
+      history.pushState(null, '', `\\`)
+      utilsStore.command = undefined
     }
   }
 
@@ -210,12 +543,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
     event.preventDefault()
     const value = (event.target as HTMLInputElement).value || ''
-
-    if (isEmail(value)) {
-      window.open(`mailto:1country@harmony.one`, '_self')
-      return
-    }
-    addPost(value)
+    commandHandler(value)
   }
 
   const onChange = (value: string) => {
@@ -226,7 +554,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }
 
   const deleteWidget = (widget: Widget) => {
-    return widgetListStore.deleteWidget({ widgetId: widget.id, widgetUuid: widget.uuid, domainName })
+    return widgetListStore.deleteWidget({
+      widgetId: widget.id,
+      widgetUuid: widget.uuid,
+      domainName,
+    })
   }
 
   const pinWidget = (widget: Widget, isPinned: boolean) => {
@@ -248,7 +580,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             onSearch={onChange}
             onKeyDown={enterHandler}
           />
-
           {checkIsActivated && !widgetListStore.isActivated && (
             <Box pad={{ top: '0.5em' }}>
               <SmallText>
@@ -270,11 +601,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {widgetListStore.widgetList.map((widget, index) => (
         <WidgetStatusWrapper
-          key={widget.id + widget.value + (+widget.isPinned)}
+          key={widget.id + widget.value + +widget.isPinned}
           loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
         >
           <MediaWidget
+            domainName={domainName}
             value={widget.value}
+            type={widget.type}
             uuid={widget.uuid}
             isPinned={widget.isPinned}
             isOwner={domainStore.isOwner}
