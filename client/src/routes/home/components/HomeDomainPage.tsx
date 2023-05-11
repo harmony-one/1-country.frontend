@@ -61,7 +61,9 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
 
   const showQrCode = async (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation()
-    setQrCode(getQrCode({ url: `https://${domainName}${config.tld}`, size: '300' }))
+    setQrCode(
+      getQrCode({ url: `https://${domainName}${config.tld}`, size: '300' })
+    )
     setUnhideQrCode(true)
   }
 
@@ -96,24 +98,6 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
         <WidgetModule domainName={domainStore.domainName} />
       )}
       {showRenewalBlock && <DomainRecordRenewal />}
-      {/* {domainStore.isOwner && (
-        <BgColorSelector
-          domainName={domainName}
-          bgColor={domainStore.bgColor}
-        />
-      )} */}
-      {isMobile && !unhideQrCode && (
-        <QrCodeButton onClick={showQrCode}>
-          <MdOutlineQrCodeScanner style={{ width: '3em', height: '3em' }} />
-        </QrCodeButton>
-      )}
-      {unhideQrCode && (
-        <QrContainer onClick={() => setUnhideQrCode(false)}>
-          <QrCode>
-            <img src={qrCode} />
-          </QrCode>
-        </QrContainer>
-      )}
       <HomePageFooter />
       <div style={{ height: 200 }} />
     </Container>

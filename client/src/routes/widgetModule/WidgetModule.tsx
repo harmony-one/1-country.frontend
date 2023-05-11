@@ -28,6 +28,7 @@ import commandValidator, {
 import { renewCommand } from '../../utils/command-handler/DcCommandHandler'
 import { relayApi } from '../../api/relayApi'
 import { daysBetween } from '../../api/utils'
+import { getQrCode } from '../../api/qrcode'
 
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
@@ -35,6 +36,9 @@ import { loadEmbedJson } from '../../modules/embedly/embedly'
 import { isRedditUrl, isStakingWidgetUrl } from '../../utils/validation'
 import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
+import { Row } from '../../components/Layout'
+import { HiOutlineQrcode } from 'react-icons/hi'
+import { QrCode, QrContainer } from '../home/Home.styles'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -51,8 +55,18 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     type: ProcessStatusTypes.IDLE,
     render: '',
   })
+  const [unhideQrCode, setUnhideQrCode] = useState(false)
+  const [qrCode, setQrCode] = useState('')
   const { open } = useWeb3Modal()
 
+  useEffect(() => {
+    if (qrCode! === '') {
+      setQrCode(
+        getQrCode({ url: `https://${domainName}${config.tld}`, size: '300' })
+      )
+    }
+  }, [])
+  console.log(qrCode)
   useEffect(() => {
     const handlingCommand = async () => {
       await commandHandler(utilsStore.command, true)
@@ -390,7 +404,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }
 
   const deleteWidget = (widget: Widget) => {
-    return widgetListStore.deleteWidget({ widgetId: widget.id, widgetUuid: widget.uuid, domainName })
+    return widgetListStore.deleteWidget({
+      widgetId: widget.id,
+      widgetUuid: widget.uuid,
+      domainName,
+    })
   }
 
   const pinWidget = (widget: Widget, isPinned: boolean) => {
@@ -399,19 +417,40 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const showInput = walletStore.isConnected && domainStore.isOwner
 
+  const showQrCode = async (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation()
+    setQrCode(
+      getQrCode({ url: `https://${domainName}${config.tld}`, size: '300' })
+    )
+    setUnhideQrCode(true)
+  }
+
   return (
     <PageWidgetContainer>
       {showInput && (
         <WidgetInputContainer>
-          <SearchInput
-            autoFocus
-            disabled={isLoading}
-            isValid={processStatus.type !== ProcessStatusTypes.ERROR}
-            placeholder={'Enter tweet or any url'}
-            value={formFields.widgetValue}
-            onSearch={onChange}
-            onKeyDown={enterHandler}
-          />
+          <Row>
+            <SearchInput
+              autoFocus
+              disabled={isLoading}
+              isValid={processStatus.type !== ProcessStatusTypes.ERROR}
+              placeholder={'Enter tweet or any url'}
+              value={formFields.widgetValue}
+              onSearch={onChange}
+              onKeyDown={enterHandler}
+            />
+            <span onClick={() => setUnhideQrCode((prev) => !prev)}>
+              <HiOutlineQrcode
+                style={{
+                  fontSize: '2.3rem',
+                  color: 'grey',
+                  paddingTop: '0.2em',
+                  cursor: 'pointer',
+                }}
+              />
+            </span>
+          </Row>
+
           {checkIsActivated && !widgetListStore.isActivated && (
             <Box pad={{ top: '0.5em' }}>
               <SmallText>
@@ -433,7 +472,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {widgetListStore.widgetList.map((widget, index) => (
         <WidgetStatusWrapper
-          key={widget.id + widget.value + (+widget.isPinned)}
+          key={widget.id + widget.value + +widget.isPinned}
           loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
         >
           <MediaWidget
@@ -454,6 +493,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         <MetamaskWidget />
       )}
       {!walletStore.isMetamaskAvailable && <WalletConnectWidget />}
+      {unhideQrCode && (
+        <QrContainer onClick={() => setUnhideQrCode(false)}>
+          <QrCode>
+            <img src={qrCode} />
+          </QrCode>
+        </QrContainer>
+      )}
     </PageWidgetContainer>
   )
 })

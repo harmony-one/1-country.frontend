@@ -97,7 +97,7 @@ export const QrCodeButton = styled.div`
 `
 
 export const QrContainer = styled.div`
-  display: block;
+  /* display: block; */
   position: absolute;
   height: 100%;
   width: 100%;
