@@ -440,14 +440,33 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
               onKeyDown={enterHandler}
             />
             <span onClick={() => setUnhideQrCode((prev) => !prev)}>
+            <div
+              style={{
+                background: '#FAFAFA',
+                width: '2.75rem',
+                height: '3rem',
+                borderRadius: '25%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+              }}
+            >
               <HiOutlineQrcode
                 style={{
-                  fontSize: '2.3rem',
-                  color: 'grey',
-                  paddingTop: '0.2em',
-                  cursor: 'pointer',
+                  fontSize: '2.55rem',
+                  color: 'gray',
                 }}
               />
+            </div>
+              {/* <HiOutlineQrcode
+                style={{
+                  fontSize: '2.5rem',
+                  color: 'grey',
+                  paddingTop: '0.1em',
+                  cursor: 'pointer',
+                }}
+              /> */}
             </span>
           </Row>
 
