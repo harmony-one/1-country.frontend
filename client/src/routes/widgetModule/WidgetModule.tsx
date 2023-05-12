@@ -320,7 +320,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       )
       console.log({ nftData })
       console.log(days)
-      if (days <= config.domain.renewalLimit) {
+      if (true) {
+        //days <= config.domain.renewalLimit
         setProcessStatus({
           type: ProcessStatusTypes.PROGRESS,
           render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
