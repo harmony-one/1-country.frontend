@@ -100,6 +100,7 @@ const config = {
       },
   payments: {
     apiUrl: process.env.PAYMENTS_API_URL || 'http://localhost:3001',
+    stripePubKey: process.env.STRIPE_PUB_KEY || ''
   },
   embedly: {
     host: 'https://api.embedly.com',

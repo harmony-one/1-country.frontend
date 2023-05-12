@@ -38,6 +38,7 @@ import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet/components/Text'
 import { Container, PageCurationSection } from '../Home.styles'
 import PageCuration, { PAGE_CURATION_LIST } from './PageCuration'
+import {StripeCheckout} from "../../../components/stripe-checkout";
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -623,6 +624,9 @@ const HomeSearchPage: React.FC = observer(() => {
                 <Button disabled={!validation.valid} onClick={handleRentDomain}>
                   Register
                 </Button>
+              )}
+              {searchResult.isAvailable && (
+                <StripeCheckout userAddress={address} domainName={searchResult.domainName.toLowerCase()} />
               )}
               {!searchResult.isAvailable && validation.valid && (
                 <Button
