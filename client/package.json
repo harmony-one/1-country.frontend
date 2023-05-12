@@ -124,6 +124,7 @@
     "@types/styled-components": "^5.1.26",
     "@web3modal/ethereum": "^2.1.1",
     "@web3modal/react": "^2.1.1",
+    "audio-recorder-polyfill": "^0.4.1",
     "axios": "^0.21.1",
     "babel-plugin-styled-components": "^2.0.7",
     "bn.js": "^5.2.1",
@@ -165,6 +166,7 @@
     "web3": "1.8.2",
     "web3-eth-abi": "^1.7.4",
     "web3-eth-contract": "1.8.2",
+    "webm-to-wav-converter": "^1.1.0",
     "zerg": "^2.1.2"
   },
   "resolutions": {

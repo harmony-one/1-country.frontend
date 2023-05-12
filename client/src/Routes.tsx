@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { HomePage } from './routes/home/HomePage'
 import { HomePageLoader } from './routes/home/components/HomePageLoader'
+import { VoicePage } from './routes/voice/VoicePage'
 
 const StatsPage = lazy(
   () => import(/* webpackChunkName: "Others" */ './routes/stats/Stats')
@@ -45,6 +46,7 @@ const AppRoutes = () => {
         <Route path="affiliatesales/" element={<AffiliateSalesPage />} />
         <Route path="details/" element={<DetailsPage />} />
         <Route path="live/" element={<LiveStreamPage />} />
+        <Route path="voice" element={<VoicePage />} />
         <Route path="*" element={<HomePage />} />
       </Routes>
     </Suspense>
