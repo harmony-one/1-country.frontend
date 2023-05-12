@@ -8,6 +8,7 @@ import config from '../../../config'
 const stripePromise = loadStripe(config.payments.stripePubKey)
 
 export interface StripeCheckoutFormProps {
+  disabled: boolean
   userAddress: string
   domainName: string
   onStartPayment?: (e: PaymentRequestPaymentMethodEvent) => void

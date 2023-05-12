@@ -590,6 +590,7 @@ const HomeSearchPage: React.FC = observer(() => {
   const onStripeCheckoutSuccess = async (paymentIntentId: string) => {
     console.log(`Payment success, payment intent id: "${paymentIntentId}"`)
 
+    setLoading(true)
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
       render: (
@@ -613,6 +614,7 @@ const HomeSearchPage: React.FC = observer(() => {
         type: ProcessStatusTypes.ERROR,
         render: <BaseText>{e.message}</BaseText>,
       })
+      setLoading(false)
       terminateProcess(1500)
       return
     }
@@ -653,6 +655,8 @@ const HomeSearchPage: React.FC = observer(() => {
         ),
       })
       terminateProcess()
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -704,20 +708,23 @@ const HomeSearchPage: React.FC = observer(() => {
                 available={searchResult.isAvailable}
                 error={searchResult.error}
               />
-              {searchResult.isAvailable && (
-                <Button disabled={!validation.valid} onClick={handleRentDomain}>
-                  Register
-                </Button>
-              )}
-              {searchResult.isAvailable && (
-                <StripeCheckout
-                  userAddress={address}
-                  domainName={searchResult.domainName.toLowerCase()}
-                  onStartPayment={onStripeStartPayment}
-                  onSuccess={onStripeCheckoutSuccess}
-                  onError={onStripeCheckoutError}
-                />
-              )}
+              <Box direction={'row'} gap={'32px'}>
+                {searchResult.isAvailable && (
+                  <Button disabled={!validation.valid} onClick={handleRentDomain}>
+                    Register
+                  </Button>
+                )}
+                {searchResult.isAvailable && (
+                  <StripeCheckout
+                    disabled={!validation.valid}
+                    userAddress={address}
+                    domainName={searchResult.domainName.toLowerCase()}
+                    onStartPayment={onStripeStartPayment}
+                    onSuccess={onStripeCheckoutSuccess}
+                    onError={onStripeCheckoutError}
+                  />
+                )}
+              </Box>
               {!searchResult.isAvailable && validation.valid && (
                 <Button
                   $width="auto"
