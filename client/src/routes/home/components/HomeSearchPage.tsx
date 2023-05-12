@@ -39,6 +39,8 @@ import { Text } from 'grommet/components/Text'
 import { Container, PageCurationSection } from '../Home.styles'
 import PageCuration, { PAGE_CURATION_LIST } from './PageCuration'
 import {StripeCheckout} from "../../../components/stripe-checkout";
+import {PaymentRequestPaymentMethodEvent, StripeError} from "@stripe/stripe-js";
+import {waitForPaymentResult} from "../../../api/payment";
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -576,6 +578,88 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
+  const onStripeStartPayment = (e: PaymentRequestPaymentMethodEvent) => {
+    console.log('Start payment', e)
+
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>Confirm payment with Stripe</BaseText>,
+    })
+  }
+
+  const onStripeCheckoutSuccess = async (paymentIntentId: string) => {
+    console.log(`Payment success, payment intent id: "${paymentIntentId}"`)
+
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: (
+        <FlexRow>
+          <BaseText style={{ marginRight: 8 }}>
+            Registered {`${searchResult.domainName}${config.tld}`} (3 min avg)
+          </BaseText>
+        </FlexRow>
+      ),
+    })
+
+    let txHash = ''
+
+    try {
+      const payment = await waitForPaymentResult(paymentIntentId)
+      console.log('Domain payment result:', payment)
+      txHash = payment.txHash
+    } catch (e) {
+      console.log('Cannot get payment result:', e)
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>{e.message}</BaseText>,
+      })
+      terminateProcess(1500)
+      return
+    }
+
+    setRegTxHash(txHash)
+
+    const referral = utilsStore.getReferral()
+
+    mainApi.createDomain({
+      domain: searchResult.domainName,
+      txHash,
+      referral,
+    })
+
+    try {
+      setProcessStatus({
+        render: <BaseText>Web2 domain acquired.</BaseText>,
+      })
+      await sleep(2000)
+      await generateNFT()
+      setProcessStatus({
+        render: <BaseText>NFT generated.</BaseText>,
+      })
+      await sleep(2000)
+      terminateProcess()
+      setWeb2Acquired(true)
+    } catch (e) {
+      console.log('Cannot generate NFT', e)
+      setWeb2Error(true)
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: (
+          <BaseText>{`${
+            e instanceof RelayError
+              ? e.message
+              : 'Unable to acquire domain. Try Again.'
+          }`}</BaseText>
+        ),
+      })
+      terminateProcess()
+    }
+  }
+
+  const onStripeCheckoutError = (e: StripeError) => {
+    console.log('Error', e)
+  }
+
   return (
     <Container>
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
@@ -626,7 +710,13 @@ const HomeSearchPage: React.FC = observer(() => {
                 </Button>
               )}
               {searchResult.isAvailable && (
-                <StripeCheckout userAddress={address} domainName={searchResult.domainName.toLowerCase()} />
+                <StripeCheckout
+                  userAddress={address}
+                  domainName={searchResult.domainName.toLowerCase()}
+                  onStartPayment={onStripeStartPayment}
+                  onSuccess={onStripeCheckoutSuccess}
+                  onError={onStripeCheckoutError}
+                />
               )}
               {!searchResult.isAvailable && validation.valid && (
                 <Button
