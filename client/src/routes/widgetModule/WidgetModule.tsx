@@ -66,6 +66,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     render: '',
   })
   const { open } = useWeb3Modal()
+  console.log('domainname', domainName)
 
   useEffect(() => {
     const handlingCommand = async () => {
@@ -624,8 +625,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {domainStore.domainRecord && <TransactionWidget name={domainName} />}
       {!domainStore.isExpired &&
-        domainStore.domainName.length <= 3 &&
-        walletStore.isConnected && (
+        domainName.length <= 3 &&
+        walletStore.isConnected &&
+        domainStore.isOwner && (
           <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
             <Text
               size={'small'}
