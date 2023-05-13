@@ -48,7 +48,6 @@ export const renewCommand = async (
     const renewNft = await relayApi().renewMetadata({
       domain: `${domainName}${config.tld}`,
     })
-    console.log('HERE')
     if (!renewNft.renewed) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
