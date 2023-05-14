@@ -578,6 +578,10 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
+  const onStripePaymentInitiated = async () => {
+
+  }
+
   const onStripeStartPayment = (e: PaymentRequestPaymentMethodEvent) => {
     console.log('Start payment', e)
 
@@ -719,7 +723,8 @@ const HomeSearchPage: React.FC = observer(() => {
                     disabled={!validation.valid}
                     userAddress={address}
                     domainName={searchResult.domainName.toLowerCase()}
-                    onStartPayment={onStripeStartPayment}
+                    onPaymentInitiated={onStripePaymentInitiated}
+                    onPaymentStarted={onStripeStartPayment}
                     onSuccess={onStripeCheckoutSuccess}
                     onError={onStripeCheckoutError}
                   />

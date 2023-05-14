@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Elements, PaymentRequestButtonElement, useStripe } from '@stripe/react-stripe-js'
-import {loadStripe, PaymentRequestPaymentMethodEvent, StripeError} from '@stripe/stripe-js'
+import {CanMakePaymentResult, loadStripe, PaymentRequestPaymentMethodEvent, StripeError} from '@stripe/stripe-js'
 import { Box } from 'grommet/components/Box'
 import {createPaymentIntent, validateDomainRent} from '../../api/payment'
 import config from '../../../config'
+import styled from "styled-components";
+import {Button} from "grommet/components/Button";
 
 const stripePromise = loadStripe(config.payments.stripePubKey)
 
@@ -11,16 +13,31 @@ export interface StripeCheckoutFormProps {
   disabled: boolean
   userAddress: string
   domainName: string
-  onStartPayment?: (e: PaymentRequestPaymentMethodEvent) => void
+  onPaymentInitiated?: () => void
+  onPaymentStarted?: (e: PaymentRequestPaymentMethodEvent) => void
   onSuccess?: (paymentIntentId: string) => void
   onError?: (e: StripeError) => void
 }
+
+const ApplePayButton = styled(Button)`
+    display: flex;
+    justify-content: center;
+    width: 120px;
+    border-radius: 4px;
+    background-color: black;
+    text-align: center;
+    color: white;
+    font-size: 19px;
+    padding: 10px 48px;
+    text-align: center;
+`
 
 const CheckoutForm = (props: StripeCheckoutFormProps) => {
   const { userAddress, domainName } = props
 
   const stripe = useStripe()
   const [paymentRequest, setPaymentRequest] = useState(null)
+  const [canMakePayment, setCanMakePayment] = useState<CanMakePaymentResult>()
   const [domainPrice, setDomainPrice] = useState('0')
 
   useEffect(() => {
@@ -52,14 +69,15 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
       // Check the availability of the Payment Request API.
       pr.canMakePayment().then(result => {
         console.log('Stripe canMakePayment:', result)
+        setCanMakePayment(result)
         if (result) {
           setPaymentRequest(pr)
         }
       })
 
       pr.on('paymentmethod', async (e) => {
-        if(props.onStartPayment) {
-          props.onStartPayment(e)
+        if(props.onPaymentStarted) {
+          props.onPaymentStarted(e)
         }
         console.log('paymentmethod', e)
         let clientSecret = ''
@@ -104,17 +122,27 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
     }
   }, [stripe, domainPrice])
 
-  if (paymentRequest) {
-    return <Box width={'200px'}>
-      <PaymentRequestButtonElement options={{ paymentRequest }} />
-    </Box>
+  const onPayClicked = async () => {
+    try {
+      if(props.onPaymentInitiated) {
+        await props.onPaymentInitiated()
+      }
+      if(paymentRequest) {
+        paymentRequest.show()
+      }
+    } catch (e) {
+      console.log('Cannot start stripe payment', e)
+    }
   }
 
-  return (
-    <Box>
-      Cannot get payment request
-    </Box>
-  )
+  return <Box width={'200px'}>
+    {/*<PaymentRequestButtonElement options={{ paymentRequest }} />*/}
+    <ApplePayButton
+      disabled={props.disabled}
+      onClick={onPayClicked}>
+      
+    </ApplePayButton>
+  </Box>
 }
 
 export const StripeCheckout = (props: StripeCheckoutFormProps) => {
