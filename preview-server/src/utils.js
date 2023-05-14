@@ -8,7 +8,7 @@ const dcAbi = require('./abi/dcAbi.json')
 const tweetAbi = require('./abi/tweetAbi.json')
 
 const provider = new ethers.JsonRpcProvider('https://api.harmony.one')
-const metadataCache = new NodeCache({ stdTTL: 60 * 60, checkperiod: 600 })
+const metadataCache = new NodeCache({ stdTTL: 60, checkperiod: 10 })
 
 const dcContract = new ethers.Contract(dcContractAddress, dcAbi, provider)
 const tweetContract = new ethers.Contract(tweetContractAddress, tweetAbi, provider)
