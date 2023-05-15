@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Elements, PaymentRequestButtonElement, useStripe } from '@stripe/react-stripe-js'
+import { Elements, useStripe } from '@stripe/react-stripe-js'
 import {CanMakePaymentResult, loadStripe, PaymentRequestPaymentMethodEvent, StripeError} from '@stripe/stripe-js'
 import { Box } from 'grommet/components/Box'
 import {createPaymentIntent, validateDomainRent} from '../../api/payment'
 import config from '../../../config'
 import styled from "styled-components";
 import {Button} from "grommet/components/Button";
+import LinkLogo from '../../../assets/images/stripe_link.svg';
+import GooglePayLogo from '../../../assets/images/google_pay.svg';
+import AppleLogo from '../../../assets/images/apple_white.svg';
 
 const stripePromise = loadStripe(config.payments.stripePubKey)
 
@@ -30,6 +33,35 @@ const ApplePayButton = styled(Button)`
     font-size: 19px;
     padding: 10px 48px;
     text-align: center;
+`
+
+
+const GooglePayButton = styled(Button)`
+    width: 120px;
+    display: flex;
+    text-align: center;
+    border-radius: 100vh;
+    background-color: black;
+    color: white;
+    padding: 10px 32px;
+    text-align: center;
+`
+
+const LinkButton = styled(Button)`
+    width: 120px;
+    height: 40px;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-content: center;
+    border-radius: 6px;
+    background-color: #009788;
+    color: white;
+    padding: 10px 32px;
+    
+    svg {
+        padding-top: 2px;
+    }
 `
 
 const CheckoutForm = (props: StripeCheckoutFormProps) => {
@@ -135,13 +167,29 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
     }
   }
 
+  let buttonContent = null
+
+  if(canMakePayment) {
+    const { applePay, googlePay, link }  = canMakePayment
+    if(applePay) {
+      buttonContent = <ApplePayButton
+        disabled={props.disabled}
+        onClick={onPayClicked}>
+        <img src={AppleLogo} width={'16px'} alt={'Apple Pay'} />
+      </ApplePayButton>
+    } else if(googlePay) {
+      buttonContent = <GooglePayButton disabled={props.disabled} onClick={onPayClicked}>
+        <img src={GooglePayLogo} width={'48px'} alt={'Google Pay'}/>
+      </GooglePayButton>
+    } else if(link) {
+      buttonContent = <LinkButton disabled={props.disabled} onClick={onPayClicked}>
+        <img src={LinkLogo} width={'32px'} height={'20px'} alt={'Stripe Link'} />
+      </LinkButton>
+    }
+  }
+
   return <Box width={'200px'}>
-    {/*<PaymentRequestButtonElement options={{ paymentRequest }} />*/}
-    <ApplePayButton
-      disabled={props.disabled}
-      onClick={onPayClicked}>
-      
-    </ApplePayButton>
+    {buttonContent}
   </Box>
 }
 
