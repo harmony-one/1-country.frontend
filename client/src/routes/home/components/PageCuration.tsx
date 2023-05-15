@@ -34,6 +34,7 @@ const StyledImg = styled.img`
   max-height: 480px;
   object-fit: contain;
   width: 100%;
+  height: 100%;
 `
 
 const PageCuration: React.FC<PageCuration> = ({ url, icon, img }) => {
@@ -46,7 +47,13 @@ const PageCuration: React.FC<PageCuration> = ({ url, icon, img }) => {
       onClick={clickHandler}
       style={{ marginTop: '2em', cursor: 'pointer' }}
     >
-      <StyledImg src={img} loading="lazy" />
+      <StyledImg
+        src={img}
+        width="480px"
+        height="480px"
+        loading="lazy"
+        alt={url}
+      />
       {/* <span style={{ fontSize: '1.5rem' }}>{icon}</span> */}
     </CurationContainer>
   )
