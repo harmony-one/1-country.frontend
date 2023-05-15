@@ -36,7 +36,8 @@ export const nameUtils = {
     return isRestricted(name)
   },
   isReservedName: (name: string) => {
-    return name.length <= config.domain.reserved
+    return false;
+    //name.length <= config.domain.reserved
   },
 }
 
