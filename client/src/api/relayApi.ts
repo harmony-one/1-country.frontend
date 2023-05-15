@@ -156,7 +156,6 @@ export const relayApi = () => {
       const {
         data: { renewed, metadata, expiry, error },
       } = await base.post('/renew-metadata', { domain })
-      console.log('renewMetadata', renewed, metadata, expiry, error)
       return {
         renewed,
         metadata,
