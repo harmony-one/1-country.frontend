@@ -115,7 +115,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const [isLoading, setLoading] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
 
-  const resetProcessStatus = (time = 2000) => {
+  const resetProcessStatus = (time = 3000) => {
     setTimeout(() => {
       setProcessStatus({
         type: ProcessStatusTypes.IDLE,
@@ -246,7 +246,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           ? ex.message.substring(0, 50) + '...'
           : ex.message}
       </BaseText>
-      resetProcessStatus(4000)
+      resetProcessStatus(10000)
       setLoading(false)
     }
   }
