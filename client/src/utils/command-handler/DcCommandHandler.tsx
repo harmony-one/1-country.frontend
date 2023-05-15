@@ -6,6 +6,8 @@ import {
 } from '../../components/process-status/ProcessStatus'
 import { RootStore } from '../../stores/RootStore'
 import { BN } from 'bn.js'
+import { relayApi } from '../../api/relayApi'
+import config from '../../../config'
 
 export const renewCommand = async (
   domainName: string,
@@ -43,6 +45,15 @@ export const renewCommand = async (
         })
       },
     })
+    const renewNft = await relayApi().renewMetadata({
+      domain: `${domainName}${config.tld}`,
+    })
+    if (!renewNft.renewed) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>NFT Metadata wasn't updated</BaseText>,
+      })
+    }
     return rentResult
   } catch (e) {
     console.log('rent', e)
