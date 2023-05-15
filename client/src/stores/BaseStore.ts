@@ -23,6 +23,10 @@ export class BaseStore {
     return this.rootStore.commonClient
   }
 
+  getEasClient() {
+    return this.rootStore.easClient
+  }
+
   get stores() {
     return this.rootStore.stores
   }
