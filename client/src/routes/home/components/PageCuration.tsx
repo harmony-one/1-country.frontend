@@ -47,13 +47,7 @@ const PageCuration: React.FC<PageCuration> = ({ url, icon, img }) => {
       onClick={clickHandler}
       style={{ marginTop: '2em', cursor: 'pointer' }}
     >
-      <StyledImg
-        src={img}
-        width="480px"
-        height="480px"
-        loading="lazy"
-        alt={url}
-      />
+      <StyledImg src={img} width="480px" height="480px" alt={url} />
       {/* <span style={{ fontSize: '1.5rem' }}>{icon}</span> */}
     </CurationContainer>
   )
