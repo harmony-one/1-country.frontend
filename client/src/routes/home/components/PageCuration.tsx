@@ -3,6 +3,7 @@ import { CurationContainer } from '../Home.styles'
 import bugSnapshot from '../../../../assets/images/snapshots/bug-snapshot.png'
 import tokkisSnapshot from '../../../../assets/images/snapshots/tokkis-snapshot.png'
 import mintbesSnapshot from '../../../../assets/images/snapshots/mintbes-snapshot.png'
+import styled from 'styled-components'
 
 type PageCuration = {
   url: string
@@ -28,6 +29,13 @@ export const PAGE_CURATION_LIST = [
   },
 ]
 
+const StyledImg = styled.img`
+  max-width: 480px;
+  max-height: 480px;
+  object-fit: contain;
+  width: 100%;
+`
+
 const PageCuration: React.FC<PageCuration> = ({ url, icon, img }) => {
   const clickHandler = () => {
     window.open(url, '_blank')
@@ -38,7 +46,7 @@ const PageCuration: React.FC<PageCuration> = ({ url, icon, img }) => {
       onClick={clickHandler}
       style={{ marginTop: '2em', cursor: 'pointer' }}
     >
-      <img src={img} loading="lazy" />
+      <StyledImg src={img} loading="lazy" />
       {/* <span style={{ fontSize: '1.5rem' }}>{icon}</span> */}
     </CurationContainer>
   )
