@@ -579,7 +579,17 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   const onStripePaymentInitiated = async () => {
-
+    console.log('User address:', address)
+    if (walletStore.isMetamaskAvailable && !walletStore.isConnected) {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: <BaseText>Connect Metamask</BaseText>,
+      })
+      await walletStore.connect()
+    } else if (!isConnected) {
+      open()
+      throw new Error('Wallet not connected')
+    }
   }
 
   const onStripeStartPayment = (e: PaymentRequestPaymentMethodEvent) => {

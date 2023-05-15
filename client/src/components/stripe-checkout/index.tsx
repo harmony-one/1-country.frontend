@@ -163,7 +163,7 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
         paymentRequest.show()
       }
     } catch (e) {
-      console.log('Cannot start stripe payment', e)
+      console.log('Cannot start stripe paymentЖ', e)
     }
   }
 
