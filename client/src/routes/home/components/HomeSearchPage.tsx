@@ -645,6 +645,16 @@ const HomeSearchPage: React.FC = observer(() => {
       referral,
     })
 
+    if (
+      searchResult.domainName.length !== 3 ||
+      !RESERVED_DOMAINS.find(
+        (value) =>
+          value.toLowerCase() === searchResult.domainName.toLowerCase()
+      )
+    ) {
+      await claimWeb2Domain(txHash)
+    }
+
     try {
       setProcessStatus({
         render: <BaseText>Web2 domain acquired.</BaseText>,
