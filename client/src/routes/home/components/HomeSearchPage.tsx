@@ -76,6 +76,9 @@ const HomeSearchPage: React.FC = observer(() => {
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
   const { rootStore, ratesStore, walletStore, utilsStore } = useStores()
 
+  const enableFiatPayment = Boolean(searchParams.get('fiatPayment') || false)
+  console.log('enableFiatPayment:', enableFiatPayment)
+
   useEffect(() => {
     if (status === 'connecting') {
       if (!isOpen && !walletStore.isMetamaskAvailable) {
@@ -579,7 +582,6 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   const onStripePaymentInitiated = async () => {
-    console.log('User address:', address)
     if (walletStore.isMetamaskAvailable && !walletStore.isConnected) {
       setProcessStatus({
         type: ProcessStatusTypes.PROGRESS,
@@ -722,13 +724,13 @@ const HomeSearchPage: React.FC = observer(() => {
                 available={searchResult.isAvailable}
                 error={searchResult.error}
               />
-              <Box direction={'row'} gap={'32px'}>
+              <Box direction={'row'} align={'center'} justify={'center'} gap={'32px'}>
                 {searchResult.isAvailable && (
                   <Button disabled={!validation.valid} onClick={handleRentDomain}>
                     Register
                   </Button>
                 )}
-                {searchResult.isAvailable && (
+                {enableFiatPayment && searchResult.isAvailable && (
                   <StripeCheckout
                     disabled={!validation.valid}
                     userAddress={address}
