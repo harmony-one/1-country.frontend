@@ -2,11 +2,11 @@ import styled from 'styled-components'
 import { Main, FlexRow, FlexColumn } from '../../components/Layout'
 import { SmallTextGrey, Desc } from '../../components/Text'
 
-export const Container = styled(Main)`
+export const Container = styled(Main)<{ maxWidth?: string }>`
   margin: 0 auto;
   padding: 0 24px 24px;
   width: 100%;
-  max-width: 800px;
+  max-width: ${(props) => (props.maxWidth ? props.maxWidth : '800px')};
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -71,11 +71,6 @@ export const CurationContainer = styled.div`
   flex-direction: column;
   align-items: center;
   position: relative;
-  height: 22em;
-
-  img {
-    height: 20em;
-  }
 
   span {
     position: absolute;

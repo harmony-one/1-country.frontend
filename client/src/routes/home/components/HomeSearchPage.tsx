@@ -579,7 +579,7 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   return (
-    <Container>
+    <Container maxWidth="1200px">
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
         <SearchBoxContainer>
           {isConnected && !walletStore.isMetamaskAvailable && (
