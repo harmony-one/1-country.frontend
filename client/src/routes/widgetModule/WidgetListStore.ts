@@ -22,7 +22,6 @@ export interface Widget {
 }
 
 const parseRawUrl = (url: string): Widget => {
-  console.log('parseRawUrl', url)
   const [type, ...rest] = url.split(':')
 
   let value = rest.join(':')
@@ -48,7 +47,6 @@ const buildUrlFromWidgets = (widgets: Widget[]) => {
 }
 
 const mapUrlToWidget = (url: string, index: number, dbLink?: Link): Widget => {
-  console.log('mapUrlToWidget', url, index, dbLink)
   return {
     id: index,
     ...parseRawUrl(url),
@@ -182,8 +180,6 @@ class WidgetListStore extends BaseStore {
     nameSpace: string
   }) {
     const { widgets, domainName, nameSpace } = props
-    console.log('delete widget', props)
-
     const processStatus = this.getWidgetLoader(widgets[0].id)
     if (processStatus.type !== ProcessStatusTypes.IDLE) {
       return
