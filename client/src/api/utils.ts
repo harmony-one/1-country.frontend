@@ -36,7 +36,8 @@ export const nameUtils = {
     return isRestricted(name)
   },
   isReservedName: (name: string) => {
-    return name.length <= config.domain.reserved
+    return false;
+    //name.length <= config.domain.reserved
   },
 }
 
@@ -174,4 +175,15 @@ export const daysBetween = (
 ): number => {
   const DAY_MILLISECONDS = 1000 * 60 * 60 * 24
   return (Number(date2) - Number(date1)) / DAY_MILLISECONDS
+}
+
+export const getEthersError = (error: Error) => {
+  // @ts-ignore
+  const message = error.reason ? error.reason : error.message
+
+  if (message) {
+    return message
+  }
+
+  return ''
 }

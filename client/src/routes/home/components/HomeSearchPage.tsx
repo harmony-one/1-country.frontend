@@ -38,6 +38,7 @@ import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet/components/Text'
 import { Container, PageCurationSection } from '../Home.styles'
 import PageCuration, { PAGE_CURATION_LIST } from './PageCuration'
+import { useMinimalRender } from '../../../hooks/useMinimalRender'
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -72,6 +73,8 @@ const HomeSearchPage: React.FC = observer(() => {
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
   const { rootStore, ratesStore, walletStore, utilsStore } = useStores()
+
+  const isMinimalRender = useMinimalRender()
 
   useEffect(() => {
     if (status === 'connecting') {
@@ -576,7 +579,7 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   return (
-    <Container>
+    <Container maxWidth="1200px">
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
         <SearchBoxContainer>
           {isConnected && !walletStore.isMetamaskAvailable && (
@@ -684,16 +687,18 @@ const HomeSearchPage: React.FC = observer(() => {
           )}
         </SearchBoxContainer>
       </FlexRow>
-      <PageCurationSection>
-        {PAGE_CURATION_LIST.map((page, index) => (
-          <PageCuration
-            url={page.url}
-            img={page.img}
-            icon={page.icon}
-            key={index}
-          />
-        ))}
-      </PageCurationSection>
+      {!isMinimalRender && (
+        <PageCurationSection>
+          {PAGE_CURATION_LIST.map((page, index) => (
+            <PageCuration
+              url={page.url}
+              img={page.img}
+              icon={page.icon}
+              key={index}
+            />
+          ))}
+        </PageCurationSection>
+      )}
     </Container>
   )
 })

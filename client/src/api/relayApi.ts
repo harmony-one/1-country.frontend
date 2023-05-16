@@ -6,6 +6,7 @@ const log = logger.module('RelayApi')
 
 const base = axios.create({
   baseURL: config.registrar,
+  timeout: 10000,
 })
 
 export interface ParsedNftMetada {
@@ -17,8 +18,25 @@ export interface ParsedNftMetada {
   length: number
 }
 
+export interface RenewNftMetada {
+  renewed: boolean
+  metadata?: any
+  expiry?: any
+  error?: string
+}
+
 export const relayApi = () => {
   return {
+    enableSubdomains: async (domainName: string) => {
+      try {
+        const { data } = await base.post('/enable-subdomains', {
+          domain: `${domainName}${config.tld}`,
+        })
+        console.log('enableSubdomains', data)
+      } catch (e) {
+        console.log('enableSubdomains error', e)
+      }
+    },
     checkDomain: async ({ sld }: { sld: string }) => {
       try {
         const {
@@ -128,6 +146,21 @@ export const relayApi = () => {
             ...attr,
           }
         }
+      }
+    },
+    renewMetadata: async ({
+      domain,
+    }: {
+      domain: string
+    }): Promise<RenewNftMetada> => {
+      const {
+        data: { renewed, metadata, expiry, error },
+      } = await base.post('/renew-metadata', { domain })
+      return {
+        renewed,
+        metadata,
+        expiry,
+        error,
       }
     },
   }

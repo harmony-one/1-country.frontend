@@ -1,11 +1,14 @@
-const regexPatterns = {
+export const regexPatterns = {
   URL: /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i, // url
   VANITY: /^(\w+)=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // alias=url
   EMAIL: /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // email
   EMAIL_ALIAS: /^(\w+)=([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // alias=email
   STAKING: /^one1[a-zA-HJ-NP-Z0-9]{38}$/, // oneAddress
   STAKING_COMMAND: /^staking[:=]? ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress or staking=oneAddress
+  IFRAME: /^(?:<iframe[^>]*)(?:(?:\/>)|(?:>.*?<\/iframe>))$/, // iframe
   RENEW: /^renew$/i, // renew
+  NOTION_COMMAND: /^(\w+)\.=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, ///^(\w+).=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // subdomain.=url (with notion as substring)
+  NOTION: /^(?=.*notion).*\b((?:https?|ftp):\/\/\S+|www\.\S+)\b.*$/, // url that has substring notion
 }
 
 export enum CommandValidatorEnum {
@@ -14,7 +17,9 @@ export enum CommandValidatorEnum {
   VANITY = 'VANITY',
   EMAIL_ALIAS = 'EMAIL_ALIAS', // Includes EMAIL case.
   STAKING = 'STAKING',
+  IFRAME = 'IFRAME',
   RENEW = 'RENEW',
+  NOTION = 'NOTION', // includes NOTION_COMMAND
 }
 
 export interface CommandValidator {
@@ -27,6 +32,24 @@ export interface CommandValidator {
 
 const commandValidator = (text: string): CommandValidator => {
   console.log('commandValidator', text)
+
+  if (regexPatterns.NOTION_COMMAND.test(text)) {
+    const match = text.match(regexPatterns.NOTION_COMMAND)
+    return {
+      type: CommandValidatorEnum.NOTION,
+      aliasName: match[1],
+      url: match[2],
+    }
+  }
+
+  if (regexPatterns.NOTION.test(text)) {
+    return {
+      type: CommandValidatorEnum.NOTION,
+      aliasName: 'www',
+      url: text,
+    }
+  }
+
   if (regexPatterns.URL.test(text)) {
     return {
       type: CommandValidatorEnum.URL,
@@ -57,6 +80,13 @@ const commandValidator = (text: string): CommandValidator => {
       type: CommandValidatorEnum.EMAIL_ALIAS,
       aliasName: match[1],
       email: match[2],
+    }
+  }
+
+  if (regexPatterns.IFRAME.test(text)) {
+    return {
+      type: CommandValidatorEnum.IFRAME,
+      url: text,
     }
   }
 

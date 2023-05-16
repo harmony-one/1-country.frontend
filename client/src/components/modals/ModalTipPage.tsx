@@ -19,7 +19,7 @@ import { ModalContent } from './ModalContent'
 import { CancelButton, Button, LinkWrapper } from '../Controls'
 import { FlexColumn, FlexRow, Row } from '../Layout'
 import { DomainName, BaseText, Title } from '../Text'
-import CurrencyInput from '../CurrencyInput/CurrencyInput'
+import CurrencyInput from '../currency-input/CurrencyInput'
 import { calcDomainUSDPrice, formatUSDAmount } from '../../utils/domain'
 
 interface Props {

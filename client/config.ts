@@ -16,9 +16,23 @@ const config = {
   tweetContractAddress:
     process.env.TWEET_CONTRACT_ADDRESS ||
     '0x17cF877f9226ba382b0baDA1499576E60A547955',
+  ews: {
+    contract:
+      process.env.EWS_CONTRACT || '0x067B394Cbd08D08e565f886DEFDE906A7E42FB93',
+    server: process.env.EWS_SERVER ?? 'https://1ns-embedder.hiddenstate.xyz',
+  },
   nameWrapperContract:
     process.env.NAME_WRAPPER_CONTRACT ||
     '0x4cd2563118e57b19179d8dc033f2b0c5b5d69ff5',
+  eas: {
+    contract:
+      process.env.EAS_CONTRACT || '0xDBf0D70070D760512d214C7ccaB933e066eeb070',
+    apiHost:
+      process.env.EAS_API_HOST || 'https://1ns-eas-server.hiddenstate.xyz',
+    message(sld: string, alias: string, forwardAddress: string): string {
+      return `You are about to authorize forwarding all emails sent to [${alias}@${sld}${config.tld}] to [${forwardAddress}] instead`
+    },
+  },
   explorer: {
     explorerUrl:
       process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/',
@@ -33,6 +47,9 @@ const config = {
   tldLink: process.env.TLD_LINK || 'dev.1.localhost:3100', // '1.country',
   domainNftImagesPath:
     'https://storage.googleapis.com/radical-domain-nft-images',
+  betteruptime: {
+    heartbeatId: process.env.HEARTBEAT_ID,
+  },
   walletConnect: {
     projectId:
       process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8',

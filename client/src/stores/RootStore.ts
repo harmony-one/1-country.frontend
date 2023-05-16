@@ -16,6 +16,7 @@ import {
 import { MetaTagsStore, metaTagsStore } from '../modules/metatags/MetaTagsStore'
 import { wagmiClient } from '../modules/wagmi/wagmiClient'
 import tweetApi, { TweetClient } from '../api/tweetApi'
+import { ewsContractApi, EwsClient } from '../api/ews/ewsApi'
 import commonApi, { CommonClient } from '../api/common'
 import { UtilsStore } from './UtilsStore'
 import { defaultProvider } from '../api/defaultProvider'
@@ -24,6 +25,7 @@ import vanityApis, {
   VanityURLClient,
 } from '../api/vanity-url/vanityContractClient'
 import postApi, { PostClient } from '../api/postApi'
+import { buildEasClient, EasClient } from '../api/eas/easContractClient'
 
 export class RootStore {
   modalStore: ModalStore
@@ -31,7 +33,9 @@ export class RootStore {
   d1dcClient: D1DCClient
   postClient: PostClient
   tweetClient: TweetClient
+  ewsClient: EwsClient
   vanityUrlClient: VanityURLClient
+  easClient: EasClient
   commonClient: CommonClient
   domainStore: DomainStore
   walletStore: WalletStore
@@ -101,10 +105,12 @@ export class RootStore {
   ) {
     console.log('### dc client updated', address)
 
+    this.easClient = buildEasClient({ provider })
     this.d1dcClient = apis({ provider, address })
     this.postClient = postApi({ provider, address })
     this.tweetClient = tweetApi({ provider, address })
     this.vanityUrlClient = vanityApis({ provider, address })
+    this.ewsClient = ewsContractApi({ provider, address })
     // @ts-ignore
     this.commonClient = commonApi(this.d1dcClient, this.tweetClient)
   }

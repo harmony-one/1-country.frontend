@@ -144,6 +144,7 @@ const OpenWidgetsPage = observer(() => {
             isOwner
             key={widget.id}
             value={widget.value}
+            type={widget.type}
             onDelete={() => deleteWidget(widget.id)}
           />
         ))}
