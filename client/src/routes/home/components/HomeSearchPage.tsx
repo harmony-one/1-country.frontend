@@ -771,7 +771,7 @@ const HomeSearchPage: React.FC = observer(() => {
           )}
           {web2Error && (
             <Box align="center">
-              <Button onClick={claimWeb2DomainWrapper} disabled={isLoading}>
+              <Button onClick={() => claimWeb2DomainWrapper()} disabled={isLoading}>
                 TRY AGAIN
               </Button>
             </Box>
