@@ -277,7 +277,6 @@ class WidgetListStore extends BaseStore {
     } catch (e) {
       console.error('Cannot load database links', e.message)
     }
-
     runInAction(() => {
       this.widgetList = urlList
         .filter((post) => {
