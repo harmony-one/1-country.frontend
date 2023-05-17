@@ -91,7 +91,7 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
   // Event wrapped in Effect to react to Wallet Connect event
   useEffect(() => {
     if(isPaymentInitiated) {
-      setTimeout(startPayment, 1000)
+      startPayment()
     }
   }, [userAddress, isPaymentInitiated])
 
@@ -187,9 +187,6 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
 
   const onPayClicked = async () => {
     setPaymentInitiated(true)
-    if(userAddress) {
-      startPayment()
-    }
   }
 
   let buttonContent = null
