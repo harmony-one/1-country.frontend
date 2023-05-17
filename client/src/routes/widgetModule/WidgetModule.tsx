@@ -792,7 +792,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             autoFocus
             disabled={isLoading}
             isValid={processStatus.type !== ProcessStatusTypes.ERROR}
-            placeholder={'Enter tweet or any url'}
+            placeholder={'Enter any URL, your email or Notion site'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
@@ -844,13 +844,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
               // weight={'bold'}
               style={{ whiteSpace: 'nowrap' }}
             >
-              <a
+              
+                Join Telegram Group 
+                <a
                 href="https://t.me/+RQf_CIiLL3ZiOTYx"
                 target="_blank"
                 style={{ textDecoration: 'none' }}
               >
-                Join the 1.country 3-character club
-              </a>
+                 {" "}1.country 3-character club
+                </a>
             </Text>
           </Box>
         )}
