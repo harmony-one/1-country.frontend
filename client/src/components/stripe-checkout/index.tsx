@@ -9,6 +9,7 @@ import {Button} from "grommet/components/Button";
 import LinkLogo from '../../../assets/images/stripe_link.svg';
 import GooglePayLogo from '../../../assets/images/google_pay.svg';
 import AppleLogo from '../../../assets/images/apple_white.svg';
+import {PaymentRequest} from "@stripe/stripe-js/types/stripe-js/payment-request";
 
 const stripePromise = loadStripe(config.payments.stripePubKey)
 
@@ -68,9 +69,31 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
   const { userAddress, domainName } = props
 
   const stripe = useStripe()
-  const [paymentRequest, setPaymentRequest] = useState(null)
+  const [paymentRequest, setPaymentRequest] = useState<PaymentRequest>()
   const [canMakePayment, setCanMakePayment] = useState<CanMakePaymentResult>()
   const [domainPrice, setDomainPrice] = useState('0')
+  const [isPaymentInitiated, setPaymentInitiated] = useState(false)
+
+  const startPayment = async () => {
+    try {
+      if(props.onPaymentInitiated) {
+        await props.onPaymentInitiated()
+      }
+      paymentRequest.abort()
+      if(paymentRequest) {
+        paymentRequest.show()
+      }
+    } catch (e) {
+      console.log('Cannot start stripe payment:', e)
+    }
+  }
+
+  // Event wrapped in Effect to react to Wallet Connect event
+  useEffect(() => {
+    if(isPaymentInitiated) {
+      setTimeout(startPayment, 1000)
+    }
+  }, [userAddress, isPaymentInitiated])
 
   useEffect(() => {
     const getPrice = async () => {
@@ -84,6 +107,10 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
     }
     getPrice()
   }, [domainName])
+
+  const onStripePaymentMethod = async () => {
+    console.log('onStripePaymentMethod user address: ', userAddress)
+  }
 
   useEffect(() => {
     if (stripe && +domainPrice > 0) {
@@ -106,8 +133,12 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
           setPaymentRequest(pr)
         }
       })
+    }
+  }, [stripe, domainPrice])
 
-      pr.on('paymentmethod', async (e) => {
+  useEffect(() => {
+    if(paymentRequest && userAddress) {
+      paymentRequest.on('paymentmethod', async (e) => {
         if(props.onPaymentStarted) {
           props.onPaymentStarted(e)
         }
@@ -116,8 +147,8 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
         let paymentIntentId = ''
 
         try {
-          const intent = await createPaymentIntent(userAddress, domainName)
-          const { id, client_secret } = intent
+          const userPaymentIntent = await createPaymentIntent(userAddress, domainName)
+          const { id, client_secret } = userPaymentIntent
           clientSecret = client_secret
           paymentIntentId = id
           console.log('Payment intent id: ', id)
@@ -152,18 +183,12 @@ const CheckoutForm = (props: StripeCheckoutFormProps) => {
         }
       })
     }
-  }, [stripe, domainPrice])
+  }, [paymentRequest, userAddress])
 
   const onPayClicked = async () => {
-    try {
-      if(props.onPaymentInitiated) {
-        await props.onPaymentInitiated()
-      }
-      if(paymentRequest) {
-        paymentRequest.show()
-      }
-    } catch (e) {
-      console.log('Cannot start stripe payment:', e)
+    setPaymentInitiated(true)
+    if(userAddress) {
+      startPayment()
     }
   }
 

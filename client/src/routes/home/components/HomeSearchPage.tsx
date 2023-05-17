@@ -75,9 +75,9 @@ const HomeSearchPage: React.FC = observer(() => {
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
   const { rootStore, ratesStore, walletStore, utilsStore } = useStores()
+  const [currentPaymentType, setPaymentType] = useState<'one' | 'fiat'>('one')
 
   const enableFiatPayment = Boolean(searchParams.get('fiatPayment') || false)
-  console.log('enableFiatPayment:', enableFiatPayment)
 
   useEffect(() => {
     if (status === 'connecting') {
@@ -152,7 +152,9 @@ const HomeSearchPage: React.FC = observer(() => {
     const connectWallet = async () => {
       const provider = await connector!.getProvider()
       walletStore.setProvider(provider, address)
-      handleRentDomain()
+      if(currentPaymentType === 'one') {
+        handleRentDomain()
+      }
     }
 
     if (!walletStore.isMetamaskAvailable) {
@@ -226,7 +228,7 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
-  const claimWeb2DomainWrapper = async () => {
+  const claimWeb2DomainWrapper = async (txHash = regTxHash) => {
     setLoading(true)
     try {
       if (
@@ -236,7 +238,7 @@ const HomeSearchPage: React.FC = observer(() => {
             value.toLowerCase() === searchResult.domainName.toLowerCase()
         )
       ) {
-        await claimWeb2Domain(regTxHash)
+        await claimWeb2Domain(txHash)
       }
       await sleep(2000)
       await generateNFT()
@@ -265,7 +267,7 @@ const HomeSearchPage: React.FC = observer(() => {
       log.error('claimWeb2DomainWrapper', {
         error: ex instanceof RelayError ? ex.message : ex,
         domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
-        txHash: regTxHash,
+        txHash: txHash,
         address: walletStore.walletAddress,
       })
 
@@ -357,6 +359,7 @@ const HomeSearchPage: React.FC = observer(() => {
       return false
     }
 
+    setPaymentType('one')
     setLoading(true)
 
     setProcessStatus({
@@ -582,15 +585,16 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   const onStripePaymentInitiated = async () => {
+    setPaymentType('fiat')
     if (walletStore.isMetamaskAvailable && !walletStore.isConnected) {
       setProcessStatus({
         type: ProcessStatusTypes.PROGRESS,
         render: <BaseText>Connect Metamask</BaseText>,
       })
       await walletStore.connect()
-    } else if (!isConnected) {
+    } else if (!address) {
       open()
-      throw new Error('Wallet not connected')
+      throw new Error('No user address')
     }
   }
 
@@ -645,45 +649,7 @@ const HomeSearchPage: React.FC = observer(() => {
       referral,
     })
 
-    if (
-      searchResult.domainName.length !== 3 ||
-      !RESERVED_DOMAINS.find(
-        (value) =>
-          value.toLowerCase() === searchResult.domainName.toLowerCase()
-      )
-    ) {
-      await claimWeb2Domain(txHash)
-    }
-
-    try {
-      setProcessStatus({
-        render: <BaseText>Web2 domain acquired.</BaseText>,
-      })
-      await sleep(2000)
-      await generateNFT()
-      setProcessStatus({
-        render: <BaseText>NFT generated.</BaseText>,
-      })
-      await sleep(2000)
-      terminateProcess()
-      setWeb2Acquired(true)
-    } catch (e) {
-      console.log('Cannot generate NFT', e)
-      setWeb2Error(true)
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: (
-          <BaseText>{`${
-            e instanceof RelayError
-              ? e.message
-              : 'Unable to acquire domain. Try Again.'
-          }`}</BaseText>
-        ),
-      })
-      terminateProcess()
-    } finally {
-      setLoading(false)
-    }
+    claimWeb2DomainWrapper(txHash)
   }
 
   const onStripeCheckoutError = (e: StripeError) => {
