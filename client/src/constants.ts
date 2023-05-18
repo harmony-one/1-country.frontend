@@ -8,6 +8,7 @@ export default {
 export const COOKIES = {
   JWT: '_dc_jwt',
   REFERRAL: '_dc_referral',
+  HIDE_ERRORS: '_dc_hide_errors',
 }
 
 export const palette = {
@@ -27,7 +28,7 @@ export const theme: ThemeType = {
   global: {
     focus: {
       border: {
-        color: "transparent",
+        color: 'transparent',
       },
     },
     palette,

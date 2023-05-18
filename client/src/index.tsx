@@ -18,6 +18,7 @@ import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
 import { Bootstrap } from './utils/Bootstrap'
 import { GlobalStyles } from './components/global'
+import './unhandleErrors'
 
 console.log('### config.sentryDSN', config.sentryDSN)
 Sentry.init({
