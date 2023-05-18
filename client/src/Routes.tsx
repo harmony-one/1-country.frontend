@@ -2,7 +2,6 @@ import React, { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { HomePage } from './routes/home/HomePage'
 import { HomePageLoader } from './routes/home/components/HomePageLoader'
-import ClaimFreePage from './routes/claimFree/ClaimFreePage'
 
 const StatsPage = lazy(
   () => import(/* webpackChunkName: "Others" */ './routes/stats/Stats')
@@ -34,6 +33,12 @@ const OpenWidgetsPage = lazy(
       /* webpackChunkName: "Others" */ './routes/openWidgets/OpenWidgetsPage'
     )
 )
+
+const ClaimFreePage = lazy(
+  () =>
+    import(/* webpackChunkName: "Others" */ './routes/claimFree/ClaimFreePage')
+)
+
 console.log('### WaitingRoom', WaitingRoom)
 
 const AppRoutes = () => {

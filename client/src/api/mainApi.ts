@@ -69,6 +69,14 @@ export const mainApi = {
     )
   },
 
+  isHasClaim: async ({ address }: { address: string }) => {
+    const response = await axios.get<{ hasClaim: boolean }>(
+      `${config.freeRentBackendHost}/hasClaim/${address}`
+    )
+
+    return response.data.hasClaim
+  },
+
   loadDomain: async ({ domain }: { domain: string }) => {
     const response = await base.get<{ data: Domain }>(`/domains/${domain}`)
     return response.data.data

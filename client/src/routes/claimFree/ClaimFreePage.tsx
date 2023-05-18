@@ -102,6 +102,14 @@ const ClaimFreePage: React.FC = observer(() => {
         const result = validateDomainName(domainName)
         setValidation(result)
 
+        if (domainName.length <= 2) {
+          setValidation({
+            valid: false,
+            error: 'The length of the domains must exceed 2 characters',
+          })
+          return
+        }
+
         if (result.valid) {
           try {
             setProcessStatus({
@@ -367,6 +375,17 @@ const ClaimFreePage: React.FC = observer(() => {
     })
 
     console.log('### searchResult', searchResult)
+
+    const hasClaim = await mainApi.isHasClaim({ address })
+
+    if (hasClaim) {
+      setValidation({
+        valid: false,
+        error: 'You can claim only one domain',
+      })
+      setLoading(false)
+      return
+    }
 
     const _available = await rootStore.d1dcClient.checkAvailable({
       name: searchResult.domainName,
