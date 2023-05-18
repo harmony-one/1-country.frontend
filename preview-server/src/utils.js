@@ -35,7 +35,7 @@ const getDomainData = async (domainName) => {
 
   console.log(`Owner address: ${ownerAddress} (${ownerAddressOne})`)
 
-  const startTime = moment((parseInt(expirationTime) - parseInt(rentTime)) * 1000).format('DD/MM/YYYY')
+  const startTime = moment((parseInt(expirationTime) - parseInt(rentTime)) * 1000).format('YYYY/MM/DD')
 
   const domainUrls = await tweetContract.getAllUrls(domainName)
   const type = 'website'
