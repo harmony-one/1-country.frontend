@@ -25,6 +25,15 @@ export interface RenewNftMetada {
   error?: string
 }
 
+export interface RenewCert {
+  success: boolean
+  sld?: string
+  mcJobId?: any
+  nakedJobId?: any
+  error?: any
+  certExist?: boolean
+}
+
 export const relayApi = () => {
   return {
     enableSubdomains: async (domainName: string) => {
@@ -161,6 +170,27 @@ export const relayApi = () => {
         metadata,
         expiry,
         error,
+      }
+    },
+    renewCert: async ({ domain }: { domain: string }): Promise<RenewCert> => {
+      try {
+        const {
+          data: { success, sld, mcJobId, nakedJobId, error },
+        } = await base.post('/renew-cert', { domain })
+        return {
+          success,
+          sld,
+          mcJobId,
+          nakedJobId,
+          error,
+        }
+      } catch (e) {
+        console.log('renewCert', { e })
+        return {
+          success: false,
+          error: e,
+          certExist: !e.response.data.error.includes('does not exist'),
+        }
       }
     },
   }

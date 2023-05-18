@@ -114,7 +114,6 @@ const WaitingRoom = observer(() => {
               </Timer>)
             </GradientText>
           </Row> */}
-
           <h3 style={{ marginTop: '1em', marginBottom: '0.1em' }}>
             {!isDomainAvailable
               ? `${domainName}.country`
