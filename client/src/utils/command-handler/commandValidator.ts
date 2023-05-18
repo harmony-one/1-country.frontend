@@ -9,6 +9,7 @@ export const regexPatterns = {
   RENEW: /^renew$/i, // renew
   NOTION_COMMAND: /^(\w+)\.=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, ///^(\w+).=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // subdomain.=url (with notion as substring)
   NOTION: /^(?=.*notion).*\b((?:https?|ftp):\/\/\S+|www\.\S+)\b.*$/, // url that has substring notion
+  TRANSFER: /transfer[:=](0x[a-fA-F0-9]{40})/i,
 }
 
 export enum CommandValidatorEnum {
@@ -20,6 +21,7 @@ export enum CommandValidatorEnum {
   IFRAME = 'IFRAME',
   RENEW = 'RENEW',
   NOTION = 'NOTION', // includes NOTION_COMMAND
+  TRANSFER = 'TRANSFER',
 }
 
 export interface CommandValidator {
@@ -28,6 +30,7 @@ export interface CommandValidator {
   url?: string
   email?: string
   command?: string
+  address?: string
 }
 
 const commandValidator = (text: string): CommandValidator => {
@@ -47,6 +50,15 @@ const commandValidator = (text: string): CommandValidator => {
       type: CommandValidatorEnum.NOTION,
       aliasName: 'www',
       url: text,
+    }
+  }
+
+  if (regexPatterns.TRANSFER.test(text)) {
+    const match = text.match(regexPatterns.TRANSFER)
+    console.log('regex', match)
+    return {
+      type: CommandValidatorEnum.TRANSFER,
+      address: match[1],
     }
   }
 
