@@ -59,7 +59,7 @@ const ClaimFreePage: React.FC = observer(() => {
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
   const [freeRentKey, setFreeRentKey] = useState(
-    searchParams.get('freeRentKey') || ''
+    searchParams.get('freeRentKey') || config.freeRentKey
   )
   const [claimAddress, setClaimAddress] = useState<string>(address || '')
   const [isLoading, setLoading] = useState(false)
@@ -384,6 +384,12 @@ const ClaimFreePage: React.FC = observer(() => {
         error: 'You can claim only one domain',
       })
       setLoading(false)
+
+      setProcessStatus({
+        type: ProcessStatusTypes.IDLE,
+        render: '',
+      })
+
       return
     }
 
@@ -396,6 +402,11 @@ const ClaimFreePage: React.FC = observer(() => {
         error: 'This domain name is already registered',
       })
       setLoading(false)
+
+      setProcessStatus({
+        type: ProcessStatusTypes.IDLE,
+        render: '',
+      })
       return
     }
 
