@@ -4,7 +4,7 @@ import { RootStore } from '../../stores/RootStore'
 import { rootStore } from '../../stores'
 import { CallbackProps } from '../../api'
 import isUrl from 'is-url'
-import {Link, mainApi} from '../../api/mainApi'
+import { Link, mainApi } from '../../api/mainApi'
 import {
   ProcessStatusItem,
   ProcessStatusTypes,
@@ -43,19 +43,19 @@ const mapUrlToWidget = (url: string, index: number, dbLink?: Link): Widget => {
   return {
     id: index,
     ...parseRawUrl(url),
-    uuid: dbLink ? dbLink.id: null,
+    uuid: dbLink ? dbLink.id : null,
     isPinned: dbLink ? dbLink.isPinned : false,
   }
 }
 
 const sortWidgets = (a: Widget, b: Widget) => {
-  if(b.isPinned || a.isPinned) {
+  if (b.isPinned || a.isPinned) {
     return +b.isPinned - +a.isPinned
   }
   return b.id - a.id
 }
 
-class WidgetListStore extends BaseStore {
+export class WidgetListStore extends BaseStore {
   widgetList: Widget[] = []
   txDomainLoading: boolean = false
   txDomain: string = ''
@@ -138,29 +138,35 @@ class WidgetListStore extends BaseStore {
     return this.stores.loadersStore.getLoader(id)
   }
 
-  async pinWidget (widgetId: string, isPinned: boolean) {
+  async pinWidget(widgetId: string, isPinned: boolean) {
     try {
       await mainApi.pinLink(widgetId, isPinned)
       runInAction(() => {
-        this.widgetList = this.widgetList.map(widget => {
-          if(widget.uuid !== widgetId) {
+        this.widgetList = this.widgetList
+          .map((widget) => {
+            if (widget.uuid !== widgetId) {
+              return {
+                ...widget,
+                isPinned: false, // Only one widget can be pinned
+              }
+            }
             return {
               ...widget,
-              isPinned: false // Only one widget can be pinned
+              isPinned,
             }
-          }
-          return {
-            ...widget,
-            isPinned
-          }
-        }).sort(sortWidgets)
+          })
+          .sort(sortWidgets)
       })
     } catch (e) {
       console.error('Cannot pin widget', e.message)
     }
   }
 
-  async deleteWidget(props: { widgetId: number; widgetUuid?: string, domainName: string }) {
+  async deleteWidget(props: {
+    widgetId: number
+    widgetUuid?: string
+    domainName: string
+  }) {
     const { widgetId, widgetUuid, domainName } = props
     console.log('delete widget', props)
 
@@ -194,7 +200,7 @@ class WidgetListStore extends BaseStore {
         throw result.error
       }
 
-      if(widgetUuid) {
+      if (widgetUuid) {
         await mainApi.deleteLink(widgetUuid)
       }
 
@@ -264,10 +270,13 @@ class WidgetListStore extends BaseStore {
     }
 
     runInAction(() => {
-      this.widgetList = urlList.map((url: string, index: number) => {
-        const dbLink = dbLinks.find((dbLink) => dbLink.linkId === index.toString())
-        return mapUrlToWidget(url, index, dbLink)
-      })
+      this.widgetList = urlList
+        .map((url: string, index: number) => {
+          const dbLink = dbLinks.find(
+            (dbLink) => dbLink.linkId === index.toString()
+          )
+          return mapUrlToWidget(url, index, dbLink)
+        })
         .sort(sortWidgets)
     })
   }
