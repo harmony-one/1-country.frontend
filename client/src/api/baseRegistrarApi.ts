@@ -2,7 +2,7 @@ import { ethers, Contract } from 'ethers'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 
 import config from '../../config'
-import TransferAbi from '../../contracts/abi/BaseRegistrar'
+import erc721Abi from '../../contracts/abi/ERC721'
 import { CallbackProps, SendProps, SendResult } from './index'
 import { defaultProvider } from './defaultProvider'
 import { getUnwrappedTokenId } from './utils'
@@ -10,10 +10,6 @@ import { getUnwrappedTokenId } from './utils'
 interface SafeTransferProps extends CallbackProps {
   domain: string
   transferTo: string
-}
-
-interface UnwrapETH2LDProps extends CallbackProps {
-  domain: string
 }
 
 export const baseRegistrarApi = ({
@@ -24,8 +20,8 @@ export const baseRegistrarApi = ({
   address: string
 }) => {
   const contractReadOnly = new Contract(
-    config.ews.contract,
-    TransferAbi,
+    config.domainTransfer.baseRegitrarAddress,
+    erc721Abi,
     defaultProvider
   )
 
@@ -62,9 +58,9 @@ export const baseRegistrarApi = ({
     contract,
     address,
     getOwner: async (domain: string): Promise<string> => {
-      const response = await contractReadOnly.ownerOf(
-        getUnwrappedTokenId(domain)
-      )
+      const tokenId = getUnwrappedTokenId(domain)
+      console.log(domain, tokenId)
+      const response = await contractReadOnly.ownerOf(tokenId)
       return response
     },
     safeTransfer: async ({
@@ -74,6 +70,21 @@ export const baseRegistrarApi = ({
       onSuccess,
       onTransactionHash,
     }: SafeTransferProps) => {
+      console.log(
+        'safeTransfer',
+        address,
+        transferTo,
+        ethers.BigNumber.from(getUnwrappedTokenId(domain))
+      )
+      console.log({ contract })
+      // const tokenId = getUnwrappedTokenId(domain)
+      // console.log(domain, tokenId)
+      // const response = await contractReadOnly.ownerOf(tokenId)
+      // console.log('HELOOOOOOO', response)
+      // const tx = await contract.safeTransferFrom(address, transferTo, ethers.BigNumber.from(getUnwrappedTokenId(domain)).toString());
+      // await tx.wait();
+      // return tx
+
       return send({
         parameters: [
           address,

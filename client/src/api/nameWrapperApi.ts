@@ -24,7 +24,7 @@ export const nameWrapperApi = ({
   address: string
 }) => {
   const contractReadOnly = new Contract(
-    config.ews.contract,
+    config.nameWrapperContract,
     NameWrapper,
     defaultProvider
   )

@@ -46,6 +46,7 @@ import { Text } from 'grommet'
 import { FlexColumn } from '../../components/Layout'
 import { addPostHandler } from '../../utils/command-handler/PostCommandHandler'
 import { EmailHandler } from '../../utils/command-handler/EmailHandler'
+import { transferDomainHandler } from '../../utils/command-handler/transferCommandHandler'
 ///
 
 const defaultFormFields = {
@@ -275,7 +276,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         break
       case CommandValidatorEnum.TRANSFER:
         console.log(CommandValidatorEnum.TRANSFER)
-        //renewCommandHandler()
+        transferDomainHandler({
+          fromUrl,
+          domainName,
+          rootStore,
+          transferTo: command.address,
+          setProcessStatus,
+        })
         break
       case CommandValidatorEnum.NOTION:
         console.log('here i am')
