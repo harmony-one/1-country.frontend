@@ -1,7 +1,9 @@
-import config from '../../config'
+import * as ethers from 'ethers'
 import { toBN } from 'web3-utils'
-import { buildERC1155Uri } from '../utils/explorer'
 import createKeccakHash from 'keccak'
+
+import config from '../../config'
+import { buildERC1155Uri } from '../utils/explorer'
 
 const SPECIAL_NAMES = ['0', '1']
 // prettier-ignore
@@ -36,7 +38,7 @@ export const nameUtils = {
     return isRestricted(name)
   },
   isReservedName: (name: string) => {
-    return false;
+    return false
     //name.length <= config.domain.reserved
   },
 }
@@ -187,3 +189,9 @@ export const getEthersError = (error: Error) => {
 
   return ''
 }
+
+export const getUnwrappedTokenId = (sld: string): string =>
+  ethers.utils.keccak256(ethers.utils.toUtf8Bytes(sld))
+
+export const getWrappedTokenId = (sld: string): string =>
+  ethers.utils.namehash(`${sld}.${config.tld}`)

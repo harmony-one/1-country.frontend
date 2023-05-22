@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 import { EAS } from './easTypes'
-import EASAbi from '../../../abi/EAS'
+import EASAbi from '../../../contracts/abi/EAS'
 import { Contract } from 'ethers'
 import { defaultProvider } from '../defaultProvider'
 import config from '../../../config'
