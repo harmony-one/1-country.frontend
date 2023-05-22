@@ -1,7 +1,15 @@
+import cookie from 'js-cookie'
+import { COOKIES } from './src/constants'
+
 const debug = process.env.DEBUG
 
 const config = {
   debug,
+  console: {
+    hideErrors:
+      parseInt(process.env.CONSOLE_HIDE_ERRORS, 10) === 1 &&
+      parseInt(cookie.get(COOKIES.HIDE_ERRORS), 10) !== 0,
+  },
   sentryDSN: process.env.SENTRY_DSN || '',
   backendHost:
     process.env.BACKEND_HOST || 'https://mdo-dcobackend-01.t.hmny.io',
@@ -21,6 +29,15 @@ const config = {
   nameWrapperContract:
     process.env.NAME_WRAPPER_CONTRACT ||
     '0x4cd2563118e57b19179d8dc033f2b0c5b5d69ff5',
+  eas: {
+    contract:
+      process.env.EAS_CONTRACT || '0xDBf0D70070D760512d214C7ccaB933e066eeb070',
+    apiHost:
+      process.env.EAS_API_HOST || 'https://1ns-eas-server.hiddenstate.xyz',
+    message(sld: string, alias: string, forwardAddress: string): string {
+      return `You are about to authorize forwarding all emails sent to [${alias}@${sld}${config.tld}] to [${forwardAddress}] instead`
+    },
+  },
   explorer: {
     explorerUrl:
       process.env.EXPLORER_URL || 'https://explorer.harmony.one/#/tx/',
@@ -108,4 +125,5 @@ const config = {
   },
 }
 
+console.log('### config', config)
 export default config

@@ -24,6 +24,7 @@ import { Web2AuthStore } from './Web2AuthStore'
 import vanityApis, {
   VanityURLClient,
 } from '../api/vanity-url/vanityContractClient'
+import { buildEasClient, EasClient } from '../api/eas/easContractClient'
 
 export class RootStore {
   modalStore: ModalStore
@@ -32,6 +33,7 @@ export class RootStore {
   tweetClient: TweetClient
   ewsClient: EwsClient
   vanityUrlClient: VanityURLClient
+  easClient: EasClient
   commonClient: CommonClient
   domainStore: DomainStore
   walletStore: WalletStore
@@ -101,6 +103,7 @@ export class RootStore {
   ) {
     console.log('### dc client updated', address)
 
+    this.easClient = buildEasClient({ provider })
     this.d1dcClient = apis({ provider, address })
     this.tweetClient = tweetApi({ provider, address })
     this.vanityUrlClient = vanityApis({ provider, address })

@@ -29,6 +29,12 @@ export function isEmail(str: string) {
   return emailRegex.test(str)
 }
 
+const emailIdRegexp =
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))$/
+export function isEmailId(str: string) {
+  return emailIdRegexp.test(str)
+}
+
 export const isRedditUrl = (url: string) => {
   return (
     url.indexOf('//www.reddit.com') >= 0 || url.indexOf('//reddit.com') >= 0
@@ -36,7 +42,7 @@ export const isRedditUrl = (url: string) => {
 }
 
 export const isStakingWidgetUrl = (url: string) => {
-  return url.indexOf('staking:') === 0;
+  return url.indexOf('staking:') === 0
 }
 
 export const isIframeWidget = (text: string) => {

@@ -67,9 +67,8 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
           // onClick={handleClickDomain}
           style={{ cursor: widgetListStore.txDomain && 'pointer' }}
         >
-          <a href="mailto:1country@harmony.one">
-            {domainStore.domainName}.country
-          </a>
+          {/* <a href="mailto:1country@harmony.one"></a> */}
+          <a href="https://1.country">{domainStore.domainName}.country</a>
         </DomainName>
         {/* {domainStore.domainRecord &&
           domainStore.domainRecord.renter &&

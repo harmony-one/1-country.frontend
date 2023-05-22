@@ -18,6 +18,13 @@ export interface ParsedNftMetada {
   length: number
 }
 
+export interface RenewNftMetada {
+  renewed: boolean
+  metadata?: any
+  expiry?: any
+  error?: string
+}
+
 export const relayApi = () => {
   return {
     enableSubdomains: async (domainName: string) => {
@@ -139,6 +146,21 @@ export const relayApi = () => {
             ...attr,
           }
         }
+      }
+    },
+    renewMetadata: async ({
+      domain,
+    }: {
+      domain: string
+    }): Promise<RenewNftMetada> => {
+      const {
+        data: { renewed, metadata, expiry, error },
+      } = await base.post('/renew-metadata', { domain })
+      return {
+        renewed,
+        metadata,
+        expiry,
+        error,
       }
     },
   }
