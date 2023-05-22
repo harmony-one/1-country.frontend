@@ -39,52 +39,14 @@ import { getElementAttributes } from '../../utils/getElAttributes'
 
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
-import { loadEmbedJson } from '../../modules/embedly/embedly'
-import {
-  isEmail,
-  isEmailId,
-  isIframeWidget,
-  isRedditUrl,
-  isStakingWidgetUrl,
-} from '../../utils/validation'
 import { BaseText, SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet'
 ///
-import { ethers } from 'ethers'
-import { easServerClient } from '../../api/eas/easServerClient'
-import { getEthersError } from '../../api/utils'
 import { FlexColumn } from '../../components/Layout'
 import { addPostHandler } from '../../utils/command-handler/PostCommandHandler'
+import { EmailHandler } from '../../utils/command-handler/EmailHandler'
 ///
-
-function parseEmailInput(str: string): false | [string, string] {
-  const input = str.trim()
-  if (input.indexOf('email:') === 0) {
-    return parseEmailInput(input.split('email:')[1])
-  }
-
-  if (input.indexOf('=') !== -1) {
-    return parseEmailInput(input.replace('=', ' '))
-  }
-
-  if (isEmail(input)) {
-    return ['hello', input]
-  }
-
-  const [part1, part2] = input.split(' ')
-
-  if (!isEmail(part1) && isEmailId(part1) && isEmail(part2)) {
-    return [part1, part2]
-  }
-
-  if (isEmail(part1) && isEmail(part2)) {
-    const name = part1.split('@')[0]
-    return [name, part2]
-  }
-
-  return false
-}
 
 const defaultFormFields = {
   widgetValue: '',
@@ -163,175 +125,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const resetInput = () => {
     setFormFields({ ...formFields, widgetValue: '' })
-  }
-
-  const createAlias = async (alias: string, forward: string) => {
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <BaseText>
-          {walletStore.isMetamaskAvailable
-            ? 'Waiting for a transaction to be signed'
-            : 'Sign transaction on mobile device'}
-        </BaseText>
-      ),
-    })
-
-    try {
-      const numAlias = await rootStore.easClient.getNumAlias(domainName)
-      const maxAlias = await rootStore.easClient.maxNumAlias()
-      const publicAliases = await rootStore.easClient.getPublicAliases(
-        domainName
-      )
-      console.log('### maxNum', numAlias)
-      console.log('### numAlias', numAlias)
-      console.log('### publicAliases', publicAliases)
-
-      if (numAlias >= maxAlias) {
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: (
-            <BaseText>
-              {walletStore.isMetamaskAvailable
-                ? 'Waiting for a transaction to be signed'
-                : 'Sign transaction on mobile device'}
-            </BaseText>
-          ),
-        })
-
-        const removingAlias = publicAliases[0]
-
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: <BaseText>Removing old alias: {removingAlias}</BaseText>,
-        })
-
-        const delResult = await rootStore.easClient.deactivateAll({
-          domainName,
-          onTransactionHash: () => {
-            setProcessStatus({
-              type: ProcessStatusTypes.PROGRESS,
-              render: <BaseText>Waiting for transaction confirmation</BaseText>,
-            })
-          },
-        })
-
-        if (delResult.error) {
-          const message = getEthersError(delResult.error) || 'Please contact us'
-          setProcessStatus({
-            type: ProcessStatusTypes.ERROR,
-            render: <BaseText>Deactivation failed. {message}</BaseText>,
-          })
-          return
-        }
-      }
-
-      const signature = await rootStore.easClient.buildSignature(
-        domainName,
-        alias,
-        forward
-      )
-      const separator = ethers.utils.toUtf8Bytes(
-        await rootStore.easClient.getSeparator()
-      )
-      const data = ethers.utils.concat([
-        ethers.utils.toUtf8Bytes(alias),
-        separator,
-        ethers.utils.toUtf8Bytes(forward),
-        separator,
-        signature,
-      ])
-      let makePublic = true
-      const commitment = ethers.utils.keccak256(data)
-
-      console.log('### publicAliases', publicAliases)
-
-      if (publicAliases.includes(alias)) {
-        makePublic = false
-      }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: (
-          <BaseText>
-            {walletStore.isMetamaskAvailable
-              ? 'Waiting for a transaction to be signed'
-              : 'Sign transaction on mobile device'}
-          </BaseText>
-        ),
-      })
-
-      const activateResult = await rootStore.easClient.activate({
-        domainName: domainName,
-        onTransactionHash: () => {
-          setProcessStatus({
-            type: ProcessStatusTypes.PROGRESS,
-            render: <BaseText>Waiting for transaction confirmation</BaseText>,
-          })
-        },
-        alias,
-        commitment,
-        makePublic,
-      })
-
-      if (activateResult.error) {
-        const message =
-          getEthersError(activateResult.error) || 'Please contact us'
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: <BaseText>Activation failed. {message}</BaseText>,
-        })
-        return
-      }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: 'Adding email alias',
-      })
-
-      const { success, error } = await easServerClient.activate(
-        domainName,
-        alias,
-        forward,
-        signature
-      )
-
-      if (error) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>{`Activation failed. ${
-              error
-                ? `Error: ${error}`
-                : 'Please email dot-country@hiddenstate.xyz for futher support'
-            }`}</BaseText>
-          ),
-        })
-        return
-      }
-
-      if (success) {
-        setProcessStatus({
-          type: ProcessStatusTypes.SUCCESS,
-          render: 'Activation complete!',
-        })
-      }
-    } catch (ex) {
-      console.log('### ex', ex)
-
-      let errorMessage = getEthersError(ex)
-
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: (
-          <BaseText>{`Activation failed. ${
-            ex
-              ? `Error: ${errorMessage}`
-              : 'Please email dot-country@hiddenstate.xyz for futher support'
-          }`}</BaseText>
-        ),
-      })
-    }
   }
 
   const vanityHandler = async (vanity: CommandValidator) => {
@@ -454,8 +247,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       case CommandValidatorEnum.EMAIL_ALIAS:
         // works with value => email and value => aliasName=email
         console.log(CommandValidatorEnum.EMAIL_ALIAS, command)
-        result = true
-        window.open(`mailto:1country@harmony.one`, '_self')
+        result = await EmailHandler({
+          alias: command.aliasName,
+          forward: command.email,
+          fromUrl,
+          domainName,
+          walletStore,
+          rootStore,
+          setProcessStatus,
+        })
         break
       case CommandValidatorEnum.URL:
       case CommandValidatorEnum.STAKING:
@@ -499,7 +299,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     if (result) {
       resetInput()
     }
-    console.log('HERE AT command handler')
     resetProcessStatus(10000)
     setLoading(false)
     if (fromUrl) {
@@ -515,13 +314,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
     event.preventDefault()
     const value = (event.target as HTMLInputElement).value || ''
-
-    const aliasResult = parseEmailInput(value)
-
-    if (aliasResult) {
-      createAlias(aliasResult[0], aliasResult[1])
-      return
-    }
 
     commandHandler(value)
   }
