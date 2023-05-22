@@ -16,7 +16,7 @@ interface UnwrapETH2LDProps extends CallbackProps {
   domain: string
 }
 
-export const nameWrapperContractApi = ({
+export const nameWrapperApi = ({
   provider,
   address,
 }: {
@@ -121,4 +121,4 @@ export const nameWrapperContractApi = ({
   }
 }
 
-export type NameWrapperClient = ReturnType<typeof nameWrapperContractApi>
+export type NameWrapperClient = ReturnType<typeof nameWrapperApi>
