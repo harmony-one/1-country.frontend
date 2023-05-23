@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for hmy-dynamic-preview on 2023-05-23T14:30:53+01:00
+# fly.toml app configuration file generated for 1country-dynamic-preview on 2023-05-23T18:21:37+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "hmy-dynamic-preview"
+app = "1country-dynamic-preview"
 primary_region = "lax"
 kill_signal = "SIGINT"
 kill_timeout = "5s"
