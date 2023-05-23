@@ -26,7 +26,10 @@ import commandValidator, {
   CommandValidator,
   CommandValidatorEnum,
 } from '../../utils/command-handler/commandValidator'
-import { renewCommand } from '../../utils/command-handler/DcCommandHandler'
+import {
+  renewCommand,
+  renewCommandHandler,
+} from '../../utils/command-handler/DcCommandHandler'
 import { relayApi } from '../../api/relayApi'
 import { daysBetween } from '../../api/utils'
 import {
@@ -39,7 +42,7 @@ import { getElementAttributes } from '../../utils/getElAttributes'
 
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
-import { BaseText, SmallText } from '../../components/Text'
+import { SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet'
 ///
@@ -47,6 +50,7 @@ import { FlexColumn } from '../../components/Layout'
 import { addPostHandler } from '../../utils/command-handler/PostCommandHandler'
 import { EmailHandler } from '../../utils/command-handler/EmailHandler'
 import { transferDomainHandler } from '../../utils/command-handler/transferCommandHandler'
+import { vanityUrlHandler } from '../../utils/command-handler/vanityUrlHandler'
 ///
 
 const defaultFormFields = {
@@ -128,114 +132,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     setFormFields({ ...formFields, widgetValue: '' })
   }
 
-  const vanityHandler = async (vanity: CommandValidator) => {
-    const urlExists = await rootStore.vanityUrlClient.existURL({
-      name: domainName,
-      aliasName: vanity.aliasName,
-    })
-    const method = urlExists ? 'updateURL' : 'addNewURL'
-    setLoading(true)
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <BaseText>{`${
-          urlExists ? 'Updating' : 'Creating'
-        } ${`${domainName}${config.tld}/${vanity.aliasName}`} url`}</BaseText>
-      ),
-    })
-    const result = await rootStore.vanityUrlClient[method]({
-      name: domainName,
-      aliasName: vanity.aliasName,
-      url: vanity.url,
-      price: config.vanityUrl.price + '',
-      onTransactionHash: () => {
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: <BaseText>Waiting for transaction confirmation</BaseText>,
-        })
-      },
-      onSuccess: ({ transactionHash }) => {
-        console.log('success', transactionHash)
-        setProcessStatus({
-          type: ProcessStatusTypes.SUCCESS,
-          render: (
-            <BaseText>
-              <a
-                href={vanity.url}
-              >{`${domainName}${config.tld}/${vanity.aliasName}`}</a>
-              {` ${urlExists ? 'updated' : 'created'}`}
-            </BaseText>
-          ),
-        })
-      },
-      onFailed: (ex: Error) => {
-        console.log('ERRROR', ex)
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              Error {urlExists ? 'updating' : 'creating'} Vanity URL
-            </BaseText>
-          ),
-        })
-      },
-    })
-    resetProcessStatus(10000)
-    resetInput()
-    setLoading(false)
-  }
-
-  const renewCommandHandler = async () => {
-    setLoading(true)
-    try {
-      const nftData = await relayApi().getNFTMetadata({
-        domain: `${domainName}${config.tld}`,
-      })
-      const days = daysBetween(
-        nftData['registrationDate'],
-        domainStore.domainRecord.expirationTime
-      )
-      console.log({ nftData })
-      console.log(days)
-      if (days <= config.domain.renewalLimit) {
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
-        })
-        if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
-          await walletStore.connect()
-        }
-        console.log(
-          'domainStore.domainPrice.amount',
-          domainStore.domainPrice.amount
-        )
-        const amount = domainStore.domainPrice.amount
-        await renewCommand(domainName, amount, rootStore, setProcessStatus)
-
-        await domainStore.loadDomainRecord(domainName)
-
-        resetInput()
-      } else {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: <BaseText>{`Error: Renewal Limit Reached`}</BaseText>,
-        })
-      }
-      resetProcessStatus(10000)
-      setLoading(false)
-    } catch (error) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: (
-          <BaseText>{`Error while renewing ${domainName}${config.tld}`}</BaseText>
-        ),
-      })
-      console.log(error)
-      resetProcessStatus(10000)
-      setLoading(false)
-    }
-  }
-
   const commandHandler = async (text: string, fromUrl = false) => {
     const command = commandValidator(text)
     let result = false
@@ -243,7 +139,13 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     switch (command.type) {
       case CommandValidatorEnum.VANITY:
         console.log(CommandValidatorEnum.VANITY)
-        vanityHandler(command)
+        result = await vanityUrlHandler({
+          vanity: command,
+          fromUrl,
+          domainName,
+          rootStore,
+          setProcessStatus,
+        })
         break
       case CommandValidatorEnum.EMAIL_ALIAS:
         // works with value => email and value => aliasName=email
@@ -272,7 +174,14 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         break
       case CommandValidatorEnum.RENEW:
         console.log(CommandValidatorEnum.RENEW)
-        renewCommandHandler()
+        result = await renewCommandHandler({
+          fromUrl,
+          domainName,
+          domainStore,
+          walletStore,
+          rootStore,
+          setProcessStatus,
+        })
         break
       case CommandValidatorEnum.TRANSFER:
         console.log(CommandValidatorEnum.TRANSFER)

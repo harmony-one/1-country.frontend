@@ -9,8 +9,81 @@ import { BN } from 'bn.js'
 import { relayApi } from '../../api/relayApi'
 import config from '../../../config'
 import { sleep } from '../sleep'
+import { DomainStore } from '../../stores/DomainStore'
+import { WalletStore } from '../../stores/WalletStore'
+import { daysBetween } from '../../api/utils'
 
-export const renewCommand = async (
+type RenewCommandHandlerProps = {
+  fromUrl: boolean
+  domainName: string
+  domainStore: DomainStore
+  walletStore: WalletStore
+  rootStore: RootStore
+  setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
+}
+
+export const renewCommandHandler = async ({
+  fromUrl = false,
+  domainName,
+  domainStore,
+  walletStore,
+  rootStore,
+  setProcessStatus,
+}: RenewCommandHandlerProps): Promise<boolean> => {
+  try {
+    let result = false
+    if (fromUrl) {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: <BaseText>Renewing the Domain from url</BaseText>,
+      })
+      await sleep(3000)
+    }
+    const nftData = await relayApi().getNFTMetadata({
+      domain: `${domainName}${config.tld}`,
+    })
+    const days = daysBetween(
+      nftData['registrationDate'],
+      domainStore.domainRecord.expirationTime
+    )
+    console.log({ nftData })
+    console.log(days)
+    if (days <= config.domain.renewalLimit) {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
+      })
+      if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
+        await walletStore.connect()
+      }
+      console.log(
+        'domainStore.domainPrice.amount',
+        domainStore.domainPrice.amount
+      )
+      const amount = domainStore.domainPrice.amount
+      await renewCommand(domainName, amount, rootStore, setProcessStatus)
+
+      await domainStore.loadDomainRecord(domainName)
+      return true
+    } else {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>{`Error: Renewal Limit Reached`}</BaseText>,
+      })
+    }
+    return result
+  } catch (error) {
+    setProcessStatus({
+      type: ProcessStatusTypes.ERROR,
+      render: (
+        <BaseText>{`Error while renewing ${domainName}${config.tld}`}</BaseText>
+      ),
+    })
+    console.log(error)
+  }
+}
+
+const renewCommand = async (
   domainName: string,
   price: string,
   store: RootStore,
