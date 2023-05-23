@@ -194,4 +194,4 @@ export const getUnwrappedTokenId = (sld: string): string =>
   ethers.utils.keccak256(ethers.utils.toUtf8Bytes(sld))
 
 export const getWrappedTokenId = (sld: string): string =>
-  ethers.utils.namehash(`${sld}.${config.tld}`)
+  ethers.utils.namehash(`${sld}${config.tld}`)

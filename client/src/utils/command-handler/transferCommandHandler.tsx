@@ -29,10 +29,15 @@ export const transferDomainHandler = async ({
   const nameWrapper = rootStore.nameWrapper
 
   try {
-    console.log(domainName)
-    const owner = await baseRegistrar.getOwner(domainName)
-    const wrapped = owner === config.nameWrapperContract
-    console.log(owner, wrapped)
+    const wrapped = await baseRegistrar.isWrapped(domainName)
+    console.log(
+      'is wrapped',
+      domainName,
+      wrapped,
+      config.nameWrapperContract,
+      wrapped
+    )
+    console.log('wrapped comparsion', config.nameWrapperContract)
     if (fromUrl) {
       setProcessStatus({
         type: ProcessStatusTypes.PROGRESS,
@@ -41,6 +46,7 @@ export const transferDomainHandler = async ({
       await sleep(3000)
     }
     if (wrapped) {
+      console.log('nameWrapper.safeTransfer', transferTo, domainName)
       const resp = await nameWrapper.safeTransfer({
         transferTo,
         domain: domainName,
@@ -55,7 +61,6 @@ export const transferDomainHandler = async ({
             type: ProcessStatusTypes.SUCCESS,
             render: <BaseText>Transfer completed</BaseText>,
           })
-          return true
         },
         onFailed: (ex: Error) => {
           console.log('safeTransfer ERROR', ex)
@@ -66,6 +71,9 @@ export const transferDomainHandler = async ({
         },
       })
       console.log(resp)
+      if (!resp.error) {
+        return true
+      }
     } else {
       console.log('baseRegistrar.safeTransfer', transferTo, domainName)
       const resp = await baseRegistrar.safeTransfer({
@@ -82,7 +90,6 @@ export const transferDomainHandler = async ({
             type: ProcessStatusTypes.SUCCESS,
             render: <BaseText>Transfer completed</BaseText>,
           })
-          return true
         },
         onFailed: (ex: Error) => {
           console.log('safeTransfer ERROR', ex)
@@ -93,6 +100,9 @@ export const transferDomainHandler = async ({
         },
       })
       console.log(resp)
+      if (!resp.error) {
+        return true
+      }
     }
     return result
   } catch (e) {

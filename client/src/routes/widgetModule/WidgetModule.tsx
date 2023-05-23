@@ -276,16 +276,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         break
       case CommandValidatorEnum.TRANSFER:
         console.log(CommandValidatorEnum.TRANSFER)
-        transferDomainHandler({
+        result = await transferDomainHandler({
           fromUrl,
           domainName,
           rootStore,
           transferTo: command.address,
           setProcessStatus,
         })
+        result && domainStore.loadDomainRecord(domainName)
         break
       case CommandValidatorEnum.NOTION:
-        console.log('here i am')
         result = await addNotionPageHandler({
           command,
           domainName,

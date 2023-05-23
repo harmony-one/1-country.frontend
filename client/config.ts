@@ -20,7 +20,7 @@ const config = {
   },
   nameWrapperContract:
     process.env.NAME_WRAPPER_CONTRACT ||
-    '0x4cd2563118e57b19179d8dc033f2b0c5b5d69ff5',
+    '0x4Cd2563118e57B19179d8DC033f2B0C5B5D69ff5',
   domainTransfer: {
     baseRegitrarAddress:
       process.env.BASE_REGISTRAR_ADDRESS ||

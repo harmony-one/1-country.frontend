@@ -76,6 +76,14 @@ export const nameWrapperApi = ({
       onSuccess,
       onTransactionHash,
     }: SafeTransferProps) => {
+      console.log(
+        'safeTransferFrom wrapped',
+        config.nameWrapperContract,
+        address,
+        transferTo,
+        domain,
+        getWrappedTokenId(domain)
+      )
       return send({
         parameters: [address, transferTo, getWrappedTokenId(domain), 1, '0x'],
         methodName: 'safeTransferFrom',

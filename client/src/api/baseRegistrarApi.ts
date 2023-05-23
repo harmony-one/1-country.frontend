@@ -59,9 +59,14 @@ export const baseRegistrarApi = ({
     address,
     getOwner: async (domain: string): Promise<string> => {
       const tokenId = getUnwrappedTokenId(domain)
-      console.log(domain, tokenId)
       const response = await contractReadOnly.ownerOf(tokenId)
+      // console.log('getOwner', domain, response, config.domainTransfer.baseRegitrarAddress, tokenId)
       return response
+    },
+    isWrapped: async (domain: string): Promise<boolean> => {
+      const tokenId = getUnwrappedTokenId(domain)
+      const owner = (await contractReadOnly.ownerOf(tokenId)) as string
+      return owner.toUpperCase() === config.nameWrapperContract.toUpperCase()
     },
     safeTransfer: async ({
       transferTo,
