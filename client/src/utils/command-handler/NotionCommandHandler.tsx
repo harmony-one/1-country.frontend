@@ -28,6 +28,7 @@ export const addNotionPageCommand = async (
       internalPageIds,
       false
     )
+    console.log('addNotionPageCommand tx', tx)
     return tx
   } catch (e) {
     console.log(e)

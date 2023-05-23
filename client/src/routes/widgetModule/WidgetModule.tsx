@@ -31,7 +31,10 @@ import { relayApi } from '../../api/relayApi'
 import { daysBetween } from '../../api/utils'
 import { addNotionPageCommand } from '../../utils/command-handler/NotionCommandHandler'
 import { ewsApi } from '../../api/ews/ewsApi'
-import { isValidNotionPageId } from '../../../contracts/ews-common/notion-utils'
+import {
+  getValidSubpagesIds,
+  isValidNotionPageId,
+} from '../../../contracts/ews-common/notion-utils'
 import { useNavigate } from 'react-router'
 import { urlExists } from '../../api/checkUrl'
 import { mainApi } from '../../api/mainApi'
@@ -593,11 +596,18 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             notionPageId,
             0
           )
+          const validatedInternalPagesId = getValidSubpagesIds(internalPagesId)
+          console.log(
+            'internal pages',
+            notionPageId,
+            internalPagesId,
+            validatedInternalPagesId
+          )
           const tx = await addNotionPageCommand(
             domainStore.domainName,
             command.aliasName,
             notionPageId,
-            internalPagesId,
+            validatedInternalPagesId,
             rootStore,
             setProcessStatus
           )

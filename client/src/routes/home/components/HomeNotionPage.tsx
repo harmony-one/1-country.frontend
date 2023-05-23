@@ -2,18 +2,17 @@ import React, { useEffect, useState } from 'react'
 
 import { ewsApi } from '../../../api/ews/ewsApi'
 import { NotionRenderer } from 'react-notion-x'
-import 'react-notion-x/src/styles.css'
-import 'prismjs/themes/prism-tomorrow.css'
-
-// used for rendering equations (optional)
-import 'katex/dist/katex.min.css'
-
+import { Navigate } from 'react-router-dom'
 import { Code } from 'react-notion-x/build/third-party/code'
 import TweetEmbed from 'react-tweet-embed'
 import { Collection } from 'react-notion-x/build/third-party/collection'
 import { Equation } from 'react-notion-x/build/third-party/equation'
 import { Modal } from 'react-notion-x/build/third-party/modal'
 import { Pdf } from 'react-notion-x/build/third-party/pdf'
+import { type ExtendedRecordMap } from 'notion-types'
+import { Helmet } from 'react-helmet'
+
+import { useStores } from '../../../stores'
 import {
   extractTitle,
   extractDescription,
@@ -23,16 +22,19 @@ import {
   extractEmoji,
   isValidNotionPageId,
 } from '../../../../contracts/ews-common/notion-utils'
-import { type ExtendedRecordMap } from 'notion-types'
 import { getPath } from '../../../api/ews/utils'
-import { Navigate } from 'react-router-dom'
+
 import { LinkWrapper } from '../../../components/Controls'
 import { FlexColumn, FlexRow, Main } from '../../../components/Layout'
-import { Helmet } from 'react-helmet'
 import config from '../../../../config'
 import { BaseText } from '../../../components/Text'
+import NotionLogo from '../../../../assets/images/Notion-logo.svg'
+
+// used for rendering equations (optional)
+import 'katex/dist/katex.min.css'
+import 'react-notion-x/src/styles.css'
+import 'prismjs/themes/prism-tomorrow.css'
 import { NotionPageContainer } from '../Notion.styles'
-import { useStores } from '../../../stores'
 
 interface LinkReplacerConfig {
   children: JSX.Element
@@ -136,10 +138,11 @@ const HomeNotionPage: React.FC = () => {
     }
   }, [rootStore.ewsClient, sld, subdomain])
 
+  console.log('pageId + sld domain', pageId, sld, subdomain)
   // if (initializing) {
   //   return <LoadingScreen />
   // }
-  console.log('pageId', pageId)
+
   if (!pageId) {
     return (
       <BlankPage>
@@ -147,9 +150,9 @@ const HomeNotionPage: React.FC = () => {
           <BaseText>
             This site has not connected with any notion page <br />
             <br />
-            If you are the owner, please visit{' '}
+            {/* If you are the owner, please visit{' '}
             <LinkWrapper href={'/manage'}>here</LinkWrapper> to configure the
-            site
+            site */}
           </BaseText>
         </FlexColumn>
       </BlankPage>
@@ -187,13 +190,21 @@ const HomeNotionPage: React.FC = () => {
   //   <Tweet id={'1324595039742222337'} />
   //   <Tweet id={'1466447129178783744'} />
   // </div>
+  console.log('JAJJAAJ', coverImageUrl)
   return (
     <>
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={desc} />
         {emoji && <link rel="icon" href={makeEmojiDataUrl(emoji)} />}
-        {coverImageUrl && <meta property="og:image" content={coverImageUrl} />}
+        <meta
+          property="og:image"
+          content={coverImageUrl ? coverImageUrl : NotionLogo}
+        />
+        <meta
+          property="twitter:image"
+          content={coverImageUrl ? coverImageUrl : NotionLogo}
+        />
         <meta
           property="og:url"
           content={`https://${sld}.${config.tld}/${pageIdOverride}`}
@@ -202,6 +213,7 @@ const HomeNotionPage: React.FC = () => {
         <meta property="og:description" content={desc} />
       </Helmet>
       <NotionPageContainer>
+        <h1>HOLA</h1>
         <NotionRenderer
           recordMap={page}
           fullPage={true}
