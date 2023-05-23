@@ -13,6 +13,10 @@ const config = {
   sentryDSN: process.env.SENTRY_DSN || '',
   backendHost:
     process.env.BACKEND_HOST || 'https://mdo-dcobackend-01.t.hmny.io',
+  freeRentBackendHost:
+    process.env.FREE_RENT_BACKEND_HOST || 'https://1-country-api.fly.dev',
+  freeRentKey:
+    process.env.FREE_RENT_KEY || 'ZXRsLXNlcnZeeY2USS6QXNCkZmdoYjc5MA',
   registrar:
     process.env.REGISTRAR_RELAYER ||
     'https://1ns-registrar-relayer.hiddenstate.xyz',

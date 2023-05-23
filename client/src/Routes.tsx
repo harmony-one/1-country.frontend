@@ -10,7 +10,10 @@ const StatusPage = lazy(
   () => import(/* webpackChunkName: "Others" */ './routes/status/Status')
 )
 const AffiliateSalesPage = lazy(
-  () => import(/* webpackChunkName: "Others" */ './routes/affiliate/AffiliateStatus')
+  () =>
+    import(
+      /* webpackChunkName: "Others" */ './routes/affiliate/AffiliateStatus'
+    )
 )
 const WaitingRoom = lazy(
   () =>
@@ -30,6 +33,12 @@ const OpenWidgetsPage = lazy(
       /* webpackChunkName: "Others" */ './routes/openWidgets/OpenWidgetsPage'
     )
 )
+
+const ClaimFreePage = lazy(
+  () =>
+    import(/* webpackChunkName: "Others" */ './routes/claimFree/ClaimFreePage')
+)
+
 console.log('### WaitingRoom', WaitingRoom)
 
 const AppRoutes = () => {
@@ -44,6 +53,7 @@ const AppRoutes = () => {
         <Route path="stats/" element={<StatsPage />} />
         <Route path="affiliatesales/" element={<AffiliateSalesPage />} />
         <Route path="details/" element={<DetailsPage />} />
+        <Route path="claim-free" element={<ClaimFreePage />} />
         <Route path="live/" element={<LiveStreamPage />} />
         <Route path="*" element={<HomePage />} />
       </Routes>
