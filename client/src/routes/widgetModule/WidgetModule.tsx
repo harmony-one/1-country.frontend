@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useWeb3Modal } from '@web3modal/react'
-import isValidUrl from 'is-url'
-import axios from 'axios'
-
-import { rootStore, useStores } from '../../stores'
-import {
-  PageWidgetContainer,
-  WidgetInputContainer,
-} from '../../components/page-widgets/PageWidgets.styles'
+import { useNavigate } from 'react-router'
 import { observer } from 'mobx-react-lite'
+
+import { useStores } from '../../stores'
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
 
@@ -21,37 +16,26 @@ import {
 } from '../../components/process-status/ProcessStatus'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
 import { sleep } from '../../utils/sleep'
-import config from '../../../config'
 import commandValidator, {
-  CommandValidator,
   CommandValidatorEnum,
 } from '../../utils/command-handler/commandValidator'
-import {
-  renewCommand,
-  renewCommandHandler,
-} from '../../utils/command-handler/DcCommandHandler'
-import { relayApi } from '../../api/relayApi'
-import { daysBetween } from '../../api/utils'
-import {
-  // addNotionPageCommand,
-  addNotionPageHandler,
-} from '../../utils/command-handler/NotionCommandHandler'
-import { useNavigate } from 'react-router'
-import { mainApi } from '../../api/mainApi'
-import { getElementAttributes } from '../../utils/getElAttributes'
+import { renewCommandHandler } from '../../utils/command-handler/DcCommandHandler'
+import { addNotionPageHandler } from '../../utils/command-handler/NotionCommandHandler'
 
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet'
-///
 import { FlexColumn } from '../../components/Layout'
 import { addPostHandler } from '../../utils/command-handler/PostCommandHandler'
 import { EmailHandler } from '../../utils/command-handler/EmailHandler'
 import { transferDomainHandler } from '../../utils/command-handler/transferCommandHandler'
 import { vanityUrlHandler } from '../../utils/command-handler/vanityUrlHandler'
-///
+import {
+  PageWidgetContainer,
+  WidgetInputContainer,
+} from '../../components/page-widgets/PageWidgets.styles'
 
 const defaultFormFields = {
   widgetValue: '',
