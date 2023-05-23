@@ -10,7 +10,7 @@ const config = {
     'https://1ns-registrar-relayer.hiddenstate.xyz',
   postContract:
     process.env.POST_CONTRACT_ADDRESS ||
-    '0xE47D600c4A833b3A0E7B6B18ee8e6A7D2FF93818',
+    '0x3Ca62ea311B21AA98ac52762e57436AF965e344d',
   contract:
     process.env.CONTRACT || '0x547942748Cc8840FEc23daFdD01E6457379B446D',
   tweetContractAddress:
