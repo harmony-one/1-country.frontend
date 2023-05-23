@@ -13,14 +13,14 @@ const Stats = observer(() => {
         <div id="container" style={{ display: 'flex', justifyContent: 'left' }}>
           <iframe
             title='numsales'
-            src='//plotly.com/~aishlia/192.embed'
+            src='//plotly.com/~abhinav55/1.embed'
             width='600'
             height='500'
           />
           <div><h1><br /></h1></div>
           <iframe
             title='numsales'
-            src='//plotly.com/~aishlia/196.embed'
+            src='//plotly.com/~abhinav55/3.embed'
             width='600'
             height='500'
           />
