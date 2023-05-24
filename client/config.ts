@@ -31,7 +31,7 @@ const config = {
   },
   eas: {
     contract:
-      process.env.EAS_CONTRACT || '0xDBf0D70070D760512d214C7ccaB933e066eeb070',
+      process.env.EAS_CONTRACT || '0x2394070E16dFDF21cb8c7606bD88FFED105D5F0f',
     apiHost:
       process.env.EAS_API_HOST || 'https://1ns-eas-server.hiddenstate.xyz',
     message(sld: string, alias: string, forwardAddress: string): string {
@@ -47,7 +47,7 @@ const config = {
     erc1155: 'https://explorer.harmony.one/inventory/erc1155/',
   },
   defaultRPC: process.env.DEFAULT_RPC || 'https://api.harmony.one',
-  hostname: process.env.REACT_APP_BASE_URL || 'https://localhost:3100',
+  hostname: process.env.BASE_URL || 'https://localhost:3100',
   tld: process.env.TLD || '.dev.1.localhost:3100', // '.country',
   tldLink: process.env.TLD_LINK || 'dev.1.localhost:3100', // '1.country',
   domainNftImagesPath:
