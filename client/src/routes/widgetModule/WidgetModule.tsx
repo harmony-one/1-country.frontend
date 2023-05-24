@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useWeb3Modal } from '@web3modal/react'
 import { useNavigate } from 'react-router'
+import isValidUrl from 'is-url'
 import { observer } from 'mobx-react-lite'
 
 import { useStores } from '../../stores'
+
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
-
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
 import {
@@ -25,6 +26,17 @@ import { addNotionPageHandler } from '../../utils/command-handler/NotionCommandH
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { SmallText } from '../../components/Text'
+
+import { loadEmbedJson } from '../../modules/embedly/embedly'
+import {
+  isEmail,
+  isEmailId,
+  isIframeWidget,
+  isRedditUrl,
+  isStakingWidgetUrl,
+} from '../../utils/validation'
+import { BaseText } from '../../components/Text'
+
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet'
 import { FlexRow } from '../../components/Layout'
@@ -47,8 +59,10 @@ interface Props {
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore, utilsStore, rootStore } = useStores()
+  const [loadedWidgetList, setLoadedWidgetList] = useState(false)
+  const [subPage, setSubPage] = useState('')
   const navigate = useNavigate()
-  const [checkIsActivated, setCheckIsActivated] = useState(false)
+
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
@@ -91,14 +105,28 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }, [domainName])
 
   useEffect(() => {
-    const checkActivated = async () => {
-      await widgetListStore.loadIsActivated(domainName)
-      setCheckIsActivated(true)
+    const sub = window.location.pathname.split('/').pop()
+    console.log('sub', sub)
+    if (sub) {
+      setSubPage(sub)
     }
-    widgetListStore.loadWidgetList(domainName)
+    console.log('useffect', domainName, subPage)
+    widgetListStore.loadWidgetList(domainName, sub)
+    setLoadedWidgetList(true)
     widgetListStore.loadDomainTx(domainName)
-    checkActivated()
+    // checkActivated()
   }, [domainName])
+
+  useEffect(() => {
+    if (
+      !domainStore.isOwner &&
+      loadedWidgetList === true &&
+      subPage !== '' &&
+      widgetListStore.widgetList.length === 0
+    ) {
+      window.location.href = `https://${domainName}${config.tld}`
+    }
+  }, [widgetListStore.widgetList])
 
   const [isLoading, setLoading] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
@@ -115,6 +143,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const resetInput = () => {
     setFormFields({ ...formFields, widgetValue: '' })
   }
+
 
   const commandHandler = async (text: string, fromUrl = false) => {
     const command = commandValidator(text)
@@ -227,9 +256,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const deleteWidget = (widget: Widget) => {
     return widgetListStore.deleteWidget({
-      widgetId: widget.id,
-      widgetUuid: widget.uuid,
+      widgets: [widget],
       domainName,
+      nameSpace: subPage,
     })
   }
 
@@ -247,12 +276,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             autoFocus
             disabled={isLoading}
             isValid={processStatus.type !== ProcessStatusTypes.ERROR}
-            placeholder={'Enter tweet or any url'}
+            placeholder={'Enter any URL, your email or Notion site'}
             value={formFields.widgetValue}
             onSearch={onChange}
             onKeyDown={enterHandler}
           />
-          {checkIsActivated && !widgetListStore.isActivated && (
+          {/* {checkIsActivated && !widgetListStore.isActivated && (
             <Box pad={{ top: '0.5em' }}>
               <SmallText>
                 Your first transaction when trying to add a post is an
@@ -261,7 +290,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
                 a post.
               </SmallText>
             </Box>
-          )}
+          )} */}
 
           {processStatus.type !== ProcessStatusTypes.IDLE && (
             <Box align={'center'} margin={{ top: '8px' }}>
@@ -300,13 +329,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
               // weight={'bold'}
               style={{ whiteSpace: 'nowrap' }}
             >
-              <a
+              
+                Join Telegram Group 
+                <a
                 href="https://t.me/+RQf_CIiLL3ZiOTYx"
                 target="_blank"
                 style={{ textDecoration: 'none' }}
               >
-                Join the 1.country 3-character club
-              </a>
+                 {" "}1.country 3-character club
+                </a>
             </Text>
           </Box>
         )}

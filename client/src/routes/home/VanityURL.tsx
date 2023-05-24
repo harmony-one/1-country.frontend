@@ -21,7 +21,7 @@ export const VanityURL: React.FC<Props> = observer(({ record, name }) => {
 
   const { connector } = useAccount()
 
-  console.log('### connector', connector)
+  // console.log('### connector', connector)
 
   const { walletStore, rootStore } = useStores()
   // const isOwner =

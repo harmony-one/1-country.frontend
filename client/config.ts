@@ -1,13 +1,24 @@
+import cookie from 'js-cookie'
+import { COOKIES } from './src/constants'
+
 const debug = process.env.DEBUG
 
 const config = {
   debug,
+  console: {
+    hideErrors:
+      parseInt(process.env.CONSOLE_HIDE_ERRORS, 10) === 1 &&
+      parseInt(cookie.get(COOKIES.HIDE_ERRORS), 10) !== 0,
+  },
   sentryDSN: process.env.SENTRY_DSN || '',
   backendHost:
     process.env.BACKEND_HOST || 'https://mdo-dcobackend-01.t.hmny.io',
   registrar:
     process.env.REGISTRAR_RELAYER ||
     'https://1ns-registrar-relayer.hiddenstate.xyz',
+  postContract:
+    process.env.POST_CONTRACT_ADDRESS ||
+    '0x3Ca62ea311B21AA98ac52762e57436AF965e344d',
   contract:
     process.env.CONTRACT || '0x547942748Cc8840FEc23daFdD01E6457379B446D',
   tweetContractAddress:
@@ -124,4 +135,5 @@ const config = {
   },
 }
 
+console.log('### config', config)
 export default config
