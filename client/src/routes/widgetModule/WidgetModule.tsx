@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useWeb3Modal } from '@web3modal/react'
 import isValidUrl from 'is-url'
-import axios from 'axios'
 
-import { rootStore, useStores } from '../../stores'
+import { useStores } from '../../stores'
 import {
   PageWidgetContainer,
   WidgetInputContainer,
@@ -47,7 +46,7 @@ import {
   isRedditUrl,
   isStakingWidgetUrl,
 } from '../../utils/validation'
-import { BaseText, SmallText } from '../../components/Text'
+import { BaseText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet'
 ///
@@ -94,8 +93,10 @@ interface Props {
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const { domainStore, walletStore, utilsStore, rootStore } = useStores()
+  const [loadedWidgetList, setLoadedWidgetList] = useState(false)
+  const [subPage, setSubPage] = useState('')
   const navigate = useNavigate()
-  const [checkIsActivated, setCheckIsActivated] = useState(false)
+
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
@@ -138,14 +139,28 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   }, [domainName])
 
   useEffect(() => {
-    const checkActivated = async () => {
-      await widgetListStore.loadIsActivated(domainName)
-      setCheckIsActivated(true)
+    const sub = window.location.pathname.split('/').pop()
+    console.log('sub', sub)
+    if (sub) {
+      setSubPage(sub)
     }
-    widgetListStore.loadWidgetList(domainName)
+    console.log('useffect', domainName, subPage)
+    widgetListStore.loadWidgetList(domainName, sub)
+    setLoadedWidgetList(true)
     widgetListStore.loadDomainTx(domainName)
-    checkActivated()
+    // checkActivated()
   }, [domainName])
+
+  useEffect(() => {
+    if (
+      !domainStore.isOwner &&
+      loadedWidgetList === true &&
+      subPage !== '' &&
+      widgetListStore.widgetList.length === 0
+    ) {
+      window.location.href = `https://${domainName}${config.tld}`
+    }
+  }, [widgetListStore.widgetList])
 
   const [isLoading, setLoading] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
@@ -411,8 +426,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
     try {
       const result = await widgetListStore.createWidget({
-        widget,
+        widgets: [widget],
         domainName,
+        nameSpace: subPage || '',
         onTransactionHash: () => {
           setProcessStatus({
             type: ProcessStatusTypes.PROGRESS,
@@ -772,9 +788,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   const deleteWidget = (widget: Widget) => {
     return widgetListStore.deleteWidget({
-      widgetId: widget.id,
-      widgetUuid: widget.uuid,
+      widgets: [widget],
       domainName,
+      nameSpace: subPage,
     })
   }
 
@@ -797,7 +813,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             onSearch={onChange}
             onKeyDown={enterHandler}
           />
-          {checkIsActivated && !widgetListStore.isActivated && (
+          {/* {checkIsActivated && !widgetListStore.isActivated && (
             <Box pad={{ top: '0.5em' }}>
               <SmallText>
                 Your first transaction when trying to add a post is an
@@ -806,7 +822,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
                 a post.
               </SmallText>
             </Box>
-          )}
+          )} */}
 
           {processStatus.type !== ProcessStatusTypes.IDLE && (
             <Box align={'center'} margin={{ top: '8px' }}>
