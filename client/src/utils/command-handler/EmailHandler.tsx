@@ -10,6 +10,7 @@ import { RootStore } from '../../stores/RootStore'
 import { ethers } from 'ethers'
 import { easServerClient } from '../../api/eas/easServerClient'
 import { getEthersError } from '../../api/utils'
+import { isEmail, isEmailId } from '../validation'
 
 type EmailHandlerProps = {
   alias: string
@@ -51,6 +52,26 @@ export const EmailHandler = async ({
     console.log('### maxNum', maxAlias)
     console.log('### numAlias', numAlias)
     console.log('### publicAliases', publicAliases)
+    console.log(
+      'validating email',
+      isEmail(forward),
+      isEmailId(alias),
+      !isEmail(forward) || !isEmailId(alias)
+    )
+    if (!isEmail(forward)) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>Wrong email address</BaseText>,
+      })
+      return result
+    }
+    if (!isEmailId(alias)) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>Wrong email alias</BaseText>,
+      })
+      return result
+    }
     if (fromUrl) {
       setProcessStatus({
         type: ProcessStatusTypes.PROGRESS,
