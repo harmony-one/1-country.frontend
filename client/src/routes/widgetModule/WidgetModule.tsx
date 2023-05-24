@@ -27,7 +27,7 @@ import { MediaWidget } from '../../components/widgets/MediaWidget'
 import { SmallText } from '../../components/Text'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet'
-import { FlexColumn } from '../../components/Layout'
+import { FlexRow } from '../../components/Layout'
 import { addPostHandler } from '../../utils/command-handler/PostCommandHandler'
 import { EmailHandler } from '../../utils/command-handler/EmailHandler'
 import { transferDomainHandler } from '../../utils/command-handler/transferCommandHandler'
@@ -310,12 +310,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             </Text>
           </Box>
         )}
-      <FlexColumn>
+      <FlexRow>
         {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
           <MetamaskWidget />
         )}
         <WalletConnectWidget />
-      </FlexColumn>
+      </FlexRow>
     </PageWidgetContainer>
   )
 })
