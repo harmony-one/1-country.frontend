@@ -108,7 +108,7 @@ export class WidgetListStore extends BaseStore {
       }
 
       const client = this.getPostClient()
-
+      console.log('HERE', widgets, nameSpace)
       const result = await client.addNewPost({
         name: domainName,
         urls: buildUrlFromWidgets(widgets),
@@ -117,7 +117,7 @@ export class WidgetListStore extends BaseStore {
         onFailed,
         onTransactionHash,
       })
-
+      console.log('HERE', result)
       const linkId = this.widgetList.length.toString()
       await mainApi.addLinks(domainName, linkId, widgets)
 
@@ -165,7 +165,6 @@ export class WidgetListStore extends BaseStore {
       console.error('Cannot pin widget', e.message)
     }
   }
-
 
   async deleteLinks(widgets: Widget[]) {
     await widgets.map((widget) => {

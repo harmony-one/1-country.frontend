@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useWeb3Modal } from '@web3modal/react'
 import { useNavigate } from 'react-router'
-import isValidUrl from 'is-url'
 import { observer } from 'mobx-react-lite'
 
+import config from '../../../config'
 import { useStores } from '../../stores'
-
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
@@ -22,20 +21,8 @@ import commandValidator, {
 } from '../../utils/command-handler/commandValidator'
 import { renewCommandHandler } from '../../utils/command-handler/DcCommandHandler'
 import { addNotionPageHandler } from '../../utils/command-handler/NotionCommandHandler'
-
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
-import { SmallText } from '../../components/Text'
-
-import { loadEmbedJson } from '../../modules/embedly/embedly'
-import {
-  isEmail,
-  isEmailId,
-  isIframeWidget,
-  isRedditUrl,
-  isStakingWidgetUrl,
-} from '../../utils/validation'
-import { BaseText } from '../../components/Text'
 
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet'
@@ -144,7 +131,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     setFormFields({ ...formFields, widgetValue: '' })
   }
 
-
   const commandHandler = async (text: string, fromUrl = false) => {
     const command = commandValidator(text)
     let result = false
@@ -180,6 +166,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           url: command.url,
           fromUrl,
           domainName,
+          subPage,
           walletStore,
           widgetListStore,
           setProcessStatus,
@@ -329,15 +316,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
               // weight={'bold'}
               style={{ whiteSpace: 'nowrap' }}
             >
-              
-                Join Telegram Group 
-                <a
+              Join Telegram Group
+              <a
                 href="https://t.me/+RQf_CIiLL3ZiOTYx"
                 target="_blank"
                 style={{ textDecoration: 'none' }}
               >
-                 {" "}1.country 3-character club
-                </a>
+                {' '}
+                1.country 3-character club
+              </a>
             </Text>
           </Box>
         )}

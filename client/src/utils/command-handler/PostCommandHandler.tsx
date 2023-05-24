@@ -20,6 +20,7 @@ type AddPostHandlerProps = {
   url: string
   fromUrl: boolean
   domainName: string
+  subPage: string
   widgetListStore: WidgetListStore
   walletStore: WalletStore
   setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
@@ -29,6 +30,7 @@ export const addPostHandler = async ({
   url,
   fromUrl = false,
   domainName,
+  subPage,
   walletStore,
   widgetListStore,
   setProcessStatus,
@@ -91,7 +93,7 @@ export const addPostHandler = async ({
         type: ProcessStatusTypes.ERROR,
         render: `Error processing URL. Please try using another URL`,
       })
-      return false
+      return result
     }
 
     widget = {
@@ -106,9 +108,10 @@ export const addPostHandler = async ({
   })
 
   try {
-    const widgetResult = await widgetListStore.createWidget({
-      widget,
+    const result = await widgetListStore.createWidget({
+      widgets: [widget],
       domainName,
+      nameSpace: subPage || '',
       onTransactionHash: () => {
         setProcessStatus({
           type: ProcessStatusTypes.PROGRESS,
@@ -116,24 +119,25 @@ export const addPostHandler = async ({
         })
       },
     })
-    if (widgetResult.error) {
+
+    if (result.error) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
         render: (
           <BaseText>
-            {widgetResult.error.message.length > 50
-              ? widgetResult.error.message.substring(0, 50) + '...'
-              : widgetResult.error.message}
+            {result.error.message.length > 50
+              ? result.error.message.substring(0, 50) + '...'
+              : result.error.message}
           </BaseText>
         ),
       })
-      return result
+    } else {
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: <BaseText>Url successfully added</BaseText>,
+      })
+      return true
     }
-    setProcessStatus({
-      type: ProcessStatusTypes.SUCCESS,
-      render: <BaseText>Url successfully added</BaseText>,
-    })
-    return true
   } catch (ex) {
     setProcessStatus({
       type: ProcessStatusTypes.ERROR,
