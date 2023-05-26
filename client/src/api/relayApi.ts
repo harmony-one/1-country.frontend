@@ -106,9 +106,9 @@ export const relayApi = () => {
       }
     },
     createCert: async ({ domain }: { domain: string }) => {
-      const {
-        data: { success, sld },
-      } = await base.post('/cert', { domain })
+      const response = await base.post('/cert', { domain })
+      const { success, wcJobId, nakedJobId, sld } = response.data
+      console.log('creatCert response', success, wcJobId, nakedJobId, sld)
       return {
         success,
         sld,
@@ -170,6 +170,17 @@ export const relayApi = () => {
         metadata,
         expiry,
         error,
+      }
+    },
+    certStatus: async ({ domain }: { domain: string }): Promise<any> => {
+      console.log('certStatus function', domain)
+      try {
+        const response = await base.post('/cert-job-lookup', { domain })
+        console.log('certStatus', domain, response)
+        return response.data
+      } catch (ex) {
+        console.log('certStatus error', ex)
+        return ex
       }
     },
     renewCert: async ({ domain }: { domain: string }): Promise<RenewCert> => {
