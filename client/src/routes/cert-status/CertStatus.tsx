@@ -1,42 +1,32 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
-import { FlexColumn, FlexRow } from '../../components/Layout'
-import { BaseText, DomainName, GradientText } from '../../components/Text'
-import {
-  Container,
-  DescResponsive,
-  DomainNameContainer,
-} from '../home/Home.styles'
-import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
-import Timer from '@amplication/react-compound-timer'
-import { WidgetModule } from '../widgetModule/WidgetModule'
-import { Button } from '../../components/Controls'
+
+import { useStores } from '../../stores'
 import config from '../../../config'
 import {
   ProcessStatus,
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../../components/process-status/ProcessStatus'
-
-import { urlExists } from '../../api/checkUrl'
-import { useSearchParams } from 'react-router-dom'
 import { relayApi } from '../../api/relayApi'
-import { Web3Button } from '@web3modal/react'
-import { Box } from 'grommet/components/Box'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
-import { DomainLevel, getDomainLevel, nameUtils } from '../../api/utils'
-import { RESERVED_DOMAINS } from '../../utils/reservedDomains'
-import { VanityURL } from '../home/VanityURL'
+import { getDomainLevel } from '../../api/utils'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
 
+import { Box } from 'grommet/components/Box'
+import { FlexColumn, FlexRow } from '../../components/Layout'
+import { BaseText, DomainName } from '../../components/Text'
+import { Container, DomainNameContainer } from '../home/Home.styles'
+import { sleep } from '../../utils/sleep'
+import { useNavigate } from 'react-router'
+
 const CertStatus = observer(() => {
-  const [loading, setLoading] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
   })
+  const navigate = useNavigate()
   const { domainStore, walletStore } = useStores()
   const { domainName } = domainStore
   const level = getDomainLevel(domainStore.domainName)
@@ -46,20 +36,72 @@ const CertStatus = observer(() => {
   }, [domainName])
 
   const checkCertificate = async () => {
-    console.log('sdkfhdskjjskfkdsf dshfkdsfhsdkjfsjf ksjdf ksdhkfh')
-    const fco = await relayApi().certStatus({
-      domain: `${domainName}${config.tld}`,
-    })
-    console.log('checkCertificate', fco)
+    try {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: <BaseText>Checking certificate status</BaseText>,
+      })
+      await sleep(2500)
+      const resp = await relayApi().createCert({
+        domain: `${domainName}${config.tld}`,
+      })
+      if (!resp.success) {
+        const error = resp.error.charAt(0).toUpperCase() + resp.error.slice(1)
+        let renderText = ''
+        switch (error) {
+          case 'Domain expired':
+            renderText = 'The domain has expired; please renew the domain.'
+            break
+          case 'Certificate generation failed; a support ticket has been created.':
+            renderText = error
+            setProcessStatus({
+              type: ProcessStatusTypes.PROGRESS,
+              render: <BaseText>The Certificate is being renewed...</BaseText>,
+            })
+            await sleep(4000)
+            break
+          default:
+            renderText = error
+        }
+        setProcessStatus({
+          type: ProcessStatusTypes.SUCCESS,
+          render: <BaseText>{renderText}</BaseText>,
+        })
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.SUCCESS,
+          render: <BaseText>The certificate has been renewed</BaseText>,
+        })
+      }
+    } catch (ex) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: (
+          <BaseText>
+            There was an error while checking the certificate status; a support
+            ticket has been created
+          </BaseText>
+        ),
+      })
+      console.log('checkCertificate error:', ex)
+    }
   }
 
   useEffect(() => {
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>Checking certificate status</BaseText>,
-    })
-    domainName && checkCertificate()
-  }, [])
+    if (walletStore.isConnected && domainName) {
+      checkCertificate()
+    } else {
+      if (!domainName) {
+        navigate('/')
+      }
+      if (!walletStore.isConnected) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>Please connect your wallet</BaseText>,
+        })
+      }
+    }
+  }, [walletStore.isConnected, domainName])
 
   return (
     <Container>

@@ -107,11 +107,12 @@ export const relayApi = () => {
     },
     createCert: async ({ domain }: { domain: string }) => {
       const response = await base.post('/cert', { domain })
-      const { success, wcJobId, nakedJobId, sld } = response.data
+      const { success, wcJobId, nakedJobId, sld, error } = response.data
       console.log('creatCert response', success, wcJobId, nakedJobId, sld)
       return {
         success,
         sld,
+        error,
       }
     },
     genNFT: async ({ domain }: { domain: string }) => {
