@@ -88,11 +88,17 @@ const CertStatus = observer(() => {
   }
 
   useEffect(() => {
-    if (walletStore.isConnected && domainName) {
+    if (walletStore.isConnected && domainName && domainStore.isOwner) {
       checkCertificate()
     } else {
       if (!domainName) {
         navigate('/')
+      }
+      if (!domainStore.isOwner) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>You are not the owner of this domain</BaseText>,
+        })
       }
       if (!walletStore.isConnected) {
         setProcessStatus({
@@ -101,7 +107,7 @@ const CertStatus = observer(() => {
         })
       }
     }
-  }, [walletStore.isConnected, domainName])
+  }, [walletStore.isConnected, domainName, domainStore.isOwner])
 
   return (
     <Container>
