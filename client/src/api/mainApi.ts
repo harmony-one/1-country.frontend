@@ -1,5 +1,6 @@
 import axios from 'axios'
 import config from '../../config'
+import { Widget } from '../routes/widgetModule/WidgetListStore'
 
 const base = axios.create({
   baseURL: config.backendHost,
@@ -27,10 +28,10 @@ export interface Link {
 export interface HtmlWidget {
   id: string
   attributes: {
-    any: string;
-  };
-  title: string;
-  owner: string;
+    any: string
+  }
+  title: string
+  owner: string
 }
 
 export const mainApi = {
@@ -91,21 +92,43 @@ export const mainApi = {
 
     return response.data.data
   },
-
   addLink: (domainName: string, linkId: string, url: string) => {
     return base.post<{ data: Link }>(`/links/`, {
       domainName,
       linkId,
-      url
+      url,
     })
   },
+  addLinks: async (domainName: string, linkId: string, widgets: Widget[]) => {
+    const results = await Promise.all(
+      widgets.map(async (widget, index) => {
+        try {
+          const result = await base.post('/links/', {
+            domainName,
+            linkId: linkId + index,
+            url: widget.value,
+          })
 
-  pinLink: (id: string, isPinned: boolean) => base.post<{ data: Link }>(`/links/pin`, {
-    id,
-    isPinned
-  }),
+          return result.data
+        } catch (error) {
+          console.error(
+            `Error adding urls for domain ${domainName}: ${error.message}`
+          )
+          return null
+        }
+      })
+    )
 
-  getLinks: (domainName: string) => base.get<{ data: Link[] }>(`/links?domain=${domainName}`),
+    return results.filter((result) => result !== null)
+  },
+  pinLink: (id: string, isPinned: boolean) =>
+    base.post<{ data: Link }>(`/links/pin`, {
+      id,
+      isPinned,
+    }),
+
+  getLinks: (domainName: string) =>
+    base.get<{ data: Link[] }>(`/links?domain=${domainName}`),
 
   deleteLink: (id: string) => base.delete<{ data: string }>(`/links/${id}`),
 
@@ -113,10 +136,10 @@ export const mainApi = {
     return base.post<HtmlWidget>(`/widgets/`, {
       attributes,
       owner,
-      title
+      title,
     })
   },
-  
+
   getHtmlWidget: (id: string) => base.get<HtmlWidget>(`/widgets/${id}`),
 
   auth: async ({

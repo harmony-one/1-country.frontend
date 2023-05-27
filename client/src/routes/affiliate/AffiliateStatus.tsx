@@ -9,25 +9,27 @@ const Stats = observer(() => {
     <Container>
       <Title>1Country Affiliate Sales</Title>
       <FlexRow style={{ alignItems: 'left' }}>
-        
         <div id="container" style={{ display: 'flex', justifyContent: 'left' }}>
           <iframe
-            title='numsales'
-            src='//plotly.com/~aishlia/192.embed'
-            width='600'
-            height='500'
+            title="numsales"
+            src="//plotly.com/~abhinav55/1.embed"
+            width="600"
+            height="500"
           />
-          <div><h1><br /></h1></div>
+          <div>
+            <h1>
+              <br />
+            </h1>
+          </div>
           <iframe
-            title='numsales'
-            src='//plotly.com/~aishlia/196.embed'
-            width='600'
-            height='500'
+            title="numsales"
+            src="//plotly.com/~abhinav55/3.embed"
+            width="600"
+            height="500"
           />
         </div>
       </FlexRow>
-</Container>
-
+    </Container>
   )
 })
 
