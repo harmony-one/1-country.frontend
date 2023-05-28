@@ -10,30 +10,67 @@ import {
 } from '../../components/process-status/ProcessStatus'
 import { relayApi } from '../../api/relayApi'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
-import { getDomainLevel } from '../../api/utils'
-import { TransactionWidget } from '../../components/widgets/TransactionWidget'
+import { DomainLevel, getDomainLevel } from '../../api/utils'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
+import { getDomainName } from '../../utils/urlHandler'
+import { DomainRecord } from '../../api'
+import { sleep } from '../../utils/sleep'
 
+import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { Box } from 'grommet/components/Box'
 import { FlexColumn, FlexRow } from '../../components/Layout'
 import { BaseText, DomainName } from '../../components/Text'
 import { Container, DomainNameContainer } from '../home/Home.styles'
-import { sleep } from '../../utils/sleep'
-import { useNavigate } from 'react-router'
+import { SearchInput } from '../../components/search-input/SearchInput'
 
 const CertStatus = observer(() => {
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
     render: '',
   })
-  const navigate = useNavigate()
-  const { domainStore, walletStore } = useStores()
-  const { domainName } = domainStore
-  const level = getDomainLevel(domainStore.domainName)
+  const [isLoading, setIsloading] = useState(false)
+  const [inputValue, setInputValue] = useState('')
+  const [record, setRecord] = useState<DomainRecord>()
+  const [isOwner, setIsOwner] = useState(false)
+  const { walletStore } = useStores()
+  const [domainName, setDomainName] = useState(getDomainName())
+  const [level, setLevel] = useState<DomainLevel>()
+  const client = walletStore.getDCClient()
+
+  const getDomainRecord = async (domain: string) => {
+    const record = await client.getRecord({ name: domain })
+    console.log(record)
+    if (record.renter) {
+      setDomainName(domain)
+      setRecord(record)
+      setIsOwner(
+        record.renter.toLocaleLowerCase() ===
+          walletStore.walletAddress.toLocaleLowerCase()
+      )
+    } else {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>The domain doesn't exists</BaseText>,
+      })
+    }
+  }
 
   useEffect(() => {
-    domainStore.loadDomainRecord(domainName)
+    if (domainName && !record) {
+      setLevel(getDomainLevel(domainName))
+      getDomainRecord(domainName)
+      inputValue === '' && setInputValue(domainName)
+    }
   }, [domainName])
+
+  useEffect(() => {
+    if (inputValue === '') {
+      setProcessStatus({
+        type: ProcessStatusTypes.IDLE,
+        render: '',
+      })
+    }
+  }, [inputValue])
 
   const checkCertificate = async () => {
     try {
@@ -73,6 +110,7 @@ const CertStatus = observer(() => {
           render: <BaseText>The certificate has been renewed</BaseText>,
         })
       }
+      setIsloading(false)
     } catch (ex) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
@@ -88,13 +126,11 @@ const CertStatus = observer(() => {
   }
 
   useEffect(() => {
-    if (walletStore.isConnected && domainName && domainStore.isOwner) {
+    if (walletStore.isConnected && record && isOwner) {
+      setIsloading(true)
       checkCertificate()
     } else {
-      if (!domainName) {
-        navigate('/')
-      }
-      if (!domainStore.isOwner) {
+      if (record && !isOwner) {
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
           render: <BaseText>You are not the owner of this domain</BaseText>,
@@ -107,26 +143,55 @@ const CertStatus = observer(() => {
         })
       }
     }
-  }, [walletStore.isConnected, domainName, domainStore.isOwner])
+  }, [walletStore.isConnected, record, isOwner])
+
+  const onChange = (value: string) => {
+    setInputValue(value)
+  }
+
+  const enterHandler = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') {
+      return
+    }
+    event.preventDefault()
+    const value = (event.target as HTMLInputElement).value || ''
+    console.log(value)
+    try {
+      getDomainRecord(value)
+    } catch (ex) {
+      console.log(ex)
+    }
+  }
 
   return (
     <Container>
       <div style={{ height: '2em' }} />
       <FlexColumn style={{ width: '100%', alignItems: 'center', gap: '0' }}>
         <DomainNameContainer>
-          <DomainName level={level}>
-            {domainStore.domainName}.country
-          </DomainName>
+          <DomainName level={level}>{domainName}.country</DomainName>
         </DomainNameContainer>
         <div style={{ height: '2em' }} />
         <span>Certificate status</span>
+        <Box
+          width={'100%'}
+          margin={{ top: '16px' }}
+          style={{ paddingBottom: '1em' }}
+        >
+          <SearchInput
+            disabled={isLoading}
+            onSearch={onChange}
+            value={inputValue}
+            placeholder={'Please enter the domain to check'}
+            icon={<FormSearch />}
+            onKeyDown={enterHandler}
+          />
+        </Box>
         {processStatus.type !== ProcessStatusTypes.IDLE && (
           <Box align={'center'}>
             <ProcessStatus status={processStatus} />
           </Box>
         )}
         <div style={{ height: '2em' }} />
-        {domainStore.domainRecord && <TransactionWidget name={domainName} />}
         <FlexRow>
           {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
             <MetamaskWidget />
