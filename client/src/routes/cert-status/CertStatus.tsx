@@ -19,9 +19,10 @@ import { sleep } from '../../utils/sleep'
 import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { Box } from 'grommet/components/Box'
 import { FlexColumn, FlexRow } from '../../components/Layout'
-import { BaseText, DomainName } from '../../components/Text'
+import { BaseText, DomainName, GradientText } from '../../components/Text'
 import { Container, DomainNameContainer } from '../home/Home.styles'
 import { SearchInput } from '../../components/search-input/SearchInput'
+import { TypedText } from '../home/components/Typed'
 
 const CertStatus = observer(() => {
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
@@ -65,6 +66,7 @@ const CertStatus = observer(() => {
 
   useEffect(() => {
     if (inputValue === '') {
+      setRecord(undefined)
       setProcessStatus({
         type: ProcessStatusTypes.IDLE,
         render: '',
@@ -136,15 +138,10 @@ const CertStatus = observer(() => {
           render: <BaseText>You are not the owner of this domain</BaseText>,
         })
       }
-      if (!walletStore.isConnected) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: <BaseText>Please connect your wallet</BaseText>,
-        })
-      }
     }
   }, [walletStore.isConnected, record, isOwner])
 
+  console.log('fco fco', walletStore)
   const onChange = (value: string) => {
     setInputValue(value)
   }
@@ -155,9 +152,16 @@ const CertStatus = observer(() => {
     }
     event.preventDefault()
     const value = (event.target as HTMLInputElement).value || ''
-    console.log(value)
+
     try {
-      getDomainRecord(value)
+      if (walletStore.isConnected) {
+        getDomainRecord(value)
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>Please connect your wallet</BaseText>,
+        })
+      }
     } catch (ex) {
       console.log(ex)
     }
@@ -168,7 +172,14 @@ const CertStatus = observer(() => {
       <div style={{ height: '2em' }} />
       <FlexColumn style={{ width: '100%', alignItems: 'center', gap: '0' }}>
         <DomainNameContainer>
-          <DomainName level={level}>{domainName}.country</DomainName>
+          {record ? (
+            <DomainName level={level}>{domainName}.country</DomainName>
+          ) : (
+            <DomainName level={level}>
+              <TypedText />
+              .country
+            </DomainName>
+          )}
         </DomainNameContainer>
         <div style={{ height: '2em' }} />
         <span>Certificate status</span>
