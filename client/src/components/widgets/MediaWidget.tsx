@@ -5,17 +5,16 @@ import isUrl from 'is-url'
 import { WidgetControls, WidgetsContainer } from './Widgets.styles'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
 import { CloseCircle } from '../icons/CloseCircle'
-import {Box} from "grommet/components/Box";
-import {Text} from "grommet/components/Text";
-import {Pin} from "../icons/Pin";
-import { FiLink } from 'react-icons/fi';
-import config from "../../../config";
-import {Anchor} from "grommet";
-import {useLocation} from "react-router";
-import {toast} from "react-toastify";
-import {getLevenshteinDistance} from "../../utils/string";
+import { Box } from 'grommet/components/Box'
+import { Text } from 'grommet/components/Text'
+import { Pin } from '../icons/Pin'
+import { FiLink } from 'react-icons/fi'
+import config from '../../../config'
+import { Anchor } from 'grommet'
+import { useLocation } from 'react-router'
+import { toast } from 'react-toastify'
+import { getLevenshteinDistance } from '../../utils/string'
 import IframeWidget from './IframeWidget'
-
 
 const StakingWidget = lazy(
   () => import(/* webpackChunkName: "StakingWidget" */ './StakingWidget')
@@ -32,8 +31,16 @@ interface Props {
   onDelete: () => void
 }
 
-export const MediaWidget: React.FC<Props> = ({ domainName, value, type, uuid, isOwner, isPinned, onDelete, onPin }) => {
-
+export const MediaWidget: React.FC<Props> = ({
+  domainName,
+  value,
+  type,
+  uuid,
+  isOwner,
+  isPinned,
+  onDelete,
+  onPin,
+}) => {
   const [widget, setWidget] = useState<any>()
   const [isLoading, setLoading] = useState(true)
   const [stakingValidator, setStakingValidator] = useState<string>('')
@@ -121,7 +128,7 @@ export const MediaWidget: React.FC<Props> = ({ domainName, value, type, uuid, is
     if (isUrl(value)) {
       loadData(value)
     } else {
-      setLoading(false);
+      setLoading(false)
     }
 
     if (value === '1621679626610425857') {
@@ -175,12 +182,8 @@ export const MediaWidget: React.FC<Props> = ({ domainName, value, type, uuid, is
       )}
       <WidgetsContainer isWidgetLoading={isLoading} ref={ref}>
         <Box pad={{ bottom: '2em' }}>
-          {
-            type === 'staking' && (<StakingWidget validator={stakingValidator} />)
-          }
-          {
-            type === 'iframe' && (<IframeWidget id={value} />)
-          }
+          {type === 'staking' && <StakingWidget validator={stakingValidator} />}
+          {type === 'iframe' && <IframeWidget id={value} />}
           {!stakingValidator && widget && (!isLoading || inView) && (
             <blockquote className="embedly-card" style={{ zIndex: '10' }}>
               <h4>

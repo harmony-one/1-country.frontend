@@ -28,10 +28,10 @@ export interface Link {
 export interface HtmlWidget {
   id: string
   attributes: {
-    any: string;
-  };
-  title: string;
-  owner: string;
+    any: string
+  }
+  title: string
+  owner: string
 }
 
 export const mainApi = {
@@ -136,10 +136,10 @@ export const mainApi = {
     return base.post<HtmlWidget>(`/widgets/`, {
       attributes,
       owner,
-      title
+      title,
     })
   },
-  
+
   getHtmlWidget: (id: string) => base.get<HtmlWidget>(`/widgets/${id}`),
 
   auth: async ({

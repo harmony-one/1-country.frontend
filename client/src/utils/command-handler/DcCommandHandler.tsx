@@ -8,6 +8,7 @@ import { RootStore } from '../../stores/RootStore'
 import { BN } from 'bn.js'
 import { relayApi } from '../../api/relayApi'
 import config from '../../../config'
+import { sleep } from '../sleep'
 
 export const renewCommand = async (
   domainName: string,
@@ -45,15 +46,44 @@ export const renewCommand = async (
         })
       },
     })
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>Updating NFT and domain Certificate</BaseText>,
+    })
+    sleep(4000)
     const renewNft = await relayApi().renewMetadata({
       domain: `${domainName}${config.tld}`,
     })
+    console.log('renewNFT', { renewNft })
     if (!renewNft.renewed) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: <BaseText>NFT Metadata wasn't updated</BaseText>,
-      })
+      if (!renewNft.error.includes('already renewed')) {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>NFT Metadata wasn't updated</BaseText>,
+        })
+      }
     }
+    const renewCert = await relayApi().renewCert({
+      domain: `${domainName}${config.tld}`,
+    })
+    if (renewCert.error) {
+      if (!renewCert.certExist) {
+        try {
+          const genCert = await relayApi().createCert({
+            domain: `${domainName}${config.tld}`,
+          })
+          console.log('getCert', genCert)
+        } catch (e) {
+          console.log(e)
+        }
+      }
+    }
+    setProcessStatus({
+      type: ProcessStatusTypes.SUCCESS,
+      render: (
+        <BaseText>The domain renewal process finished successfully</BaseText>
+      ),
+    })
     return rentResult
   } catch (e) {
     console.log('rent', e)

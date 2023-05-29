@@ -53,6 +53,7 @@ import { Text } from 'grommet'
 import { ethers } from 'ethers'
 import { easServerClient } from '../../api/eas/easServerClient'
 import { getEthersError } from '../../api/utils'
+import { FlexColumn } from '../../components/Layout'
 ///
 
 function parseEmailInput(str: string): false | [string, string] {
@@ -852,30 +853,33 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {domainStore.domainRecord && <TransactionWidget name={domainName} />}
       {!domainStore.isExpired &&
-        domainStore.domainName.length <= 3 &&
-        walletStore.isConnected && (
+        domainName.length <= 3 &&
+        walletStore.isConnected &&
+        domainStore.isOwner && (
           <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
             <Text
               size={'small'}
               // weight={'bold'}
               style={{ whiteSpace: 'nowrap' }}
             >
-              
-                Join Telegram Group 
-                <a
+              Join Telegram Group
+              <a
                 href="https://t.me/+RQf_CIiLL3ZiOTYx"
                 target="_blank"
                 style={{ textDecoration: 'none' }}
               >
-                 {" "}1.country 3-character club
-                </a>
+                {' '}
+                1.country 3-character club
+              </a>
             </Text>
           </Box>
         )}
-      {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
-        <MetamaskWidget />
-      )}
-      {!walletStore.isMetamaskAvailable && <WalletConnectWidget />}
+      <FlexColumn>
+        {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
+          <MetamaskWidget />
+        )}
+        <WalletConnectWidget />
+      </FlexColumn>
     </PageWidgetContainer>
   )
 })
