@@ -5,7 +5,13 @@ import config from '../../../config'
 import { useStores } from '../../stores'
 
 import { HomePageLoader } from './components/HomePageLoader'
-import HomeNotionPage from './components/HomeNotionPage'
+
+const HomeNotionPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "HomeNotionPage" */ './components/HomeNotionPage'
+    )
+)
 
 const HomeSearchPage = lazy(
   () =>

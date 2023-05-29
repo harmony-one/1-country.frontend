@@ -4,7 +4,7 @@ import { ewsApi } from '../../../api/ews/ewsApi'
 import { NotionRenderer } from 'react-notion-x'
 import 'react-notion-x/src/styles.css'
 import 'prismjs/themes/prism-tomorrow.css'
-
+import 'react-notion-x/src/styles.css'
 // used for rendering equations (optional)
 import 'katex/dist/katex.min.css'
 
