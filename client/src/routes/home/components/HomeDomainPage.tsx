@@ -79,7 +79,7 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
       {domainStore.domainRecord && domainStore.domainRecord.renter && (
         <WidgetModule domainName={domainStore.domainName} />
       )}
-      {showRenewalBlock && <DomainRecordRenewal />}
+      {/* {showRenewalBlock && <DomainRecordRenewal />} */}
       {/* {domainStore.isOwner && (
         <BgColorSelector
           domainName={domainName}
