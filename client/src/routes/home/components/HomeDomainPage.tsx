@@ -9,17 +9,14 @@ import { useStores } from '../../../stores'
 import config from '../../../../config'
 import { DomainLevel, getDomainLevel } from '../../../api/utils'
 import { getDomainName } from '../../../utils/urlHandler'
-import { BgColorSelector } from './BgColorSelector'
 import {
   ProcessStatusItem,
   ProcessStatusTypes,
 } from '../../../components/process-status/ProcessStatus'
-import EmojiSection from '../../../components/emoji-section/EmojiSection'
 import { VanityURL } from '../VanityURL'
 
 import { DomainName } from '../../../components/Text'
 import { Container, DomainNameContainer } from '../Home.styles'
-import 'react-notion-x/src/styles.css'
 
 interface Props {}
 
@@ -78,7 +75,7 @@ const HomeDomainPage: React.FC<Props> = observer(() => {
       {domainStore.domainRecord && domainStore.domainRecord.renter && (
         <WidgetModule domainName={domainStore.domainName} />
       )}
-      {showRenewalBlock && <DomainRecordRenewal />}
+      {/* {showRenewalBlock && <DomainRecordRenewal />} */}
       {/* {domainStore.isOwner && (
         <BgColorSelector
           domainName={domainName}

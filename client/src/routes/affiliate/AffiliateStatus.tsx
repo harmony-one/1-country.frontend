@@ -26,6 +26,7 @@ const Stats = observer(() => {
           />
         </div>
       </FlexRow>
+      <a href='https://explorer.harmony.one/address/0x691525d1783e7d2e3746dbb62a5308f7c791bd5d'><h6>Transaction History</h6></a>
 </Container>
 
   )

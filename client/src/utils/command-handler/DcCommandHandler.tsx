@@ -13,6 +13,7 @@ import { DomainStore } from '../../stores/DomainStore'
 import { WalletStore } from '../../stores/WalletStore'
 import { daysBetween } from '../../api/utils'
 
+
 type RenewCommandHandlerProps = {
   fromUrl: boolean
   domainName: string
