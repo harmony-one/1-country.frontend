@@ -54,7 +54,7 @@ import { Text } from 'grommet'
 import { ethers } from 'ethers'
 import { easServerClient } from '../../api/eas/easServerClient'
 import { getEthersError } from '../../api/utils'
-import { FlexColumn } from '../../components/Layout'
+import { FlexColumn, FlexRow } from '../../components/Layout'
 ///
 
 function parseEmailInput(str: string): false | [string, string] {
@@ -856,12 +856,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             </Text>
           </Box>
         )}
-      <FlexColumn>
+      <FlexRow>
         {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
           <MetamaskWidget />
         )}
         <WalletConnectWidget />
-      </FlexColumn>
+      </FlexRow>
     </PageWidgetContainer>
   )
 })
