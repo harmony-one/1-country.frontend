@@ -53,6 +53,7 @@ import { Text } from 'grommet'
 import { ethers } from 'ethers'
 import { easServerClient } from '../../api/eas/easServerClient'
 import { getEthersError } from '../../api/utils'
+import { FlexColumn, FlexRow } from '../../components/Layout'
 ///
 
 function parseEmailInput(str: string): false | [string, string] {
@@ -852,8 +853,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
       {domainStore.domainRecord && <TransactionWidget name={domainName} />}
       {!domainStore.isExpired &&
-        domainStore.domainName.length <= 3 &&
-        walletStore.isConnected && (
+        domainName.length <= 3 &&
+        walletStore.isConnected &&
+        domainStore.isOwner && (
           <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
             <Text
               size={'small'}
@@ -872,10 +874,12 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
             </Text>
           </Box>
         )}
-      {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
-        <MetamaskWidget />
-      )}
-      {!walletStore.isMetamaskAvailable && <WalletConnectWidget />}
+      <FlexRow>
+        {!walletStore.isConnected && walletStore.isMetamaskAvailable && (
+          <MetamaskWidget />
+        )}
+        <WalletConnectWidget />
+      </FlexRow>
     </PageWidgetContainer>
   )
 })

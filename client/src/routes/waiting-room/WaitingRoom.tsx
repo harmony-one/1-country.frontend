@@ -114,7 +114,6 @@ const WaitingRoom = observer(() => {
               </Timer>)
             </GradientText>
           </Row> */}
-
           <h3 style={{ marginTop: '1em', marginBottom: '0.1em' }}>
             {!isDomainAvailable
               ? `${domainName}.country`
@@ -165,18 +164,30 @@ const WaitingRoom = observer(() => {
       {/*</Box>*/}
       {!walletStore.isConnected && (
         <DescResponsive>
-          {walletStore.isMetamaskAvailable ? (
+          <h3>Please connect your wallet</h3>
+          {walletStore.isMetamaskAvailable && (
             <Box>
-              <h3>Please connect your MetaMask wallet</h3>
               <MetamaskWidget />
             </Box>
-          ) : (
-            <Box>
-              <h3>Please connect mobile wallet with Wallet Connect</h3>
-              <Web3Button />
-            </Box>
           )}
+          <Box>
+            <Web3Button />
+          </Box>
         </DescResponsive>
+
+        // <DescResponsive>
+        //   {walletStore.isMetamaskAvailable ? (
+        //     <Box>
+        //       <h3>Please connect your MetaMask wallet</h3>
+        //       <MetamaskWidget />
+        //     </Box>
+        //   ) : (
+        //     <Box>
+        //       <h3>Please connect mobile wallet with Wallet Connect</h3>
+        //       <Web3Button />
+        //     </Box>
+        //   )}
+        // </DescResponsive>
       )}
     </Container>
   )
