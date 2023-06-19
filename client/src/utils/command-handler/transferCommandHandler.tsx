@@ -41,7 +41,7 @@ export const domainWrapperHandler = async ({
     if (fromUrl) {
       setProcessStatus({
         type: ProcessStatusTypes.PROGRESS,
-        render: <BaseText>Transfer domain from url</BaseText>,
+        render: <BaseText>Wrapping domain from url</BaseText>,
       })
       await sleep(3000)
     }
