@@ -31,6 +31,14 @@ export class BaseStore {
     return this.rootStore.easClient
   }
 
+  getNameWrapperClient() {
+    return this.rootStore.nameWrapper
+  }
+
+  getBaseRegistrarClient() {
+    return this.rootStore.baseRegistrar
+  }
+
   get stores() {
     return this.rootStore.stores
   }

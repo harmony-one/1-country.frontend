@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useWeb3Modal } from '@web3modal/react'
-import isValidUrl from 'is-url'
-
-import { useStores } from '../../stores'
-import {
-  PageWidgetContainer,
-  WidgetInputContainer,
-} from '../../components/page-widgets/PageWidgets.styles'
+import { useNavigate } from 'react-router'
 import { observer } from 'mobx-react-lite'
+
+import config from '../../../config'
+import { useStores } from '../../stores'
 import { Widget, widgetListStore } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
-
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
 import {
@@ -20,69 +16,25 @@ import {
 } from '../../components/process-status/ProcessStatus'
 import { WidgetStatusWrapper } from '../../components/widgets/WidgetStatusWrapper'
 import { sleep } from '../../utils/sleep'
-import config from '../../../config'
 import commandValidator, {
-  CommandValidator,
   CommandValidatorEnum,
 } from '../../utils/command-handler/commandValidator'
-import { renewCommand } from '../../utils/command-handler/DcCommandHandler'
-import { relayApi } from '../../api/relayApi'
-import { daysBetween } from '../../api/utils'
-import { addNotionPageCommand } from '../../utils/command-handler/NotionCommandHandler'
-import { ewsApi } from '../../api/ews/ewsApi'
-import { isValidNotionPageId } from '../../../contracts/ews-common/notion-utils'
-import { useNavigate } from 'react-router'
-import { urlExists } from '../../api/checkUrl'
-import { mainApi } from '../../api/mainApi'
-import { getElementAttributes } from '../../utils/getElAttributes'
-
+import { renewCommandHandler } from '../../utils/command-handler/DcCommandHandler'
+import { addNotionPageHandler } from '../../utils/command-handler/NotionCommandHandler'
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
-import { loadEmbedJson } from '../../modules/embedly/embedly'
-import {
-  isEmail,
-  isEmailId,
-  isIframeWidget,
-  isRedditUrl,
-  isStakingWidgetUrl,
-} from '../../utils/validation'
-import { BaseText } from '../../components/Text'
+
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet'
-///
-import { ethers } from 'ethers'
-import { easServerClient } from '../../api/eas/easServerClient'
-import { getEthersError } from '../../api/utils'
-import { FlexColumn, FlexRow } from '../../components/Layout'
-///
-
-function parseEmailInput(str: string): false | [string, string] {
-  const input = str.trim()
-  if (input.indexOf('email:') === 0) {
-    return parseEmailInput(input.split('email:')[1])
-  }
-
-  if (input.indexOf('=') !== -1) {
-    return parseEmailInput(input.replace('=', ' '))
-  }
-
-  if (isEmail(input)) {
-    return ['hello', input]
-  }
-
-  const [part1, part2] = input.split(' ')
-
-  if (!isEmail(part1) && isEmailId(part1) && isEmail(part2)) {
-    return [part1, part2]
-  }
-
-  if (isEmail(part1) && isEmail(part2)) {
-    const name = part1.split('@')[0]
-    return [name, part2]
-  }
-
-  return false
-}
+import { FlexRow } from '../../components/Layout'
+import { addPostHandler } from '../../utils/command-handler/PostCommandHandler'
+import { EmailHandler } from '../../utils/command-handler/EmailHandler'
+import { transferDomainHandler } from '../../utils/command-handler/transferCommandHandler'
+import { vanityUrlHandler } from '../../utils/command-handler/vanityUrlHandler'
+import {
+  PageWidgetContainer,
+  WidgetInputContainer,
+} from '../../components/page-widgets/PageWidgets.styles'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -179,574 +131,78 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     setFormFields({ ...formFields, widgetValue: '' })
   }
 
-  const createAlias = async (alias: string, forward: string) => {
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <BaseText>
-          {walletStore.isMetamaskAvailable
-            ? 'Waiting for a transaction to be signed'
-            : 'Sign transaction on mobile device'}
-        </BaseText>
-      ),
-    })
-
-    try {
-      const numAlias = await rootStore.easClient.getNumAlias(domainName)
-      const maxAlias = await rootStore.easClient.maxNumAlias()
-      const publicAliases = await rootStore.easClient.getPublicAliases(
-        domainName
-      )
-      console.log('### maxNum', numAlias)
-      console.log('### numAlias', numAlias)
-      console.log('### publicAliases', publicAliases)
-
-      if (numAlias >= maxAlias) {
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: (
-            <BaseText>
-              {walletStore.isMetamaskAvailable
-                ? 'Waiting for a transaction to be signed'
-                : 'Sign transaction on mobile device'}
-            </BaseText>
-          ),
-        })
-
-        const removingAlias = publicAliases[0]
-
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: <BaseText>Removing old alias: {removingAlias}</BaseText>,
-        })
-
-        const delResult = await rootStore.easClient.deactivateAll({
-          domainName,
-          onTransactionHash: () => {
-            setProcessStatus({
-              type: ProcessStatusTypes.PROGRESS,
-              render: <BaseText>Waiting for transaction confirmation</BaseText>,
-            })
-          },
-        })
-
-        if (delResult.error) {
-          const message = getEthersError(delResult.error) || 'Please contact us'
-          setProcessStatus({
-            type: ProcessStatusTypes.ERROR,
-            render: <BaseText>Deactivation failed. {message}</BaseText>,
-          })
-          return
-        }
-      }
-
-      const signature = await rootStore.easClient.buildSignature(
-        domainName,
-        alias,
-        forward
-      )
-      const separator = ethers.utils.toUtf8Bytes(
-        await rootStore.easClient.getSeparator()
-      )
-      const data = ethers.utils.concat([
-        ethers.utils.toUtf8Bytes(alias),
-        separator,
-        ethers.utils.toUtf8Bytes(forward),
-        separator,
-        signature,
-      ])
-      let makePublic = true
-      const commitment = ethers.utils.keccak256(data)
-
-      console.log('### publicAliases', publicAliases)
-
-      if (publicAliases.includes(alias)) {
-        makePublic = false
-      }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: (
-          <BaseText>
-            {walletStore.isMetamaskAvailable
-              ? 'Waiting for a transaction to be signed'
-              : 'Sign transaction on mobile device'}
-          </BaseText>
-        ),
-      })
-
-      const activateResult = await rootStore.easClient.activate({
-        domainName: domainName,
-        onTransactionHash: () => {
-          setProcessStatus({
-            type: ProcessStatusTypes.PROGRESS,
-            render: <BaseText>Waiting for transaction confirmation</BaseText>,
-          })
-        },
-        alias,
-        commitment,
-        makePublic,
-      })
-
-      if (activateResult.error) {
-        const message =
-          getEthersError(activateResult.error) || 'Please contact us'
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: <BaseText>Activation failed. {message}</BaseText>,
-        })
-        return
-      }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: 'Adding email alias',
-      })
-
-      const { success, error } = await easServerClient.activate(
-        domainName,
-        alias,
-        forward,
-        signature
-      )
-
-      if (error) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>{`Activation failed. ${
-              error
-                ? `Error: ${error}`
-                : 'Please email dot-country@hiddenstate.xyz for futher support'
-            }`}</BaseText>
-          ),
-        })
-        return
-      }
-
-      if (success) {
-        setProcessStatus({
-          type: ProcessStatusTypes.SUCCESS,
-          render: 'Activation complete!',
-        })
-      }
-    } catch (ex) {
-      console.log('### ex', ex)
-
-      let errorMessage = getEthersError(ex)
-
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: (
-          <BaseText>{`Activation failed. ${
-            ex
-              ? `Error: ${errorMessage}`
-              : 'Please email dot-country@hiddenstate.xyz for futher support'
-          }`}</BaseText>
-        ),
-      })
-    }
-  }
-
-  const addPost = async (url: string, fromUrl = false) => {
-    setLoading(true)
-
-    let widget: Widget
-    if (fromUrl) {
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: <BaseText>Adding post from url</BaseText>,
-      })
-      await sleep(3000)
-    }
-
-    if (isStakingWidgetUrl(url)) {
-      widget = {
-        type: 'staking',
-        value: url,
-      }
-    } else if (isIframeWidget(url)) {
-      const createWidgetRes = await mainApi.addHtmlWidget(
-        getElementAttributes(url),
-        walletStore.walletAddress
-      )
-
-      widget = {
-        type: 'iframe',
-        value: createWidgetRes.data.id,
-      }
-    } else {
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: 'Embedding post',
-      })
-
-      if (!isValidUrl(url)) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: 'Invalid URL',
-        })
-        setLoading(false)
-        return
-      }
-
-      if (isRedditUrl(url)) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: 'Incompatible URL. Please try a URL from another website.',
-        })
-        setLoading(false)
-        return
-      }
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: 'Checking URL',
-      })
-      await sleep(1000)
-      const embedData = await loadEmbedJson(url).catch(() => false)
-
-      if (!embedData) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: `Error processing URL. Please try using another URL`,
-        })
-        setLoading(false)
-        return
-      }
-
-      widget = {
-        type: 'url',
-        value: url,
-      }
-    }
-
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>Waiting for a transaction to be signed</BaseText>,
-    })
-
-    try {
-      const result = await widgetListStore.createWidget({
-        widgets: [widget],
-        domainName,
-        nameSpace: subPage || '',
-        onTransactionHash: () => {
-          setProcessStatus({
-            type: ProcessStatusTypes.PROGRESS,
-            render: <BaseText>Waiting for transaction confirmation</BaseText>,
-          })
-        },
-      })
-
-      setLoading(false)
-
-      if (result.error) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              {result.error.message.length > 50
-                ? result.error.message.substring(0, 50) + '...'
-                : result.error.message}
-            </BaseText>
-          ),
-        })
-        resetProcessStatus(10000)
-        return
-      }
-
-      setProcessStatus({
-        type: ProcessStatusTypes.SUCCESS,
-        render: <BaseText>Url successfully added</BaseText>,
-      })
-      resetProcessStatus(10000)
-      resetInput()
-    } catch (ex) {
-      ;<BaseText>
-        {ex.message.length > 50
-          ? ex.message.substring(0, 50) + '...'
-          : ex.message}
-      </BaseText>
-      resetProcessStatus(10000)
-      setLoading(false)
-    }
-  }
-
-  const vanityHandler = async (vanity: CommandValidator) => {
-    const urlExists = await rootStore.vanityUrlClient.existURL({
-      name: domainName,
-      aliasName: vanity.aliasName,
-    })
-    const method = urlExists ? 'updateURL' : 'addNewURL'
-    setLoading(true)
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: (
-        <BaseText>{`${
-          urlExists ? 'Updating' : 'Creating'
-        } ${`${domainName}${config.tld}/${vanity.aliasName}`} url`}</BaseText>
-      ),
-    })
-    const result = await rootStore.vanityUrlClient[method]({
-      name: domainName,
-      aliasName: vanity.aliasName,
-      url: vanity.url,
-      price: config.vanityUrl.price + '',
-      onTransactionHash: () => {
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: <BaseText>Waiting for transaction confirmation</BaseText>,
-        })
-      },
-      onSuccess: ({ transactionHash }) => {
-        console.log('success', transactionHash)
-        setProcessStatus({
-          type: ProcessStatusTypes.SUCCESS,
-          render: (
-            <BaseText>
-              <a
-                href={vanity.url}
-              >{`${domainName}${config.tld}/${vanity.aliasName}`}</a>
-              {` ${urlExists ? 'updated' : 'created'}`}
-            </BaseText>
-          ),
-        })
-      },
-      onFailed: (ex: Error) => {
-        console.log('ERRROR', ex)
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              Error {urlExists ? 'updating' : 'creating'} Vanity URL
-            </BaseText>
-          ),
-        })
-      },
-    })
-    resetProcessStatus(10000)
-    resetInput()
-    setLoading(false)
-  }
-
-  const renewCommandHandler = async () => {
-    setLoading(true)
-    try {
-      const nftData = await relayApi().getNFTMetadata({
-        domain: `${domainName}${config.tld}`,
-      })
-      const days = daysBetween(
-        nftData['registrationDate'],
-        domainStore.domainRecord.expirationTime
-      )
-      console.log({ nftData })
-      console.log(days)
-      if (days <= config.domain.renewalLimit) {
-        setProcessStatus({
-          type: ProcessStatusTypes.PROGRESS,
-          render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
-        })
-        if (!walletStore.isHarmonyNetwork || !walletStore.isConnected) {
-          await walletStore.connect()
-        }
-        console.log(
-          'domainStore.domainPrice.amount',
-          domainStore.domainPrice.amount
-        )
-        const amount = domainStore.domainPrice.amount
-        await renewCommand(domainName, amount, rootStore, setProcessStatus)
-
-        await domainStore.loadDomainRecord(domainName)
-
-        resetInput()
-      } else {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: <BaseText>{`Error: Renewal Limit Reached`}</BaseText>,
-        })
-      }
-      resetProcessStatus(10000)
-      setLoading(false)
-    } catch (error) {
-      setProcessStatus({
-        type: ProcessStatusTypes.ERROR,
-        render: (
-          <BaseText>{`Error while renewing ${domainName}${config.tld}`}</BaseText>
-        ),
-      })
-      console.log(error)
-      resetProcessStatus(10000)
-      setLoading(false)
-    }
-  }
-
-  const addNotionPageHandler = async (command: CommandValidator) => {
-    setLoading(true)
-    const url = command.url
-    try {
-      setProcessStatus({
-        type: ProcessStatusTypes.PROGRESS,
-        render: <BaseText>Validating Notion URL</BaseText>,
-      })
-      const notionPageId = await ewsApi.parseNotionPageIdFromRawUrl(command.url)
-
-      if (notionPageId === null) {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              Failed to extract notion page id. Please verify your Notion URL.
-            </BaseText>
-          ),
-        })
-        resetProcessStatus(10000)
-        setLoading(false)
-        return
-      }
-
-      if (isValidNotionPageId(notionPageId) && notionPageId !== '') {
-        try {
-          const internalPagesId = await ewsApi.getSameSitePageIds(
-            notionPageId,
-            0
-          )
-          const tx = await addNotionPageCommand(
-            domainStore.domainName,
-            command.aliasName,
-            notionPageId,
-            internalPagesId,
-            rootStore,
-            setProcessStatus
-          )
-          console.log('addNotionPageCommand', tx)
-          if (tx) {
-            await sleep(7500)
-            await relayApi().enableSubdomains(domainName)
-            const landingPage = `${command.aliasName}.${domainName}${config.tld}`
-            const fullUrl = `https://${landingPage}`
-            setProcessStatus({
-              type: ProcessStatusTypes.PROGRESS,
-              render: <BaseText>Creating your Notion page...</BaseText>,
-            })
-            await sleep(5000)
-            if (await urlExists(fullUrl)) {
-              setProcessStatus({
-                type: ProcessStatusTypes.SUCCESS,
-                render: (
-                  <BaseText>
-                    Notion page created!. View your notion page here:{' '}
-                    <span
-                      onClick={() => {
-                        window.location.assign(fullUrl)
-                        navigate('/')
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <u>{`${landingPage}`}</u>
-                    </span>
-                  </BaseText>
-                ),
-              })
-              resetInput()
-            } else {
-              setProcessStatus({
-                type: ProcessStatusTypes.ERROR,
-                render: (
-                  <BaseText>
-                    Error processing the URL. Check {landingPage} later
-                  </BaseText>
-                ),
-              })
-            }
-            resetProcessStatus(10000)
-            setLoading(false)
-          }
-        } catch (e) {
-          console.log(e)
-          setProcessStatus({
-            type: ProcessStatusTypes.ERROR,
-            render: (
-              <BaseText>
-                Error adding internal pages. Please try adding your Notion page
-                again.
-              </BaseText>
-            ),
-          })
-          resetProcessStatus(10000)
-          setLoading(false)
-          return
-        }
-      } else {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              Invalid Notion page id. Please try another Notion URL.
-            </BaseText>
-          ),
-        })
-        resetProcessStatus(10000)
-        setLoading(false)
-      }
-    } catch (e) {
-      console.log(e)
-      if (Object.prototype.toString.call(e) === '[object Error]') {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              {`Unable to parse the Notion URL provided. Please try a different Notion URL. \n ${e.toString()}`}
-            </BaseText>
-          ),
-        })
-      } else {
-        setProcessStatus({
-          type: ProcessStatusTypes.ERROR,
-          render: (
-            <BaseText>
-              Error processing the URL. Please verify it is a valid Notion URL.
-            </BaseText>
-          ),
-        })
-      }
-      console.log(e)
-      resetProcessStatus(10000)
-      setLoading(false)
-    }
-  }
-
-  const commandHandler = (text: string, fromUrl = false) => {
+  const commandHandler = async (text: string, fromUrl = false) => {
     const command = commandValidator(text)
-
+    let result = false
+    setLoading(true)
     switch (command.type) {
       case CommandValidatorEnum.VANITY:
         console.log(CommandValidatorEnum.VANITY)
-        vanityHandler(command)
+        result = await vanityUrlHandler({
+          vanity: command,
+          fromUrl,
+          domainName,
+          rootStore,
+          setProcessStatus,
+        })
         break
       case CommandValidatorEnum.EMAIL_ALIAS:
-        console.log(CommandValidatorEnum.EMAIL_ALIAS, command)
         // works with value => email and value => aliasName=email
-        window.open(`mailto:1country@harmony.one`, '_self')
+        console.log(CommandValidatorEnum.EMAIL_ALIAS, command)
+        result = await EmailHandler({
+          alias: command.aliasName,
+          forward: command.email,
+          fromUrl,
+          domainName,
+          walletStore,
+          rootStore,
+          setProcessStatus,
+        })
         break
       case CommandValidatorEnum.URL:
-        console.log(CommandValidatorEnum.URL)
-        addPost(text, fromUrl)
-        break
       case CommandValidatorEnum.STAKING:
-        console.log(CommandValidatorEnum.STAKING)
-        addPost(command.url, fromUrl)
-        break
       case CommandValidatorEnum.IFRAME:
-        console.log(CommandValidatorEnum.IFRAME)
-        addPost(command.url, fromUrl)
+        result = await addPostHandler({
+          url: command.url,
+          fromUrl,
+          domainName,
+          subPage,
+          walletStore,
+          widgetListStore,
+          setProcessStatus,
+        })
         break
       case CommandValidatorEnum.RENEW:
         console.log(CommandValidatorEnum.RENEW)
-        renewCommandHandler()
+        result = await renewCommandHandler({
+          fromUrl,
+          domainName,
+          domainStore,
+          walletStore,
+          rootStore,
+          setProcessStatus,
+        })
+        break
+      case CommandValidatorEnum.TRANSFER:
+        console.log(CommandValidatorEnum.TRANSFER)
+        result = await transferDomainHandler({
+          fromUrl,
+          domainName,
+          rootStore,
+          transferTo: command.address,
+          setProcessStatus,
+        })
+        result && domainStore.loadDomainRecord(domainName)
         break
       case CommandValidatorEnum.NOTION:
-        console.log('here i am')
-        addNotionPageHandler(command)
+        result = await addNotionPageHandler({
+          command,
+          domainName,
+          domainStore,
+          rootStore,
+          navigate,
+          setProcessStatus,
+        })
         console.log(CommandValidatorEnum.NOTION, command)
         // renewCommandHandler()
         break
@@ -756,6 +212,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           render: 'Invalid input',
         })
     }
+    if (result) {
+      resetInput()
+    }
+    resetProcessStatus(10000)
+    setLoading(false)
     if (fromUrl) {
       sleep(3000)
       history.pushState(null, '', `\\`)
@@ -769,13 +230,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
     event.preventDefault()
     const value = (event.target as HTMLInputElement).value || ''
-
-    const aliasResult = parseEmailInput(value)
-
-    if (aliasResult) {
-      createAlias(aliasResult[0], aliasResult[1])
-      return
-    }
 
     commandHandler(value)
   }
@@ -862,15 +316,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
               // weight={'bold'}
               style={{ whiteSpace: 'nowrap' }}
             >
-              
-                Join Telegram Group 
-                <a
+              Join Telegram Group
+              <a
                 href="https://t.me/+RQf_CIiLL3ZiOTYx"
                 target="_blank"
                 style={{ textDecoration: 'none' }}
               >
-                 {" "}1.country 3-character club
-                </a>
+                {' '}
+                1.country 3-character club
+              </a>
             </Text>
           </Box>
         )}

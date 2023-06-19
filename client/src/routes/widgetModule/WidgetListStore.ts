@@ -62,7 +62,7 @@ const sortWidgets = (a: Widget, b: Widget) => {
   return b.id - a.id
 }
 
-class WidgetListStore extends BaseStore {
+export class WidgetListStore extends BaseStore {
   widgetList: Widget[] = []
   txDomainLoading: boolean = false
   txDomain: string = ''
@@ -108,7 +108,7 @@ class WidgetListStore extends BaseStore {
       }
 
       const client = this.getPostClient()
-
+      console.log('HERE', widgets, nameSpace)
       const result = await client.addNewPost({
         name: domainName,
         urls: buildUrlFromWidgets(widgets),
@@ -117,7 +117,7 @@ class WidgetListStore extends BaseStore {
         onFailed,
         onTransactionHash,
       })
-
+      console.log('HERE', result)
       const linkId = this.widgetList.length.toString()
       await mainApi.addLinks(domainName, linkId, widgets)
 

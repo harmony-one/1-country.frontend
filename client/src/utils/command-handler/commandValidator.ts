@@ -2,13 +2,14 @@ export const regexPatterns = {
   URL: /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i, // url
   VANITY: /^(\w+)=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // alias=url
   EMAIL: /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // email
-  EMAIL_ALIAS: /^(\w+)=([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // alias=email
+  EMAIL_ALIAS: /^(\w+)[:=]([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // alias=email
   STAKING: /^one1[a-zA-HJ-NP-Z0-9]{38}$/, // oneAddress
   STAKING_COMMAND: /^staking[:=]? ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress or staking=oneAddress
   IFRAME: /^(?:<iframe[^>]*)(?:(?:\/>)|(?:>.*?<\/iframe>))$/, // iframe
   RENEW: /^renew$/i, // renew
   NOTION_COMMAND: /^(\w+)\.=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, ///^(\w+).=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // subdomain.=url (with notion as substring)
-  NOTION: /^(?=.*notion).*\b((?:https?|ftp):\/\/\S+|www\.\S+)\b.*$/, // url that has substring notion
+  // NOTION: /^(?=.*notion).*\b((?:https?|ftp):\/\/\S+|www\.\S+)\b.*$/, // url that has substring notion
+  TRANSFER: /transfer[:=](0x[a-fA-F0-9]{40})/i,
 }
 
 export enum CommandValidatorEnum {
@@ -20,6 +21,7 @@ export enum CommandValidatorEnum {
   IFRAME = 'IFRAME',
   RENEW = 'RENEW',
   NOTION = 'NOTION', // includes NOTION_COMMAND
+  TRANSFER = 'TRANSFER',
 }
 
 export interface CommandValidator {
@@ -28,6 +30,7 @@ export interface CommandValidator {
   url?: string
   email?: string
   command?: string
+  address?: string
 }
 
 const commandValidator = (text: string): CommandValidator => {
@@ -42,11 +45,20 @@ const commandValidator = (text: string): CommandValidator => {
     }
   }
 
-  if (regexPatterns.NOTION.test(text)) {
+  // if (regexPatterns.NOTION.test(text)) {
+  //   return {
+  //     type: CommandValidatorEnum.NOTION,
+  //     aliasName: 'www',
+  //     url: text,
+  //   }
+  // }
+
+  if (regexPatterns.TRANSFER.test(text)) {
+    const match = text.match(regexPatterns.TRANSFER)
+    console.log('regex', match)
     return {
-      type: CommandValidatorEnum.NOTION,
-      aliasName: 'www',
-      url: text,
+      type: CommandValidatorEnum.TRANSFER,
+      address: match[1],
     }
   }
 

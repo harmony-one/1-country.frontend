@@ -26,6 +26,8 @@ import vanityApis, {
 } from '../api/vanity-url/vanityContractClient'
 import postApi, { PostClient } from '../api/postApi'
 import { buildEasClient, EasClient } from '../api/eas/easContractClient'
+import { NameWrapperClient, nameWrapperApi } from '../api/nameWrapperApi'
+import { BaseRegistrarClient, baseRegistrarApi } from '../api/baseRegistrarApi'
 
 export class RootStore {
   modalStore: ModalStore
@@ -34,6 +36,8 @@ export class RootStore {
   postClient: PostClient
   tweetClient: TweetClient
   ewsClient: EwsClient
+  nameWrapper: NameWrapperClient
+  baseRegistrar: BaseRegistrarClient
   vanityUrlClient: VanityURLClient
   easClient: EasClient
   commonClient: CommonClient
@@ -110,6 +114,8 @@ export class RootStore {
     this.postClient = postApi({ provider, address })
     this.tweetClient = tweetApi({ provider, address })
     this.vanityUrlClient = vanityApis({ provider, address })
+    this.baseRegistrar = baseRegistrarApi({ provider, address })
+    this.nameWrapper = nameWrapperApi({ provider, address })
     this.ewsClient = ewsContractApi({ provider, address })
     // @ts-ignore
     this.commonClient = commonApi(this.d1dcClient, this.tweetClient)
