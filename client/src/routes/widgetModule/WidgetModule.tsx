@@ -29,7 +29,10 @@ import { Text } from 'grommet'
 import { FlexRow } from '../../components/Layout'
 import { addPostHandler } from '../../utils/command-handler/PostCommandHandler'
 import { EmailHandler } from '../../utils/command-handler/EmailHandler'
-import { transferDomainHandler } from '../../utils/command-handler/transferCommandHandler'
+import {
+  domainWrapperHandler,
+  transferDomainHandler,
+} from '../../utils/command-handler/transferCommandHandler'
 import { vanityUrlHandler } from '../../utils/command-handler/vanityUrlHandler'
 import {
   PageWidgetContainer,
@@ -183,6 +186,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           setProcessStatus,
         })
         break
+      case CommandValidatorEnum.WRAP:
+        console.log(CommandValidatorEnum.WRAP)
+        result = await domainWrapperHandler({
+          fromUrl,
+          domainName,
+          rootStore,
+          walletAddress: walletStore.walletAddress,
+          setProcessStatus,
+        })
+        break
       case CommandValidatorEnum.TRANSFER:
         console.log(CommandValidatorEnum.TRANSFER)
         result = await transferDomainHandler({
@@ -190,6 +203,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           domainName,
           rootStore,
           transferTo: command.address,
+          walletAddress: walletStore.walletAddress,
           setProcessStatus,
         })
         result && domainStore.loadDomainRecord(domainName)

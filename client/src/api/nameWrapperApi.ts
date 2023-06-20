@@ -10,10 +10,12 @@ import { getUnwrappedTokenId, getWrappedTokenId } from './utils'
 interface SafeTransferProps extends CallbackProps {
   domain: string
   transferTo: string
+  address: string
 }
 
 interface UnwrapETH2LDProps extends CallbackProps {
   domain: string
+  address: string
 }
 
 export const nameWrapperApi = ({
@@ -43,12 +45,7 @@ export const nameWrapperApi = ({
       const txResponse = (await contract[methodName](...parameters, {
         value: amount,
       })) as TransactionResponse
-
       onTransactionHash(txResponse.hash)
-
-      if (config.debug) {
-        console.log(methodName, JSON.stringify(txResponse))
-      }
       const txReceipt = await txResponse.wait()
       onSuccess && onSuccess(txReceipt)
       return { txReceipt: txReceipt, error: null }
@@ -72,18 +69,11 @@ export const nameWrapperApi = ({
     safeTransfer: async ({
       transferTo,
       domain,
+      address,
       onFailed,
       onSuccess,
       onTransactionHash,
     }: SafeTransferProps) => {
-      console.log(
-        'safeTransferFrom wrapped',
-        config.nameWrapperContract,
-        address,
-        transferTo,
-        domain,
-        getWrappedTokenId(domain)
-      )
       return send({
         parameters: [address, transferTo, getWrappedTokenId(domain), 1, '0x'],
         methodName: 'safeTransferFrom',
@@ -94,6 +84,7 @@ export const nameWrapperApi = ({
     },
     unwrapETH2LD: async ({
       domain,
+      address,
       onFailed,
       onSuccess,
       onTransactionHash,

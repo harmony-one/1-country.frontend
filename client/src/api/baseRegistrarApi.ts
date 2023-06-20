@@ -10,6 +10,7 @@ import { getUnwrappedTokenId } from './utils'
 interface SafeTransferProps extends CallbackProps {
   domain: string
   transferTo: string
+  address: string
 }
 
 export const baseRegistrarApi = ({
@@ -20,7 +21,7 @@ export const baseRegistrarApi = ({
   address: string
 }) => {
   const contractReadOnly = new Contract(
-    config.domainTransfer.baseRegitrarAddress,
+    config.domainTransfer.baseRegitrarAddress, //'0x4D64B78eAf6129FaC30aB51E6D2D679993Ea9dDD', //config.domainTransfer.baseRegitrarAddress,
     erc721Abi,
     defaultProvider
   )
@@ -53,17 +54,15 @@ export const baseRegistrarApi = ({
       return { txReceipt: null, error: ex }
     }
   }
-
   return {
     contract,
     address,
     getOwner: async (domain: string): Promise<string> => {
       const tokenId = getUnwrappedTokenId(domain)
       const response = await contractReadOnly.ownerOf(tokenId)
-      // console.log('getOwner', domain, response, config.domainTransfer.baseRegitrarAddress, tokenId)
       return response
     },
-    isWrapped: async (domain: string): Promise<boolean> => {
+    isWrapped: async (domain: string, address: string): Promise<boolean> => {
       const tokenId = getUnwrappedTokenId(domain)
       const owner = (await contractReadOnly.ownerOf(tokenId)) as string
       return owner.toUpperCase() === config.nameWrapperContract.toUpperCase()
@@ -71,42 +70,33 @@ export const baseRegistrarApi = ({
     safeTransfer: async ({
       transferTo,
       domain,
+      address,
       onFailed,
       onSuccess,
-      onTransactionHash,
-    }: SafeTransferProps) => {
-      console.log(
-        'safeTransfer',
-        address,
-        transferTo,
-        ethers.BigNumber.from(getUnwrappedTokenId(domain))
-      )
-      console.log({ contract })
-      // const tokenId = getUnwrappedTokenId(domain)
-      // console.log(domain, tokenId)
-      // const response = await contractReadOnly.ownerOf(tokenId)
-      // console.log('HELOOOOOOO', response)
-      // const tx = await contract.safeTransferFrom(address, transferTo, ethers.BigNumber.from(getUnwrappedTokenId(domain)).toString());
-      // await tx.wait();
-      // return tx
-
-      return send({
-        parameters: [
+      onTransactionHash = () => {},
+    }: SafeTransferProps): Promise<SendResult> => {
+      try {
+        const tokenId = ethers.BigNumber.from(getUnwrappedTokenId(domain))
+        const tx = (await contract.transferFrom(
           address,
           transferTo,
-          ethers.BigNumber.from(getUnwrappedTokenId(domain)),
-        ],
-        methodName: 'safeTransferFrom',
-        onFailed,
-        onSuccess,
-        onTransactionHash,
-      })
+          tokenId
+        )) as TransactionResponse
+        onTransactionHash(tx.hash)
+        const txReceipt = await tx.wait()
+        onSuccess && onSuccess(txReceipt)
+        return { txReceipt: txReceipt, error: null }
+      } catch (ex) {
+        onFailed && onFailed(ex, true)
+        return { txReceipt: null, error: ex }
+      }
     },
-    isApprovedForAll: async (): Promise<string> => {
-      const response = await contractReadOnly.isApprovedForAll(
+    isApprovedForAll: async (): Promise<boolean> => {
+      console.log('isApprovedForAll', address)
+      const response = (await contractReadOnly.isApprovedForAll(
         address,
         config.nameWrapperContract
-      )
+      )) as boolean
       return response
     },
     setApprovalForAll: async () => {
