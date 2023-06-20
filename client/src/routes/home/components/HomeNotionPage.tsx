@@ -213,7 +213,6 @@ const HomeNotionPage: React.FC = () => {
         <meta property="og:description" content={desc} />
       </Helmet>
       <NotionPageContainer>
-        <h1>HOLA</h1>
         <NotionRenderer
           recordMap={page}
           fullPage={true}
