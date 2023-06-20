@@ -39,6 +39,9 @@ import { Text } from 'grommet/components/Text'
 import { Container, PageCurationSection } from '../Home.styles'
 import PageCuration, { PAGE_CURATION_LIST } from './PageCuration'
 import { useMinimalRender } from '../../../hooks/useMinimalRender'
+import {StripeCheckout} from "../../../components/stripe-checkout";
+import {PaymentRequestPaymentMethodEvent, StripeError} from "@stripe/stripe-js";
+import {waitForPaymentResult} from "../../../api/payment";
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -73,6 +76,9 @@ const HomeSearchPage: React.FC = observer(() => {
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
   const { rootStore, ratesStore, walletStore, utilsStore } = useStores()
+  const [currentPaymentType, setPaymentType] = useState<'one' | 'fiat'>('one')
+
+  const enableFiatPayment = Boolean(searchParams.get('fiatPayment') || false)
 
   const isMinimalRender = useMinimalRender()
 
@@ -149,7 +155,9 @@ const HomeSearchPage: React.FC = observer(() => {
     const connectWallet = async () => {
       const provider = await connector!.getProvider()
       walletStore.setProvider(provider, address)
-      handleRentDomain()
+      if(currentPaymentType === 'one') {
+        handleRentDomain()
+      }
     }
 
     if (!walletStore.isMetamaskAvailable) {
@@ -223,7 +231,7 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
-  const claimWeb2DomainWrapper = async () => {
+  const claimWeb2DomainWrapper = async (txHash = regTxHash) => {
     setLoading(true)
     try {
       if (
@@ -233,7 +241,7 @@ const HomeSearchPage: React.FC = observer(() => {
             value.toLowerCase() === searchResult.domainName.toLowerCase()
         )
       ) {
-        await claimWeb2Domain(regTxHash)
+        await claimWeb2Domain(txHash)
       }
       await sleep(2000)
       await generateNFT()
@@ -262,7 +270,7 @@ const HomeSearchPage: React.FC = observer(() => {
       log.error('claimWeb2DomainWrapper', {
         error: ex instanceof RelayError ? ex.message : ex,
         domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
-        txHash: regTxHash,
+        txHash: txHash,
         address: walletStore.walletAddress,
       })
 
@@ -354,6 +362,7 @@ const HomeSearchPage: React.FC = observer(() => {
       return false
     }
 
+    setPaymentType('one')
     setLoading(true)
 
     setProcessStatus({
@@ -578,6 +587,78 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }
 
+  const onStripePaymentInitiated = async () => {
+    setPaymentType('fiat')
+    if (walletStore.isMetamaskAvailable && !walletStore.isConnected) {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: <BaseText>Connect Metamask</BaseText>,
+      })
+      await walletStore.connect()
+    } else if (!address) {
+      open()
+      throw new Error('No user address')
+    }
+  }
+
+  const onStripeStartPayment = (e: PaymentRequestPaymentMethodEvent) => {
+    console.log('Start payment', e)
+
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>Confirm payment with Stripe</BaseText>,
+    })
+  }
+
+  const onStripeCheckoutSuccess = async (paymentIntentId: string) => {
+    console.log(`Payment success, payment intent id: "${paymentIntentId}"`)
+
+    setLoading(true)
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: (
+        <FlexRow>
+          <BaseText style={{ marginRight: 8 }}>
+            Registered {`${searchResult.domainName}${config.tld}`} (3 min avg)
+          </BaseText>
+        </FlexRow>
+      ),
+    })
+
+    let txHash = ''
+
+    try {
+      const payment = await waitForPaymentResult(paymentIntentId)
+      console.log('Domain payment result:', payment)
+      txHash = payment.txHash
+    } catch (e) {
+      console.log('Cannot get payment result:', e)
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>{e.message}</BaseText>,
+      })
+      setLoading(false)
+      terminateProcess(1500)
+      return
+    }
+
+    setRegTxHash(txHash)
+
+    const referral = utilsStore.getReferral()
+
+    mainApi.createDomain({
+      domain: searchResult.domainName,
+      txHash,
+      referral,
+    })
+
+    claimWeb2DomainWrapper(txHash)
+  }
+
+  const onStripeCheckoutError = (e: StripeError) => {
+    console.log('Error', e)
+  }
+
   return (
     <Container maxWidth="1200px">
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
@@ -622,11 +703,24 @@ const HomeSearchPage: React.FC = observer(() => {
                 available={searchResult.isAvailable}
                 error={searchResult.error}
               />
-              {searchResult.isAvailable && (
-                <Button disabled={!validation.valid} onClick={handleRentDomain}>
-                  Register
-                </Button>
-              )}
+              <Box direction={'row'} align={'center'} justify={'center'} gap={'32px'}>
+                {searchResult.isAvailable && (
+                  <Button disabled={!validation.valid} onClick={handleRentDomain}>
+                    Register
+                  </Button>
+                )}
+                {enableFiatPayment && searchResult.isAvailable && (
+                  <StripeCheckout
+                    disabled={!validation.valid}
+                    userAddress={address}
+                    domainName={searchResult.domainName.toLowerCase()}
+                    onPaymentInitiated={onStripePaymentInitiated}
+                    onPaymentStarted={onStripeStartPayment}
+                    onSuccess={onStripeCheckoutSuccess}
+                    onError={onStripeCheckoutError}
+                  />
+                )}
+              </Box>
               {!searchResult.isAvailable && validation.valid && (
                 <Button
                   $width="auto"
@@ -680,7 +774,7 @@ const HomeSearchPage: React.FC = observer(() => {
           )}
           {web2Error && (
             <Box align="center">
-              <Button onClick={claimWeb2DomainWrapper} disabled={isLoading}>
+              <Button onClick={() => claimWeb2DomainWrapper()} disabled={isLoading}>
                 TRY AGAIN
               </Button>
             </Box>

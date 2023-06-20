@@ -127,7 +127,8 @@ const config = {
         testnet: true,
       },
   payments: {
-    apiUrl: process.env.PAYMENTS_API_URL || 'http://localhost:3001',
+    apiUrl: process.env.PAYMENTS_API_URL || 'https://payments-api.fly.dev',
+    stripePubKey: process.env.STRIPE_PUB_KEY || ''
   },
   embedly: {
     host: 'https://api.embedly.com',

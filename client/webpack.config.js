@@ -90,7 +90,7 @@ module.exports = {
         type: 'asset/resource',
       },
       {
-        test: /\.(png|jpg|gif)$/,
+        test: /\.(png|jpg|gif|.well-known)$/,
         use: ['file-loader'],
       },
       {
@@ -199,6 +199,10 @@ module.exports = {
         {
           from: 'assets/tokens',
           to: 'tokens',
+        },
+        {
+          from: 'assets/.well-known',
+          to: '.well-known',
         },
       ],
     }),
