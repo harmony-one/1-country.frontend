@@ -215,8 +215,9 @@ const HomeSearchPage: React.FC = observer(() => {
         name: _domainName,
       }),
     ])
-    console.log('WEB3', _domainName, isAvailable2)
-    console.log('WEB2', _domainName, relayCheckDomain.isAvailable)
+    console.log('isAvailable WEB3', _domainName, isAvailable2)
+    console.log('isAvailable WEB2', _domainName, relayCheckDomain.isAvailable)
+    console.log('WEB2 relayCheckDomain', relayCheckDomain)
 
     return {
       domainName: _domainName,
