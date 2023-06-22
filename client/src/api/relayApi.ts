@@ -34,6 +34,18 @@ export interface RenewCert {
   certExist?: boolean
 }
 
+export interface JobLookup {
+  completed?: boolean
+  success?: boolean
+  domain?: string
+  attempts?: number
+  jobId?: string
+  wc?: boolean
+  creationTime?: number
+  timeUpdated?: number
+  error?: any
+  certExist?: boolean
+}
 export const relayApi = () => {
   return {
     enableSubdomains: async (domainName: string) => {
@@ -105,15 +117,6 @@ export const relayApi = () => {
         responseText,
       }
     },
-    createCert: async ({ domain }: { domain: string }) => {
-      const {
-        data: { success, sld },
-      } = await base.post('/cert', { domain })
-      return {
-        success,
-        sld,
-      }
-    },
     genNFT: async ({ domain }: { domain: string }) => {
       const {
         data: { generated, metadata },
@@ -172,11 +175,39 @@ export const relayApi = () => {
         error,
       }
     },
-    renewCert: async ({ domain }: { domain: string }): Promise<RenewCert> => {
+    createCert: async ({
+      domain,
+      address,
+      async = true,
+    }: {
+      domain: string
+      address: string
+      async: boolean
+    }) => {
+      const {
+        data: { success, sld, mcJobId, nakedJobId, error },
+      } = await base.post('/cert', { domain, address, async })
+      return {
+        success,
+        sld,
+        mcJobId,
+        nakedJobId,
+        error,
+      }
+    },
+    renewCert: async ({
+      domain,
+      address,
+      async = true,
+    }: {
+      domain: string
+      address: string
+      async: boolean
+    }): Promise<RenewCert> => {
       try {
         const {
           data: { success, sld, mcJobId, nakedJobId, error },
-        } = await base.post('/renew-cert', { domain })
+        } = await base.post('/renew-cert', { domain, address, async })
         return {
           success,
           sld,
@@ -190,6 +221,49 @@ export const relayApi = () => {
           success: false,
           error: e,
           certExist: !e.response.data.error.includes('does not exist'),
+        }
+      }
+    },
+    certJobLookUp: async ({
+      domainName,
+      job,
+    }: {
+      domainName: string
+      job?: string
+    }): Promise<JobLookup> => {
+      console.log('HERE I AM', domainName)
+      try {
+        const {
+          data: {
+            completed,
+            success,
+            domain,
+            attempts,
+            jobId,
+            wc,
+            creationTime,
+            timeUpdated,
+          },
+        } = await base.post('/cert-job-lookup', {
+          domain: `${domainName}.country`,
+        })
+        console.log('HERE I AM')
+        return {
+          completed,
+          success,
+          domain,
+          attempts,
+          jobId,
+          wc,
+          creationTime,
+          timeUpdated,
+        }
+      } catch (e) {
+        console.log('certJobLookUp', { e })
+        return {
+          success: false,
+          error: e,
+          certExist: !e.response.data.error.includes('Not Found'),
         }
       }
     },

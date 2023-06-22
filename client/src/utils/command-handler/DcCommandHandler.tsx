@@ -64,7 +64,13 @@ export const renewCommandHandler = async ({
         domainStore.domainPrice.amount
       )
       const amount = domainStore.domainPrice.amount
-      await renewCommand(domainName, amount, rootStore, setProcessStatus)
+      await renewCommand(
+        domainName,
+        walletStore.walletAddress,
+        amount,
+        rootStore,
+        setProcessStatus
+      )
 
       await domainStore.loadDomainRecord(domainName)
       return true
@@ -94,6 +100,7 @@ export const renewCommandHandler = async ({
 
 const renewCommand = async (
   domainName: string,
+  walletAddress: string,
   price: string,
   store: RootStore,
   setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
@@ -163,12 +170,16 @@ const renewCommand = async (
     }
     const renewCert = await relayApi().renewCert({
       domain: `${domainName}${config.tld}`,
+      address: walletAddress,
+      async: true,
     })
     if (renewCert.error) {
       if (!renewCert.certExist) {
         try {
           const genCert = await relayApi().createCert({
             domain: `${domainName}${config.tld}`,
+            address: walletAddress,
+            async: true,
           })
           console.log('getCert', genCert)
         } catch (e) {

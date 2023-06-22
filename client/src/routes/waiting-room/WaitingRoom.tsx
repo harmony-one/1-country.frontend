@@ -17,13 +17,13 @@ import { Web3Button } from '@web3modal/react'
 import { Box } from 'grommet/components/Box'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { nameUtils } from '../../api/utils'
-import { RESERVED_DOMAINS } from '../../utils/reservedDomains'
 import logger from '../../modules/logger'
 
 const log = logger.module('WaitingRoom')
 
 const WaitingRoom = observer(() => {
   const [isDomainAvailable, setIsDomainAvailable] = useState(false)
+  const [isCertGenerated, setIsCertGenerated] = useState(false)
   const [searchParams] = useSearchParams()
 
   const domainName = searchParams.get('domain') || ''
@@ -32,16 +32,6 @@ const WaitingRoom = observer(() => {
   const navigate = useNavigate()
 
   const fullUrl = `https://${domainName.toLowerCase()}${config.tld}`
-
-  const attemps =
-    domainName.length === 3 &&
-    RESERVED_DOMAINS.find(
-      (value) => value.toLowerCase() === domainName.toLowerCase()
-    )
-      ? 1
-      : 3
-
-  console.log('Cert attemps', attemps)
 
   useEffect(() => {
     if (!domainName || !nameUtils.isValidName(domainName)) {
@@ -55,7 +45,7 @@ const WaitingRoom = observer(() => {
     }
   }, [domainStore.domainRecord])
 
-  const createCert = async (attemptsLeft = attemps) => {
+  const createCert = async () => {
     const domain = `${domainName}${config.tld}`
 
     if (!walletStore.walletAddress) {
@@ -63,27 +53,25 @@ const WaitingRoom = observer(() => {
     }
 
     try {
-      await relayApi().createCert({
+      console.log('create domain', domain)
+      const response = await relayApi().createCert({
         domain,
+        address: walletStore.walletAddress,
+        async: true,
       })
+      const { success, sld, mcJobId, nakedJobId, error } = response
+      console.log('cert create', response)
     } catch (ex) {
       console.log('createCert', {
         error: ex instanceof RelayError ? ex.message : ex,
         domain: `${domainName.toLowerCase()}${config.tld}`,
         address: walletStore.walletAddress,
-        attemptsLeft: attemptsLeft,
       })
       log.error('createCert', {
         error: ex instanceof RelayError ? ex.message : ex,
         domain: `${domainName.toLowerCase()}${config.tld}`,
         address: walletStore.walletAddress,
       })
-      if (attemptsLeft === 0) {
-        return
-      }
-      setTimeout(() => {
-        createCert(attemptsLeft - 1)
-      }, (4 - attemptsLeft) * 3000)
     }
   }
 
@@ -100,11 +88,20 @@ const WaitingRoom = observer(() => {
       } else {
         console.log('not available')
       }
+      console.log('cert', isCertGenerated)
+      // if (!isCertGenerated) {
+      //   const domain = `${domainName}${config.tld}`
+      //   const { success, completed } = await relayApi().certJobLookUp({ domainName: domain })
+      //   console.log('cert job', domain, success, completed)
+      //   if (!completed && !success) {
+      //     console.log('here')
+      //     setIsCertGenerated(true)
+      //   }
+      // }
     }
-
     const interval = setInterval(() => {
       checkUrl()
-    }, 15000) //for testing purposes
+    }, 15000)
 
     return () => clearInterval(interval)
   }, [])
