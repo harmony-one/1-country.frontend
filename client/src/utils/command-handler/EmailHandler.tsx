@@ -11,6 +11,10 @@ import { ethers } from 'ethers'
 import { easServerClient } from '../../api/eas/easServerClient'
 import { getEthersError } from '../../api/utils'
 import { isEmail, isEmailId } from '../validation'
+import logger from '../../modules/logger'
+import config from '../../../config'
+
+const log = logger.module('EmailHandler')
 
 type EmailHandlerProps = {
   alias: string
@@ -210,7 +214,12 @@ export const EmailHandler = async ({
       return true
     }
   } catch (ex) {
-    console.log('### ex', ex)
+    log.error('renewCommand', {
+      error: ex,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      wallet: walletStore.walletAddress,
+      alias: alias,
+    })
 
     let errorMessage = getEthersError(ex)
 

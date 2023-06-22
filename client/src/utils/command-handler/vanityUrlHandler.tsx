@@ -7,6 +7,9 @@ import {
 import { CommandValidator } from './commandValidator'
 import { RootStore } from '../../stores/RootStore'
 import config from '../../../config'
+import logger from '../../modules/logger'
+
+const log = logger.module('vanityUrlHandler')
 
 type VanityUrlHandlerProps = {
   vanity: CommandValidator
@@ -64,6 +67,12 @@ export const vanityUrlHandler = async ({
       })
     },
     onFailed: (ex: Error) => {
+      log.error('vanityUrlHandler', {
+        error: ex,
+        aliasName: vanity.aliasName,
+        url: vanity.url,
+        domain: `${domainName.toLowerCase()}${config.tld}`,
+      })
       console.log('ERRROR', ex)
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,

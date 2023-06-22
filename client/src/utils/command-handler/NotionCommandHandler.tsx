@@ -14,6 +14,9 @@ import { sleep } from '../sleep'
 import { urlExists } from '../../api/checkUrl'
 import config from '../../../config'
 import { NavigateFunction } from 'react-router'
+import logger from '../../modules/logger'
+
+const log = logger.module('addNotionPageHandler')
 
 type AddNotionPageHandlerProps = {
   command: CommandValidator
@@ -128,14 +131,20 @@ export const addNotionPageHandler = async ({
         ),
       })
     }
-  } catch (e) {
-    console.log(e)
-    if (Object.prototype.toString.call(e) === '[object Error]') {
+  } catch (ex) {
+    console.log(ex)
+    log.error('addNotionPageHandler', {
+      error: ex,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      alias: command.aliasName,
+      url: command.url,
+    })
+    if (Object.prototype.toString.call(ex) === '[object Error]') {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
         render: (
           <BaseText>
-            {`Unable to parse the Notion URL provided. Please try a different Notion URL. \n ${e.toString()}`}
+            {`Unable to parse the Notion URL provided. Please try a different Notion URL. \n ${ex.toString()}`}
           </BaseText>
         ),
       })
@@ -149,7 +158,7 @@ export const addNotionPageHandler = async ({
         ),
       })
     }
-    console.log(e)
+    console.log(ex)
   }
   return result
 }
@@ -177,6 +186,12 @@ const addNotionPageCommand = async (
     )
     return tx
   } catch (e) {
+    log.error('addNotionPageCommand', {
+      error: e,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      alias: subdomain,
+      notionPageId: notionPageId,
+    })
     console.log(e)
     setProcessStatus({
       type: ProcessStatusTypes.ERROR,

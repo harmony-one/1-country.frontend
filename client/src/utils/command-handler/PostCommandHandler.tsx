@@ -15,6 +15,10 @@ import { getElementAttributes } from '../getElAttributes'
 import { WalletStore } from '../../stores/WalletStore'
 import isValidUrl from 'is-url'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
+import logger from '../../modules/logger'
+import config from '../../../config'
+
+const log = logger.module('addPostHandler')
 
 type AddPostHandlerProps = {
   url: string
@@ -139,6 +143,13 @@ export const addPostHandler = async ({
       return true
     }
   } catch (ex) {
+    log.error('addPostHandler', {
+      error: ex,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      url: url,
+      subPage: subPage,
+      wallet: walletStore.walletAddress,
+    })
     setProcessStatus({
       type: ProcessStatusTypes.ERROR,
       render: (

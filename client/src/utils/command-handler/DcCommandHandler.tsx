@@ -6,13 +6,15 @@ import {
 } from '../../components/process-status/ProcessStatus'
 import { RootStore } from '../../stores/RootStore'
 import { BN } from 'bn.js'
-import { relayApi } from '../../api/relayApi'
+import { RelayError, relayApi } from '../../api/relayApi'
 import config from '../../../config'
 import { sleep } from '../sleep'
 import { DomainStore } from '../../stores/DomainStore'
 import { WalletStore } from '../../stores/WalletStore'
 import { daysBetween } from '../../api/utils'
+import logger from '../../modules/logger'
 
+const log = logger.module('renewCommandHandler')
 
 type RenewCommandHandlerProps = {
   fromUrl: boolean
@@ -74,6 +76,12 @@ export const renewCommandHandler = async ({
     }
     return result
   } catch (error) {
+    log.error('renewCommandHandler', {
+      error: error instanceof RelayError ? error.message : error,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      address: walletStore.walletAddress,
+    })
+
     setProcessStatus({
       type: ProcessStatusTypes.ERROR,
       render: (
@@ -159,10 +167,15 @@ const renewCommand = async (
       ),
     })
     return rentResult
-  } catch (e) {
-    console.log('rent', e)
+  } catch (error) {
+    log.error('renewCommand', {
+      error: error instanceof RelayError ? error.message : error,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      price: price,
+    })
+    console.log('rent', error)
     return {
-      error: e,
+      error: error,
     }
   }
 }
