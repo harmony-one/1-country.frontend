@@ -474,7 +474,16 @@ const HomeSearchPage: React.FC = observer(() => {
         })
 
         if (commitResult.error) {
-          console.log('Commit result failed:', commitResult.error)
+          console.log('Commit result failed:', 'handleRentDomain - commit', {
+            error: commitResult.error,
+            domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+            wallet: walletStore.walletAddress,
+          })
+          log.error('handleRentDomain - commit', {
+            error: commitResult.error,
+            domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+            wallet: walletStore.walletAddress,
+          })
           setProcessStatus({
             type: ProcessStatusTypes.ERROR,
             render: <BaseText>{commitResult.error.message}</BaseText>,
@@ -536,6 +545,16 @@ const HomeSearchPage: React.FC = observer(() => {
         console.log('rentResult', rentResult)
 
         if (rentResult.error) {
+          log.error('handleRentDomain - rent', {
+            error: commitResult.error,
+            domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+            wallet: walletStore.walletAddress,
+          })
+          console.log('handleRentDomain - rent', {
+            error: commitResult.error,
+            domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+            wallet: walletStore.walletAddress,
+          })
           setProcessStatus({
             type: ProcessStatusTypes.ERROR,
             render: <BaseText>{rentResult.error.message}</BaseText>,

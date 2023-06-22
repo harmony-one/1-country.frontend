@@ -9,6 +9,7 @@ import { BaseText, SmallTextGrey, Title } from '../../../components/Text'
 import { useStores } from '../../../stores'
 import { UITx } from '../../../modules/transactions/UITx'
 import logger from '../../../modules/logger'
+import config from '../../../../config'
 const log = logger.module('DomainRecordRenewal')
 
 interface Props {}
@@ -45,7 +46,16 @@ export const DomainRecordRenewal: React.FC<Props> = observer(() => {
         },
       })
     } catch (ex) {
-      log.error('renewDomain', { error: ex })
+      log.error('renewCommand', {
+        error: ex,
+        domain: `${domainStore.domainName.toLowerCase()}${config.tld}`,
+        wallet: walletStore.walletAddress,
+      })
+      console.log('renewCommand', {
+        error: ex,
+        domain: `${domainStore.domainName.toLowerCase()}${config.tld}`,
+        wallet: walletStore.walletAddress,
+      })
       uiTx.setStatusFail(ex)
     }
   }

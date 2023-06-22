@@ -114,6 +114,12 @@ export const EmailHandler = async ({
 
       if (delResult.error) {
         const message = getEthersError(delResult.error) || 'Please contact us'
+        log.error('EmailHandler - deActivate', {
+          error: delResult.error,
+          domain: `${domainName.toLowerCase()}${config.tld}`,
+          wallet: walletStore.walletAddress,
+          alias: alias,
+        })
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
           render: <BaseText>Deactivation failed. {message}</BaseText>,
@@ -173,6 +179,12 @@ export const EmailHandler = async ({
     if (activateResult.error) {
       const message =
         getEthersError(activateResult.error) || 'Please contact us'
+      log.error('EmailHandler - activate', {
+        error: activateResult.error,
+        domain: `${domainName.toLowerCase()}${config.tld}`,
+        wallet: walletStore.walletAddress,
+        alias: alias,
+      })
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
         render: <BaseText>Activation failed. {message}</BaseText>,

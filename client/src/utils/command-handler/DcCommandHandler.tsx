@@ -115,7 +115,16 @@ const renewCommand = async (
         })
       },
       onFailed: (ex: Error) => {
-        console.log('ERROR', ex)
+        log.error('renewCommand', {
+          error: ex instanceof RelayError ? ex.message : ex,
+          domain: `${domainName.toLowerCase()}${config.tld}`,
+          price: price,
+        })
+        console.log('ERROR', 'renewCommand', {
+          error: ex instanceof RelayError ? ex.message : ex,
+          domain: `${domainName.toLowerCase()}${config.tld}`,
+          price: price,
+        })
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
           render: (
