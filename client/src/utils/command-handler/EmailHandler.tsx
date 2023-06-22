@@ -11,6 +11,10 @@ import { ethers } from 'ethers'
 import { easServerClient } from '../../api/eas/easServerClient'
 import { getEthersError } from '../../api/utils'
 import { isEmail, isEmailId } from '../validation'
+import logger from '../../modules/logger'
+import config from '../../../config'
+
+const log = logger.module('EmailHandler')
 
 type EmailHandlerProps = {
   alias: string
@@ -110,6 +114,12 @@ export const EmailHandler = async ({
 
       if (delResult.error) {
         const message = getEthersError(delResult.error) || 'Please contact us'
+        log.error('EmailHandler - deActivate', {
+          error: delResult.error,
+          domain: `${domainName.toLowerCase()}${config.tld}`,
+          wallet: walletStore.walletAddress,
+          alias: alias,
+        })
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
           render: <BaseText>Deactivation failed. {message}</BaseText>,
@@ -169,6 +179,12 @@ export const EmailHandler = async ({
     if (activateResult.error) {
       const message =
         getEthersError(activateResult.error) || 'Please contact us'
+      log.error('EmailHandler - activate', {
+        error: activateResult.error,
+        domain: `${domainName.toLowerCase()}${config.tld}`,
+        wallet: walletStore.walletAddress,
+        alias: alias,
+      })
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
         render: <BaseText>Activation failed. {message}</BaseText>,
@@ -210,7 +226,12 @@ export const EmailHandler = async ({
       return true
     }
   } catch (ex) {
-    console.log('### ex', ex)
+    log.error('renewCommand', {
+      error: ex,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      wallet: walletStore.walletAddress,
+      alias: alias,
+    })
 
     let errorMessage = getEthersError(ex)
 

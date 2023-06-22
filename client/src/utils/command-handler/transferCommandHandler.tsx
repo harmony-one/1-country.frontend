@@ -8,6 +8,9 @@ import {
 import { RootStore } from '../../stores/RootStore'
 import config from '../../../config'
 import { sleep } from '../sleep'
+import logger from '../../modules/logger'
+
+const log = logger.module('domainWrapperHandler')
 
 type DomainWrapperUnwrapperProps = {
   fromUrl: boolean
@@ -118,7 +121,13 @@ export const domainWrapperHandler = async ({
         return true
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    log.error('domainWrapperHandler', {
+      error: e,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      wallet: walletAddress,
+    })
+  }
   return result
 }
 
@@ -204,6 +213,12 @@ export const transferDomainHandler = async ({
     }
     return result
   } catch (e) {
+    log.error('transferDomainHandler', {
+      error: e,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      transferTo: transferTo,
+      wallet: walletAddress,
+    })
     console.log(e)
     setProcessStatus({
       type: ProcessStatusTypes.ERROR,

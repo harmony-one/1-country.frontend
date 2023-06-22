@@ -24,7 +24,6 @@ import config from '../../../../config'
 import { mainApi } from '../../../api/mainApi'
 import { RESERVED_DOMAINS } from '../../../utils/reservedDomains'
 import logger from '../../../modules/logger'
-const log = logger.module('HomeSearchPage')
 
 import { Button, LinkWrapper } from '../../../components/Controls'
 import { BaseText, GradientText } from '../../../components/Text'
@@ -39,6 +38,8 @@ import { Text } from 'grommet/components/Text'
 import { Container, PageCurationSection } from '../Home.styles'
 import PageCuration, { PAGE_CURATION_LIST } from './PageCuration'
 import { useMinimalRender } from '../../../hooks/useMinimalRender'
+
+const log = logger.module('HomeSearchPage')
 
 const SearchBoxContainer = styled(Box)`
   width: 100%;
@@ -60,7 +61,9 @@ const HomeSearchPage: React.FC = observer(() => {
   const { open, close, isOpen } = useWeb3Modal()
   const [searchParams] = useSearchParams()
   const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
-  const [freeRentKey, setFreeRentKey] = useState(searchParams.get('freeRentKey') || '')
+  const [freeRentKey, setFreeRentKey] = useState(
+    searchParams.get('freeRentKey') || ''
+  )
   const [isLoading, setLoading] = useState(false)
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
@@ -212,8 +215,9 @@ const HomeSearchPage: React.FC = observer(() => {
         name: _domainName,
       }),
     ])
-    console.log('WEB3', _domainName, isAvailable2)
-    console.log('WEB2', _domainName, relayCheckDomain.isAvailable)
+    console.log('isAvailable WEB3', _domainName, isAvailable2)
+    console.log('isAvailable WEB2', _domainName, relayCheckDomain.isAvailable)
+    console.log('WEB2 relayCheckDomain', relayCheckDomain)
 
     return {
       domainName: _domainName,
@@ -256,7 +260,7 @@ const HomeSearchPage: React.FC = observer(() => {
             ex instanceof RelayError
               ? ex.message
               : 'Unable to acquire domain. Try Again.'
-            }`}</BaseText>
+          }`}</BaseText>
         ),
       })
 
@@ -266,7 +270,12 @@ const HomeSearchPage: React.FC = observer(() => {
         txHash: regTxHash,
         address: walletStore.walletAddress,
       })
-
+      console.log('claimWeb2DomainWrapper', {
+        error: ex instanceof RelayError ? ex.message : ex,
+        domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
+        txHash: regTxHash,
+        address: walletStore.walletAddress,
+      })
       terminateProcess()
     }
   }
@@ -323,7 +332,18 @@ const HomeSearchPage: React.FC = observer(() => {
       }
     } catch (error) {
       clearTimeout(timerId)
-      console.log('### ex', error?.response?.data)
+      log.error('claimWeb2Domain', {
+        error: error instanceof RelayError ? error.message : error,
+        domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
+        txHash: regTxHash,
+        address: walletStore.walletAddress,
+      })
+      console.log('claimWeb2Domain', {
+        error: error instanceof RelayError ? error.message : error,
+        domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
+        txHash: regTxHash,
+        address: walletStore.walletAddress,
+      })
       throw new RelayError(
         error?.response?.data?.responseText || `Unable to acquire web2 domain`
       )
@@ -338,6 +358,12 @@ const HomeSearchPage: React.FC = observer(() => {
       })
     } catch (error) {
       console.log(error)
+      log.error('generateNFT', {
+        error: error instanceof RelayError ? error.message : error,
+        domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
+        txHash: regTxHash,
+        address: walletStore.walletAddress,
+      })
       throw new RelayError(
         error?.response?.data?.responseText || `Unable to genereate the NFT`
       )
@@ -347,7 +373,7 @@ const HomeSearchPage: React.FC = observer(() => {
   const handleGoToDomain = (searchResult: SearchResult) => {
     window.location.href = `https://${searchResult.domainName.toLowerCase()}${
       config.tld
-      }`
+    }`
   }
 
   const handleRentDomain = async () => {
@@ -422,7 +448,7 @@ const HomeSearchPage: React.FC = observer(() => {
     }
 
     try {
-      let txHash;
+      let txHash
 
       if (!freeRentKey) {
         setProcessStatus({
@@ -448,7 +474,16 @@ const HomeSearchPage: React.FC = observer(() => {
         })
 
         if (commitResult.error) {
-          console.log('Commit result failed:', commitResult.error)
+          console.log('Commit result failed:', 'handleRentDomain - commit', {
+            error: commitResult.error,
+            domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+            wallet: walletStore.walletAddress,
+          })
+          log.error('handleRentDomain - commit', {
+            error: commitResult.error,
+            domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+            wallet: walletStore.walletAddress,
+          })
           setProcessStatus({
             type: ProcessStatusTypes.ERROR,
             render: <BaseText>{commitResult.error.message}</BaseText>,
@@ -510,6 +545,16 @@ const HomeSearchPage: React.FC = observer(() => {
         console.log('rentResult', rentResult)
 
         if (rentResult.error) {
+          log.error('handleRentDomain - rent', {
+            error: commitResult.error,
+            domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+            wallet: walletStore.walletAddress,
+          })
+          console.log('handleRentDomain - rent', {
+            error: commitResult.error,
+            domain: `${searchResult.domainName.toLowerCase()}${config.tld}`,
+            wallet: walletStore.walletAddress,
+          })
           setProcessStatus({
             type: ProcessStatusTypes.ERROR,
             render: <BaseText>{rentResult.error.message}</BaseText>,
@@ -523,7 +568,8 @@ const HomeSearchPage: React.FC = observer(() => {
           render: (
             <FlexRow>
               <BaseText style={{ marginRight: 8 }}>
-                Registered {`${searchResult.domainName}${config.tld}`} (3 min avg)
+                Registered {`${searchResult.domainName}${config.tld}`} (3 min
+                avg)
               </BaseText>
             </FlexRow>
           ),
@@ -534,8 +580,8 @@ const HomeSearchPage: React.FC = observer(() => {
         const rentResult = await mainApi.rentDomainForFree({
           name: searchResult.domainName.toLowerCase(),
           owner: walletStore.walletAddress,
-          freeRentKey
-        });
+          freeRentKey,
+        })
 
         txHash = rentResult.data.transactionHash
       }
@@ -577,7 +623,7 @@ const HomeSearchPage: React.FC = observer(() => {
             ex instanceof RelayError
               ? ex.message
               : 'Unable to acquire domain. Try Again.'
-            }`}</BaseText>
+          }`}</BaseText>
         ),
       })
 
@@ -587,7 +633,12 @@ const HomeSearchPage: React.FC = observer(() => {
         txHash: regTxHash,
         address: walletStore.walletAddress,
       })
-
+      console.log('claimWeb2Domain', {
+        error: ex instanceof RelayError ? ex.message : ex,
+        domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
+        txHash: regTxHash,
+        address: walletStore.walletAddress,
+      })
       terminateProcess()
     }
   }
@@ -623,16 +674,16 @@ const HomeSearchPage: React.FC = observer(() => {
             </Box>
           </Box>
           {validation.valid &&
-            !isLoading &&
-            searchResult &&
-            !web2Acquired &&
-            !web2Error ? (
+          !isLoading &&
+          searchResult &&
+          !web2Acquired &&
+          !web2Error ? (
             <Box margin={{ top: '16px' }} gap="12px" align="center">
               <HomeSearchResultItem
                 name={searchResult.domainName.toLowerCase()}
                 rateONE={ratesStore.ONE_USD}
                 domainRecord={searchResult.domainRecord}
-                price={freeRentKey ? "0" : searchResult.price.formatted}
+                price={freeRentKey ? '0' : searchResult.price.formatted}
                 available={searchResult.isAvailable}
                 error={searchResult.error}
               />

@@ -12,12 +12,15 @@ import config from '../../../config'
 
 import { urlExists } from '../../api/checkUrl'
 import { useSearchParams } from 'react-router-dom'
-import { relayApi } from '../../api/relayApi'
+import { RelayError, relayApi } from '../../api/relayApi'
 import { Web3Button } from '@web3modal/react'
 import { Box } from 'grommet/components/Box'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { nameUtils } from '../../api/utils'
 import { RESERVED_DOMAINS } from '../../utils/reservedDomains'
+import logger from '../../modules/logger'
+
+const log = logger.module('WaitingRoom')
 
 const WaitingRoom = observer(() => {
   const [isDomainAvailable, setIsDomainAvailable] = useState(false)
@@ -64,7 +67,17 @@ const WaitingRoom = observer(() => {
         domain,
       })
     } catch (ex) {
-      console.log('### createCert ex', ex)
+      console.log('createCert', {
+        error: ex instanceof RelayError ? ex.message : ex,
+        domain: `${domainName.toLowerCase()}${config.tld}`,
+        address: walletStore.walletAddress,
+        attemptsLeft: attemptsLeft,
+      })
+      log.error('createCert', {
+        error: ex instanceof RelayError ? ex.message : ex,
+        domain: `${domainName.toLowerCase()}${config.tld}`,
+        address: walletStore.walletAddress,
+      })
       if (attemptsLeft === 0) {
         return
       }
