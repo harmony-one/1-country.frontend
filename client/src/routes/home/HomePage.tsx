@@ -35,8 +35,13 @@ export const HomePage = observer(() => {
   useEffect(() => {
     const isNewDomain =
       domainName && domainStore.domainRecord && !domainStore.domainRecord.renter
+    console.log('isNewDomain', isNewDomain, domainName, domainName.length < 3)
     if (isNewDomain) {
-      window.location.href = `${config.hostname}?domain=${domainName}`
+      if (domainName.length > 2) {
+        window.location.href = `${config.hostname}?domain=${domainName}`
+      } else {
+        window.location.href = config.qrURL
+      }
     }
   }, [domainStore.domainRecord])
 
@@ -47,6 +52,7 @@ export const HomePage = observer(() => {
       </Suspense>
     )
   }
+
   if (domainName === '') {
     return (
       <Suspense fallback={<HomePageLoader />}>

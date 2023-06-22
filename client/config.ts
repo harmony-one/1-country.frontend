@@ -78,6 +78,7 @@ const config = {
       process.env.VANITY_URL_CONTRACT ||
       '0xc8288E9cC4159B83f6510b7F3103e25f2cc4CA30', // https://github.com/harmony-one/.1.country/blob/v1.1/contracts/deployments/mainnet/VanityURL_Proxy.json
   },
+  qrURL: process.env.QR_URL || 'https://s3.amazonaws.com/1.country/qr',
   domain: {
     tiers: {
       LEGENDARY: Number(process.env.TIER_LEGENDARY) || 1,
