@@ -40,7 +40,7 @@ export const HomePage = observer(() => {
       if (domainName.length > 2) {
         window.location.href = `${config.hostname}?domain=${domainName}`
       } else {
-        window.location.href = config.qrURL
+        window.location.href = `${config.hostname}/qr?qr-code`
       }
     }
   }, [domainStore.domainRecord])
