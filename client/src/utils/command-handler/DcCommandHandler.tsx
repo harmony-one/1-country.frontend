@@ -51,7 +51,8 @@ export const renewCommandHandler = async ({
     )
     console.log({ nftData })
     console.log(days)
-    if (days <= config.domain.renewalLimit) {
+    if (true) {
+      // days <= config.domain.renewalLimit) {
       setProcessStatus({
         type: ProcessStatusTypes.PROGRESS,
         render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
@@ -128,6 +129,13 @@ const renewCommand = async (
         })
       },
     })
+    if (rentResult.error) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>{rentResult.error.message}</BaseText>,
+      })
+      return
+    }
     setProcessStatus({
       type: ProcessStatusTypes.PROGRESS,
       render: <BaseText>Updating NFT and domain Certificate</BaseText>,
@@ -156,7 +164,26 @@ const renewCommand = async (
           })
           console.log('getCert', genCert)
         } catch (e) {
-          console.log(e)
+          setProcessStatus({
+            type: ProcessStatusTypes.ERROR,
+            render: (
+              <BaseText>
+                Domian renewed but the certificate wasn't generated. Please
+                contact support
+              </BaseText>
+            ),
+          })
+          log.error('renewCommand - genCert', {
+            error: e instanceof RelayError ? e.message : e,
+            domain: `${domainName.toLowerCase()}${config.tld}`,
+            price: price,
+          })
+          console.log('renewCommand - genCert', {
+            error: e instanceof RelayError ? e.message : e,
+            domain: `${domainName.toLowerCase()}${config.tld}`,
+            price: price,
+          })
+          return
         }
       }
     }

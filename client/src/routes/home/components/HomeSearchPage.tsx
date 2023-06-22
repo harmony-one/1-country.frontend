@@ -270,7 +270,12 @@ const HomeSearchPage: React.FC = observer(() => {
         txHash: regTxHash,
         address: walletStore.walletAddress,
       })
-
+      console.log('claimWeb2DomainWrapper', {
+        error: ex instanceof RelayError ? ex.message : ex,
+        domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
+        txHash: regTxHash,
+        address: walletStore.walletAddress,
+      })
       terminateProcess()
     }
   }
@@ -333,7 +338,12 @@ const HomeSearchPage: React.FC = observer(() => {
         txHash: regTxHash,
         address: walletStore.walletAddress,
       })
-      console.log('### ex', error?.response?.data)
+      console.log('claimWeb2Domain', {
+        error: error instanceof RelayError ? error.message : error,
+        domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
+        txHash: regTxHash,
+        address: walletStore.walletAddress,
+      })
       throw new RelayError(
         error?.response?.data?.responseText || `Unable to acquire web2 domain`
       )
@@ -604,7 +614,12 @@ const HomeSearchPage: React.FC = observer(() => {
         txHash: regTxHash,
         address: walletStore.walletAddress,
       })
-
+      console.log('claimWeb2Domain', {
+        error: ex instanceof RelayError ? ex.message : ex,
+        domain: `${searchResult?.domainName?.toLowerCase()}${config.tld}`,
+        txHash: regTxHash,
+        address: walletStore.walletAddress,
+      })
       terminateProcess()
     }
   }
