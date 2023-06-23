@@ -308,9 +308,14 @@ const apis = ({
     ownerOf: async ({ name }: { name: string }) => {
       return contractReadOnly.ownerOf(name)
     },
-
+    checkNameExpires: async ({ name }: { name: string }) => {
+      const nameExpires = await contractReadOnly.nameExpires(name)
+      console.log('Check Available - nameExpires', name, nameExpires)
+      return nameExpires
+    },
     checkAvailable: async ({ name }: { name: string }) => {
       const isAvailable = await contractReadOnly.available(name)
+      console.log('checkNameExpires - available', name, isAvailable)
       return isAvailable?.toString()?.toLowerCase() === 'true'
     },
 

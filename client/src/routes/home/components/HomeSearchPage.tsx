@@ -76,7 +76,8 @@ const HomeSearchPage: React.FC = observer(() => {
   const [regTxHash, setRegTxHash] = useState<string>('')
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
-  const { rootStore, ratesStore, walletStore, utilsStore } = useStores()
+  const { rootStore, ratesStore, walletStore, utilsStore, domainStore } =
+    useStores()
 
   const isMinimalRender = useMinimalRender()
 
@@ -206,19 +207,47 @@ const HomeSearchPage: React.FC = observer(() => {
     })
   }
 
+  const isDomainAvailable = (
+    record: any,
+    expirationDate: bigint,
+    web2IsAvailable: boolean,
+    web3IsAvailable: boolean
+  ) => {
+    const currentTimestamp = BigInt(Math.floor(Date.now() / 1000)) // Convert current milliseconds to seconds
+    // Compare the provided epoch seconds with the current timestam
+
+    console.log('DHSKJDSHKJD', expirationDate < currentTimestamp)
+    console.log(
+      expirationDate,
+      web2IsAvailable,
+      web3IsAvailable,
+      domainStore.isExpired
+    )
+  }
+
   const loadDomainRecord = async (_domainName: string) => {
-    const [record, price, relayCheckDomain, isAvailable2] = await Promise.all([
-      rootStore.d1dcClient.getRecord({ name: _domainName }),
-      rootStore.d1dcClient.getPrice({ name: _domainName }),
-      relayCheck(_domainName),
-      rootStore.d1dcClient.checkAvailable({
-        name: _domainName,
-      }),
-    ])
+    const [record, price, relayCheckDomain, isAvailable2, nameExpires] =
+      await Promise.all([
+        rootStore.d1dcClient.getRecord({ name: _domainName }),
+        rootStore.d1dcClient.getPrice({ name: _domainName }),
+        relayCheck(_domainName),
+        rootStore.d1dcClient.checkAvailable({
+          name: _domainName,
+        }),
+        rootStore.d1dcClient.checkNameExpires({
+          name: _domainName,
+        }),
+      ])
+
     console.log('isAvailable WEB3', _domainName, isAvailable2)
     console.log('isAvailable WEB2', _domainName, relayCheckDomain.isAvailable)
     console.log('WEB2 relayCheckDomain', relayCheckDomain)
-
+    isDomainAvailable(
+      record,
+      nameExpires,
+      relayCheckDomain.isAvailable,
+      isAvailable2
+    )
     return {
       domainName: _domainName,
       domainRecord: record,
