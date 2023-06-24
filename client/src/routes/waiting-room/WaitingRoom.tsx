@@ -24,6 +24,7 @@ const log = logger.module('WaitingRoom')
 const WaitingRoom = observer(() => {
   const [isDomainAvailable, setIsDomainAvailable] = useState(false)
   const [isCertGenerated, setIsCertGenerated] = useState(false)
+  const [certJob, setCertJob] = useState('')
   const [searchParams] = useSearchParams()
 
   const domainName = searchParams.get('domain') || ''
@@ -59,7 +60,7 @@ const WaitingRoom = observer(() => {
         address: walletStore.walletAddress,
         async: true,
       })
-      const { success, sld, mcJobId, nakedJobId, error } = response
+      setCertJob(response.nakedJobId.jobId)
       console.log('cert create', response)
     } catch (ex) {
       console.log('createCert', {
@@ -89,15 +90,20 @@ const WaitingRoom = observer(() => {
         console.log('not available')
       }
       console.log('cert', isCertGenerated)
-      // if (!isCertGenerated) {
-      //   const domain = `${domainName}${config.tld}`
-      //   const { success, completed } = await relayApi().certJobLookUp({ domainName: domain })
-      //   console.log('cert job', domain, success, completed)
-      //   if (!completed && !success) {
-      //     console.log('here')
-      //     setIsCertGenerated(true)
-      //   }
-      // }
+      if (!isCertGenerated) {
+        const domain = `${domainName}${config.tld}`
+        console.log('certjob', certJob)
+        const response = await relayApi().certJobLookUp({
+          domainName: domain,
+          job: certJob,
+        })
+        // const { success, completed } = await relayApi().certJobLookUp({ domainName: domain })
+        console.log('cert job', domain, response)
+        if (response.completed && response.success) {
+          console.log('here')
+          setIsCertGenerated(true)
+        }
+      }
     }
     const interval = setInterval(() => {
       checkUrl()

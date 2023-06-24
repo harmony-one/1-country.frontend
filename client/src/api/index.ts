@@ -308,10 +308,16 @@ const apis = ({
     ownerOf: async ({ name }: { name: string }) => {
       return contractReadOnly.ownerOf(name)
     },
-    checkNameExpires: async ({ name }: { name: string }) => {
+    getExpirationDate: async ({ name }: { name: string }) => {
       const nameExpires = await contractReadOnly.nameExpires(name)
-      console.log('Check Available - nameExpires', name, nameExpires)
-      return nameExpires
+      return parseInt(nameExpires)
+    },
+    checkNameExpired: async ({ name }: { name: string }) => {
+      const nameExpires = await contractReadOnly.nameExpires(name)
+      const epochSecondsDec = parseInt(nameExpires)
+      console.log('expiration date:', new Date(epochSecondsDec * 1000))
+      const currentTimestamp = Math.floor(Date.now() / 1000)
+      return currentTimestamp > epochSecondsDec
     },
     checkAvailable: async ({ name }: { name: string }) => {
       const isAvailable = await contractReadOnly.available(name)

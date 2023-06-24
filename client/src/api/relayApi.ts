@@ -245,7 +245,8 @@ export const relayApi = () => {
             timeUpdated,
           },
         } = await base.post('/cert-job-lookup', {
-          domain: `${domainName}.country`,
+          domain: domainName,
+          jobId: job,
         })
         console.log('HERE I AM')
         return {

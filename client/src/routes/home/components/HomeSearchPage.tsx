@@ -208,52 +208,56 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   const isDomainAvailable = (
-    record: any,
-    expirationDate: bigint,
+    expirationDate: number,
+    nameExpired: boolean,
     web2IsAvailable: boolean,
     web3IsAvailable: boolean
   ) => {
-    const currentTimestamp = BigInt(Math.floor(Date.now() / 1000)) // Convert current milliseconds to seconds
-    // Compare the provided epoch seconds with the current timestam
-
-    console.log('DHSKJDSHKJD', expirationDate < currentTimestamp)
-    console.log(
-      expirationDate,
-      web2IsAvailable,
-      web3IsAvailable,
-      domainStore.isExpired
+    return (
+      (expirationDate > 0 && web3IsAvailable && web2IsAvailable) || // requested by Aaron
+      (web2IsAvailable && web3IsAvailable) || // initial comparsion
+      nameExpired
     )
   }
 
   const loadDomainRecord = async (_domainName: string) => {
-    const [record, price, relayCheckDomain, isAvailable2, nameExpires] =
-      await Promise.all([
-        rootStore.d1dcClient.getRecord({ name: _domainName }),
-        rootStore.d1dcClient.getPrice({ name: _domainName }),
-        relayCheck(_domainName),
-        rootStore.d1dcClient.checkAvailable({
-          name: _domainName,
-        }),
-        rootStore.d1dcClient.checkNameExpires({
-          name: _domainName,
-        }),
-      ])
+    const [
+      record,
+      price,
+      relayCheckDomain,
+      isAvailable2,
+      nameExpired,
+      expirationDate,
+    ] = await Promise.all([
+      rootStore.d1dcClient.getRecord({ name: _domainName }),
+      rootStore.d1dcClient.getPrice({ name: _domainName }),
+      relayCheck(_domainName),
+      rootStore.d1dcClient.checkAvailable({
+        name: _domainName,
+      }),
+      rootStore.d1dcClient.checkNameExpired({
+        name: _domainName,
+      }),
+      rootStore.d1dcClient.getExpirationDate({
+        name: _domainName,
+      }),
+    ])
 
     console.log('isAvailable WEB3', _domainName, isAvailable2)
     console.log('isAvailable WEB2', _domainName, relayCheckDomain.isAvailable)
     console.log('WEB2 relayCheckDomain', relayCheckDomain)
-    isDomainAvailable(
-      record,
-      nameExpires,
-      relayCheckDomain.isAvailable,
-      isAvailable2
-    )
+
     return {
       domainName: _domainName,
       domainRecord: record,
       price: price,
       error: relayCheckDomain.error,
-      isAvailable: relayCheckDomain.isAvailable && isAvailable2,
+      isAvailable: isDomainAvailable(
+        expirationDate,
+        nameExpired,
+        relayCheckDomain.isAvailable,
+        isAvailable2
+      ),
     }
   }
 
@@ -419,15 +423,20 @@ const HomeSearchPage: React.FC = observer(() => {
 
     console.log('### searchResult', searchResult)
 
-    const _available = await rootStore.d1dcClient.checkAvailable({
-      name: searchResult.domainName,
-    })
+    const _available = searchResult.isAvailable
+    //  await  rootStore.d1dcClient.checkAvailable({
+    //   name: searchResult.domainName,
+    // })
     if (!_available) {
       setValidation({
         valid: false,
         error: 'This domain name is already registered',
       })
       setLoading(false)
+      setProcessStatus({
+        type: ProcessStatusTypes.IDLE,
+        render: '',
+      })
       return
     }
 
@@ -435,6 +444,11 @@ const HomeSearchPage: React.FC = observer(() => {
       setValidation({
         valid: false,
         error: 'Invalid domain',
+      })
+      setLoading(false)
+      setProcessStatus({
+        type: ProcessStatusTypes.IDLE,
+        render: '',
       })
       return
     }
@@ -444,6 +458,10 @@ const HomeSearchPage: React.FC = observer(() => {
         error: 'Domain must be alphanumerical characters',
       })
       setLoading(false)
+      setProcessStatus({
+        type: ProcessStatusTypes.IDLE,
+        render: '',
+      })
       return
     }
 
@@ -501,7 +519,6 @@ const HomeSearchPage: React.FC = observer(() => {
           },
           secret,
         })
-
         if (commitResult.error) {
           console.log('Commit result failed:', 'handleRentDomain - commit', {
             error: commitResult.error,
