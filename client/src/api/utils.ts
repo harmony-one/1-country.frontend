@@ -4,6 +4,8 @@ import createKeccakHash from 'keccak'
 
 import config from '../../config'
 import { buildERC1155Uri } from '../utils/explorer'
+import axios from 'axios'
+import _ from 'lodash'
 
 const SPECIAL_NAMES = ['0', '1']
 // prettier-ignore
@@ -100,8 +102,41 @@ export const utils = {
       utils.buildTokenId(domainName)
     )
   },
+
   buildDomainImageURI: (domainName: string): string => {
     return `${config.domainNftImagesPath}/${domainName}.png`
+  },
+
+  buildMetadataURI: (domain: string): string => {
+    const name = domain.split('.country')[0]
+    const id = toBN(
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes(name))
+    ).toString() //  BigInt(w3utils.keccak256(name, true)).toString()
+    return `${config.domainMetadataPath}/erc721/${id}`
+  },
+
+  getMetadata: async (metadataUri: string): Promise<any> => {
+    const { data } = await axios.get(metadataUri)
+    console.log('sfdsfsdsfsf', data)
+    const { name, image, attributes } = data
+    if (attributes) {
+      const attr = attributes.reduce(
+        (
+          acc: { [x: string]: any },
+          obj: { trait_type: string; value: any }
+        ) => {
+          acc[_.camelCase(obj.trait_type)] = obj.value
+          return acc
+        },
+        {}
+      )
+      return {
+        name,
+        image,
+        ...attr,
+      }
+    }
+    return null
   },
 }
 

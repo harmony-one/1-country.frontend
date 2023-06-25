@@ -28,8 +28,8 @@ import logger from '../../../modules/logger'
 import { Button, LinkWrapper } from '../../../components/Controls'
 import { BaseText, GradientText } from '../../../components/Text'
 import { FlexRow } from '../../../components/Layout'
-import { DomainPrice, DomainRecord } from '../../../api'
-import { nameUtils, validateDomainName } from '../../../api/utils'
+import { DomainPrice, DomainRecord, SendNameExpired } from '../../../api'
+import { nameUtils, utils, validateDomainName } from '../../../api/utils'
 import { TypedText } from './Typed'
 import { SearchInput } from '../../../components/search-input/SearchInput'
 import { FormSearch } from 'grommet-icons/icons/FormSearch'
@@ -74,6 +74,7 @@ const HomeSearchPage: React.FC = observer(() => {
   const [web2Error, setWeb2Error] = useState(false)
   const [secret] = useState<string>(Math.random().toString(26).slice(2))
   const [regTxHash, setRegTxHash] = useState<string>('')
+  const [nameExpired, setNameExpired] = useState<SendNameExpired>()
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
   const { rootStore, ratesStore, walletStore, utilsStore, domainStore } =
@@ -207,16 +208,34 @@ const HomeSearchPage: React.FC = observer(() => {
     })
   }
 
-  const isDomainAvailable = (
+  const isDomainAvailable = async (
+    domainName: string,
     expirationDate: number,
-    nameExpired: boolean,
+    nameExpired: SendNameExpired,
     web2IsAvailable: boolean,
     web3IsAvailable: boolean
   ) => {
+    // if (nameExpired.isExpired && nameExpired.isInGracePeriod) {
+    //   const metadataUrl = utils.buildMetadataURI(domainName)
+    //   console.log(domainName, metadataUrl)
+    //   const metadata = await utils.getMetadata(metadataUrl)
+    //   console.log(metadata)
+    // }
+    // const expired =
+    //   (nameExpired.isExpired && !nameExpired.isInGracePeriod) ||
+    //   (nameExpired.isExpired &&
+    //     nameExpired.isInGracePeriod &&
+    //     domainStore.isOwner)
+    console.log(
+      'isDomainAvailable',
+      expirationDate > 0 && web3IsAvailable && web2IsAvailable,
+      web2IsAvailable && web3IsAvailable,
+      nameExpired.isExpired && !nameExpired.isInGracePeriod
+    )
     return (
       (expirationDate > 0 && web3IsAvailable && web2IsAvailable) || // requested by Aaron
       (web2IsAvailable && web3IsAvailable) || // initial comparsion
-      nameExpired
+      (nameExpired.isExpired && !nameExpired.isInGracePeriod)
     )
   }
 
@@ -242,17 +261,14 @@ const HomeSearchPage: React.FC = observer(() => {
         name: _domainName,
       }),
     ])
-
-    console.log('isAvailable WEB3', _domainName, isAvailable2)
-    console.log('isAvailable WEB2', _domainName, relayCheckDomain.isAvailable)
-    console.log('WEB2 relayCheckDomain', relayCheckDomain)
-
+    setNameExpired(nameExpired)
     return {
       domainName: _domainName,
       domainRecord: record,
       price: price,
       error: relayCheckDomain.error,
-      isAvailable: isDomainAvailable(
+      isAvailable: await isDomainAvailable(
+        _domainName,
         expirationDate,
         nameExpired,
         relayCheckDomain.isAvailable,
@@ -729,6 +745,7 @@ const HomeSearchPage: React.FC = observer(() => {
                 name={searchResult.domainName.toLowerCase()}
                 rateONE={ratesStore.ONE_USD}
                 domainRecord={searchResult.domainRecord}
+                nameExpired={nameExpired}
                 price={freeRentKey ? '0' : searchResult.price.formatted}
                 available={searchResult.isAvailable}
                 error={searchResult.error}
@@ -738,15 +755,17 @@ const HomeSearchPage: React.FC = observer(() => {
                   Register
                 </Button>
               )}
-              {!searchResult.isAvailable && validation.valid && (
-                <Button
-                  $width="auto"
-                  disabled={!validation.valid}
-                  onClick={() => handleGoToDomain(searchResult)}
-                >
-                  Go to the domain
-                </Button>
-              )}
+              {!searchResult.isAvailable &&
+                validation.valid &&
+                !nameExpired.isInGracePeriod && (
+                  <Button
+                    $width="auto"
+                    disabled={!validation.valid}
+                    onClick={() => handleGoToDomain(searchResult)}
+                  >
+                    Go to the domain
+                  </Button>
+                )}
             </Box>
           ) : (
             <Box margin={{ top: '16px' }}>

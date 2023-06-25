@@ -63,6 +63,7 @@ const config = {
   hostname: process.env.BASE_URL || 'https://localhost:3100',
   tld: process.env.TLD || '.dev.1.localhost:3100', // '.country',
   tldLink: process.env.TLD_LINK || 'dev.1.localhost:3100', // '1.country',
+  domainMetadataPath: 'https://storage.googleapis.com/radical-domain-metadata',
   domainNftImagesPath:
     'https://storage.googleapis.com/radical-domain-nft-images',
   betteruptime: {

@@ -59,6 +59,12 @@ export interface SendResult {
   error: Error
 }
 
+export interface SendNameExpired {
+  isExpired: boolean
+  expirationDate: number
+  isInGracePeriod: boolean
+}
+
 interface RentProps extends CallbackProps {
   name: string
   owner: string
@@ -306,18 +312,31 @@ const apis = ({
       }
     },
     ownerOf: async ({ name }: { name: string }) => {
-      return contractReadOnly.ownerOf(name)
+      return contractReadOnly.ownerOf(name).catch(() => '')
     },
     getExpirationDate: async ({ name }: { name: string }) => {
       const nameExpires = await contractReadOnly.nameExpires(name)
       return parseInt(nameExpires)
     },
-    checkNameExpired: async ({ name }: { name: string }) => {
+    checkNameExpired: async ({
+      name,
+    }: {
+      name: string
+    }): Promise<SendNameExpired> => {
       const nameExpires = await contractReadOnly.nameExpires(name)
       const epochSecondsDec = parseInt(nameExpires)
-      console.log('expiration date:', new Date(epochSecondsDec * 1000))
+      const expirationDate = new Date(epochSecondsDec * 1000)
+      const currentDate = new Date()
+      const timeDifferenceMs = currentDate.getTime() - expirationDate.getTime()
+      const daysDifference = Math.abs(
+        Math.ceil(timeDifferenceMs / (1000 * 60 * 60 * 24))
+      )
       const currentTimestamp = Math.floor(Date.now() / 1000)
-      return currentTimestamp > epochSecondsDec
+      return {
+        isExpired: currentTimestamp > epochSecondsDec,
+        expirationDate: parseInt(nameExpires),
+        isInGracePeriod: daysDifference <= 7,
+      }
     },
     checkAvailable: async ({ name }: { name: string }) => {
       const isAvailable = await contractReadOnly.available(name)

@@ -7,7 +7,7 @@ import {
   formatONEAmount,
   formatUSDAmount,
 } from '../../../utils/domain'
-import { DomainRecord } from '../../../api'
+import { DomainRecord, SendNameExpired } from '../../../api'
 
 const Container = styled.div`
   position: relative;
@@ -24,6 +24,7 @@ interface Props {
   price: string
   rateONE: number
   domainRecord: DomainRecord
+  nameExpired: SendNameExpired
   error: string
 }
 
@@ -37,6 +38,7 @@ export const HomeSearchResultItem: React.FC<Props> = ({
   available = false,
   price,
   domainRecord,
+  nameExpired,
   rateONE,
   error,
 }) => {
@@ -50,10 +52,14 @@ export const HomeSearchResultItem: React.FC<Props> = ({
       {!available && (
         <Box>
           <div>{error ? error : 'Domain Name Unavailable'}</div>
-          {showExpirationTime && (
-            <BaseText>
-              Expires {dateFormat.format(domainRecord.expirationTime)}
-            </BaseText>
+          {nameExpired.isExpired && nameExpired.isInGracePeriod ? (
+            <BaseText>If you were the owner, please contact support</BaseText>
+          ) : (
+            showExpirationTime && (
+              <BaseText>
+                Expires {dateFormat.format(domainRecord.expirationTime)}
+              </BaseText>
+            )
           )}
         </Box>
       )}

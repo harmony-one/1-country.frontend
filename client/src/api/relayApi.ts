@@ -231,7 +231,6 @@ export const relayApi = () => {
       domainName: string
       job?: string
     }): Promise<JobLookup> => {
-      console.log('HERE I AM', domainName)
       try {
         const {
           data: {
