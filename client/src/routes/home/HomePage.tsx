@@ -6,6 +6,8 @@ import { useStores } from '../../stores'
 
 import { HomePageLoader } from './components/HomePageLoader'
 
+const qrPath = 'qr?qr-code'
+
 const HomeNotionPage = lazy(
   () =>
     import(
@@ -40,7 +42,10 @@ export const HomePage = observer(() => {
       if (domainName.length > 2) {
         window.location.href = `${config.hostname}?domain=${domainName}`
       } else {
-        window.location.href = config.qrURL
+        // Below if statement prevents the repetitive addition of "qrPath"
+        if (!window.location.href.includes(qrPath)) {
+          window.location.href = `${window.location.href}${qrPath}`
+        }
       }
     }
   }, [domainStore.domainRecord])
