@@ -438,16 +438,35 @@ const HomeSearchPage: React.FC = observer(() => {
         <BaseText>{`Renewing ${searchResult.domainName}${config.tld}`}</BaseText>
       ),
     })
-    await renewCommand(
+    const result = await renewCommand(
       searchResult.domainName,
       walletStore.walletAddress,
       searchResult.price.amount,
       rootStore,
       setProcessStatus
     )
-    terminateProcess(2000)
-    updateSearch('')
+    if (!result.error) {
+      await sleep(2000)
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: (
+          <Button
+            $width="auto"
+            disabled={!validation.valid}
+            onClick={() => handleGoToDomain(searchResult)}
+          >
+            Go to the domain
+          </Button>
+        ),
+      })
+    } else {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Unable to renew the domain. Please contact support',
+      })
+    }
   }
+
   const handleRentDomain = async () => {
     if (!searchResult || !searchResult.domainRecord || !validation.valid) {
       return false
