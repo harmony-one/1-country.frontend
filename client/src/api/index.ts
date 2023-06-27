@@ -333,7 +333,8 @@ const apis = ({
       )
       const currentTimestamp = Math.floor(Date.now() / 1000)
       return {
-        isExpired: currentTimestamp > epochSecondsDec,
+        isExpired:
+          epochSecondsDec === 0 ? false : currentTimestamp > epochSecondsDec,
         expirationDate: parseInt(nameExpires),
         isInGracePeriod: daysDifference <= 7,
       }

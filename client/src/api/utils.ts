@@ -117,7 +117,6 @@ export const utils = {
 
   getMetadata: async (metadataUri: string): Promise<any> => {
     const { data } = await axios.get(metadataUri)
-    console.log('sfdsfsdsfsf', data)
     const { name, image, attributes } = data
     if (attributes) {
       const attr = attributes.reduce(

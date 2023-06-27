@@ -98,7 +98,7 @@ export const renewCommandHandler = async ({
   }
 }
 
-const renewCommand = async (
+export const renewCommand = async (
   domainName: string,
   walletAddress: string,
   price: string,
