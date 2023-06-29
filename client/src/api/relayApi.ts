@@ -231,7 +231,6 @@ export const relayApi = () => {
       domainName: string
       job?: string
     }): Promise<JobLookup> => {
-      console.log('HERE I AM', domainName)
       try {
         const {
           data: {
@@ -245,7 +244,8 @@ export const relayApi = () => {
             timeUpdated,
           },
         } = await base.post('/cert-job-lookup', {
-          domain: `${domainName}.country`,
+          domain: domainName,
+          jobId: job,
         })
         console.log('HERE I AM')
         return {

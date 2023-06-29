@@ -98,7 +98,7 @@ export const renewCommandHandler = async ({
   }
 }
 
-const renewCommand = async (
+export const renewCommand = async (
   domainName: string,
   walletAddress: string,
   price: string,
@@ -109,7 +109,8 @@ const renewCommand = async (
     const rentResult = await store.d1dcClient.renewDomain({
       name: domainName.toLowerCase(),
       amount: new BN(price).toString(),
-      onTransactionHash: () => {
+      onTransactionHash: (txHash) => {
+        console.log('renewDomain Tx', txHash)
         setProcessStatus({
           type: ProcessStatusTypes.PROGRESS,
           render: <BaseText>Waiting for transaction confirmation</BaseText>,
@@ -212,6 +213,7 @@ const renewCommand = async (
         <BaseText>The domain renewal process finished successfully</BaseText>
       ),
     })
+    console.log('renew Result', rentResult)
     return rentResult
   } catch (error) {
     log.error('renewCommand', {
@@ -219,9 +221,9 @@ const renewCommand = async (
       domain: `${domainName.toLowerCase()}${config.tld}`,
       price: price,
     })
-    console.log('rent', error)
+    console.log('Renew', error)
     return {
-      error: error,
+      error: error instanceof RelayError ? error.message : error,
     }
   }
 }

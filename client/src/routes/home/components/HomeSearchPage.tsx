@@ -27,17 +27,20 @@ import logger from '../../../modules/logger'
 
 import { Button, LinkWrapper } from '../../../components/Controls'
 import { BaseText, GradientText } from '../../../components/Text'
-import { FlexRow } from '../../../components/Layout'
-import { DomainPrice, DomainRecord } from '../../../api'
-import { nameUtils, validateDomainName } from '../../../api/utils'
+import { FlexRow, Row } from '../../../components/Layout'
+import { DomainPrice, DomainRecord, SendNameExpired } from '../../../api'
+import { nameUtils, utils, validateDomainName } from '../../../api/utils'
 import { TypedText } from './Typed'
 import { SearchInput } from '../../../components/search-input/SearchInput'
 import { FormSearch } from 'grommet-icons/icons/FormSearch'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet/components/Text'
-import { Container, PageCurationSection } from '../Home.styles'
+import { Container, DescResponsive, PageCurationSection } from '../Home.styles'
 import PageCuration, { PAGE_CURATION_LIST } from './PageCuration'
 import { useMinimalRender } from '../../../hooks/useMinimalRender'
+import { MetamaskWidget } from '../../../components/widgets/MetamaskWidget'
+import { DomainRecordRenewal } from './DomainRecordRenewal'
+import { renewCommand } from '../../../utils/command-handler/DcCommandHandler'
 
 const log = logger.module('HomeSearchPage')
 
@@ -47,12 +50,14 @@ const SearchBoxContainer = styled(Box)`
   margin: 0 auto;
 `
 
-interface SearchResult {
+export interface SearchResult {
   domainName: string
   domainRecord: DomainRecord
   price: DomainPrice
   isAvailable: boolean
   error: string
+  nameExpired: SendNameExpired
+  isOwner: boolean
 }
 
 const HomeSearchPage: React.FC = observer(() => {
@@ -76,8 +81,9 @@ const HomeSearchPage: React.FC = observer(() => {
   const [regTxHash, setRegTxHash] = useState<string>('')
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
-  const { rootStore, ratesStore, walletStore, utilsStore } = useStores()
-
+  const { rootStore, ratesStore, walletStore, utilsStore, domainStore } =
+    useStores()
+  const baseRegistrar = rootStore.nameWrapper
   const isMinimalRender = useMinimalRender()
 
   useEffect(() => {
@@ -150,10 +156,18 @@ const HomeSearchPage: React.FC = observer(() => {
   }, [web2Acquired])
 
   useEffect(() => {
+    const updateDomainRecord = async () => {
+      const result = await loadDomainRecord(searchResult.domainName)
+      setSearchResult(result)
+    }
     const connectWallet = async () => {
       const provider = await connector!.getProvider()
       walletStore.setProvider(provider, address)
       handleRentDomain()
+    }
+
+    if (searchResult && searchResult.domainName) {
+      updateDomainRecord()
     }
 
     if (!walletStore.isMetamaskAvailable) {
@@ -206,25 +220,64 @@ const HomeSearchPage: React.FC = observer(() => {
     })
   }
 
-  const loadDomainRecord = async (_domainName: string) => {
-    const [record, price, relayCheckDomain, isAvailable2] = await Promise.all([
-      rootStore.d1dcClient.getRecord({ name: _domainName }),
-      rootStore.d1dcClient.getPrice({ name: _domainName }),
-      relayCheck(_domainName),
-      rootStore.d1dcClient.checkAvailable({
-        name: _domainName,
-      }),
-    ])
-    console.log('isAvailable WEB3', _domainName, isAvailable2)
-    console.log('isAvailable WEB2', _domainName, relayCheckDomain.isAvailable)
-    console.log('WEB2 relayCheckDomain', relayCheckDomain)
+  const isDomainAvailable = (
+    isOwner: boolean,
+    nameExpired: SendNameExpired,
+    web2IsAvailable: boolean,
+    web3IsAvailable: boolean
+  ) => {
+    const expired =
+      (nameExpired.isExpired && !nameExpired.isInGracePeriod) ||
+      (nameExpired.isExpired &&
+        nameExpired.isInGracePeriod &&
+        domainStore.isOwner)
 
+    // console.log(
+    //   'isDomainAvailable',
+    //   nameExpired.expirationDate > 0 && web3IsAvailable && web2IsAvailable,
+    //   web2IsAvailable && web3IsAvailable,
+    //   nameExpired.isExpired && !nameExpired.isInGracePeriod,
+    //   nameExpired.isExpired && nameExpired.isInGracePeriod && isOwner
+    // )
+    return (
+      (nameExpired.expirationDate > 0 && web3IsAvailable && web2IsAvailable) || // requested by Aaron
+      (web2IsAvailable && web3IsAvailable) || // initial comparsion
+      (nameExpired.isExpired && !nameExpired.isInGracePeriod) ||
+      (nameExpired.isExpired && nameExpired.isInGracePeriod && isOwner)
+    )
+  }
+
+  const loadDomainRecord = async (_domainName: string) => {
+    const [record, price, relayCheckDomain, isAvailable2, nameExpired] =
+      await Promise.all([
+        rootStore.d1dcClient.getRecord({ name: _domainName }),
+        rootStore.d1dcClient.getPrice({ name: _domainName }),
+        relayCheck(_domainName),
+        rootStore.d1dcClient.checkAvailable({
+          name: _domainName,
+        }),
+        rootStore.d1dcClient.checkNameExpired({
+          name: _domainName,
+        }),
+      ])
+    let isOwner = false
+    if (nameExpired.isExpired && nameExpired.isInGracePeriod) {
+      const owner = await baseRegistrar.getWrappedOwner(_domainName)
+      isOwner = owner === walletStore.walletAddress
+    }
     return {
       domainName: _domainName,
       domainRecord: record,
       price: price,
       error: relayCheckDomain.error,
-      isAvailable: relayCheckDomain.isAvailable && isAvailable2,
+      isAvailable: isDomainAvailable(
+        isOwner,
+        nameExpired,
+        relayCheckDomain.isAvailable,
+        isAvailable2
+      ),
+      nameExpired,
+      isOwner,
     }
   }
 
@@ -376,6 +429,44 @@ const HomeSearchPage: React.FC = observer(() => {
     }`
   }
 
+  const handleRenewDomain = async () => {
+    setLoading(true)
+
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: (
+        <BaseText>{`Renewing ${searchResult.domainName}${config.tld}`}</BaseText>
+      ),
+    })
+    const result = await renewCommand(
+      searchResult.domainName,
+      walletStore.walletAddress,
+      searchResult.price.amount,
+      rootStore,
+      setProcessStatus
+    )
+    if (!result.error) {
+      await sleep(2000)
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: (
+          <Button
+            $width="auto"
+            disabled={!validation.valid}
+            onClick={() => handleGoToDomain(searchResult)}
+          >
+            Go to the domain
+          </Button>
+        ),
+      })
+    } else {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Unable to renew the domain. Please contact support',
+      })
+    }
+  }
+
   const handleRentDomain = async () => {
     if (!searchResult || !searchResult.domainRecord || !validation.valid) {
       return false
@@ -390,15 +481,20 @@ const HomeSearchPage: React.FC = observer(() => {
 
     console.log('### searchResult', searchResult)
 
-    const _available = await rootStore.d1dcClient.checkAvailable({
-      name: searchResult.domainName,
-    })
+    const _available = searchResult.isAvailable
+    //  await  rootStore.d1dcClient.checkAvailable({
+    //   name: searchResult.domainName,
+    // })
     if (!_available) {
       setValidation({
         valid: false,
         error: 'This domain name is already registered',
       })
       setLoading(false)
+      setProcessStatus({
+        type: ProcessStatusTypes.IDLE,
+        render: '',
+      })
       return
     }
 
@@ -406,6 +502,11 @@ const HomeSearchPage: React.FC = observer(() => {
       setValidation({
         valid: false,
         error: 'Invalid domain',
+      })
+      setLoading(false)
+      setProcessStatus({
+        type: ProcessStatusTypes.IDLE,
+        render: '',
       })
       return
     }
@@ -415,6 +516,10 @@ const HomeSearchPage: React.FC = observer(() => {
         error: 'Domain must be alphanumerical characters',
       })
       setLoading(false)
+      setProcessStatus({
+        type: ProcessStatusTypes.IDLE,
+        render: '',
+      })
       return
     }
 
@@ -472,7 +577,6 @@ const HomeSearchPage: React.FC = observer(() => {
           },
           secret,
         })
-
         if (commitResult.error) {
           console.log('Commit result failed:', 'handleRentDomain - commit', {
             error: commitResult.error,
@@ -683,24 +787,62 @@ const HomeSearchPage: React.FC = observer(() => {
                 name={searchResult.domainName.toLowerCase()}
                 rateONE={ratesStore.ONE_USD}
                 domainRecord={searchResult.domainRecord}
+                nameExpired={searchResult.nameExpired}
+                isOwner={searchResult.isOwner}
                 price={freeRentKey ? '0' : searchResult.price.formatted}
                 available={searchResult.isAvailable}
                 error={searchResult.error}
               />
-              {searchResult.isAvailable && (
-                <Button disabled={!validation.valid} onClick={handleRentDomain}>
-                  Register
-                </Button>
-              )}
-              {!searchResult.isAvailable && validation.valid && (
-                <Button
-                  $width="auto"
-                  disabled={!validation.valid}
-                  onClick={() => handleGoToDomain(searchResult)}
-                >
-                  Go to the domain
-                </Button>
-              )}
+              <div>{!searchResult.nameExpired.isExpired}</div>
+              {searchResult.isAvailable &&
+                !searchResult.nameExpired.isExpired && (
+                  <Button
+                    disabled={!validation.valid}
+                    onClick={handleRentDomain}
+                  >
+                    Register
+                  </Button>
+                )}
+              {searchResult.isAvailable &&
+                searchResult.nameExpired.isExpired &&
+                searchResult.nameExpired.isInGracePeriod &&
+                searchResult.isOwner && (
+                  // <DomainRecordRenewal searchResult={searchResult} />
+                  <Button
+                    disabled={!validation.valid}
+                    onClick={handleRenewDomain}
+                  >
+                    Renew Domain
+                  </Button>
+                )}
+              {!walletStore.isConnected &&
+                searchResult.nameExpired.isExpired &&
+                searchResult.nameExpired.isInGracePeriod && (
+                  <div
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <FlexRow style={{ alignContent: 'center' }}>
+                      {walletStore.isMetamaskAvailable && <MetamaskWidget />}
+                      <Web3Button />
+                    </FlexRow>
+                  </div>
+                )}
+              {!searchResult.isAvailable &&
+                validation.valid &&
+                !searchResult.nameExpired.isInGracePeriod && (
+                  <Button
+                    $width="auto"
+                    disabled={!validation.valid}
+                    onClick={() => handleGoToDomain(searchResult)}
+                  >
+                    Go to the domain
+                  </Button>
+                )}
             </Box>
           ) : (
             <Box margin={{ top: '16px' }}>

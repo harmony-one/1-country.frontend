@@ -35,14 +35,15 @@ export const HomePage = observer(() => {
   useEffect(() => {
     const isNewDomain =
       domainName && domainStore.domainRecord && !domainStore.domainRecord.renter
+    // console.log('dsfsdf', domainStore.domainRecord?.renter ) //domainStore.domainRecord)
     console.log('isNewDomain', isNewDomain, domainName, domainName.length < 3)
-    if (isNewDomain) {
-      if (domainName.length > 2) {
-        window.location.href = `${config.hostname}?domain=${domainName}`
-      } else {
-        window.location.href = config.qrURL
-      }
-    }
+    // if (isNewDomain) {
+    //   if (domainName.length > 2) {
+    //     window.location.href = `${config.hostname}?domain=${domainName}`
+    //   } else {
+    //     window.location.href = config.qrURL
+    //   }
+    // }
   }, [domainStore.domainRecord])
 
   if (subdomain !== '') {

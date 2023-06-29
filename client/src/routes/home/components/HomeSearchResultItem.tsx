@@ -7,7 +7,8 @@ import {
   formatONEAmount,
   formatUSDAmount,
 } from '../../../utils/domain'
-import { DomainRecord } from '../../../api'
+import { DomainRecord, SendNameExpired } from '../../../api'
+import { useAccount } from 'wagmi'
 
 const Container = styled.div`
   position: relative;
@@ -24,6 +25,8 @@ interface Props {
   price: string
   rateONE: number
   domainRecord: DomainRecord
+  nameExpired: SendNameExpired
+  isOwner: boolean
   error: string
 }
 
@@ -37,9 +40,12 @@ export const HomeSearchResultItem: React.FC<Props> = ({
   available = false,
   price,
   domainRecord,
+  nameExpired,
+  isOwner,
   rateONE,
   error,
 }) => {
+  const { isConnected } = useAccount()
   const priceUsd = calcDomainUSDPrice(Number(price), rateONE)
   const priceOne = price
 
@@ -47,17 +53,23 @@ export const HomeSearchResultItem: React.FC<Props> = ({
 
   return (
     <Container>
-      {!available && (
+      {!available && !nameExpired.isInGracePeriod && (
         <Box>
           <div>{error ? error : 'Domain Name Unavailable'}</div>
-          {showExpirationTime && (
-            <BaseText>
-              Expires {dateFormat.format(domainRecord.expirationTime)}
-            </BaseText>
-          )}
+          <BaseText>
+            {!nameExpired.isInGracePeriod &&
+              `Expires ${dateFormat.format(domainRecord.expirationTime)}`}
+          </BaseText>
         </Box>
       )}
-
+      {!available && nameExpired.isInGracePeriod && (
+        <Box>
+          <div>Domain Name Unavailable</div>
+          <BaseText>
+            {!isConnected && `If you are the owner, please connect your wallet`}
+          </BaseText>
+        </Box>
+      )}
       {available && (
         <Box gap="8px" direction="column">
           <DomainName>{name}.country</DomainName>
