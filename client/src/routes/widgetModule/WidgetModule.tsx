@@ -38,6 +38,7 @@ import {
   PageWidgetContainer,
   WidgetInputContainer,
 } from '../../components/page-widgets/PageWidgets.styles'
+import { addSubstackPageHandler } from '../../utils/command-handler/SubstackCommandHandler'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -209,16 +210,37 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         result && domainStore.loadDomainRecord(domainName)
         break
       case CommandValidatorEnum.NOTION:
-        result = await addNotionPageHandler({
-          command,
-          domainName,
-          domainStore,
-          rootStore,
-          navigate,
-          setProcessStatus,
-        })
-        console.log(CommandValidatorEnum.NOTION, command)
-        // renewCommandHandler()
+        console.log('NOTION', command)
+        if (
+          command.url.includes('notion') &&
+          !command.url.includes('substack')
+        ) {
+          result = await addNotionPageHandler({
+            command,
+            domainName,
+            domainStore,
+            rootStore,
+            navigate,
+            setProcessStatus,
+          })
+          console.log(result)
+          console.log(CommandValidatorEnum.NOTION, command)
+        }
+        if (
+          command.url.includes('substack') &&
+          !command.url.includes('notion')
+        ) {
+          result = await addSubstackPageHandler({
+            command,
+            domainName,
+            domainStore,
+            rootStore,
+            navigate,
+            setProcessStatus,
+          })
+          console.log(result)
+          console.log(CommandValidatorEnum.NOTION, command)
+        }
         break
       default:
         setProcessStatus({
