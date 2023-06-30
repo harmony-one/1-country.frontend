@@ -92,7 +92,8 @@ const config = {
       ? process.env.RESTRICTED_PHRASES.split(', ')
       : ['metamask', 'walletconnect'],
     expirationReminderDays: process.env.EXPIRATION_REMAINDER_DAYS || 30,
-    renewalLimit: Number(process.env.RENEWAL_LIMIT) || 90, // one time
+    renewalLimit: Number(process.env.RENEWAL_LIMIT) || 100, // one time
+    unlimitedRenewals: process.env.UNLIMITED_RENEWAL || false,
   },
   emojiType: {
     ONE_ABOVE: 0,

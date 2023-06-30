@@ -56,7 +56,7 @@ export interface SendProps extends CallbackProps {
 
 export interface SendResult {
   txReceipt: TransactionReceipt
-  error: Error
+  error: DCError // Error
 }
 
 export interface SendNameExpired {
@@ -362,3 +362,13 @@ if (window) {
 export default apis
 
 export type D1DCClient = ReturnType<typeof apis>
+
+export class DCError extends Error {
+  reason: string
+
+  constructor(readonly message: string, reason?: string) {
+    super(message)
+    this.reason = reason
+    this.name = 'DCError'
+  }
+}
