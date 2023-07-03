@@ -312,6 +312,25 @@ export default [
         type: 'address',
       },
       {
+        indexed: true,
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+    ],
+    name: 'EWSUpgradedFromContractChanged',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
         indexed: false,
         internalType: 'address',
         name: 'to',
@@ -576,6 +595,30 @@ export default [
   {
     inputs: [
       {
+        internalType: 'bytes32',
+        name: 'node',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'label',
+        type: 'bytes32',
+      },
+    ],
+    name: 'getEwsType',
+    outputs: [
+      {
+        internalType: 'enum EWS.EWSType',
+        name: '',
+        type: 'uint8',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'string',
         name: 'name',
         type: 'string',
@@ -806,6 +849,29 @@ export default [
     type: 'function',
   },
   {
+    inputs: [
+      {
+        internalType: 'string',
+        name: 'name',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: 'subdomain',
+        type: 'string',
+      },
+      {
+        internalType: 'enum EWS.EWSType',
+        name: 'ewsType',
+        type: 'uint8',
+      },
+    ],
+    name: 'restore',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
     inputs: [],
     name: 'revenueAccount',
     outputs: [
@@ -904,6 +970,19 @@ export default [
   {
     inputs: [
       {
+        internalType: 'contract EWS',
+        name: '_upgradedFrom',
+        type: 'address',
+      },
+    ],
+    name: 'setUpgradedFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'bytes4',
         name: 'interfaceId',
         type: 'bytes4',
@@ -969,6 +1048,19 @@ export default [
     name: 'update',
     outputs: [],
     stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'upgradedFrom',
+    outputs: [
+      {
+        internalType: 'contract EWS',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {
