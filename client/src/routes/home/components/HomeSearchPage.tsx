@@ -155,6 +155,7 @@ const HomeSearchPage: React.FC = observer(() => {
     }
   }, [web2Acquired])
 
+  console.log('searchResult', searchResult)
   useEffect(() => {
     const updateDomainRecord = async () => {
       const result = await loadDomainRecord(searchResult.domainName)
@@ -482,9 +483,7 @@ const HomeSearchPage: React.FC = observer(() => {
     console.log('### searchResult', searchResult)
 
     const _available = searchResult.isAvailable
-    //  await  rootStore.d1dcClient.checkAvailable({
-    //   name: searchResult.domainName,
-    // })
+
     if (!_available) {
       setValidation({
         valid: false,
@@ -542,7 +541,7 @@ const HomeSearchPage: React.FC = observer(() => {
     } catch (e) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{e.message}</BaseText>,
+        render: <BaseText>{e.reason}</BaseText>,
       })
       terminateProcess(1500)
       if (e.name === 'UserRejectedRequestError') {
@@ -590,9 +589,15 @@ const HomeSearchPage: React.FC = observer(() => {
           })
           setProcessStatus({
             type: ProcessStatusTypes.ERROR,
-            render: <BaseText>{commitResult.error.message}</BaseText>,
+            render: (
+              <BaseText>
+                {commitResult.error.reason
+                  ? commitResult.error.reason
+                  : commitResult.error.message}
+              </BaseText>
+            ),
           })
-          terminateProcess(1500)
+          terminateProcess(2500)
           return
         }
 
@@ -661,9 +666,15 @@ const HomeSearchPage: React.FC = observer(() => {
           })
           setProcessStatus({
             type: ProcessStatusTypes.ERROR,
-            render: <BaseText>{rentResult.error.message}</BaseText>,
+            render: (
+              <BaseText>
+                {rentResult.error.reason
+                  ? rentResult.error.reason
+                  : rentResult.error.message}
+              </BaseText>
+            ),
           })
-          terminateProcess(1500)
+          terminateProcess(2500)
           return
         }
 

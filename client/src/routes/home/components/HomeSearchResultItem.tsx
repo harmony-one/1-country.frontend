@@ -9,6 +9,7 @@ import {
 } from '../../../utils/domain'
 import { DomainRecord, SendNameExpired } from '../../../api'
 import { useAccount } from 'wagmi'
+import { getDaysFromTimestamp } from '../../../api/utils'
 
 const Container = styled.div`
   position: relative;
@@ -48,7 +49,8 @@ export const HomeSearchResultItem: React.FC<Props> = ({
   const { isConnected } = useAccount()
   const priceUsd = calcDomainUSDPrice(Number(price), rateONE)
   const priceOne = price
-
+  const days =
+    domainRecord.rentTime && getDaysFromTimestamp(domainRecord.rentTime)
   const showExpirationTime = domainRecord && domainRecord.expirationTime > 0
 
   return (
@@ -75,7 +77,7 @@ export const HomeSearchResultItem: React.FC<Props> = ({
           <DomainName>{name}.country</DomainName>
           <BaseText>
             {formatONEAmount(priceOne)} ONE = ${formatUSDAmount(priceUsd)} USD
-            for 3 months
+            for {days} days
           </BaseText>
           <a
             style={{

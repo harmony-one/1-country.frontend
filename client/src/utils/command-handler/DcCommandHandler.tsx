@@ -51,7 +51,7 @@ export const renewCommandHandler = async ({
     )
     console.log({ nftData })
     console.log(days)
-    if (days <= config.domain.renewalLimit) {
+    if (days <= config.domain.renewalLimit || config.domain.unlimitedRenewals) {
       setProcessStatus({
         type: ProcessStatusTypes.PROGRESS,
         render: <BaseText>{`Renewing ${domainName}${config.tld}`}</BaseText>,
@@ -148,7 +148,13 @@ export const renewCommand = async (
     if (rentResult.error) {
       setProcessStatus({
         type: ProcessStatusTypes.ERROR,
-        render: <BaseText>{rentResult.error.message}</BaseText>,
+        render: (
+          <BaseText>
+            {rentResult.error.reason
+              ? rentResult.error.reason
+              : rentResult.error.message}
+          </BaseText>
+        ),
       })
       return
     }
