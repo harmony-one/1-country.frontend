@@ -1,8 +1,10 @@
 export const regexPatterns = {
   URL: /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i, // url
   VANITY: /^(\w+)=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // alias=url
+  VANITY_DELETE: /^(\w+)=(deleteurl)$/i, // alias=deleteurl
   EMAIL: /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // email
   EMAIL_ALIAS: /^(\w+)[:=]([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // alias=email
+  EMAIL_ALIAS_DELETE: /^(\w+)=(deleteemail)$/i, // alias=deleteEmail
   STAKING: /^one1[a-zA-HJ-NP-Z0-9]{38}$/, // oneAddress
   STAKING_COMMAND: /^staking[:=]? ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress or staking=oneAddress
   IFRAME: /^(?:<iframe[^>]*)(?:(?:\/>)|(?:>.*?<\/iframe>))$/, // iframe
@@ -17,7 +19,9 @@ export enum CommandValidatorEnum {
   NONE = 'NONE',
   URL = 'URL',
   VANITY = 'VANITY',
+  VANITY_DELETE = 'VANITY_DELETE',
   EMAIL_ALIAS = 'EMAIL_ALIAS', // Includes EMAIL case.
+  EMAIL_ALIAS_DELETE = 'EMAIL_ALIAS_DELETE',
   STAKING = 'STAKING',
   IFRAME = 'IFRAME',
   RENEW = 'RENEW',
@@ -74,6 +78,14 @@ const commandValidator = (text: string): CommandValidator => {
       type: CommandValidatorEnum.VANITY,
       aliasName: match[1],
       url: match[2],
+    }
+  }
+
+  if (regexPatterns.VANITY_DELETE.test(text)) {
+    const match = text.match(regexPatterns.VANITY_DELETE)
+    return {
+      type: CommandValidatorEnum.VANITY_DELETE,
+      aliasName: match[1],
     }
   }
 

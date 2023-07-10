@@ -33,7 +33,10 @@ import {
   domainWrapperHandler,
   transferDomainHandler,
 } from '../../utils/command-handler/transferCommandHandler'
-import { vanityUrlHandler } from '../../utils/command-handler/vanityUrlHandler'
+import {
+  deleteVanityUrlHandler,
+  vanityUrlHandler,
+} from '../../utils/command-handler/vanityUrlHandler'
 import {
   PageWidgetContainer,
   WidgetInputContainer,
@@ -143,6 +146,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       case CommandValidatorEnum.VANITY:
         console.log(CommandValidatorEnum.VANITY)
         result = await vanityUrlHandler({
+          vanity: command,
+          fromUrl,
+          domainName,
+          rootStore,
+          setProcessStatus,
+        })
+        break
+      case CommandValidatorEnum.VANITY_DELETE:
+        console.log(CommandValidatorEnum.VANITY_DELETE)
+        result = await deleteVanityUrlHandler({
           vanity: command,
           fromUrl,
           domainName,
