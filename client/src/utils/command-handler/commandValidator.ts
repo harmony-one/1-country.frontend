@@ -107,13 +107,13 @@ const commandValidator = (text: string): CommandValidator => {
     }
   }
 
-  // if (regexPatterns.EMAIL_ALIAS_DELETE.test(text)) {
-  //   const match = text.match(regexPatterns.EMAIL_ALIAS_DELETE)
-  //   return {
-  //     type: CommandValidatorEnum.EMAIL_ALIAS_DELETE,
-  //     aliasName: match[1]
-  //   }
-  // }
+  if (regexPatterns.EMAIL_ALIAS_DELETE.test(text)) {
+    const match = text.match(regexPatterns.EMAIL_ALIAS_DELETE)
+    return {
+      type: CommandValidatorEnum.EMAIL_ALIAS_DELETE,
+      aliasName: match[1],
+    }
+  }
 
   if (regexPatterns.EMAIL_ALIAS.test(text)) {
     const match = text.match(regexPatterns.EMAIL_ALIAS)
