@@ -27,6 +27,13 @@ type AddNotionPageHandlerProps = {
   setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
 }
 
+type DeleteNotionPageHandlerProps = {
+  command: CommandValidator
+  domainName: string
+  rootStore: RootStore
+  setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
+}
+
 export const addNotionPageHandler = async ({
   command,
   domainName,
@@ -163,6 +170,60 @@ export const addNotionPageHandler = async ({
   return result
 }
 
+export const deleteNotionPageHandler = async ({
+  command,
+  domainName,
+  rootStore,
+  setProcessStatus,
+}: DeleteNotionPageHandlerProps) => {
+  let result = false
+
+  try {
+    const landingPage = `${command.aliasName}.${domainName}${config.tld}`
+    const fullUrl = `https://${landingPage}`
+    if (await urlExists(fullUrl)) {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: <BaseText>Validating Notion URL</BaseText>,
+      })
+      const tx = await deleteNotionPageCommand(
+        domainName,
+        command.aliasName,
+        rootStore,
+        setProcessStatus
+      )
+      if (tx) {
+        setProcessStatus({
+          type: ProcessStatusTypes.SUCCESS,
+          render: <BaseText>Notion page removed!</BaseText>,
+        })
+        return true
+      } else {
+        setProcessStatus({
+          type: ProcessStatusTypes.ERROR,
+          render: <BaseText>Error removing Notion page</BaseText>,
+        })
+      }
+    } else {
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: <BaseText>Notion page removed!</BaseText>,
+      })
+      return true
+    }
+  } catch (ex) {
+    console.log(ex)
+    log.error('deleteNotionPageHandler', {
+      error: ex,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      alias: command.aliasName,
+      url: command.url,
+    })
+    console.log(ex)
+  }
+  return result
+}
+
 const addNotionPageCommand = async (
   domainName: string,
   subdomain: string,
@@ -172,10 +233,6 @@ const addNotionPageCommand = async (
   setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
 ) => {
   try {
-    setProcessStatus({
-      type: ProcessStatusTypes.PROGRESS,
-      render: <BaseText>Waiting for a transaction to be signed</BaseText>,
-    })
     const tx = await store.ewsClient.update(
       domainName,
       subdomain,
@@ -198,5 +255,42 @@ const addNotionPageCommand = async (
       render: <BaseText>Error embedding Notion Page</BaseText>,
     })
     return null
+  }
+}
+
+const deleteNotionPageCommand = async (
+  domainName: string,
+  subdomain: string,
+  store: RootStore,
+  setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
+) => {
+  try {
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: <BaseText>Waiting for a transaction to be signed</BaseText>,
+    })
+    const tx = await store.ewsClient.remove(domainName, subdomain)
+    return tx
+  } catch (e) {
+    console.log(e.reason, e.reason && e.reason.includes('subdomain not found'))
+    if (e.reason && e.reason.includes('subdomain not found')) {
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: <BaseText>Notion page removed!</BaseText>,
+      })
+      return true
+    } else {
+      log.error('deleteNotionPageCommand', {
+        error: e,
+        domain: `${domainName.toLowerCase()}${config.tld}`,
+        alias: subdomain,
+      })
+      console.log(e)
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>Error removing Notion Page</BaseText>,
+      })
+      return null
+    }
   }
 }
