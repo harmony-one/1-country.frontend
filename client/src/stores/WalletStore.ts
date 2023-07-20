@@ -9,7 +9,7 @@ import {
 } from '@wagmi/core'
 import { BaseStore } from './BaseStore'
 import { RootStore } from './RootStore'
-import { metamaskConnector, wagmiClient } from '../modules/wagmi/wagmiClient'
+import { metamaskConnector, wagmiConfig } from '../modules/wagmi/wagmiClient'
 import config from '../../config'
 
 export class WalletStore extends BaseStore {
@@ -84,12 +84,16 @@ export class WalletStore extends BaseStore {
   }
 
   connect() {
+    console.log('HSHHDSFJHGJFJHSF HSJHSHGSJ GSF HSGFSGH ')
     return connect({
       chainId: config.chainParameters.id,
       connector: metamaskConnector,
     }).then((result) => {
-      const { provider, account } = result
-      this.setProvider(provider, account)
+      result.connector.getProvider()
+      console.log('sfdjhsdjfdshfjksdkdsf RESULT', result)
+      const { connector, account } = result
+      // const { provider, account } = result
+      this.setProvider(connector.getProvider(), account)
     })
   }
 }

@@ -14,7 +14,7 @@ import {
   UITransactionStore,
 } from '../modules/transactions/UITransactionStore'
 import { MetaTagsStore, metaTagsStore } from '../modules/metatags/MetaTagsStore'
-import { wagmiClient } from '../modules/wagmi/wagmiClient'
+import { wagmiConfig } from '../modules/wagmi/wagmiClient'
 import tweetApi, { TweetClient } from '../api/tweetApi'
 import { ewsContractApi, EwsClient } from '../api/ews/ewsApi'
 import commonApi, { CommonClient } from '../api/common'
@@ -28,6 +28,7 @@ import postApi, { PostClient } from '../api/postApi'
 import { buildEasClient, EasClient } from '../api/eas/easContractClient'
 import { NameWrapperClient, nameWrapperApi } from '../api/nameWrapperApi'
 import { BaseRegistrarClient, baseRegistrarApi } from '../api/baseRegistrarApi'
+import { ConnectorData } from 'wagmi'
 
 export class RootStore {
   modalStore: ModalStore
@@ -68,20 +69,17 @@ export class RootStore {
     )
 
     this.updateClients(defaultProvider, Constants.EmptyAddress)
-
-    wagmiClient.autoConnect().then((result) => {
-      console.log('### wagmi autoConnect')
+    wagmiConfig.autoConnect().then((result: ConnectorData) => {
+      console.log('### wagmi autoConnect', result)
 
       // web3 should works with harmony network
-      if (result && result.chain.id === config.chainParameters.id) {
-        const { account, provider } = result
-
-        // @ts-expect-error FallbackProvide is not assignable
-        const provider2 = new ethers.providers.Web3Provider(provider)
-        this.updateClients(provider2, account)
-      } else {
-        console.log('### wallet connect to wrong network')
-      }
+      // if (result && result.chain.id === config.chainParameters.id) {
+      //   const { account, provider } = result
+      //   const provider2 = new ethers.providers.Web3Provider(provider)
+      //   this.updateClients(provider2, account)
+      // } else {
+      //   console.log('### wallet connect to wrong network')
+      // }
     })
 
     this.modalStore = modalStore
