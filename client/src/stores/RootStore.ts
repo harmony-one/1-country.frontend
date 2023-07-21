@@ -69,17 +69,18 @@ export class RootStore {
     )
 
     this.updateClients(defaultProvider, Constants.EmptyAddress)
-    wagmiConfig.autoConnect().then((result: ConnectorData) => {
+    wagmiConfig.autoConnect().then(async (result: ConnectorData) => {
       console.log('### wagmi autoConnect', result)
 
       // web3 should works with harmony network
-      // if (result && result.chain.id === config.chainParameters.id) {
-      //   const { account, provider } = result
-      //   const provider2 = new ethers.providers.Web3Provider(provider)
-      //   this.updateClients(provider2, account)
-      // } else {
-      //   console.log('### wallet connect to wrong network')
-      // }
+      if (result && result.chain.id === config.chainParameters.id) {
+        const { account } = result //chain
+        const provider = await wagmiConfig.connector.getProvider() //{chainId: chain.id}
+        const provider2 = new ethers.providers.Web3Provider(provider)
+        this.updateClients(provider2, account)
+      } else {
+        console.log('### wallet connect to wrong network')
+      }
     })
 
     this.modalStore = modalStore

@@ -20,15 +20,9 @@ export const WalletConnectWidget: React.FC<{}> = observer(() => {
   const { isConnected, address, connector } = useAccount()
   const { open, close } = useWeb3Modal()
 
-  console.log('HOLA DON PEPITO', isConnected, address, connector)
-
-  useEffect(() => {
-    connector && console.log('FCO, FOC', connector)
-  }, [connector])
   useEffect(() => {
     const connectWallet = async () => {
       const provider = await connector!.getProvider()
-      console.log('fpodjfofjsdf', provider)
       walletStore.setProvider(provider, address)
       // close()
       console.log('Connected wallet:', connector.id, address)
