@@ -9,7 +9,7 @@ import {
 } from '@wagmi/core'
 import { BaseStore } from './BaseStore'
 import { RootStore } from './RootStore'
-import { metamaskConnector, wagmiClient } from '../modules/wagmi/wagmiClient'
+import { metamaskConnector, wagmiConfig } from '../modules/wagmi/wagmiClient'
 import config from '../../config'
 
 export class WalletStore extends BaseStore {
@@ -79,17 +79,31 @@ export class WalletStore extends BaseStore {
 
   setProvider(provider: unknown, address: string) {
     const web3Provider = new ethers.providers.Web3Provider(provider)
-
     this.rootStore.updateClients(web3Provider, address)
   }
 
-  connect() {
-    return connect({
+  async connect() {
+    const result = await connect({
       chainId: config.chainParameters.id,
       connector: metamaskConnector,
-    }).then((result) => {
-      const { provider, account } = result
-      this.setProvider(provider, account)
     })
+    const { connector, account } = result
+    this.setProvider(await connector.getProvider(), account)
   }
 }
+
+// connect() {
+//   console.log('HSHHDSFJHGJFJHSF HSJHSHGSJ GSF HSGFSGH ')
+//   return connect({
+//     chainId: config.chainParameters.id,
+//     connector: metamaskConnector,
+//   }).then(async (result) => {
+//     result.connector.getProvider()
+//     console.log('RESULT', result)
+//     const { connector, account } = result
+//     // const { provider, account } = result
+//     console.log('connector', connector, account)
+//     console.log('PROVIDER', await connector.getProvider())
+//     this.setProvider(await connector.getProvider(), account)
+//   })
+// }

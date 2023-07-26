@@ -185,7 +185,7 @@ const HomeSearchPage: React.FC = observer(() => {
 
   const handleSearchChange = (value: string) => {
     setInputValue(value)
-    updateSearch(value)
+    updateSearch(value.toLocaleLowerCase())
     setWeb2Error(false)
 
     if (!value && processStatus.type === ProcessStatusTypes.ERROR) {

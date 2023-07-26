@@ -70,8 +70,7 @@ const config = {
     heartbeatId: process.env.HEARTBEAT_ID,
   },
   walletConnect: {
-    projectId:
-      process.env.WALLETCONNECT_PROJECTID || '151b401583f027040cd047500ae283e8',
+    projectId: process.env.WALLETCONNECT_PROJECTID || '',
   },
   vanityUrl: {
     price: 0,
@@ -123,6 +122,9 @@ const config = {
         },
         rpcUrls: {
           default: {
+            http: ['https://api.harmony.one'],
+          },
+          public: {
             http: ['https://api.harmony.one'],
           },
         },
