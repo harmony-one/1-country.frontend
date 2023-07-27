@@ -49,7 +49,14 @@ interface Props {
 }
 
 export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
-  const { domainStore, walletStore, utilsStore, rootStore } = useStores()
+  const {
+    domainStore,
+    walletStore,
+    utilsStore,
+    rootStore,
+    telegramWebAppStore,
+  } = useStores()
+  const [isTelegramWebApp, setIsTelegramWebApp] = useState(false)
   const [loadedWidgetList, setLoadedWidgetList] = useState(false)
   const [subPage, setSubPage] = useState('')
   const navigate = useNavigate()
@@ -80,6 +87,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     try {
       console.log('utilsStore.command', utilsStore.command)
       if (utilsStore.command) {
+        domainStore.isOwner &&
+          setIsTelegramWebApp(telegramWebAppStore.isTelegramWebApp)
         if (!walletStore.isConnected) {
           connectWallet()
         }
@@ -257,6 +266,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       sleep(3000)
       history.pushState(null, '', `\\`)
       utilsStore.command = undefined
+      setIsTelegramWebApp(false)
     }
   }
 
@@ -323,26 +333,30 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         </WidgetInputContainer>
       )}
 
-      {widgetListStore.widgetList.map((widget, index) => (
-        <WidgetStatusWrapper
-          key={widget.id + widget.value + +widget.isPinned}
-          loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
-        >
-          <MediaWidget
-            domainName={domainName}
-            value={widget.value}
-            type={widget.type}
-            uuid={widget.uuid}
-            isPinned={widget.isPinned}
-            isOwner={domainStore.isOwner}
-            onDelete={() => deleteWidget(widget)}
-            onPin={(isPinned: boolean) => pinWidget(widget, isPinned)}
-          />
-        </WidgetStatusWrapper>
-      ))}
+      {!isTelegramWebApp &&
+        widgetListStore.widgetList.map((widget, index) => (
+          <WidgetStatusWrapper
+            key={widget.id + widget.value + +widget.isPinned}
+            loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
+          >
+            <MediaWidget
+              domainName={domainName}
+              value={widget.value}
+              type={widget.type}
+              uuid={widget.uuid}
+              isPinned={widget.isPinned}
+              isOwner={domainStore.isOwner}
+              onDelete={() => deleteWidget(widget)}
+              onPin={(isPinned: boolean) => pinWidget(widget, isPinned)}
+            />
+          </WidgetStatusWrapper>
+        ))}
 
-      {domainStore.domainRecord && <TransactionWidget name={domainName} />}
-      {!domainStore.isExpired &&
+      {!isTelegramWebApp && domainStore.domainRecord && (
+        <TransactionWidget name={domainName} />
+      )}
+      {!isTelegramWebApp &&
+        !domainStore.isExpired &&
         domainName.length <= 3 &&
         walletStore.isConnected &&
         domainStore.isOwner && (

@@ -1,5 +1,7 @@
 import { action, makeObservable, observable } from 'mobx'
 import { ethers } from 'ethers'
+import { ConnectorData } from 'wagmi'
+
 import config from '../../config'
 import { modalStore } from '../modules/modals/ModalContext'
 import { ModalStore } from '../modules/modals/ModalStore'
@@ -7,6 +9,7 @@ import { RatesStore } from './RatesStore'
 import { WalletStore } from './WalletStore'
 import { DomainStore } from './DomainStore'
 import { LoadersStore } from './LoadersStore'
+import { TelegramWebAppStore } from './TelegramWebAppStore'
 import Constants from '../constants'
 import apis, { D1DCClient } from '../api'
 import {
@@ -28,7 +31,6 @@ import postApi, { PostClient } from '../api/postApi'
 import { buildEasClient, EasClient } from '../api/eas/easContractClient'
 import { NameWrapperClient, nameWrapperApi } from '../api/nameWrapperApi'
 import { BaseRegistrarClient, baseRegistrarApi } from '../api/baseRegistrarApi'
-import { ConnectorData } from 'wagmi'
 
 export class RootStore {
   modalStore: ModalStore
@@ -45,6 +47,7 @@ export class RootStore {
   domainStore: DomainStore
   walletStore: WalletStore
   uiTransactionStore: UITransactionStore
+  telegramWebAppStore: TelegramWebAppStore
 
   stores: {
     modalStore: ModalStore
@@ -56,6 +59,7 @@ export class RootStore {
     loadersStore: LoadersStore
     utilsStore: UtilsStore
     web2AuthStore: Web2AuthStore
+    telegramWebAppStore: TelegramWebAppStore
   }
 
   constructor() {
@@ -99,6 +103,7 @@ export class RootStore {
       loadersStore: new LoadersStore(this),
       utilsStore: new UtilsStore(this),
       web2AuthStore: new Web2AuthStore(this),
+      telegramWebAppStore: new TelegramWebAppStore(this),
     }
   }
 

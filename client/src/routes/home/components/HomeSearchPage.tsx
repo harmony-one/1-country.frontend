@@ -81,10 +81,17 @@ const HomeSearchPage: React.FC = observer(() => {
   const [regTxHash, setRegTxHash] = useState<string>('')
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
-  const { rootStore, ratesStore, walletStore, utilsStore, domainStore } =
-    useStores()
+  const {
+    rootStore,
+    ratesStore,
+    walletStore,
+    utilsStore,
+    domainStore,
+    telegramWebAppStore,
+  } = useStores()
   const baseRegistrar = rootStore.nameWrapper
   const isMinimalRender = useMinimalRender()
+  const isTelegramWebApp = telegramWebAppStore.isTelegramWebApp
 
   useEffect(() => {
     if (status === 'connecting') {
@@ -905,7 +912,7 @@ const HomeSearchPage: React.FC = observer(() => {
           )}
         </SearchBoxContainer>
       </FlexRow>
-      {!isMinimalRender && (
+      {!isMinimalRender && !isTelegramWebApp && (
         <PageCurationSection>
           {PAGE_CURATION_LIST.map((page, index) => (
             <PageCuration
