@@ -17,13 +17,18 @@ export class TelegramWebAppStore extends BaseStore {
   }
 
   setTelegramWebApp = () => {
-    this.isTelegramWebApp =
-      window.Telegram.WebApp.initData !== '' ||
-      window.Telegram.WebApp.platform !== 'unknown'
-    console.log(
-      'setTelegramWebApp',
-      window.Telegram.WebApp.initData,
-      window.Telegram.WebApp.platform
-    )
+    try {
+      this.isTelegramWebApp =
+        window.Telegram.WebApp.initData !== '' ||
+        window.Telegram.WebApp.platform !== 'unknown'
+      console.log(
+        'setTelegramWebApp',
+        window.Telegram.WebApp.initData,
+        window.Telegram.WebApp.platform
+      )
+    } catch (e) {
+      this.isTelegramWebApp = false
+      console.log(e)
+    }
   }
 }
