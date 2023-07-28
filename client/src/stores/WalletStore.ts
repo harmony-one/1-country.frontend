@@ -93,7 +93,6 @@ export class WalletStore extends BaseStore {
 }
 
 // connect() {
-//   console.log('HSHHDSFJHGJFJHSF HSJHSHGSJ GSF HSGFSGH ')
 //   return connect({
 //     chainId: config.chainParameters.id,
 //     connector: metamaskConnector,
