@@ -56,7 +56,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     rootStore,
     telegramWebAppStore,
   } = useStores()
-  const [isTelegramWebApp, setIsTelegramWebApp] = useState(false)
+  const [isTelegramMode, setIsTelegramMode] = useState(false)
   const [loadedWidgetList, setLoadedWidgetList] = useState(false)
   const [subPage, setSubPage] = useState('')
   const navigate = useNavigate()
@@ -88,7 +88,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       console.log('utilsStore.command', utilsStore.command)
       if (utilsStore.command) {
         domainStore.isOwner &&
-          setIsTelegramWebApp(telegramWebAppStore.isTelegramWebApp)
+          setIsTelegramMode(telegramWebAppStore.isTelegramWebApp)
         if (!walletStore.isConnected) {
           connectWallet()
         }
@@ -266,7 +266,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       sleep(3000)
       history.pushState(null, '', `\\`)
       utilsStore.command = undefined
-      setIsTelegramWebApp(false)
+      setIsTelegramMode(false)
     }
   }
 
@@ -333,7 +333,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         </WidgetInputContainer>
       )}
 
-      {!isTelegramWebApp &&
+      {!isTelegramMode &&
         widgetListStore.widgetList.map((widget, index) => (
           <WidgetStatusWrapper
             key={widget.id + widget.value + +widget.isPinned}
@@ -352,10 +352,10 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           </WidgetStatusWrapper>
         ))}
 
-      {!isTelegramWebApp && domainStore.domainRecord && (
+      {!isTelegramMode && domainStore.domainRecord && (
         <TransactionWidget name={domainName} />
       )}
-      {!isTelegramWebApp &&
+      {!isTelegramMode &&
         !domainStore.isExpired &&
         domainName.length <= 3 &&
         walletStore.isConnected &&
