@@ -81,6 +81,7 @@ const HomeSearchPage: React.FC = observer(() => {
   const [regTxHash, setRegTxHash] = useState<string>('')
   const [web2Acquired, setWeb2Acquired] = useState(false)
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null)
+  const [isTelegramMode, setIsTelegramMode] = useState(false)
   const {
     rootStore,
     ratesStore,
@@ -91,7 +92,6 @@ const HomeSearchPage: React.FC = observer(() => {
   } = useStores()
   const baseRegistrar = rootStore.nameWrapper
   const isMinimalRender = useMinimalRender()
-  const isTelegramWebApp = telegramWebAppStore.isTelegramWebApp
 
   useEffect(() => {
     if (status === 'connecting') {
@@ -106,7 +106,7 @@ const HomeSearchPage: React.FC = observer(() => {
       }
     }
   }, [status, isOpen])
-
+  console.log('TELEGRAM MODE', isTelegramMode)
   const updateSearch = useMemo(() => {
     return debounce(async (domainName: string) => {
       setSearchResult(null)
@@ -147,6 +147,7 @@ const HomeSearchPage: React.FC = observer(() => {
 
   // setup form from query string
   useEffect(() => {
+    setIsTelegramMode(telegramWebAppStore.isTelegramWebApp)
     if (inputValue) {
       updateSearch(inputValue)
     }
@@ -912,7 +913,7 @@ const HomeSearchPage: React.FC = observer(() => {
           )}
         </SearchBoxContainer>
       </FlexRow>
-      {!isMinimalRender && !isTelegramWebApp && (
+      {!isMinimalRender && !isTelegramMode && (
         <PageCurationSection>
           {PAGE_CURATION_LIST.map((page, index) => (
             <PageCuration
