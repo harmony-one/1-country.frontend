@@ -37,7 +37,6 @@ export interface CommandValidator {
 
 const commandValidator = (text: string): CommandValidator => {
   if (regexPatterns.NOTION_COMMAND.test(text)) {
-    console.log('here YEAH YEAH')
     const match = text.match(regexPatterns.NOTION_COMMAND)
     return {
       type: CommandValidatorEnum.NOTION,
