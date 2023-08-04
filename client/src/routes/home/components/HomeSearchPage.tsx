@@ -106,7 +106,7 @@ const HomeSearchPage: React.FC = observer(() => {
       }
     }
   }, [status, isOpen])
-  console.log('TELEGRAM MODE', isTelegramMode)
+
   const updateSearch = useMemo(() => {
     return debounce(async (domainName: string) => {
       setSearchResult(null)
@@ -765,7 +765,7 @@ const HomeSearchPage: React.FC = observer(() => {
       terminateProcess()
     }
   }
-
+  console.log('FCO', processStatus.type)
   return (
     <Container maxWidth="1200px">
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
@@ -777,10 +777,16 @@ const HomeSearchPage: React.FC = observer(() => {
           )}
           <Box justify={'center'} align={'center'}>
             <Box pad="16px">
-              <GradientText $size="34px">
-                <TypedText />
-                .country
-              </GradientText>
+              {!isTelegramMode ? (
+                <GradientText $size="34px">
+                  <TypedText />
+                  .country
+                </GradientText>
+              ) : (
+                <GradientText $size="20px">
+                  Register your new domain
+                </GradientText>
+              )}
             </Box>
             <Box width={'100%'} margin={{ top: '16px' }}>
               <SearchInput
@@ -814,7 +820,7 @@ const HomeSearchPage: React.FC = observer(() => {
               />
               <div>{!searchResult.nameExpired.isExpired}</div>
               {searchResult.isAvailable &&
-                !searchResult.nameExpired.isExpired && (
+                !searchResult.nameExpired.isInGracePeriod && (
                   <Button
                     disabled={!validation.valid}
                     onClick={handleRentDomain}

@@ -266,7 +266,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       sleep(3000)
       history.pushState(null, '', `\\`)
       utilsStore.command = undefined
-      setIsTelegramMode(false)
     }
   }
 
