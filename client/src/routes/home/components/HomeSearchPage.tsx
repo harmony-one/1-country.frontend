@@ -65,7 +65,7 @@ const HomeSearchPage: React.FC = observer(() => {
   const { disconnect } = useDisconnect()
   const { open, close, isOpen } = useWeb3Modal()
   const [searchParams] = useSearchParams()
-  const [inputValue, setInputValue] = useState(searchParams.get('domain') || '')
+  const [inputValue, setInputValue] = useState('')
   const [freeRentKey, setFreeRentKey] = useState(
     searchParams.get('freeRentKey') || ''
   )
@@ -75,7 +75,6 @@ const HomeSearchPage: React.FC = observer(() => {
     render: '',
   })
   const [validation, setValidation] = useState({ valid: true, error: '' })
-
   const [web2Error, setWeb2Error] = useState(false)
   const [secret] = useState<string>(Math.random().toString(26).slice(2))
   const [regTxHash, setRegTxHash] = useState<string>('')
@@ -92,6 +91,24 @@ const HomeSearchPage: React.FC = observer(() => {
   } = useStores()
   const baseRegistrar = rootStore.nameWrapper
   const isMinimalRender = useMinimalRender()
+
+  useEffect(() => {
+    let domain = searchParams.get('domain')
+    if (!domain) {
+      const urls = searchParams.toString().split('=')
+      if (urls.length === 2 && urls[1] === '') {
+        setInputValue(urls[0])
+        updateSearch(urls[0])
+      }
+    } else {
+      updateSearch(domain)
+      setInputValue(domain)
+    }
+    setIsTelegramMode(telegramWebAppStore.isTelegramWebApp)
+    if (inputValue) {
+      updateSearch(inputValue)
+    }
+  }, [])
 
   useEffect(() => {
     if (status === 'connecting') {
@@ -113,7 +130,6 @@ const HomeSearchPage: React.FC = observer(() => {
       if (domainName) {
         const result = validateDomainName(domainName)
         setValidation(result)
-
         if (result.valid) {
           try {
             setProcessStatus({
@@ -146,12 +162,6 @@ const HomeSearchPage: React.FC = observer(() => {
   }, [rootStore.d1dcClient])
 
   // setup form from query string
-  useEffect(() => {
-    setIsTelegramMode(telegramWebAppStore.isTelegramWebApp)
-    if (inputValue) {
-      updateSearch(inputValue)
-    }
-  }, [])
 
   useEffect(() => {
     if (web2Acquired) {
@@ -765,7 +775,7 @@ const HomeSearchPage: React.FC = observer(() => {
       terminateProcess()
     }
   }
-  console.log('FCO', processStatus.type)
+
   return (
     <Container maxWidth="1200px">
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
