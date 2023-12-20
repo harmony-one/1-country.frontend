@@ -765,7 +765,7 @@ const HomeSearchPage: React.FC = observer(() => {
       terminateProcess()
     }
   }
-  console.log('FCO', processStatus.type)
+
   return (
     <Container maxWidth="1200px">
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
