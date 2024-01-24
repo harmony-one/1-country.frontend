@@ -12,7 +12,7 @@ import { DomainName } from '../../../components/Text'
 import { Container } from '../Home.styles'
 import config from '../../../../config'
 import { getDomainLevel } from '../../../api/utils'
-import { getDomainName } from '../../../utils/getDomainName'
+import { getDomainName } from '../../../utils/urlHandler'
 
 interface Props {}
 
