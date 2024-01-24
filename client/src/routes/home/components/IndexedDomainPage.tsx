@@ -84,9 +84,9 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
 async function fetchEmbedUrl(domain: string) {
   try {
     const response = await axios.get(
-      `https://dot-country-indexer.fly.dev/domain/${domain}`
+      `https://inscription-indexer.fly.dev/tweet/${domain}`
     )
-    const url = response.data.url
+    const url = response.data.replace('x.com', 'twitter.com')
     console.log('[XXX] FETCHED URL:', url)
     return url
   } catch (error) {
