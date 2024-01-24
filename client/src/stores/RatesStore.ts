@@ -2,6 +2,7 @@ import { action, makeObservable, observable } from 'mobx'
 import { BaseStore } from './BaseStore'
 import { RootStore } from './RootStore'
 import axios from 'axios'
+import { mainApi } from '../api/mainApi'
 
 export class RatesStore extends BaseStore {
   public ONE_USD = 0.02676995
@@ -33,8 +34,12 @@ export class RatesStore extends BaseStore {
       })
   }
 
+  loadONE() {
+    return mainApi.loadONERate()
+  }
+
   async loadRates() {
-    const [ONE_USD] = await Promise.all([this.loadRate('harmony')])
+    const [ONE_USD] = await Promise.all([this.loadONE()])
 
     this.ONE_USD = ONE_USD
   }

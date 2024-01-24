@@ -7,18 +7,24 @@ import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import Timer from '@amplication/react-compound-timer'
 import { WidgetModule } from '../widgetModule/WidgetModule'
-import { Button, Link } from '../../components/Controls'
+import { Button } from '../../components/Controls'
 import config from '../../../config'
 
 import { urlExists } from '../../api/checkUrl'
 import { useSearchParams } from 'react-router-dom'
-import { relayApi } from '../../api/relayApi'
+import { RelayError, relayApi } from '../../api/relayApi'
 import { Web3Button } from '@web3modal/react'
 import { Box } from 'grommet/components/Box'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
+import { nameUtils } from '../../api/utils'
+import logger from '../../modules/logger'
+
+const log = logger.module('WaitingRoom')
 
 const WaitingRoom = observer(() => {
   const [isDomainAvailable, setIsDomainAvailable] = useState(false)
+  const [isCertGenerated, setIsCertGenerated] = useState(false)
+  const [certJob, setCertJob] = useState('')
   const [searchParams] = useSearchParams()
 
   const domainName = searchParams.get('domain') || ''
@@ -29,7 +35,7 @@ const WaitingRoom = observer(() => {
   const fullUrl = `https://${domainName.toLowerCase()}${config.tld}`
 
   useEffect(() => {
-    if (!domainName) {
+    if (!domainName || !nameUtils.isValidName(domainName)) {
       navigate('/')
     }
   }, [])
@@ -40,7 +46,7 @@ const WaitingRoom = observer(() => {
     }
   }, [domainStore.domainRecord])
 
-  const createCert = async (attemptsLeft = 3) => {
+  const createCert = async () => {
     const domain = `${domainName}${config.tld}`
 
     if (!walletStore.walletAddress) {
@@ -48,17 +54,25 @@ const WaitingRoom = observer(() => {
     }
 
     try {
-      await relayApi().createCert({
+      console.log('create domain', domain)
+      const response = await relayApi().createCert({
         domain,
+        address: walletStore.walletAddress,
+        async: true,
       })
+      setCertJob(response.nakedJobId.jobId)
+      console.log('cert create', response)
     } catch (ex) {
-      console.log('### createCert ex', ex)
-      if (attemptsLeft === 0) {
-        return
-      }
-      setTimeout(() => {
-        createCert(attemptsLeft - 1)
-      }, (4 - attemptsLeft) * 3000)
+      console.log('createCert', {
+        error: ex instanceof RelayError ? ex.message : ex,
+        domain: `${domainName.toLowerCase()}${config.tld}`,
+        address: walletStore.walletAddress,
+      })
+      log.error('createCert', {
+        error: ex instanceof RelayError ? ex.message : ex,
+        domain: `${domainName.toLowerCase()}${config.tld}`,
+        address: walletStore.walletAddress,
+      })
     }
   }
 
@@ -75,11 +89,25 @@ const WaitingRoom = observer(() => {
       } else {
         console.log('not available')
       }
+      console.log('cert', isCertGenerated)
+      if (!isCertGenerated) {
+        const domain = `${domainName}${config.tld}`
+        console.log('certjob', certJob)
+        const response = await relayApi().certJobLookUp({
+          domainName: domain,
+          job: certJob,
+        })
+        // const { success, completed } = await relayApi().certJobLookUp({ domainName: domain })
+        console.log('cert job', domain, response)
+        if (response.completed && response.success) {
+          console.log('here')
+          setIsCertGenerated(true)
+        }
+      }
     }
-
     const interval = setInterval(() => {
       checkUrl()
-    }, 15000) //for testing purposes
+    }, 15000)
 
     return () => clearInterval(interval)
   }, [])
@@ -102,7 +130,6 @@ const WaitingRoom = observer(() => {
               </Timer>)
             </GradientText>
           </Row> */}
-
           <h3 style={{ marginTop: '1em', marginBottom: '0.1em' }}>
             {!isDomainAvailable
               ? `${domainName}.country`
@@ -153,18 +180,30 @@ const WaitingRoom = observer(() => {
       {/*</Box>*/}
       {!walletStore.isConnected && (
         <DescResponsive>
-          {walletStore.isMetamaskAvailable ? (
+          <h3>Please connect your wallet</h3>
+          {walletStore.isMetamaskAvailable && (
             <Box>
-              <h3>Please connect your MetaMask wallet</h3>
               <MetamaskWidget />
             </Box>
-          ) : (
-            <Box>
-              <h3>Please connect mobile wallet with Wallet Connect</h3>
-              <Web3Button />
-            </Box>
           )}
+          <Box>
+            <Web3Button />
+          </Box>
         </DescResponsive>
+
+        // <DescResponsive>
+        //   {walletStore.isMetamaskAvailable ? (
+        //     <Box>
+        //       <h3>Please connect your MetaMask wallet</h3>
+        //       <MetamaskWidget />
+        //     </Box>
+        //   ) : (
+        //     <Box>
+        //       <h3>Please connect mobile wallet with Wallet Connect</h3>
+        //       <Web3Button />
+        //     </Box>
+        //   )}
+        // </DescResponsive>
       )}
     </Container>
   )

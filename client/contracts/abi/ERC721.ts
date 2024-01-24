@@ -1,4 +1,4 @@
-import { AbiItem } from 'web3-utils'
+import { ContractInterface } from '@ethersproject/contracts'
 
 export default [
   {
@@ -7,7 +7,32 @@ export default [
       {
         indexed: true,
         internalType: 'address',
-        name: 'account',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'approved',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'Approval',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'owner',
         type: 'address',
       },
       {
@@ -32,12 +57,6 @@ export default [
       {
         indexed: true,
         internalType: 'address',
-        name: 'operator',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
         name: 'from',
         type: 'address',
       },
@@ -48,95 +67,60 @@ export default [
         type: 'address',
       },
       {
-        indexed: false,
-        internalType: 'uint256[]',
-        name: 'ids',
-        type: 'uint256[]',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256[]',
-        name: 'values',
-        type: 'uint256[]',
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
       },
     ],
-    name: 'TransferBatch',
+    name: 'Transfer',
     type: 'event',
   },
   {
-    anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: 'address',
-        name: 'operator',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'from',
-        type: 'address',
-      },
-      {
-        indexed: true,
         internalType: 'address',
         name: 'to',
         type: 'address',
       },
       {
-        indexed: false,
         internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'value',
+        name: 'tokenId',
         type: 'uint256',
       },
     ],
-    name: 'TransferSingle',
-    type: 'event',
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
-    anonymous: false,
-    inputs: [
+    constant: true,
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [
       {
-        indexed: false,
-        internalType: 'string',
-        name: 'value',
-        type: 'string',
-      },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'id',
+        name: '',
         type: 'uint256',
       },
     ],
-    name: 'URI',
-    type: 'event',
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
-        name: 'account',
+        name: 'owner',
         type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
       },
     ],
     name: 'balanceOf',
     outputs: [
       {
         internalType: 'uint256',
-        name: '',
+        name: 'balance',
         type: 'uint256',
       },
     ],
@@ -146,22 +130,17 @@ export default [
   {
     inputs: [
       {
-        internalType: 'address[]',
-        name: 'accounts',
-        type: 'address[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'ids',
-        type: 'uint256[]',
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
       },
     ],
-    name: 'balanceOfBatch',
+    name: 'getApproved',
     outputs: [
       {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
       },
     ],
     stateMutability: 'view',
@@ -171,7 +150,7 @@ export default [
     inputs: [
       {
         internalType: 'address',
-        name: 'account',
+        name: 'owner',
         type: 'address',
       },
       {
@@ -192,6 +171,38 @@ export default [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'name',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'ownerOf',
+    outputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'address',
@@ -204,22 +215,12 @@ export default [
         type: 'address',
       },
       {
-        internalType: 'uint256[]',
-        name: 'ids',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'amounts',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'bytes',
-        name: 'data',
-        type: 'bytes',
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
       },
     ],
-    name: 'safeBatchTransferFrom',
+    name: 'safeTransferFrom',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -238,12 +239,7 @@ export default [
       },
       {
         internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
+        name: 'tokenId',
         type: 'uint256',
       },
       {
@@ -266,7 +262,7 @@ export default [
       },
       {
         internalType: 'bool',
-        name: 'approved',
+        name: '_approved',
         type: 'bool',
       },
     ],
@@ -295,14 +291,8 @@ export default [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
-      },
-    ],
-    name: 'uri',
+    inputs: [],
+    name: 'symbol',
     outputs: [
       {
         internalType: 'string',
@@ -314,16 +304,45 @@ export default [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'TLD_NODE',
-    outputs: [
+    inputs: [
       {
         internalType: 'uint256',
-        name: '',
+        name: 'tokenId',
         type: 'uint256',
+      },
+    ],
+    name: 'tokenURI',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
       },
     ],
     stateMutability: 'view',
     type: 'function',
   },
-] as AbiItem[]
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+] as ContractInterface

@@ -1,12 +1,12 @@
 import styled from 'styled-components'
-import { Main } from '../../components/Layout'
+import { Main, FlexRow, FlexColumn } from '../../components/Layout'
 import { SmallTextGrey, Desc } from '../../components/Text'
 
-export const Container = styled(Main)`
+export const Container = styled(Main)<{ maxWidth?: string }>`
   margin: 0 auto;
   padding: 0 24px 24px;
   width: 100%;
-  max-width: 800px;
+  max-width: ${(props) => (props.maxWidth ? props.maxWidth : '800px')};
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,4 +42,38 @@ export const DescResponsive = styled(Desc)`
     text-align: left;
     align-items: start;
   } */
+`
+
+export const DomainNameContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+`
+
+export const TipContainer = styled(FlexColumn)`
+  align-content: center;
+  height: 1.7em;
+  align-items: center;
+`
+export const PageCurationSection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: 1300px) {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+  }
+`
+
+export const CurationContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+
+  span {
+    position: absolute;
+    bottom: 0;
+  }
 `

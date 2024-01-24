@@ -1,10 +1,10 @@
-import React, {useEffect} from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { WidgetsContainer } from './Widgets.styles'
 import { observer } from 'mobx-react-lite'
 import { useStores } from '../../stores'
-import {useWeb3Modal, Web3Button} from "@web3modal/react";
-import {useAccount} from "wagmi";
+import { useWeb3Modal, Web3Button } from '@web3modal/react'
+import { useAccount } from 'wagmi'
 
 const Container = styled(WidgetsContainer)`
   border: none;
@@ -27,8 +27,8 @@ export const WalletConnectWidget: React.FC<{}> = observer(() => {
       // close()
       console.log('Connected wallet:', connector.id, address)
     }
-    if(!walletStore.isMetamaskAvailable) {
-      if(isConnected) {
+    if (!walletStore.isMetamaskAvailable) {
+      if (isConnected) {
         console.log('Tryin to connect...')
         connectWallet()
       }

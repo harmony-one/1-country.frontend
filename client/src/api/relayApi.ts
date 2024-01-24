@@ -1,13 +1,63 @@
 import axios from 'axios'
 import config from '../../config'
-import logger from '../modules/logger';
-const log = logger.module('RelayApi');
+import logger from '../modules/logger'
+import _ from 'lodash'
+const log = logger.module('RelayApi')
 
 const base = axios.create({
   baseURL: config.registrar,
+  timeout: 10000,
 })
+
+export interface ParsedNftMetada {
+  expirationDate: string
+  image: string
+  name: string
+  registrationDate: string
+  tier: string
+  length: number
+}
+
+export interface RenewNftMetada {
+  renewed: boolean
+  metadata?: any
+  expiry?: any
+  error?: string
+}
+
+export interface RenewCert {
+  success: boolean
+  sld?: string
+  mcJobId?: any
+  nakedJobId?: any
+  error?: any
+  certExist?: boolean
+}
+
+export interface JobLookup {
+  completed?: boolean
+  success?: boolean
+  domain?: string
+  attempts?: number
+  jobId?: string
+  wc?: boolean
+  creationTime?: number
+  timeUpdated?: number
+  error?: any
+  certExist?: boolean
+}
 export const relayApi = () => {
   return {
+    enableSubdomains: async (domainName: string) => {
+      try {
+        const { data } = await base.post('/enable-subdomains', {
+          domain: `${domainName}${config.tld}`,
+        })
+        console.log('enableSubdomains', data)
+      } catch (e) {
+        console.log('enableSubdomains error', e)
+      }
+    },
     checkDomain: async ({ sld }: { sld: string }) => {
       try {
         const {
@@ -67,15 +117,6 @@ export const relayApi = () => {
         responseText,
       }
     },
-    createCert: async ({ domain }: { domain: string }) => {
-      const {
-        data: { success, sld },
-      } = await base.post('/cert', { domain })
-      return {
-        success,
-        sld,
-      }
-    },
     genNFT: async ({ domain }: { domain: string }) => {
       const {
         data: { generated, metadata },
@@ -83,6 +124,147 @@ export const relayApi = () => {
       return {
         generated,
         metadata,
+      }
+    },
+    getNFTMetadata: async ({
+      domain,
+    }: {
+      domain: string
+    }): Promise<ParsedNftMetada> => {
+      const {
+        data: { metadata },
+      } = await base.post('/gen', { domain })
+      if (metadata) {
+        const metaDataUrl = metadata.erc721Metadata
+          ? metadata.erc721Metadata
+          : metadata.erc1155Metadata
+        const {
+          data: { name, image, attributes },
+        } = await axios.get(metaDataUrl)
+        if (attributes) {
+          const attr = attributes.reduce(
+            (
+              acc: { [x: string]: any },
+              obj: { trait_type: string; value: any }
+            ) => {
+              acc[_.camelCase(obj.trait_type)] = obj.value
+              return acc
+            },
+            {}
+          )
+          return {
+            name,
+            image,
+            ...attr,
+          }
+        }
+      }
+    },
+    renewMetadata: async ({
+      domain,
+    }: {
+      domain: string
+    }): Promise<RenewNftMetada> => {
+      const {
+        data: { renewed, metadata, expiry, error },
+      } = await base.post('/renew-metadata', { domain })
+      return {
+        renewed,
+        metadata,
+        expiry,
+        error,
+      }
+    },
+    createCert: async ({
+      domain,
+      address,
+      async = true,
+    }: {
+      domain: string
+      address: string
+      async: boolean
+    }) => {
+      const {
+        data: { success, sld, mcJobId, nakedJobId, error },
+      } = await base.post('/cert', { domain, address, async })
+      return {
+        success,
+        sld,
+        mcJobId,
+        nakedJobId,
+        error,
+      }
+    },
+    renewCert: async ({
+      domain,
+      address,
+      async = true,
+    }: {
+      domain: string
+      address: string
+      async: boolean
+    }): Promise<RenewCert> => {
+      try {
+        const {
+          data: { success, sld, mcJobId, nakedJobId, error },
+        } = await base.post('/renew-cert', { domain, address, async })
+        return {
+          success,
+          sld,
+          mcJobId,
+          nakedJobId,
+          error,
+        }
+      } catch (e) {
+        console.log('renewCert', { e })
+        return {
+          success: false,
+          error: e,
+          certExist: !e.response.data.error.includes('does not exist'),
+        }
+      }
+    },
+    certJobLookUp: async ({
+      domainName,
+      job,
+    }: {
+      domainName: string
+      job?: string
+    }): Promise<JobLookup> => {
+      try {
+        const {
+          data: {
+            completed,
+            success,
+            domain,
+            attempts,
+            jobId,
+            wc,
+            creationTime,
+            timeUpdated,
+          },
+        } = await base.post('/cert-job-lookup', {
+          domain: domainName,
+          jobId: job,
+        })
+        console.log('HERE I AM')
+        return {
+          completed,
+          success,
+          domain,
+          attempts,
+          jobId,
+          wc,
+          creationTime,
+          timeUpdated,
+        }
+      } catch (e) {
+        console.log('certJobLookUp', { e })
+        return {
+          success: false,
+          error: e,
+          certExist: !e.response.data.error.includes('Not Found'),
+        }
       }
     },
   }

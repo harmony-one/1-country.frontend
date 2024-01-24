@@ -11,12 +11,32 @@ export class BaseStore {
     return this.rootStore.d1dcClient
   }
 
+  getPostClient() {
+    return this.rootStore.postClient
+  }
+
   getTweetClient() {
     return this.rootStore.tweetClient
   }
 
+  getEwsClient() {
+    return this.rootStore.ewsClient
+  }
+
   getCommonClient() {
     return this.rootStore.commonClient
+  }
+
+  getEasClient() {
+    return this.rootStore.easClient
+  }
+
+  getNameWrapperClient() {
+    return this.rootStore.nameWrapper
+  }
+
+  getBaseRegistrarClient() {
+    return this.rootStore.baseRegistrar
   }
 
   get stores() {

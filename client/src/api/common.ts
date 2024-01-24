@@ -1,21 +1,21 @@
-import { Contract } from "web3-eth-contract";
-import Web3 from 'web3'
-import BN from 'bn.js'
-import { DCParams } from "./index";
+import web3Utils from 'web3-utils'
+import { D1DCClient, DCParams } from './index'
+import { TweetClient } from './tweetApi'
 
-const commonApi = (contract: Contract, tweetContract: Contract) => {
+const commonApi = (dcClient: D1DCClient, tweetClient: TweetClient) => {
   return {
     getParameters: async (): Promise<DCParams> => {
       const [baseRentalPrice, duration] = await Promise.all([
-        tweetContract.methods.baseRentalPrice().call(),
-        contract.methods.duration().call(),
+        tweetClient.baseRentalPrice(),
+        dcClient.duration(),
       ])
+
       return {
         baseRentalPrice: {
-          amount: new BN(baseRentalPrice).toString(),
-          formatted: Web3.utils.fromWei(baseRentalPrice),
+          amount: baseRentalPrice.toString(),
+          formatted: web3Utils.fromWei(baseRentalPrice.toString()),
         },
-        duration: new BN(duration).toNumber() * 1000,
+        duration: duration.toNumber() * 1000,
       }
     },
   }

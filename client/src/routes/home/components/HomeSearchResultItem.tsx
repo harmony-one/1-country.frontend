@@ -7,6 +7,9 @@ import {
   formatONEAmount,
   formatUSDAmount,
 } from '../../../utils/domain'
+import { DomainRecord, SendNameExpired } from '../../../api'
+import { useAccount } from 'wagmi'
+import { getDaysFromTimestamp } from '../../../api/utils'
 
 const Container = styled.div`
   position: relative;
@@ -22,28 +25,59 @@ interface Props {
   available?: boolean
   price: string
   rateONE: number
+  domainRecord: DomainRecord
+  nameExpired: SendNameExpired
+  isOwner: boolean
   error: string
 }
+
+const dateFormat = new Intl.DateTimeFormat('en-US', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+})
 
 export const HomeSearchResultItem: React.FC<Props> = ({
   name,
   available = false,
   price,
+  domainRecord,
+  nameExpired,
+  isOwner,
   rateONE,
   error,
 }) => {
+  const { isConnected } = useAccount()
   const priceUsd = calcDomainUSDPrice(Number(price), rateONE)
   const priceOne = price
+  const days =
+    domainRecord.rentTime && getDaysFromTimestamp(domainRecord.rentTime)
+  const showExpirationTime = domainRecord && domainRecord.expirationTime > 0
 
   return (
     <Container>
-      <div>{available ? '' : error ? error : 'Domain Name Unavailable'}</div>
+      {!available && !nameExpired.isInGracePeriod && (
+        <Box>
+          <div>{error ? error : 'Domain Name Unavailable'}</div>
+          <BaseText>
+            {!nameExpired.isInGracePeriod &&
+              `Expires ${dateFormat.format(domainRecord.expirationTime)}`}
+          </BaseText>
+        </Box>
+      )}
+      {!available && nameExpired.isInGracePeriod && (
+        <Box>
+          <div>Domain Name Unavailable</div>
+          <BaseText>
+            {!isConnected && `If you are the owner, please connect your wallet`}
+          </BaseText>
+        </Box>
+      )}
       {available && (
         <Box gap="8px" direction="column">
           <DomainName>{name}.country</DomainName>
           <BaseText>
             {formatONEAmount(priceOne)} ONE = ${formatUSDAmount(priceUsd)} USD
-            for 3 months
+            for {days} days
           </BaseText>
           <a
             style={{
@@ -55,7 +89,7 @@ export const HomeSearchResultItem: React.FC<Props> = ({
             target="_blank"
             rel="noreferrer"
           >
-            By registering, you agree to the Terms of Service.
+            By registering, you agree to the <u>Terms of Service</u>.
           </a>
         </Box>
       )}

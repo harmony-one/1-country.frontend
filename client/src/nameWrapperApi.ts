@@ -1,11 +1,16 @@
 import axios from 'axios'
-import Web3 from 'web3'
-import ERC1155 from '../abi/ERC1155'
+import ERC1155 from '../contracts/abi/ERC1155'
 import { utils } from './api/utils'
 import config from '../config'
 
-const web3 = new Web3(config.defaultRPC)
-const contract = new web3.eth.Contract(ERC1155, config.nameWrapperContract)
+import { Contract } from 'ethers'
+import { defaultProvider } from './api/defaultProvider'
+
+const contract = new Contract(
+  config.nameWrapperContract,
+  ERC1155,
+  defaultProvider
+)
 
 interface DomainMetaAttr {
   trait_type: string
@@ -24,7 +29,7 @@ export const nameWrapperApi = {
   loadDomainMeta: async (domainName: string): Promise<DomainMeta | null> => {
     const tokenId = utils.buildTokenId(domainName)
     try {
-      const uriMetaData = await contract.methods.uri(tokenId).call()
+      const uriMetaData = await contract.uri(tokenId)
       const result = await axios.get<DomainMeta>(uriMetaData)
       return result.data
     } catch (err) {

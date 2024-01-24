@@ -1,10 +1,15 @@
 import config from '../../config'
-import DCv2Abi from '../../abi/DCv2'
+import DCv2Abi from '../../contracts/abi/DCv2'
 import Constants from '../constants'
 import BN from 'bn.js'
-import Web3 from 'web3'
+import { Contract, ethers } from 'ethers'
 import { utils } from './utils'
-import { TransactionReceipt } from 'web3-core'
+import {
+  TransactionResponse,
+  TransactionReceipt,
+} from '@ethersproject/abstract-provider'
+import { defaultProvider } from './defaultProvider'
+import web3Utils from 'web3-utils'
 
 console.log('CONTRACT', process.env.CONTRACT)
 
@@ -51,7 +56,13 @@ export interface SendProps extends CallbackProps {
 
 export interface SendResult {
   txReceipt: TransactionReceipt
-  error: Error
+  error: DCError // Error
+}
+
+export interface SendNameExpired {
+  isExpired: boolean
+  expirationDate: number
+  isInGracePeriod: boolean
 }
 
 interface RentProps extends CallbackProps {
@@ -63,7 +74,7 @@ interface RentProps extends CallbackProps {
 
 interface RenewDomainProps extends CallbackProps {
   name: string
-  url: string
+  url?: string
   amount: string
 }
 
@@ -72,19 +83,25 @@ interface CommitProps extends CallbackProps {
   secret: string
 }
 
-const apis = ({ web3, address }: { web3: Web3; address: string }) => {
+const apis = ({
+  provider,
+  address,
+}: {
+  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
+  address: string
+}) => {
   // console.log('apis', web3, address)
-  if (!web3) {
+  if (!provider) {
     return
   }
 
-  const web3ReadOnly = new Web3(config.defaultRPC)
-  const contractReadOnly = new web3ReadOnly.eth.Contract(
-    DCv2Abi,
+  const contractReadOnly = new Contract(
     config.contract,
-    { from: address }
+    DCv2Abi,
+    defaultProvider
   )
-  const contract = new web3.eth.Contract(DCv2Abi, config.contract)
+
+  const contract = contractReadOnly.connect(provider.getSigner())
 
   const getOwnerInfo = async (name: string, info: OWNER_INFO_FIELDS) => {
     console.log('getOwnerInfo', name, info, address)
@@ -102,9 +119,8 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
             getMethod = 'getOwnerEmail'
             break
         }
-        const ownerInfo = await contractReadOnly.methods[getMethod](name).call({
-          from: address,
-        })
+
+        const ownerInfo = await contractReadOnly[getMethod]()
         console.log('my ownerInfo', ownerInfo)
         return ownerInfo
       }
@@ -122,22 +138,23 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     methodName,
     parameters,
   }: SendProps): Promise<SendResult> => {
-    console.log({ methodName, parameters, amount, address })
-
     try {
-      const tx = await contract.methods[methodName](...parameters)
-        .send({
-          from: address,
-          value: amount,
-        })
-        .on('transactionHash', onTransactionHash)
+      console.log('send', amount, parameters)
+      const txResponse = (await contract[methodName](...parameters, {
+        value: amount,
+        // gasLimit: ethers.utils.hexlify(300000),
+      })) as TransactionResponse
+      onTransactionHash(txResponse.hash)
+
       if (config.debug) {
-        console.log(methodName, JSON.stringify(tx))
+        console.log(methodName, JSON.stringify(txResponse))
       }
-      console.log(methodName, tx?.events)
-      onSuccess && onSuccess(tx)
-      return { txReceipt: tx, error: null }
+
+      const txReceipt = await txResponse.wait()
+      onSuccess && onSuccess(txReceipt)
+      return { txReceipt: txReceipt, error: null }
     } catch (ex) {
+      console.log('### ex', ex)
       onFailed && onFailed(ex, true)
       return { txReceipt: null, error: ex }
     }
@@ -146,7 +163,7 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
   return {
     address,
     contract,
-    web3,
+    provider,
     send,
     commit: async ({
       name,
@@ -156,9 +173,11 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       onTransactionHash,
     }: CommitProps) => {
       const secretHash = utils.keccak256(secret, true)
-      const commitment = await contractReadOnly.methods
-        .makeCommitment(name, address, secretHash)
-        .call()
+      const commitment = await contractReadOnly.makeCommitment(
+        name,
+        address,
+        secretHash
+      )
       return send({
         onFailed,
         onSuccess,
@@ -189,14 +208,13 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
     },
     renewDomain: async ({
       name,
-      url,
       amount,
       onFailed,
       onTransactionHash,
       onSuccess,
     }: RenewDomainProps) => {
       return send({
-        parameters: [name, url],
+        parameters: [name],
         methodName: 'renew',
         amount,
         onFailed,
@@ -212,11 +230,9 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       name: string
       info: OWNER_INFO_FIELDS
     }): Promise<string | null> => {
-      const amount = web3.utils.toWei(
+      const amount = web3Utils.toWei(
         new BN(config.infoRevealPrice[info]).toString()
       )
-      console.log('reveal info', name, info, config.infoRevealPrice[info])
-      console.log('reveal info address', address)
       try {
         if (name) {
           let revealMethod = ''
@@ -238,16 +254,9 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
           let ownerInfo = await getOwnerInfo(name, info)
           if (!ownerInfo) {
             console.log('case result', info, revealMethod, getMethod)
-            const { result: tx } = await contract.methods[revealMethod](
-              name
-            ).send({
-              from: address,
-              value: amount,
-            })
+            const { result: tx } = await contract[revealMethod](name)
             console.log(tx)
-            ownerInfo = await contractReadOnly.methods[getMethod](name).call({
-              from: address,
-            })
+            ownerInfo = await contractReadOnly[getMethod](name)
             console.log('my ownerInfo', ownerInfo)
           }
           return ownerInfo
@@ -258,14 +267,16 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         return null
       }
     },
+    duration() {
+      return contractReadOnly.duration()
+    },
     getPrice: async ({ name }: { name: string }): Promise<DomainPrice> => {
-      const price = await contractReadOnly.methods
-        .getPrice(name)
-        .call({ from: address })
-      const amount = new BN(price).toString()
+      const price = await contractReadOnly.getPrice(name)
+
+      const amount = price.toString()
       return {
         amount,
-        formatted: web3.utils.fromWei(amount),
+        formatted: web3Utils.fromWei(amount),
       }
     },
     getRecord: async ({ name }: { name: string }): Promise<DomainRecord> => {
@@ -280,24 +291,20 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
         next = ''
 
       const [ownerAddress, rentTime, expirationTime] = await Promise.all([
-        contractReadOnly.methods
-          .ownerOf(name)
-          .call()
-          .catch(() => ''),
-        contractReadOnly.methods.duration().call(),
-        contractReadOnly.methods.nameExpires(name).call(),
+        contractReadOnly.ownerOf(name).catch(() => ''),
+        contractReadOnly.duration(),
+        contractReadOnly.nameExpires(name),
       ])
-
       return {
         renter:
           !ownerAddress || ownerAddress === Constants.EmptyAddress
             ? null
             : ownerAddress,
-        rentTime: new BN(rentTime).toNumber() * 1000,
-        expirationTime: new BN(expirationTime).toNumber() * 1000,
+        rentTime: rentTime.toNumber() * 1000,
+        expirationTime: expirationTime.toNumber() * 1000,
         lastPrice: {
           amount: lastPrice,
-          formatted: web3.utils.fromWei(lastPrice),
+          formatted: web3Utils.fromWei(lastPrice),
         },
         url,
         prev,
@@ -305,13 +312,45 @@ const apis = ({ web3, address }: { web3: Web3; address: string }) => {
       }
     },
     ownerOf: async ({ name }: { name: string }) => {
-      return contractReadOnly.methods.ownerOf(name).call()
+      return contractReadOnly.ownerOf(name).catch(() => '')
     },
-
+    getExpirationDate: async ({ name }: { name: string }) => {
+      const nameExpires = await contractReadOnly.nameExpires(name)
+      return parseInt(nameExpires)
+    },
+    checkNameExpired: async ({
+      name,
+    }: {
+      name: string
+    }): Promise<SendNameExpired> => {
+      const nameExpires = await contractReadOnly.nameExpires(name)
+      const epochSecondsDec = parseInt(nameExpires)
+      const expirationDate = new Date(epochSecondsDec * 1000)
+      const currentDate = new Date()
+      const timeDifferenceMs = currentDate.getTime() - expirationDate.getTime()
+      const daysDifference = Math.abs(
+        Math.ceil(timeDifferenceMs / (1000 * 60 * 60 * 24))
+      )
+      const currentTimestamp = Math.floor(Date.now() / 1000)
+      return {
+        isExpired:
+          epochSecondsDec === 0 ? false : currentTimestamp > epochSecondsDec,
+        expirationDate: parseInt(nameExpires),
+        isInGracePeriod: daysDifference <= 7,
+      }
+    },
     checkAvailable: async ({ name }: { name: string }) => {
-      const isAvailable = await contractReadOnly.methods.available(name).call()
+      const isAvailable = await contractReadOnly.available(name)
+      console.log('checkNameExpires - available', name, isAvailable)
       return isAvailable?.toString()?.toLowerCase() === 'true'
     },
+
+    // signMessage: ({ message }: { message: string }) => {
+    //   const hashMessage = web3.eth.accounts.hashMessage(
+    //     web3.utils.utf8ToHex(message)
+    //   )
+    //   return web3.eth.sign(hashMessage, address)
+    // },
   }
 }
 
@@ -323,3 +362,13 @@ if (window) {
 export default apis
 
 export type D1DCClient = ReturnType<typeof apis>
+
+export class DCError extends Error {
+  reason: string
+
+  constructor(readonly message: string, reason?: string) {
+    super(message)
+    this.reason = reason
+    this.name = 'DCError'
+  }
+}

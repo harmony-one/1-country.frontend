@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { SmallText } from './Text'
 
-export const Button = styled.button`
+export const Button = styled.button<{ $width?: string }>`
   font-family: 'NunitoRegular', system-ui;
   font-size: 1rem;
   font-weight: 200;
@@ -27,20 +27,26 @@ export const Button = styled.button`
 
 export const CancelButton = styled(Button)`
   background: transparent;
-  color: red;
-  border: 1px solid red;
+  color: #758796;
+  border: 1px solid #758796;
   &:hover {
-    color: indianred;
+    color: white;
     background: #ccc;
     cursor: pointer;
   }
   &:disabled {
-    color: grey;
+    color: white;
+    border: 0;
     cursor: not-allowed;
   }
 `
 
-export const Input = styled.input`
+export const Input = styled.input<{
+  $width?: string | number
+  $marginTop?: string
+  $marginBottom?: string
+  $margin?: string
+}>`
   width: ${(props) =>
     typeof props.$width === 'number'
       ? `${props.$width || 400}px`
@@ -49,7 +55,7 @@ export const Input = styled.input`
   margin-bottom: ${(props) => props.$marginBottom || props.$margin || '32px'};
   border: none;
   border-bottom: 1px solid black;
-  font-size: 16px;
+  font-size: 1rem;
   padding: 4px;
   &:hover {
     border-bottom: 1px solid black;
@@ -60,7 +66,7 @@ export const Input = styled.input`
   }
 `
 
-export const LinkWrapper = styled.a`
+export const LinkWrapper = styled.a<{ $disabled?: boolean }>`
   //margin-right: 12px;
   cursor: pointer;
   text-decoration: none;

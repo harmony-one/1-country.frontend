@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet/components/Text'
 import Timer from '@amplication/react-compound-timer'
-import { DomainRecord } from '../../api'
 import { WidgetsContainer } from './Widgets.styles'
 import { utils } from '../../api/utils'
+import { useStores } from '../../stores'
+import { observer } from 'mobx-react-lite'
 
 const Container = styled(WidgetsContainer)`
   gap: 0;
@@ -18,6 +19,7 @@ const Container = styled(WidgetsContainer)`
   color: rgb(83, 100, 113);
   overflow: hidden;
   min-width: 278px;
+  background-color: #ffffff;
 `
 
 const dateFormat = new Intl.DateTimeFormat('en-US', {
@@ -48,18 +50,24 @@ const LinkItem = styled.a`
   white-space: nowrap;
   overflow: hidden;
 `
-
 interface Props {
   name: string
-  domainRecord: DomainRecord
 }
 
-export const TransactionWidget: React.FC<Props> = ({ name, domainRecord }) => {
+export const TransactionWidget: React.FC<Props> = observer(({ name }) => {
+  const { domainStore } = useStores()
+  const { domainRecord } = domainStore
   const { renter, expirationTime } = domainRecord
-
+  const MILLISECONDS_IN_WEEK = 1000 * 3600 * 24 * 7
   const fullDomainName = name + '.country'
   const erc1155Uri = utils.buildDomainExplorerURI(fullDomainName)
+  const timerRef = useRef(null)
 
+  useEffect(() => {
+    if (timerRef.current) {
+      timerRef.current.setTime(expirationTime - Date.now())
+    }
+  }, [expirationTime])
   return (
     <Container style={{ padding: 0 }}>
       <ExplorerLogoWrapper justify={'center'}>
@@ -96,27 +104,43 @@ export const TransactionWidget: React.FC<Props> = ({ name, domainRecord }) => {
           </Text>
           <Text size={'small'}>{dateFormat.format(expirationTime)}</Text>
         </Box>
-        <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
-          <Text size={'small'} weight={'bold'} style={{ whiteSpace: 'nowrap' }}>
-            Expires in:
-          </Text>
-          <Text size={'small'} style={{ whiteSpace: 'nowrap' }}>
-            <Timer
-              formatValue={formatTime}
-              initialTime={domainRecord.expirationTime - Date.now()}
-              direction="backward"
+        {!domainStore.isExpired ? (
+          <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
+            <Text
+              size={'small'}
+              weight={'bold'}
+              style={{ whiteSpace: 'nowrap' }}
             >
-              <Timer.Days /> days
-              {domainRecord.expirationTime - Date.now() <
-              1000 * 3600 * 24 * 7 ? (
-                <span>
-                  , <Timer.Hours /> hours, <Timer.Minutes /> min
-                </span>
-              ) : null}
-            </Timer>
-          </Text>
-        </Box>
+              Expires in:
+            </Text>
+            <Text size={'small'} style={{ whiteSpace: 'nowrap' }}>
+              <Timer
+                formatValue={formatTime}
+                // initialTime={expirationTime - Date.now()}
+                direction="backward"
+                ref={timerRef}
+              >
+                <Timer.Days /> days
+                {expirationTime - Date.now() < MILLISECONDS_IN_WEEK ? (
+                  <span>
+                    , <Timer.Hours /> hours, <Timer.Minutes /> min
+                  </span>
+                ) : null}
+              </Timer>
+            </Text>
+          </Box>
+        ) : (
+          <Box direction={'row'} gap={'4px'} justify={'start'} align={'center'}>
+            <Text
+              size={'small'}
+              weight={'bold'}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              Domain expired
+            </Text>
+          </Box>
+        )}
       </Box>
     </Container>
   )
-}
+})
