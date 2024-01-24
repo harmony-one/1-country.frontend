@@ -4,6 +4,7 @@ import { useStores } from '../../stores'
 import { observer } from 'mobx-react-lite'
 import { getDomainName } from '../../utils/getDomainName'
 import { HomePageLoader } from './components/HomePageLoader'
+import IndexedDomainPage from './components/IndexedDomainPage'
 
 const HomeSearchPage = lazy(
   () =>
@@ -26,17 +27,25 @@ export const HomePage = observer(() => {
   // useDefaultNetwork()
 
   useEffect(() => {
-    const isNewDomain =
-      domainName && domainStore.domainRecord && !domainStore.domainRecord.renter
-    if (isNewDomain) {
-      window.location.href = `${config.hostname}?domain=${domainName}`
-    }
+    // const isNewDomain =
+    //   domainName && domainStore.domainRecord && !domainStore.domainRecord.renter
+    // if (isNewDomain) {
+    //   window.location.href = `${config.hostname}?domain=${domainName}`
+    // }
   }, [domainStore.domainRecord])
 
   if (domainName === '') {
     return (
       <Suspense fallback={<HomePageLoader />}>
         <HomeSearchPage />
+      </Suspense>
+    )
+  }
+
+  if (domainName.length === 2) {
+    return (
+      <Suspense fallback={<HomePageLoader />}>
+        <IndexedDomainPage />
       </Suspense>
     )
   }
