@@ -26,6 +26,15 @@ type EmailHandlerProps = {
   setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
 }
 
+type DeleteEmailHandlerProps = {
+  alias: string
+  fromUrl: boolean
+  domainName: string
+  rootStore: RootStore
+  walletStore: WalletStore
+  setProcessStatus: React.Dispatch<React.SetStateAction<ProcessStatusItem>>
+}
+
 export const EmailHandler = async ({
   alias,
   forward,
@@ -122,7 +131,7 @@ export const EmailHandler = async ({
         })
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
-          render: <BaseText>Deactivation failed. {message}</BaseText>,
+          render: <BaseText>Activation failed. {message}</BaseText>,
         })
         return result
       }
@@ -133,6 +142,7 @@ export const EmailHandler = async ({
       alias,
       forward
     )
+    console.log('SIGNATURE', signature)
     const separator = ethers.utils.toUtf8Bytes(
       await rootStore.easClient.getSeparator()
     )
@@ -226,7 +236,7 @@ export const EmailHandler = async ({
       return true
     }
   } catch (ex) {
-    log.error('renewCommand', {
+    log.error('EmailHandler', {
       error: ex,
       domain: `${domainName.toLowerCase()}${config.tld}`,
       wallet: walletStore.walletAddress,
@@ -250,30 +260,114 @@ export const EmailHandler = async ({
   return result
 }
 
-// function parseEmailInput(str: string): false | [string, string] {
-//   const input = str.trim()
-//   if (input.indexOf('email:') === 0) {
-//     return parseEmailInput(input.split('email:')[1])
-//   }
+export const DeleteEmailHandler = async ({
+  alias,
+  fromUrl = false,
+  domainName,
+  rootStore,
+  walletStore,
+  setProcessStatus,
+}: DeleteEmailHandlerProps): Promise<boolean> => {
+  let result = false
+  const activateResult = await easServerClient.check(domainName, alias)
 
-//   if (input.indexOf('=') !== -1) {
-//     return parseEmailInput(input.replace('=', ' '))
-//   }
+  if (!activateResult) {
+    setProcessStatus({
+      type: ProcessStatusTypes.SUCCESS,
+      render: <BaseText>Email alias {alias} deactivated</BaseText>,
+    })
+    return true
+  }
+  try {
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: (
+        <BaseText>
+          {walletStore.isMetamaskAvailable
+            ? 'Waiting for a transaction to be signed'
+            : 'Sign transaction on mobile device'}
+        </BaseText>
+      ),
+    })
 
-//   if (isEmail(input)) {
-//     return ['hello', input]
-//   }
+    const deactivateResult = await rootStore.easClient.deactivate({
+      domainName: domainName,
+      onTransactionHash: () => {
+        setProcessStatus({
+          type: ProcessStatusTypes.PROGRESS,
+          render: <BaseText>Waiting for transaction confirmation</BaseText>,
+        })
+      },
+      alias,
+    })
+    console.log('DEACTIVATE RESULT::::', deactivateResult)
+    if (deactivateResult.error) {
+      const message =
+        getEthersError(deactivateResult.error) || 'Please contact us'
+      log.error('DeleteEmailHandler - deactivate', {
+        error: deactivateResult.error,
+        domain: `${domainName.toLowerCase()}${config.tld}`,
+        wallet: walletStore.walletAddress,
+        alias: alias,
+      })
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>Deactivation failed. {message}</BaseText>,
+      })
+      return result
+    }
 
-//   const [part1, part2] = input.split(' ')
+    setProcessStatus({
+      type: ProcessStatusTypes.PROGRESS,
+      render: 'Removing email alias',
+    })
 
-//   if (!isEmail(part1) && isEmailId(part1) && isEmail(part2)) {
-//     return [part1, part2]
-//   }
+    const { success, error } = await easServerClient.deactivate(
+      domainName,
+      alias
+    )
 
-//   if (isEmail(part1) && isEmail(part2)) {
-//     const name = part1.split('@')[0]
-//     return [name, part2]
-//   }
+    if (error) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: (
+          <BaseText>{`Deactivation failed. ${
+            error
+              ? `Error: ${error}`
+              : 'Please email dot-country@hiddenstate.xyz for futher support'
+          }`}</BaseText>
+        ),
+      })
+      return result
+    }
 
-//   return false
-// }
+    if (success) {
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: 'Deactivation complete!',
+      })
+      return true
+    }
+  } catch (ex) {
+    log.error('DeleteEmailHandler', {
+      error: ex,
+      domain: `${domainName.toLowerCase()}${config.tld}`,
+      wallet: walletStore.walletAddress,
+      alias: alias,
+    })
+
+    let errorMessage = getEthersError(ex)
+
+    setProcessStatus({
+      type: ProcessStatusTypes.ERROR,
+      render: (
+        <BaseText>{`Activation failed. ${
+          ex
+            ? `Error: ${errorMessage}`
+            : 'Please email dot-country@hiddenstate.xyz for futher support'
+        }`}</BaseText>
+      ),
+    })
+  }
+  return result
+}

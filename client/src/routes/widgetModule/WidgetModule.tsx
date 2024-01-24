@@ -20,7 +20,10 @@ import commandValidator, {
   CommandValidatorEnum,
 } from '../../utils/command-handler/commandValidator'
 import { renewCommandHandler } from '../../utils/command-handler/DcCommandHandler'
-import { addNotionPageHandler } from '../../utils/command-handler/NotionCommandHandler'
+import {
+  addNotionPageHandler,
+  deleteNotionPageHandler,
+} from '../../utils/command-handler/NotionCommandHandler'
 import { SearchInput } from '../../components/search-input/SearchInput'
 import { MediaWidget } from '../../components/widgets/MediaWidget'
 
@@ -28,12 +31,18 @@ import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet'
 import { FlexRow } from '../../components/Layout'
 import { addPostHandler } from '../../utils/command-handler/PostCommandHandler'
-import { EmailHandler } from '../../utils/command-handler/EmailHandler'
+import {
+  DeleteEmailHandler,
+  EmailHandler,
+} from '../../utils/command-handler/EmailHandler'
 import {
   domainWrapperHandler,
   transferDomainHandler,
 } from '../../utils/command-handler/transferCommandHandler'
-import { vanityUrlHandler } from '../../utils/command-handler/vanityUrlHandler'
+import {
+  deleteVanityUrlHandler,
+  vanityUrlHandler,
+} from '../../utils/command-handler/vanityUrlHandler'
 import {
   PageWidgetContainer,
   WidgetInputContainer,
@@ -159,12 +168,33 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           setProcessStatus,
         })
         break
+      case CommandValidatorEnum.VANITY_DELETE:
+        console.log(CommandValidatorEnum.VANITY_DELETE)
+        result = await deleteVanityUrlHandler({
+          vanity: command,
+          fromUrl,
+          domainName,
+          rootStore,
+          setProcessStatus,
+        })
+        break
       case CommandValidatorEnum.EMAIL_ALIAS:
         // works with value => email and value => aliasName=email
         console.log(CommandValidatorEnum.EMAIL_ALIAS, command)
         result = await EmailHandler({
           alias: command.aliasName,
           forward: command.email,
+          fromUrl,
+          domainName,
+          walletStore,
+          rootStore,
+          setProcessStatus,
+        })
+        break
+      case CommandValidatorEnum.EMAIL_ALIAS_DELETE:
+        console.log(CommandValidatorEnum.EMAIL_ALIAS_DELETE, command)
+        result = await DeleteEmailHandler({
+          alias: command.aliasName,
           fromUrl,
           domainName,
           walletStore,
@@ -250,6 +280,15 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           console.log(result)
           console.log(CommandValidatorEnum.NOTION, command)
         }
+        break
+      case CommandValidatorEnum.NOTION_DELETE:
+        console.log('NOTION_DELETE', command)
+        result = await deleteNotionPageHandler({
+          command,
+          domainName,
+          rootStore,
+          setProcessStatus,
+        })
         break
       default:
         setProcessStatus({
