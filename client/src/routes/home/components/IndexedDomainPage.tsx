@@ -3,7 +3,6 @@ import { observer } from 'mobx-react-lite'
 import axios from 'axios'
 
 import { VanityURL } from '../VanityURL'
-import { widgetListStore } from '../../widgetModule/WidgetListStore'
 import { DomainRecordRenewal } from './DomainRecordRenewal'
 import { HomePageFooter } from './HomePageFooter'
 import { useStores } from '../../../stores'
@@ -14,11 +13,14 @@ import config from '../../../../config'
 import { getDomainLevel } from '../../../api/utils'
 import { getDomainName } from '../../../utils/urlHandler'
 
+// import { Tweet } from 'react-tweet'
+import TweetEmbed from 'react-tweet-embed'
+
 interface Props {}
 
 const IndexedDomainPage: React.FC<Props> = observer(() => {
   const [domainName] = useState(getDomainName())
-  const [embedUrl, setEmbedUrl] = useState('')
+  const [tweetId, setTweetId] = useState('')
 
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
@@ -26,10 +28,15 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
     const loadEmbedUrl = async () => {
       const url = await fetchEmbedUrl(domainName)
       if (url) {
-        const encodedUrl = encodeURIComponent(url)
-        console.log('[XXXX]', encodedUrl)
-        setEmbedUrl(`https://twitframe.com/show?url=${encodedUrl}`)
+        console.log('[XXXX]', url)
+        setTweetId(getTweetId(url))
       }
+    }
+
+    const getTweetId = (url: string) => {
+      const regex = /\/status\/(\d+)/
+      const match = url.match(regex)
+      return match[1]
     }
 
     if (domainName) {
@@ -58,21 +65,10 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
         name={domainStore.domainName}
       />
       <div style={{ height: '2em' }} />
-      <DomainName
-        level={getDomainLevel(domainStore.domainName)}
-        onClick={handleClickDomain}
-        style={{ cursor: widgetListStore.txDomain && 'pointer' }}
-      >
-        {domainStore.domainName}.country
-      </DomainName>
-      {embedUrl !== '' && (
-        <iframe
-          src={embedUrl}
-          width="550"
-          height="500"
-          style={{ border: 'none' }}
-          title="Embedded Content"
-        />
+      {tweetId !== '' && (
+        <div style={{ width: '100%' }}>
+          <TweetEmbed tweetId={tweetId} options={{ width: 550 }} />
+        </div>
       )}
       {showRenewalBlock && <DomainRecordRenewal />}
       <HomePageFooter />
