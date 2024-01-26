@@ -25,16 +25,24 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
   useEffect(() => {
-    const fetchDomainData = async () => {
+    const MAX_TRIES = 3
+    const fetchDomainData = async (retryCount: number = MAX_TRIES) => {
       try {
-        const response = await axios.get(
-          `https://inscription-indexer.fly.dev/domain/${domainName}`
-        )
-        const data = response.data
-        if (data) {
-          const url = data.url.replace('x.com', 'twitter.com')
-          setTweetId(extractTweetId(url))
-          setBidPrice(data.gasPrice)
+        if (retryCount === 0) {
+          console.error('Error fetching data. Max tries reached')
+          return
+        } else {
+          const response = await axios.get(
+            `https://inscription-indexer.fly.dev/domain/${domainName}`
+          )
+          const data = response.data
+          if (data !== '') {
+            const url = data.url.replace('x.com', 'twitter.com')
+            setTweetId(extractTweetId(url))
+            setBidPrice(data.gasPrice)
+          } else {
+            await fetchDomainData(retryCount - 1)
+          }
         }
       } catch (error) {
         console.error('Error fetching data:', error)

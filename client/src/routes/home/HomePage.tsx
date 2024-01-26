@@ -1,7 +1,6 @@
 import React, { Suspense, lazy, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 
-import config from '../../../config'
 import { useStores } from '../../stores'
 
 import { HomePageLoader } from './components/HomePageLoader'
