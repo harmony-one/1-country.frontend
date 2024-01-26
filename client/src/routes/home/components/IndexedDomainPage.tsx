@@ -14,44 +14,52 @@ import { getDomainLevel } from '../../../api/utils'
 import { getDomainName } from '../../../utils/urlHandler'
 
 import TweetEmbed from 'react-tweet-embed'
+import Web3 from 'web3'
 
 interface Props {}
-
 const IndexedDomainPage: React.FC<Props> = observer(() => {
   const [domainName] = useState(getDomainName())
   const [tweetId, setTweetId] = useState('')
+  const [bidPrice, setBidPrice] = useState('')
 
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
   useEffect(() => {
-    const loadEmbedUrl = async () => {
-      const url = await fetchEmbedUrl(domainName)
-      if (url) {
-        setTweetId(getTweetId(url))
+    const fetchDomainData = async () => {
+      try {
+        const response = await axios.get(
+          `https://inscription-indexer.fly.dev/domain/${domainName}`
+        )
+        const data = response.data
+        if (data) {
+          const url = data.url.replace('x.com', 'twitter.com')
+          setTweetId(extractTweetId(url))
+          setBidPrice(data.gasPrice)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
       }
     }
 
-    const getTweetId = (url: string) => {
+    const extractTweetId = (url: string) => {
       const regex = /\/status\/(\d+)/
       const match = url.match(regex)
       return match ? match[1] : ''
     }
 
     if (domainName) {
-      domainStore.loadDomainRecord(domainName)
-      loadEmbedUrl()
+      fetchDomainData()
     }
   }, [domainName])
 
   useEffect(() => {
-    metaTagsStore.update({
-      title: `${domainStore.domainName}${config.tld} | Harmony`,
-    })
-  }, [domainStore.domainName])
-
-  const handleClickDomain = () => {
-    window.open(`mailto:1country@harmony.one`, '_self')
-  }
+    if (domainName) {
+      domainStore.loadDomainRecord(domainName)
+      metaTagsStore.update({
+        title: `${domainStore.domainName}${config.tld} | Harmony`,
+      })
+    }
+  }, [domainName, domainStore, metaTagsStore])
 
   const showRenewalBlock =
     walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
@@ -63,6 +71,9 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
         name={domainStore.domainName}
       />
       <div style={{ height: '2em' }} />
+      {bidPrice && (
+        <small>Highest Bid: {Web3.utils.fromWei(bidPrice, 'gwei')} GWEI</small>
+      )}
       {tweetId && (
         <div style={{ width: '100%' }}>
           <TweetEmbed tweetId={tweetId} options={{ width: 550 }} />
@@ -74,18 +85,5 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
     </Container>
   )
 })
-
-async function fetchEmbedUrl(domain: string) {
-  try {
-    const response = await axios.get(
-      `https://inscription-indexer.fly.dev/domain/${domain}`
-    )
-    const url = response.data.url.replace('x.com', 'twitter.com')
-    return url
-  } catch (error) {
-    console.error('Error fetching data:', error)
-    return null
-  }
-}
 
 export default IndexedDomainPage
