@@ -20,7 +20,7 @@ interface Props {}
 const IndexedDomainPage: React.FC<Props> = observer(() => {
   const [domainName] = useState(getDomainName())
   const [tweetId, setTweetId] = useState('')
-  const [bidPrice, setBidPrice] = useState('')
+  // const [bidPrice, setBidPrice] = useState('')
 
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
@@ -34,7 +34,7 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
         if (data) {
           const url = data.url.replace('x.com', 'twitter.com')
           setTweetId(extractTweetId(url))
-          setBidPrice(data.gasPrice)
+          // setBidPrice(data.gasPrice)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -71,9 +71,9 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
         name={domainStore.domainName}
       />
       <div style={{ height: '2em' }} />
-      {bidPrice && (
+      {/* {bidPrice && (
         <small>Highest Bid: {Web3.utils.fromWei(bidPrice, 'gwei')} GWEI</small>
-      )}
+      )} */}
       {tweetId && (
         <div style={{ width: '100%' }}>
           <TweetEmbed tweetId={tweetId} options={{ width: 550 }} />
