@@ -13,7 +13,6 @@ import config from '../../../../config'
 import { getDomainLevel } from '../../../api/utils'
 import { getDomainName } from '../../../utils/urlHandler'
 
-// import { Tweet } from 'react-tweet'
 import TweetEmbed from 'react-tweet-embed'
 
 interface Props {}
@@ -28,7 +27,6 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
     const loadEmbedUrl = async () => {
       const url = await fetchEmbedUrl(domainName)
       if (url) {
-        console.log('[XXXX]', url)
         setTweetId(getTweetId(url))
       }
     }
@@ -36,7 +34,7 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
     const getTweetId = (url: string) => {
       const regex = /\/status\/(\d+)/
       const match = url.match(regex)
-      return match[1]
+      return match ? match[1] : ''
     }
 
     if (domainName) {
@@ -65,7 +63,7 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
         name={domainStore.domainName}
       />
       <div style={{ height: '2em' }} />
-      {tweetId !== '' && (
+      {tweetId && (
         <div style={{ width: '100%' }}>
           <TweetEmbed tweetId={tweetId} options={{ width: 550 }} />
         </div>
@@ -80,10 +78,9 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
 async function fetchEmbedUrl(domain: string) {
   try {
     const response = await axios.get(
-      `https://inscription-indexer.fly.dev/tweet/${domain}`
+      `https://inscription-indexer.fly.dev/domain/${domain}`
     )
-    const url = response.data.replace('x.com', 'twitter.com')
-    console.log('[XXX] FETCHED URL:', url)
+    const url = response.data.url.replace('x.com', 'twitter.com')
     return url
   } catch (error) {
     console.error('Error fetching data:', error)
