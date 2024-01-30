@@ -40,6 +40,9 @@ export const MediaWidget: React.FC<Props> = ({
   onDelete,
   onPin,
 }) => {
+  console.log('domainName', domainName)
+  console.log('value', value)
+  console.log('type', type)
   const [widget, setWidget] = useState<any>()
   const [isLoading, setLoading] = useState(true)
   const [stakingValidator, setStakingValidator] = useState<string>('')

@@ -15,22 +15,57 @@ import { getDomainName } from '../../../utils/urlHandler'
 
 // import { Tweet } from 'react-tweet'
 import TweetEmbed from 'react-tweet-embed'
+import {MediaWidget} from "../../../components/widgets/MediaWidget";
+
+export interface Inscription {
+  id: number
+  transactionHash: string
+  from: string
+  to: string
+  value: string
+  gas: string
+  gasPrice: string
+  blockNumber: number
+  timestamp: number
+  payload: object
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface DomainInscription {
+ domain: string
+ url: string
+ gasPrice: string
+ type: 'twitter' | 'notion' | 'substack' | string
+ inscription: Inscription
+}
+
+const fetchDomainData = async (domain: string): Promise<DomainInscription> => {
+  try {
+    const { data } = await axios.get(
+      `https://inscription-indexer.fly.dev/domain/${domain}`
+    )
+    return data
+  } catch (error) {
+    console.error('Error fetching data:', error)
+    return null
+  }
+}
 
 interface Props {}
 
 const IndexedDomainPage: React.FC<Props> = observer(() => {
   const [domainName] = useState(getDomainName())
   const [tweetId, setTweetId] = useState('')
+  const [domainInscription, setDomainInscription] = useState<DomainInscription>()
 
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
   useEffect(() => {
     const loadEmbedUrl = async () => {
-      const url = await fetchEmbedUrl(domainName)
-      if (url) {
-        console.log('[XXXX]', url)
-        setTweetId(getTweetId(url))
-      }
+      const data = await fetchDomainData(domainName)
+      setDomainInscription(data)
+      console.log('[xx] Fetched domain inscription:', data)
     }
 
     const getTweetId = (url: string) => {
@@ -65,9 +100,20 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
         name={domainStore.domainName}
       />
       <div style={{ height: '2em' }} />
-      {tweetId !== '' && (
+      {domainInscription && domainInscription.url && (
         <div style={{ width: '100%' }}>
-          <TweetEmbed tweetId={tweetId} options={{ width: 550 }} />
+          {/*<TweetEmbed tweetId={tweetId} options={{ width: 550 }} />*/}
+
+          <MediaWidget
+            domainName={domainName}
+            value={domainInscription.url}
+            type={'url'}
+            uuid={'123'}
+            isPinned={false}
+            isOwner={domainStore.isOwner}
+            onDelete={() => {}}
+            onPin={(isPinned: boolean) => {}}
+          />
         </div>
       )}
       {showRenewalBlock && <DomainRecordRenewal />}
@@ -76,19 +122,5 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
     </Container>
   )
 })
-
-async function fetchEmbedUrl(domain: string) {
-  try {
-    const response = await axios.get(
-      `https://inscription-indexer.fly.dev/tweet/${domain}`
-    )
-    const url = response.data.replace('x.com', 'twitter.com')
-    console.log('[XXX] FETCHED URL:', url)
-    return url
-  } catch (error) {
-    console.error('Error fetching data:', error)
-    return null
-  }
-}
 
 export default IndexedDomainPage
