@@ -108,7 +108,7 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
             domainName={domainName}
             value={domainInscription.url}
             type={'url'}
-            uuid={'123'}
+            uuid={domainInscription.inscription.transactionHash}
             isPinned={false}
             isOwner={domainStore.isOwner}
             onDelete={() => {}}
