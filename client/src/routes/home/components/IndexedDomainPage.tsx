@@ -52,6 +52,12 @@ const fetchDomainData = async (domain: string): Promise<DomainInscription> => {
   }
 }
 
+const getTweetId = (url: string) => {
+  const regex = /\/status\/(\d+)/
+  const match = url.match(regex)
+  return match[1]
+}
+
 interface Props {}
 
 const IndexedDomainPage: React.FC<Props> = observer(() => {
@@ -64,12 +70,6 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
       const data = await fetchDomainData(domainName)
       setDomainInscription(data)
       console.log('[xx] Fetched domain inscription:', data)
-    }
-
-    const getTweetId = (url: string) => {
-      const regex = /\/status\/(\d+)/
-      const match = url.match(regex)
-      return match[1]
     }
 
     if (domainName) {
@@ -98,20 +98,9 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
         name={domainStore.domainName}
       />
       <div style={{ height: '2em' }} />
-      {domainInscription && domainInscription.url && (
+      {domainInscription && domainInscription.type === 'twitter' && domainInscription.url && (
         <div style={{ width: '100%' }}>
-          {/*<TweetEmbed tweetId={tweetId} options={{ width: 550 }} />*/}
-
-          <MediaWidget
-            domainName={domainName}
-            value={domainInscription.url}
-            type={'url'}
-            uuid={domainInscription.inscription.transactionHash}
-            isPinned={false}
-            isOwner={domainStore.isOwner}
-            onDelete={() => {}}
-            onPin={(isPinned: boolean) => {}}
-          />
+          <TweetEmbed tweetId={getTweetId(domainInscription.url)} options={{ width: 550 }} />
         </div>
       )}
       {showRenewalBlock && <DomainRecordRenewal />}
