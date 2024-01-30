@@ -47,7 +47,7 @@ export const HomePage = observer(() => {
   const [domainInscription, setDomainInscription] = useState<DomainInscription>()
   const [notionPageId, setNotionPageId] = useState('')
 
-  console.log('HomePage', domainName, subdomain, 'domainInscription:', domainInscription)
+  console.log('HomePage', domainName, subdomain, 'domain inscription:', domainInscription)
 
   useEffect(() => {
     const loadData = async () => {
@@ -67,8 +67,10 @@ export const HomePage = observer(() => {
         console.error('Cannot load inscriptions data', e)
       }
     }
-    loadData()
-  }, []);
+    if(domainName.length === 2) {
+      loadData()
+    }
+  }, [domainName]);
 
   useEffect(() => {
     const isNewDomain =
