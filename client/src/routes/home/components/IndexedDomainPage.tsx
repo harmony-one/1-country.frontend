@@ -56,9 +56,7 @@ interface Props {}
 
 const IndexedDomainPage: React.FC<Props> = observer(() => {
   const [domainName] = useState(getDomainName())
-  const [tweetId, setTweetId] = useState('')
   const [domainInscription, setDomainInscription] = useState<DomainInscription>()
-
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
   useEffect(() => {
