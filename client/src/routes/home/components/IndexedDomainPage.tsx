@@ -18,7 +18,6 @@ interface Props {}
 const IndexedDomainPage: React.FC<Props> = observer(() => {
   const [domainName] = useState(getDomainName())
   const [tweetId, setTweetId] = useState('')
-
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
   useEffect(() => {
@@ -27,7 +26,6 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
         const response = await axios.get(
           `https://inscription-indexer.fly.dev/domain/${domainName}/${path}`
         )
-        console.log('### Redirecting to', response.data.url)
         return response.data.url
       } catch (error) {
         console.error('Error fetching redirect link:', error)
@@ -56,13 +54,13 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
     }
 
     if (currentPath) {
-      console.log('### Path:', currentPath)
       fetchRedirect(currentPath).then((redirectLink) => {
         if (redirectLink) {
+          console.log('### Redirecting:', redirectLink)
           window.location.href = redirectLink
+          return
         }
       })
-      return
     }
 
     if (domainName) {
@@ -79,12 +77,8 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
     }
   }, [domainName, domainStore, metaTagsStore])
 
-  const showRenewalBlock =
-    walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
-
-  if (currentPath) {
-    return null // prevent rendering if there's a path that requires redirection
-  }
+  // const showRenewalBlock =
+  //   walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
 
   return (
     <Container>
@@ -94,7 +88,7 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
           <TweetEmbed tweetId={tweetId} options={{ width: 550 }} />
         </div>
       )}
-      {showRenewalBlock && <DomainRecordRenewal />}
+      {/* {showRenewalBlock && <DomainRecordRenewal />} */}
       <HomePageFooter />
       <div style={{ height: 200 }} />
     </Container>
