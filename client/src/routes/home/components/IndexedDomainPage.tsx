@@ -40,43 +40,33 @@ export interface DomainInscription {
  inscription: Inscription
 }
 
-const fetchDomainData = async (domain: string): Promise<DomainInscription> => {
-  try {
-    const { data } = await axios.get(
-      `https://inscription-indexer.fly.dev/domain/${domain}`
-    )
-    return data
-  } catch (error) {
-    console.error('Error fetching data:', error)
-    return null
-  }
-}
-
 const getTweetId = (url: string) => {
   const regex = /\/status\/(\d+)/
   const match = url.match(regex)
   return match[1]
 }
 
-interface Props {}
+interface Props {
+  domainInscription: DomainInscription
+}
 
-const IndexedDomainPage: React.FC<Props> = observer(() => {
+const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
+  const { domainInscription } = props
   const [domainName] = useState(getDomainName())
-  const [domainInscription, setDomainInscription] = useState<DomainInscription>()
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
-  useEffect(() => {
-    const loadEmbedUrl = async () => {
-      const data = await fetchDomainData(domainName)
-      setDomainInscription(data)
-      console.log('[xx] Fetched domain inscription:', data)
-    }
-
-    if (domainName) {
-      domainStore.loadDomainRecord(domainName)
-      loadEmbedUrl()
-    }
-  }, [domainName])
+  // useEffect(() => {
+  //   const loadEmbedUrl = async () => {
+  //     const data = await fetchInscriptionData(domainName)
+  //     setDomainInscription(data)
+  //     console.log('[xx] Fetched domain inscription:', data)
+  //   }
+  //
+  //   if (domainName) {
+  //     domainStore.loadDomainRecord(domainName)
+  //     loadEmbedUrl()
+  //   }
+  // }, [domainName])
 
   useEffect(() => {
     metaTagsStore.update({
