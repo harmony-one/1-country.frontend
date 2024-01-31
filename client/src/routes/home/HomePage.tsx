@@ -1,13 +1,15 @@
-import React, {Suspense, lazy, useEffect, useState} from 'react'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 
 import config from '../../../config'
 import { useStores } from '../../stores'
 
 import { HomePageLoader } from './components/HomePageLoader'
-import IndexedDomainPage, {DomainInscription} from './components/IndexedDomainPage'
-import axios from "axios";
-import {ewsApi} from "../../api/ews/ewsApi";
+import IndexedDomainPage, {
+  DomainInscription,
+} from './components/IndexedDomainPage'
+import axios from 'axios'
+import { ewsApi } from '../../api/ews/ewsApi'
 
 const HomeNotionPage = lazy(
   () =>
@@ -29,7 +31,9 @@ const HomeDomainPage = lazy(
     )
 )
 
-const fetchInscriptionData = async (domain: string): Promise<DomainInscription> => {
+const fetchInscriptionData = async (
+  domain: string
+): Promise<DomainInscription> => {
   try {
     const { data } = await axios.get(
       `https://inscription-indexer.fly.dev/domain/${domain}`
@@ -44,10 +48,17 @@ const fetchInscriptionData = async (domain: string): Promise<DomainInscription> 
 export const HomePage = observer(() => {
   const { domainStore } = useStores()
   const { domainName, subdomain } = domainStore
-  const [domainInscription, setDomainInscription] = useState<DomainInscription>()
+  const [domainInscription, setDomainInscription] =
+    useState<DomainInscription>()
   const [notionPageId, setNotionPageId] = useState('')
 
-  console.log('HomePage', domainName, subdomain, 'domain inscription:', domainInscription)
+  console.log(
+    'HomePage',
+    domainName,
+    subdomain,
+    'domain inscription:',
+    domainInscription
+  )
 
   useEffect(() => {
     const loadData = async () => {
@@ -58,7 +69,7 @@ export const HomePage = observer(() => {
         setDomainInscription(data)
         console.log(`Domain "${domainName}" inscription data:`, data)
 
-        if(data.type === 'notion') {
+        if (data.type === 'notion') {
           const id = await ewsApi.parseNotionPageIdFromRawUrl(data.url)
           setNotionPageId(id)
           console.log('Notion pageId:', id)
@@ -67,10 +78,10 @@ export const HomePage = observer(() => {
         console.error('Cannot load inscriptions data', e)
       }
     }
-    if(domainName.length === 2) {
+    if (domainName.length === 2) {
       loadData()
     }
-  }, [domainName]);
+  }, [domainName])
 
   useEffect(() => {
     const isNewDomain =
@@ -78,7 +89,10 @@ export const HomePage = observer(() => {
     console.log('isNewDomain', isNewDomain, domainName, domainName.length < 3)
   }, [domainStore.domainRecord])
 
-  if (subdomain !== '' || (domainInscription && domainInscription.type === 'notion')) {
+  if (
+    subdomain !== '' ||
+    (domainInscription && domainInscription.type === 'notion')
+  ) {
     return (
       <Suspense fallback={<HomePageLoader />}>
         <HomeNotionPage pageId={notionPageId} />
@@ -94,7 +108,10 @@ export const HomePage = observer(() => {
     )
   }
 
-  if (domainInscription && domainInscription.type === 'twitter') {
+  if (
+    domainInscription &&
+    (domainInscription.type === 'twitter' || domainInscription.type === 'image')
+  ) {
     return (
       <Suspense fallback={<HomePageLoader />}>
         <IndexedDomainPage domainInscription={domainInscription} />
