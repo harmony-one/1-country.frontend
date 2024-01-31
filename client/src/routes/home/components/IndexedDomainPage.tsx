@@ -89,7 +89,6 @@ const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
         name={domainStore.domainName}
       />
       <div style={{ height: '2em' }} />
-      <h1>HI</h1>
       {domainInscription &&
         domainInscription.type === 'twitter' &&
         domainInscription.url && (

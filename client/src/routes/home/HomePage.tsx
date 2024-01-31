@@ -32,18 +32,22 @@ const HomeDomainPage = lazy(
 )
 
 const fetchInscriptionData = async (
-  domain: string
+  domain: string,
+  path: string = ''
 ): Promise<DomainInscription> => {
+  const url = `https://inscription-indexer.fly.dev/domain/${domain}${
+    path ? `/${path}` : ''
+  }`
   try {
-    const { data } = await axios.get(
-      `https://inscription-indexer.fly.dev/domain/${domain}`
-    )
+    const { data } = await axios.get(url)
     return data
   } catch (error) {
     console.error('Error fetching data:', error)
     return null
   }
 }
+
+const currentPath = window.location.pathname.replace('/', '')
 
 export const HomePage = observer(() => {
   const { domainStore } = useStores()
@@ -62,17 +66,28 @@ export const HomePage = observer(() => {
 
   useEffect(() => {
     const loadData = async () => {
+      const data = await fetchInscriptionData(domainName, currentPath)
+      setDomainInscription(data)
       try {
-        const data = await fetchInscriptionData(domainName)
-        // data.type = 'notion'
-        // data.url = 'https://harmonyone.notion.site/Speech-to-Text-benchmark-5bcdc361cf1d4488ac10ab9b1b41e558'
-        setDomainInscription(data)
-        console.log(`Domain "${domainName}" inscription data:`, data)
+        // redirect logic
+        if (currentPath) {
+          if (data && data.url) {
+            window.location.href = data.url // redirect if a URL is found
+            return
+          } else {
+            window.location.href = `/` // redirect to the main domain if no URL field is present
+            return
+          }
+        } else {
+          // data.type = 'notion'
+          // data.url = 'https://harmonyone.notion.site/Speech-to-Text-benchmark-5bcdc361cf1d4488ac10ab9b1b41e558'
+          console.log(`Domain "${domainName}" inscription data:`, data)
 
-        if (data.type === 'notion') {
-          const id = await ewsApi.parseNotionPageIdFromRawUrl(data.url)
-          setNotionPageId(id)
-          console.log('Notion pageId:', id)
+          if (data.type === 'notion') {
+            const id = await ewsApi.parseNotionPageIdFromRawUrl(data.url)
+            setNotionPageId(id)
+            console.log('Notion pageId:', id)
+          }
         }
       } catch (e) {
         console.error('Cannot load inscriptions data', e)
