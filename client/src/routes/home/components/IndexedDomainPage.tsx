@@ -74,8 +74,8 @@ const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
     }
   }, [domainName, domainStore, metaTagsStore])
 
-  // const showRenewalBlock =
-  //   walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
+  const showRenewalBlock =
+    walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
 
   return (
     <Container>
