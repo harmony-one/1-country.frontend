@@ -2,18 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import axios from 'axios'
 
-import { VanityURL } from '../VanityURL'
 import { DomainRecordRenewal } from './DomainRecordRenewal'
 import { HomePageFooter } from './HomePageFooter'
 import { useStores } from '../../../stores'
 
-import { DomainName } from '../../../components/Text'
 import { Container } from '../Home.styles'
 import config from '../../../../config'
-import { getDomainLevel } from '../../../api/utils'
 import { getDomainName } from '../../../utils/urlHandler'
 
-// import { Tweet } from 'react-tweet'
 import TweetEmbed from 'react-tweet-embed'
 import { MediaWidget } from '../../../components/widgets/MediaWidget'
 import DalleWidget from '../../../components/widgets/DalleWidget'
@@ -70,24 +66,19 @@ const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
   // }, [domainName])
 
   useEffect(() => {
-    metaTagsStore.update({
-      title: `${domainStore.domainName}${config.tld} | Harmony`,
-    })
-  }, [domainStore.domainName])
+    if (domainName) {
+      domainStore.loadDomainRecord(domainName)
+      metaTagsStore.update({
+        title: `${domainStore.domainName}${config.tld} | Harmony`,
+      })
+    }
+  }, [domainName, domainStore, metaTagsStore])
 
-  const handleClickDomain = () => {
-    window.open(`mailto:1country@harmony.one`, '_self')
-  }
-
-  const showRenewalBlock =
-    walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
+  // const showRenewalBlock =
+  //   walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
 
   return (
     <Container>
-      <VanityURL
-        record={domainStore.domainRecord}
-        name={domainStore.domainName}
-      />
       <div style={{ height: '2em' }} />
       {domainInscription &&
         domainInscription.type === 'twitter' &&
@@ -109,6 +100,7 @@ const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
           </div>
         )}
       {showRenewalBlock && <DomainRecordRenewal />}
+
       <HomePageFooter />
       <div style={{ height: 200 }} />
     </Container>
