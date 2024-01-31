@@ -140,6 +140,9 @@ const config = {
     host: 'https://api.embedly.com',
     key: process.env.EMBEDLY_API_KEY,
   },
+  telegram: {
+    telegramBotAuthToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
+  },
 }
 
 console.log('### config', config)
