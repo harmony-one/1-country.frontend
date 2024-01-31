@@ -15,7 +15,7 @@ import { getDomainName } from '../../../utils/urlHandler'
 
 // import { Tweet } from 'react-tweet'
 import TweetEmbed from 'react-tweet-embed'
-import {MediaWidget} from "../../../components/widgets/MediaWidget";
+import { MediaWidget } from '../../../components/widgets/MediaWidget'
 
 export interface Inscription {
   id: number
@@ -33,11 +33,11 @@ export interface Inscription {
 }
 
 export interface DomainInscription {
- domain: string
- url: string
- gasPrice: string
- type: 'twitter' | 'notion' | 'substack' | string
- inscription: Inscription
+  domain: string
+  url: string
+  gasPrice: string
+  type: 'twitter' | 'notion' | 'substack' | string
+  inscription: Inscription
 }
 
 const getTweetId = (url: string) => {
@@ -88,11 +88,16 @@ const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
         name={domainStore.domainName}
       />
       <div style={{ height: '2em' }} />
-      {domainInscription && domainInscription.type === 'twitter' && domainInscription.url && (
-        <div style={{ width: '100%' }}>
-          <TweetEmbed tweetId={getTweetId(domainInscription.url)} options={{ width: 550 }} />
-        </div>
-      )}
+      {domainInscription &&
+        domainInscription.type === 'twitter' &&
+        domainInscription.url && (
+          <div style={{ width: '100%' }}>
+            <TweetEmbed
+              tweetId={getTweetId(domainInscription.url)}
+              options={{ width: 550 }}
+            />
+          </div>
+        )}
       {showRenewalBlock && <DomainRecordRenewal />}
       <HomePageFooter />
       <div style={{ height: 200 }} />
