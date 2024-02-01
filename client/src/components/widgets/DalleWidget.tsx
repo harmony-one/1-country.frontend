@@ -7,23 +7,21 @@ import {
   WidgetControls,
   WidgetsContainer,
 } from './Widgets.styles'
-import { GetFileResult, telegramApi } from '../../api/telegram/telegramApi'
-import { Inscription } from '../../routes/home/components/IndexedDomainPage'
+// import { GetFileResult, telegramApi } from '../../api/telegram/telegramApi'
+import {
+  ImagePayload,
+  Inscription,
+} from '../../routes/home/components/IndexedDomainPage'
 
 interface Props {
-  inscription: Inscription
+  payload: ImagePayload
 }
 
-interface ImagePayload {
-  type: string
-  prompt: string
-  imageId: string
-}
-
-const DalleWidget: React.FC<Props> = ({ inscription }) => {
-  const [imgUrl, setImgUrl] = useState('')
+const DalleWidget: React.FC<Props> = ({ payload }) => {
+  const [imgUrl, setImgUrl] = useState(null)
   const [prompt, setPrompt] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [showErrorMessage, setShowErrorMessage] = useState(false)
+  const [loading, setLoading] = useState(false)
   const { ref, inView } = useInView({
     /* Optional options */
     rootMargin: '0px',
@@ -33,32 +31,34 @@ const DalleWidget: React.FC<Props> = ({ inscription }) => {
 
   useEffect(() => {
     setLoading(true)
-    const payload = inscription.payload as ImagePayload
     setPrompt(
       payload.prompt ?? 'Unable to retrieve the prompt from the inscription'
     )
-    const getImgUrl = async () => {
-      if (payload.imageId) {
-        const data: GetFileResult = await telegramApi.getImageInfo(
-          payload.imageId
-        )
-        if (data) {
-          setImgUrl(telegramApi.getImgUrl(data.file_path))
-        }
-      } else {
-        setImgUrl(null)
-      }
-      setLoading(false)
-    }
-    getImgUrl()
+    setImgUrl(payload.image ?? null)
   }, [])
 
   return (
     <WidgetsContainer isWidgetLoading={loading} ref={ref}>
       <DalleContainer>
-        {!imgUrl && <Skeleton round="10px" width={'100%'} height={'550px'} />}
-        {imgUrl && <img src={imgUrl} alt={prompt} />}
-        <p>{prompt}</p>
+        {showErrorMessage ? (
+          <p>Can't process inscription data</p>
+        ) : (
+          <>
+            <div className="img-container">
+              {!imgUrl && (
+                <Skeleton round="10px" width={'100%'} height={'550px'} />
+              )}
+              {imgUrl && (
+                <img
+                  src={`data:image/jpeg;base64,${imgUrl}`}
+                  alt={prompt}
+                  loading="lazy"
+                />
+              )}
+            </div>
+            <p>{prompt}</p>
+          </>
+        )}
       </DalleContainer>
     </WidgetsContainer>
   )

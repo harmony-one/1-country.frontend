@@ -31,10 +31,18 @@ export const DalleContainer = styled.div`
   width: 100%;
   text-align: center !important;
 
-  img {
+  .img-container {
+    cursor: pointer;
     width: 100%;
-    height: 550px;
-    object-fit: cover;
-    border-radius: 10px;
+    max-width: 550px;
+    max-height: 550px;
+    margin-bottom: 1em;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+    }
   }
 `

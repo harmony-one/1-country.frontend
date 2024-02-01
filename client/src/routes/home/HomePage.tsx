@@ -40,32 +40,6 @@ const fetchInscriptionData = async (
   }`
   try {
     const { data } = await axios.get(url)
-    // const data = {
-    //   "domain": "67",
-    //   "url": "https://twitter.com/ACK14232856/status/1752662505435091229",
-    //   "type": "image",
-    //   "gasPrice": "100000000000",
-    //   "blockNumber": 53062651,
-    //   "inscription": {
-    //     "id": 5263,
-    //     "transactionHash": "0x2789be59e35ef1fef8e0918d98520d24b91479c70f1893f492324e16421e1e67",
-    //     "from": "0x946E363d70864A9C58A1D6c0Fc99898edc70AA99",
-    //     "to": "0x3abf101D3C31Aec5489C78E8efc86CaA3DF7B053",
-    //     "value": "0",
-    //     "gas": "21928",
-    //     "gasPrice": "100000000000",
-    //     "chain": "",
-    //     "blockNumber": 53062651,
-    //     "timestamp": 1706707342,
-    //     "payload": {
-    //       "type":"image",
-    //       "prompt":"kids playing D&D in a cave at candlelight",
-    //       "imageId":"AgACAgQAAxkDAAIe0GW6rd_t2boqg00oniFXCGqywKCxAALlsjEbtnfUUc0eUu_kV7tdAQADAgADeQADNAQ"
-    //     },
-    //     "createdAt": "2024-01-31T13:22:25.556Z",
-    //     "updatedAt": "2024-01-31T13:22:25.556Z"
-    //   }
-    // }
     return data
   } catch (error) {
     console.error('Error fetching data:', error)

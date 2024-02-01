@@ -29,7 +29,15 @@ export interface Inscription {
   updatedAt: Date
 }
 
+export interface ImagePayload {
+  type: string
+  bot: string
+  prompt: string
+  image: string
+  imageId: string
+}
 export interface DomainInscription {
+  payload: ImagePayload
   domain: string
   url: string
   gasPrice: string
@@ -91,7 +99,7 @@ const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
           </div>
         )}
       {domainInscription && domainInscription.type === 'image' && (
-        <DalleWidget inscription={domainInscription.inscription}></DalleWidget>
+        <DalleWidget payload={domainInscription.payload}></DalleWidget>
       )}
       {showRenewalBlock && <DomainRecordRenewal />}
 
