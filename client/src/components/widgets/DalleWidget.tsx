@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
-
-import { WidgetControls, WidgetsContainer } from './Widgets.styles'
+import { Skeleton } from 'grommet/components/Skeleton'
+import styled from 'styled-components'
+import {
+  DalleContainer,
+  WidgetControls,
+  WidgetsContainer,
+} from './Widgets.styles'
 import { GetFileResult, telegramApi } from '../../api/telegram/telegramApi'
 import { Inscription } from '../../routes/home/components/IndexedDomainPage'
 
@@ -50,10 +55,11 @@ const DalleWidget: React.FC<Props> = ({ inscription }) => {
 
   return (
     <WidgetsContainer isWidgetLoading={loading} ref={ref}>
-      <div style={{ paddingBottom: '2em' }}>
-        {imgUrl && <img src={imgUrl} alt={'Image inscription'} />}
+      <DalleContainer>
+        {!imgUrl && <Skeleton round="10px" width={'100%'} height={'550px'} />}
+        {imgUrl && <img src={imgUrl} alt={prompt} />}
         <p>{prompt}</p>
-      </div>
+      </DalleContainer>
     </WidgetsContainer>
   )
 }

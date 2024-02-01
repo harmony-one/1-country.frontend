@@ -91,11 +91,7 @@ const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
           </div>
         )}
       {domainInscription && domainInscription.type === 'image' && (
-        <div style={{ width: '100%' }}>
-          <DalleWidget
-            inscription={domainInscription.inscription}
-          ></DalleWidget>
-        </div>
+        <DalleWidget inscription={domainInscription.inscription}></DalleWidget>
       )}
       {showRenewalBlock && <DomainRecordRenewal />}
 
