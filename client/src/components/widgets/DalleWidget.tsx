@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { Skeleton } from 'grommet/components/Skeleton'
-import styled from 'styled-components'
 import {
   DalleContainer,
   WidgetControls,
   WidgetsContainer,
 } from './Widgets.styles'
-// import { GetFileResult, telegramApi } from '../../api/telegram/telegramApi'
 import {
   ImagePayload,
   Inscription,
