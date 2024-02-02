@@ -5,11 +5,32 @@ import config from '../../../config'
 import { useStores } from '../../stores'
 
 import { HomePageLoader } from './components/HomePageLoader'
-import IndexedDomainPage, {
-  DomainInscription,
-} from './components/IndexedDomainPage'
+import IndexedDomainPage from './components/IndexedDomainPage'
 import axios from 'axios'
 import { ewsApi } from '../../api/ews/ewsApi'
+
+export interface Inscription {
+  id: number
+  transactionHash: string
+  from: string
+  to: string
+  value: string
+  gas: string
+  gasPrice: string
+  blockNumber: number
+  timestamp: number
+  payload: object
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface DomainInscription {
+  domain: string
+  url: string
+  gasPrice: string
+  type: 'twitter' | 'notion' | 'substack' | string
+  inscription: Inscription
+}
 
 const HomeNotionPage = lazy(
   () =>
