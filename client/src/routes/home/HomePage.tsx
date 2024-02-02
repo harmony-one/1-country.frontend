@@ -18,6 +18,13 @@ const HomeNotionPage = lazy(
     )
 )
 
+const HomeSubStackPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "HomeNotionPage" */ './components/HomeSubStackPage'
+      )
+)
+
 const HomeSearchPage = lazy(
   () =>
     import(
@@ -35,12 +42,12 @@ const fetchInscriptionData = async (
   domain: string,
   path: string = ''
 ): Promise<DomainInscription> => {
-  const url = `https://inscription-indexer.fly.dev/domain/${domain}${
+  const url = `https://inscription-indexer.fly.dev/domains/${domain}${
     path ? `/${path}` : ''
   }`
   try {
     const { data } = await axios.get(url)
-    return data
+    return data[0]
   } catch (error) {
     console.error('Error fetching data:', error)
     return null
@@ -103,6 +110,14 @@ export const HomePage = observer(() => {
       domainName && domainStore.domainRecord && !domainStore.domainRecord.renter
     console.log('isNewDomain', isNewDomain, domainName, domainName.length < 3)
   }, [domainStore.domainRecord])
+
+  if (domainInscription && domainInscription.type === 'substack' && domainInscription.url) {
+    return (
+      <Suspense fallback={<HomePageLoader />}>
+        <HomeSubStackPage url={domainInscription.url} />
+      </Suspense>
+    )
+  }
 
   if (
     subdomain !== '' ||
