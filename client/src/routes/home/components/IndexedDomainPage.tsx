@@ -11,11 +11,17 @@ import config from '../../../../config'
 import { getDomainName } from '../../../utils/urlHandler'
 
 import TweetEmbed from 'react-tweet-embed'
+import {DomainInscription} from "../HomePage";
 
 const currentPath = window.location.pathname.replace('/', '')
 
-interface Props {}
-const IndexedDomainPage: React.FC<Props> = observer(() => {
+interface Props {
+  domainInscription: DomainInscription
+}
+
+const IndexedDomainPage: React.FC<Props> = observer((props) => {
+  const { domainInscription } = props
+
   const [domainName] = useState(getDomainName())
   const [tweetId, setTweetId] = useState('')
   const { domainStore, walletStore, metaTagsStore } = useStores()
@@ -29,21 +35,6 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
         return response.data.url
       } catch (error) {
         console.error('Error fetching redirect link:', error)
-      }
-    }
-
-    const fetchDomainData = async () => {
-      try {
-        const response = await axios.get(
-          `https://inscription-indexer.fly.dev/domain/${domainName}`
-        )
-        const data = response.data
-        if (data) {
-          const url = data.url.replace('x.com', 'twitter.com')
-          setTweetId(extractTweetId(url))
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error)
       }
     }
 
@@ -63,10 +54,11 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
       })
     }
 
-    if (domainName) {
-      fetchDomainData()
+    if (domainInscription && domainInscription.type === 'twitter') {
+      const url = domainInscription.url.replace('x.com', 'twitter.com')
+      setTweetId(extractTweetId(url))
     }
-  }, [domainName, currentPath])
+  }, [domainName, currentPath, domainInscription])
 
   useEffect(() => {
     if (domainName) {
