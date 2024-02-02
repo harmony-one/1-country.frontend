@@ -42,12 +42,12 @@ const fetchInscriptionData = async (
   domain: string,
   path: string = ''
 ): Promise<DomainInscription> => {
-  const url = `https://inscription-indexer.fly.dev/domains/${domain}${
+  const url = `https://inscription-indexer.fly.dev/domain/${domain}${
     path ? `/${path}` : ''
   }`
   try {
     const { data } = await axios.get(url)
-    return data[0]
+    return data
   } catch (error) {
     console.error('Error fetching data:', error)
     return null
