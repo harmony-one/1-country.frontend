@@ -50,7 +50,7 @@ export const relayApi = () => {
   return {
     enableSubdomains: async (domainName: string) => {
       try {
-        const { data } = await base.post('/enable-subdomains', {
+        const { data } = await base.post('dns/enable-subdomains', {
           domain: `${domainName}${config.tld}`,
         })
         console.log('enableSubdomains', data)

@@ -11,9 +11,45 @@ import config from '../../../../config'
 import { getDomainName } from '../../../utils/urlHandler'
 
 import TweetEmbed from 'react-tweet-embed'
-import {DomainInscription} from "../HomePage";
+import { MediaWidget } from '../../../components/widgets/MediaWidget'
+import DalleWidget from '../../../components/widgets/DalleWidget'
 
-const currentPath = window.location.pathname.replace('/', '')
+export interface Inscription {
+  id: number
+  transactionHash: string
+  from: string
+  to: string
+  value: string
+  gas: string
+  gasPrice: string
+  blockNumber: number
+  timestamp: number
+  payload: object
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ImagePayload {
+  type: string
+  bot: string
+  prompt: string
+  image: string
+  imageId: string
+}
+export interface DomainInscription {
+  payload: ImagePayload
+  domain: string
+  url: string
+  gasPrice: string
+  type: 'twitter' | 'notion' | 'substack' | 'image' | string
+  inscription: Inscription
+}
+
+const getTweetId = (url: string) => {
+  const regex = /\/status\/(\d+)/
+  const match = url.match(regex)
+  return match[1]
+}
 
 interface Props {
   domainInscription: DomainInscription
@@ -61,6 +97,7 @@ const IndexedDomainPage: React.FC<Props> = observer((props) => {
   }, [domainName, currentPath, domainInscription])
 
   useEffect(() => {
+
     if (domainName) {
       domainStore.loadDomainRecord(domainName)
       metaTagsStore.update({
@@ -75,12 +112,20 @@ const IndexedDomainPage: React.FC<Props> = observer((props) => {
   return (
     <Container>
       <div style={{ height: '2em' }} />
-      {tweetId && (
-        <div style={{ width: '100%' }}>
-          <TweetEmbed tweetId={tweetId} options={{ width: 550 }} />
-        </div>
+      {domainInscription &&
+        domainInscription.type === 'twitter' &&
+        domainInscription.url && (
+          <div style={{ width: '100%' }}>
+            <TweetEmbed
+              tweetId={getTweetId(domainInscription.url)}
+              options={{ width: 550 }}
+            />
+          </div>
+        )}
+      {domainInscription && domainInscription.type === 'image' && (
+        <DalleWidget payload={domainInscription.payload}></DalleWidget>
       )}
-      {/* {showRenewalBlock && <DomainRecordRenewal />} */}
+      {showRenewalBlock && <DomainRecordRenewal />}
       <HomePageFooter />
       <div style={{ height: 200 }} />
     </Container>

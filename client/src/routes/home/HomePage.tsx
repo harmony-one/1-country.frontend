@@ -159,7 +159,10 @@ export const HomePage = observer(() => {
     )
   }
 
-  if (domainInscription && domainInscription.type === 'twitter') {
+  if (
+    domainInscription &&
+    (domainInscription.type === 'twitter' || domainInscription.type === 'image')
+  ) {
     return (
       <Suspense fallback={<HomePageLoader />}>
         <IndexedDomainPage domainInscription={domainInscription} />

@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import {Box} from "grommet/components/Box";
+import { Box } from 'grommet/components/Box'
 
 export const WidgetControls = styled(Box)`
   position: absolute;
@@ -22,5 +22,27 @@ export const WidgetsContainer = styled.div<{ isWidgetLoading?: boolean }>`
 
   ${WidgetControls} {
     visibility: ${(props) => (props.isWidgetLoading ? 'hidden' : 'visible')};
+  }
+`
+export const DalleContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center !important;
+  width: 100%;
+  text-align: center !important;
+
+  .img-container {
+    cursor: pointer;
+    width: 100%;
+    max-width: 550px;
+    max-height: 550px;
+    margin-bottom: 1em;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+    }
   }
 `
