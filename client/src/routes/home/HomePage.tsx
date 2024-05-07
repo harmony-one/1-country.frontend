@@ -5,17 +5,45 @@ import config from '../../../config'
 import { useStores } from '../../stores'
 
 import { HomePageLoader } from './components/HomePageLoader'
-import IndexedDomainPage, {
-  DomainInscription,
-} from './components/IndexedDomainPage'
+import IndexedDomainPage from './components/IndexedDomainPage'
 import axios from 'axios'
 import { ewsApi } from '../../api/ews/ewsApi'
+
+export interface Inscription {
+  id: number
+  transactionHash: string
+  from: string
+  to: string
+  value: string
+  gas: string
+  gasPrice: string
+  blockNumber: number
+  timestamp: number
+  payload: object
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface DomainInscription {
+  domain: string
+  url: string
+  gasPrice: string
+  type: 'twitter' | 'notion' | 'substack' | string
+  inscription: Inscription
+}
 
 const HomeNotionPage = lazy(
   () =>
     import(
       /* webpackChunkName: "HomeNotionPage" */ './components/HomeNotionPage'
     )
+)
+
+const HomeSubStackPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "HomeNotionPage" */ './components/HomeSubStackPage'
+      )
 )
 
 const HomeSearchPage = lazy(
@@ -103,6 +131,14 @@ export const HomePage = observer(() => {
       domainName && domainStore.domainRecord && !domainStore.domainRecord.renter
     console.log('isNewDomain', isNewDomain, domainName, domainName.length < 3)
   }, [domainStore.domainRecord])
+
+  if (domainInscription && domainInscription.type === 'substack' && domainInscription.url) {
+    return (
+      <Suspense fallback={<HomePageLoader />}>
+        <HomeSubStackPage url={domainInscription.url} />
+      </Suspense>
+    )
+  }
 
   if (
     subdomain !== '' ||

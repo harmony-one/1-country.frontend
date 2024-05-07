@@ -55,25 +55,49 @@ interface Props {
   domainInscription: DomainInscription
 }
 
-const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
+const IndexedDomainPage: React.FC<Props> = observer((props) => {
   const { domainInscription } = props
+
   const [domainName] = useState(getDomainName())
+  const [tweetId, setTweetId] = useState('')
   const { domainStore, walletStore, metaTagsStore } = useStores()
 
-  // useEffect(() => {
-  //   const loadEmbedUrl = async () => {
-  //     const data = await fetchInscriptionData(domainName)
-  //     setDomainInscription(data)
-  //     console.log('[xx] Fetched domain inscription:', data)
-  //   }
-  //
-  //   if (domainName) {
-  //     domainStore.loadDomainRecord(domainName)
-  //     loadEmbedUrl()
-  //   }
-  // }, [domainName])
+  useEffect(() => {
+    const fetchRedirect = async (path: string) => {
+      try {
+        const response = await axios.get(
+          `https://inscription-indexer.fly.dev/domain/${domainName}/${path}`
+        )
+        return response.data.url
+      } catch (error) {
+        console.error('Error fetching redirect link:', error)
+      }
+    }
+
+    const extractTweetId = (url: string) => {
+      const regex = /\/status\/(\d+)/
+      const match = url.match(regex)
+      return match ? match[1] : ''
+    }
+
+    if (currentPath) {
+      fetchRedirect(currentPath).then((redirectLink) => {
+        if (redirectLink) {
+          console.log('### Redirecting:', redirectLink)
+          window.location.href = redirectLink
+          return
+        }
+      })
+    }
+
+    if (domainInscription && domainInscription.type === 'twitter') {
+      const url = domainInscription.url.replace('x.com', 'twitter.com')
+      setTweetId(extractTweetId(url))
+    }
+  }, [domainName, currentPath, domainInscription])
 
   useEffect(() => {
+
     if (domainName) {
       domainStore.loadDomainRecord(domainName)
       metaTagsStore.update({
@@ -82,8 +106,8 @@ const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
     }
   }, [domainName, domainStore, metaTagsStore])
 
-  const showRenewalBlock =
-    walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
+  // const showRenewalBlock =
+  //   walletStore.isConnected && domainStore.isOwner && domainStore.isExpired
 
   return (
     <Container>
@@ -102,7 +126,6 @@ const IndexedDomainPage: React.FC<Props> = observer((props: Props) => {
         <DalleWidget payload={domainInscription.payload}></DalleWidget>
       )}
       {showRenewalBlock && <DomainRecordRenewal />}
-
       <HomePageFooter />
       <div style={{ height: 200 }} />
     </Container>
