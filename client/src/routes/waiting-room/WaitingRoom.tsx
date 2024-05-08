@@ -61,6 +61,9 @@ const WaitingRoom = observer(() => {
         async: true,
       })
       if (response && response.success) {
+        if (response.mcJobId) {
+          setCertJob(response.nakedJobId.jobId)
+        }
         return
       }
       const resp = await relayApi().createCert({
