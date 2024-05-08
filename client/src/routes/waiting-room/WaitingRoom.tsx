@@ -55,20 +55,27 @@ const WaitingRoom = observer(() => {
 
     try {
       console.log('create domain', domain)
-      const response = await relayApi().createCert({
+      const response = await relayApi().renewCert({
         domain,
         address: walletStore.walletAddress,
         async: true,
       })
-      setCertJob(response.nakedJobId.jobId)
-      console.log('cert create', response)
+      if (response && response.success) {
+        return
+      }
+      const resp = await relayApi().createCert({
+        domain,
+        address: walletStore.walletAddress,
+        async: true,
+      })
+      setCertJob(resp.nakedJobId.jobId)
     } catch (ex) {
-      console.log('createCert', {
+      console.log('Error createCert', {
         error: ex instanceof RelayError ? ex.message : ex,
         domain: `${domainName.toLowerCase()}${config.tld}`,
         address: walletStore.walletAddress,
       })
-      log.error('createCert', {
+      log.error('Error createCert', {
         error: ex instanceof RelayError ? ex.message : ex,
         domain: `${domainName.toLowerCase()}${config.tld}`,
         address: walletStore.walletAddress,
