@@ -270,6 +270,7 @@ const HomeSearchPage: React.FC = observer(() => {
         }),
       ])
     let isOwner = false
+
     if (nameExpired.isExpired && nameExpired.isInGracePeriod) {
       const owner = await baseRegistrar.getWrappedOwner(_domainName)
       isOwner = owner === walletStore.walletAddress
@@ -343,6 +344,9 @@ const HomeSearchPage: React.FC = observer(() => {
   }
 
   const claimWeb2Domain = async (txHash: string) => {
+    if (searchResult.domainName.length <= 2) {
+      return
+    }
     const domain = searchResult.domainName + config.tld
     const messages = [
       `contacting dns server`,
@@ -765,7 +769,7 @@ const HomeSearchPage: React.FC = observer(() => {
       terminateProcess()
     }
   }
-  console.log('FCO', processStatus.type)
+
   return (
     <Container maxWidth="1200px">
       <FlexRow style={{ alignItems: 'baseline', marginTop: 25, width: '100%' }}>
