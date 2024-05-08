@@ -76,9 +76,13 @@ const Tweet = ({ id }: { id: string }): JSX.Element => {
   return <TweetEmbed tweetId={id} />
 }
 
-const HomeNotionPage: React.FC = () => {
+export interface HomeNotionPageProps {
+  pageId?: string
+}
+
+const HomeNotionPage: React.FC = (props: HomeNotionPageProps) => {
   const [page, setPage] = useState<ExtendedRecordMap>()
-  const [pageId, setPageId] = useState<string>('')
+  const [pageId, setPageId] = useState<string>(props.pageId || '')
   const [allowedPageIds, setAllowedPageIds] = useState<string[]>([])
 
   const pageIdOverride = getPath().slice(1)
@@ -116,7 +120,7 @@ const HomeNotionPage: React.FC = () => {
   }, [rootStore.ewsClient])
 
   useEffect(() => {
-    if (!rootStore.ewsClient || !sld) {
+    if (!rootStore.ewsClient || !sld || props.pageId) {
       return
     }
     try {

@@ -11,11 +11,53 @@ import config from '../../../../config'
 import { getDomainName } from '../../../utils/urlHandler'
 
 import TweetEmbed from 'react-tweet-embed'
+import { MediaWidget } from '../../../components/widgets/MediaWidget'
+import DalleWidget from '../../../components/widgets/DalleWidget'
 
-const currentPath = window.location.pathname.replace('/', '')
+export interface Inscription {
+  id: number
+  transactionHash: string
+  from: string
+  to: string
+  value: string
+  gas: string
+  gasPrice: string
+  blockNumber: number
+  timestamp: number
+  payload: object
+  createdAt: Date
+  updatedAt: Date
+}
 
-interface Props {}
-const IndexedDomainPage: React.FC<Props> = observer(() => {
+export interface ImagePayload {
+  type: string
+  bot: string
+  prompt: string
+  image: string
+  imageId: string
+}
+export interface DomainInscription {
+  payload: ImagePayload
+  domain: string
+  url: string
+  gasPrice: string
+  type: 'twitter' | 'notion' | 'substack' | 'image' | string
+  inscription: Inscription
+}
+
+const getTweetId = (url: string) => {
+  const regex = /\/status\/(\d+)/
+  const match = url.match(regex)
+  return match[1]
+}
+
+interface Props {
+  domainInscription: DomainInscription
+}
+
+const IndexedDomainPage: React.FC<Props> = observer((props) => {
+  const { domainInscription } = props
+
   const [domainName] = useState(getDomainName())
   const [tweetId, setTweetId] = useState('')
   const { domainStore, walletStore, metaTagsStore } = useStores()
@@ -29,21 +71,6 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
         return response.data.url
       } catch (error) {
         console.error('Error fetching redirect link:', error)
-      }
-    }
-
-    const fetchDomainData = async () => {
-      try {
-        const response = await axios.get(
-          `https://inscription-indexer.fly.dev/domain/${domainName}`
-        )
-        const data = response.data
-        if (data) {
-          const url = data.url.replace('x.com', 'twitter.com')
-          setTweetId(extractTweetId(url))
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error)
       }
     }
 
@@ -63,12 +90,14 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
       })
     }
 
-    if (domainName) {
-      fetchDomainData()
+    if (domainInscription && domainInscription.type === 'twitter') {
+      const url = domainInscription.url.replace('x.com', 'twitter.com')
+      setTweetId(extractTweetId(url))
     }
-  }, [domainName, currentPath])
+  }, [domainName, currentPath, domainInscription])
 
   useEffect(() => {
+
     if (domainName) {
       domainStore.loadDomainRecord(domainName)
       metaTagsStore.update({
@@ -83,12 +112,20 @@ const IndexedDomainPage: React.FC<Props> = observer(() => {
   return (
     <Container>
       <div style={{ height: '2em' }} />
-      {tweetId && (
-        <div style={{ width: '100%' }}>
-          <TweetEmbed tweetId={tweetId} options={{ width: 550 }} />
-        </div>
+      {domainInscription &&
+        domainInscription.type === 'twitter' &&
+        domainInscription.url && (
+          <div style={{ width: '100%' }}>
+            <TweetEmbed
+              tweetId={getTweetId(domainInscription.url)}
+              options={{ width: 550 }}
+            />
+          </div>
+        )}
+      {domainInscription && domainInscription.type === 'image' && (
+        <DalleWidget payload={domainInscription.payload}></DalleWidget>
       )}
-      {/* {showRenewalBlock && <DomainRecordRenewal />} */}
+      {showRenewalBlock && <DomainRecordRenewal />}
       <HomePageFooter />
       <div style={{ height: 200 }} />
     </Container>

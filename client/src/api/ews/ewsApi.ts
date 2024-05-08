@@ -24,6 +24,10 @@ export const ewsApi = {
     const { data } = await base.get('/notion', { params: { id } })
     return data
   },
+  getSubstackPage: async (url: string): Promise<string> => {
+    const { data } = await base.get('/substack', { params: { url } })
+    return data
+  },
   getSameSitePageIds: async (id: string, depth = 0): Promise<string[]> => {
     const { data } = await base.get('/links', { params: { id, depth } })
     return data
