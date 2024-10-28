@@ -275,6 +275,7 @@ const HomeSearchPage: React.FC = observer(() => {
       const owner = await baseRegistrar.getWrappedOwner(_domainName)
       isOwner = owner === walletStore.walletAddress
     }
+    // console.log('FCO::::::::', record, nameExpired, relayCheckDomain, isAvailable2)
     return {
       domainName: _domainName,
       domainRecord: record,
