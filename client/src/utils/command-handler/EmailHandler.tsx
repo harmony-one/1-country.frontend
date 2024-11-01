@@ -131,7 +131,7 @@ export const EmailHandler = async ({
         })
         setProcessStatus({
           type: ProcessStatusTypes.ERROR,
-          render: <BaseText>Activation failed. {message}</BaseText>,
+          render: <BaseText>Deactivation failed. {message}</BaseText>,
         })
         return result
       }
