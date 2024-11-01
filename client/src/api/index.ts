@@ -43,7 +43,7 @@ export enum OWNER_INFO_FIELDS {
 }
 
 export interface CallbackProps {
-  onTransactionHash?: (txHash: string) => void
+  onTransactionHash?: (txHash: string, tokenAddress?: string) => void
   onFailed?: (error: Error, flag?: boolean) => void
   onSuccess?: (tx: TransactionReceipt) => void
 }

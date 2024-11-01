@@ -11,6 +11,7 @@ export const regexPatterns = {
   // NOTION: /^(?=.*notion).*\b((?:https?|ftp):\/\/\S+|www\.\S+)\b.*$/, // url that has substring notion
   TRANSFER: /transfer[:=](0x[a-fA-F0-9]{40})/i,
   WRAP: /(wrap|unwrap)/i, // wrap|unwrap
+  MEME_COMMAND: /^meme\s+([a-zA-Z0-9]+)\s+([A-Z0-9]+)$/i,
 }
 
 export enum CommandValidatorEnum {
@@ -24,6 +25,7 @@ export enum CommandValidatorEnum {
   NOTION = 'NOTION', // includes NOTION_COMMAND
   TRANSFER = 'TRANSFER',
   WRAP = 'WRAP',
+  MEME = 'MEME',
 }
 
 export interface CommandValidator {
@@ -33,6 +35,8 @@ export interface CommandValidator {
   email?: string
   command?: string
   address?: string
+  memeName?: string
+  memeSymbol?: string
 }
 
 const commandValidator = (text: string): CommandValidator => {
@@ -49,6 +53,16 @@ const commandValidator = (text: string): CommandValidator => {
     return {
       type: CommandValidatorEnum.WRAP,
       command: text,
+    }
+  }
+
+  if (regexPatterns.MEME_COMMAND.test(text)) {
+    const match = text.match(regexPatterns.MEME_COMMAND)
+    console.log(match)
+    return {
+      type: CommandValidatorEnum.MEME,
+      memeName: match[1],
+      memeSymbol: match[2],
     }
   }
 

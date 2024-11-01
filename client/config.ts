@@ -10,6 +10,10 @@ const config = {
       parseInt(process.env.CONSOLE_HIDE_ERRORS, 10) === 1 &&
       parseInt(cookie.get(COOKIES.HIDE_ERRORS), 10) !== 0,
   },
+  bondingCurve: {
+    address:
+      process.env.BONDING_CURVE ?? '0x30A12e5c6A75f6aEe3634e3B17776bB7EC227706',
+  },
   sentryDSN: process.env.SENTRY_DSN || '',
   backendHost:
     process.env.BACKEND_HOST || 'https://mdo-dcobackend-01.t.hmny.io',

@@ -15,20 +15,33 @@ export const WidgetControls = styled(Box)`
 export const WidgetsContainer = styled.div<{ isWidgetLoading?: boolean }>`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 100% !important;
   max-width: 550px;
   gap: 1em;
   position: relative;
+  align-items: center;
 
   ${WidgetControls} {
     visibility: ${(props) => (props.isWidgetLoading ? 'hidden' : 'visible')};
   }
 `
+
+export const MemeTokenContainer = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center !important;
+  width: 100%;
+  justify-content: space-between;
+  text-align: center !important;
+`
+
 export const DalleContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center !important;
   width: 100%;
+  max-width: 550px;
   text-align: center !important;
 
   .img-container {

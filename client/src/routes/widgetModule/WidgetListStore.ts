@@ -10,8 +10,7 @@ import {
   ProcessStatusTypes,
 } from '../../components/process-status/ProcessStatus'
 import { PostInfo } from '../../api/postApi'
-import { BigNumber, ethers } from 'ethers'
-import { BN } from 'bn.js'
+import { ethers } from 'ethers'
 
 export interface Widget {
   id?: number
@@ -101,14 +100,12 @@ export class WidgetListStore extends BaseStore {
       onSuccess,
       onFailed,
     } = props
-
     try {
       if (!this.stores.walletStore.isConnected) {
         await this.stores.walletStore.connect()
       }
 
       const client = this.getPostClient()
-      console.log('HERE', widgets, nameSpace)
       const result = await client.addNewPost({
         name: domainName,
         urls: buildUrlFromWidgets(widgets),
@@ -117,7 +114,6 @@ export class WidgetListStore extends BaseStore {
         onFailed,
         onTransactionHash,
       })
-      console.log('HERE', result)
       const linkId = this.widgetList.length.toString()
       await mainApi.addLinks(domainName, linkId, widgets)
 

@@ -34,11 +34,14 @@ import {
   transferDomainHandler,
 } from '../../utils/command-handler/transferCommandHandler'
 import { vanityUrlHandler } from '../../utils/command-handler/vanityUrlHandler'
+import { bondingCurveHandler } from '../../utils/command-handler/bondingCurveHandler'
 import {
   PageWidgetContainer,
   WidgetInputContainer,
 } from '../../components/page-widgets/PageWidgets.styles'
 import { addSubstackPageHandler } from '../../utils/command-handler/SubstackCommandHandler'
+import { TokenInfoWithPrice } from '../../api/bonding-curve/bondingCurveContractClient'
+import { BondingCurveWidget } from '../../components/widgets/BondingCurveWidget'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -59,6 +62,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const [isTelegramMode, setIsTelegramMode] = useState(false)
   const [loadedWidgetList, setLoadedWidgetList] = useState(false)
   const [subPage, setSubPage] = useState('')
+  const [memeCoinList, setMemeCoinList] = useState<TokenInfoWithPrice[]>()
   const navigate = useNavigate()
 
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
@@ -66,6 +70,18 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     render: '',
   })
   const { open } = useWeb3Modal()
+
+  useEffect(() => {
+    const getMemeTokens = async () => {
+      const memeTokens = await rootStore.bondingCurveClient.getTokensForWallet(
+        walletStore.walletAddress
+      )
+      setMemeCoinList(memeTokens)
+    }
+    if (!memeCoinList) {
+      getMemeTokens()
+    }
+  }, [walletStore.walletAddress, memeCoinList])
 
   useEffect(() => {
     const handlingCommand = async () => {
@@ -170,6 +186,18 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           walletStore,
           rootStore,
           setProcessStatus,
+        })
+        break
+      case CommandValidatorEnum.MEME:
+        console.log(CommandValidatorEnum.MEME)
+        result = await bondingCurveHandler({
+          domainName,
+          name: command.memeName,
+          symbol: command.memeSymbol,
+          rootStore,
+          widgetListStore,
+          setProcessStatus,
+          fromUrl,
         })
         break
       case CommandValidatorEnum.URL:
@@ -331,7 +359,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           )}
         </WidgetInputContainer>
       )}
-
+      {memeCoinList &&
+        memeCoinList.length > 0 &&
+        memeCoinList.map((meme, index) => (
+          <BondingCurveWidget token={meme} key={index} />
+        ))}
       {!isTelegramMode &&
         widgetListStore.widgetList.map((widget, index) => (
           <WidgetStatusWrapper

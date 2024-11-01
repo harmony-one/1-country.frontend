@@ -56,3 +56,10 @@ export const WidgetStatusWrapper: React.FC<Props> = observer(
     )
   }
 )
+
+export const WidgetWrapper: React.FC<{ children: React.ReactNode }> = observer(
+  ({ children }) => {
+    const { loadersStore } = useStores()
+    return <Wrapper>{children}</Wrapper>
+  }
+)
