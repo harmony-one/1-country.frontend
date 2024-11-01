@@ -1,14 +1,17 @@
 export const regexPatterns = {
   URL: /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i, // url
   VANITY: /^(\w+)=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // alias=url
+  VANITY_DELETE: /^(\w+)=(delete)$/i, // alias=deleteurl
   EMAIL: /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // email
   EMAIL_ALIAS: /^(\w+)[:=]([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, // alias=email
+  EMAIL_ALIAS_DELETE: /^(\w+)=(deactivate)$/i, // alias=deactivate
   STAKING: /^one1[a-zA-HJ-NP-Z0-9]{38}$/, // oneAddress
   STAKING_COMMAND: /^staking[:=]? ?(one1[a-zA-HJ-NP-Z0-9]{38})$/, // staking: oneAddress or staking:oneAddress or staking=oneAddress
   IFRAME: /^(?:<iframe[^>]*)(?:(?:\/>)|(?:>.*?<\/iframe>))$/, // iframe
   RENEW: /^renew$/i, // renew
   NOTION_COMMAND: /^(\w+)[\.*]=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, ///^(\w+).=((https?|ftp):\/\/[^\s/$.?#].[^\s]*)$/, // subdomain.=url (with notion as substring)
   // NOTION: /^(?=.*notion).*\b((?:https?|ftp):\/\/\S+|www\.\S+)\b.*$/, // url that has substring notion
+  NOTION_COMMAND_DELETE: /^(\w+)\.=(delete)$/i,
   TRANSFER: /transfer[:=](0x[a-fA-F0-9]{40})/i,
   WRAP: /(wrap|unwrap)/i, // wrap|unwrap
 }
@@ -17,11 +20,14 @@ export enum CommandValidatorEnum {
   NONE = 'NONE',
   URL = 'URL',
   VANITY = 'VANITY',
+  VANITY_DELETE = 'VANITY_DELETE',
   EMAIL_ALIAS = 'EMAIL_ALIAS', // Includes EMAIL case.
+  EMAIL_ALIAS_DELETE = 'EMAIL_ALIAS_DELETE',
   STAKING = 'STAKING',
   IFRAME = 'IFRAME',
   RENEW = 'RENEW',
   NOTION = 'NOTION', // includes NOTION_COMMAND
+  NOTION_DELETE = 'NOTION_DELETE', // includes NOTION_COMMAND
   TRANSFER = 'TRANSFER',
   WRAP = 'WRAP',
 }
@@ -42,6 +48,14 @@ const commandValidator = (text: string): CommandValidator => {
       type: CommandValidatorEnum.NOTION,
       aliasName: match[1],
       url: match[2],
+    }
+  }
+
+  if (regexPatterns.NOTION_COMMAND_DELETE.test(text)) {
+    const match = text.match(regexPatterns.NOTION_COMMAND_DELETE)
+    return {
+      type: CommandValidatorEnum.NOTION_DELETE,
+      aliasName: match[1],
     }
   }
 
@@ -77,11 +91,27 @@ const commandValidator = (text: string): CommandValidator => {
     }
   }
 
+  if (regexPatterns.VANITY_DELETE.test(text)) {
+    const match = text.match(regexPatterns.VANITY_DELETE)
+    return {
+      type: CommandValidatorEnum.VANITY_DELETE,
+      aliasName: match[1],
+    }
+  }
+
   if (regexPatterns.EMAIL.test(text)) {
     return {
       type: CommandValidatorEnum.EMAIL_ALIAS,
       aliasName: 'hello',
       email: text,
+    }
+  }
+
+  if (regexPatterns.EMAIL_ALIAS_DELETE.test(text)) {
+    const match = text.match(regexPatterns.EMAIL_ALIAS_DELETE)
+    return {
+      type: CommandValidatorEnum.EMAIL_ALIAS_DELETE,
+      aliasName: match[1],
     }
   }
 

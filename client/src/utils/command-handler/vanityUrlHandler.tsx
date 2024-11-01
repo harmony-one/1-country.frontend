@@ -41,7 +41,7 @@ export const vanityUrlHandler = async ({
       } ${`${domainName}${config.tld}/${vanity.aliasName}`} url`}</BaseText>
     ),
   })
-  const vanidyResult = await rootStore.vanityUrlClient[method]({
+  const vanityResult = await rootStore.vanityUrlClient[method]({
     name: domainName,
     aliasName: vanity.aliasName,
     url: vanity.url,
@@ -84,7 +84,72 @@ export const vanityUrlHandler = async ({
       })
     },
   })
-  if (!vanidyResult.error) {
+  if (!vanityResult.error) {
+    return true
+  }
+  return result
+}
+
+export const deleteVanityUrlHandler = async ({
+  vanity,
+  fromUrl = false,
+  domainName,
+  rootStore,
+  setProcessStatus,
+}: VanityUrlHandlerProps): Promise<boolean> => {
+  let result = false
+  const urlExists = await rootStore.vanityUrlClient.existURL({
+    name: domainName,
+    aliasName: vanity.aliasName,
+  })
+
+  if (!urlExists) {
+    setProcessStatus({
+      type: ProcessStatusTypes.SUCCESS,
+      render: (
+        <BaseText>{`The alias ${domainName}${config.tld}/${vanity.aliasName} was deleted`}</BaseText>
+      ),
+    })
+    return true
+  }
+  const vanityResult = await rootStore.vanityUrlClient.deleteUrl({
+    name: domainName,
+    aliasName: vanity.aliasName,
+    onTransactionHash: () => {
+      setProcessStatus({
+        type: ProcessStatusTypes.PROGRESS,
+        render: <BaseText>Waiting for transaction confirmation</BaseText>,
+      })
+    },
+    onSuccess: ({ transactionHash }) => {
+      console.log('success', transactionHash)
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: (
+          <BaseText>
+            <a
+              href={vanity.url}
+            >{`${domainName}${config.tld}/${vanity.aliasName}`}</a>
+            {` deleted `}
+          </BaseText>
+        ),
+      })
+    },
+    onFailed: (ex: Error) => {
+      log.error('deleteVanityUrlHandler', {
+        error: ex,
+        aliasName: vanity.aliasName,
+        url: vanity.url,
+        domain: `${domainName.toLowerCase()}${config.tld}`,
+      })
+      console.log('ERRROR', ex)
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: <BaseText>Error deleting Vanity URL</BaseText>,
+      })
+    },
+  })
+  if (!vanityResult.error) {
     return true
   }
   return result

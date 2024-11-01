@@ -19,7 +19,6 @@ export const buildEasClient = ({
     EASAbi,
     defaultProvider
   ) as unknown as EAS
-
   const contract = contractReadOnly.connect(provider.getSigner())
 
   const send = async ({
