@@ -98,6 +98,10 @@ const config = {
     renewalLimit: Number(process.env.RENEWAL_LIMIT) || 100, // one time
     unlimitedRenewals: true, // process.env.UNLIMITED_RENEWAL || false,
   },
+  pumpfun: {
+    apiUrl: 'https://pump-fun-backend.fly.dev',
+    tokenFactoryAddress: '0x7E994aAEDe5c578DBebf9A345e76803d813317a8',
+  },
   emojiType: {
     ONE_ABOVE: 0,
     FIRST_PRIZE: 1,
@@ -149,5 +153,4 @@ const config = {
   },
 }
 
-console.log('### config', config)
 export default config

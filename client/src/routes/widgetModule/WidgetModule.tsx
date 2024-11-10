@@ -42,6 +42,13 @@ import {
 import { addSubstackPageHandler } from '../../utils/command-handler/SubstackCommandHandler'
 import { TokenInfoWithPrice } from '../../api/bonding-curve/bondingCurveContractClient'
 import { BondingCurveWidget } from '../../components/widgets/BondingCurveWidget'
+import MemeTokenModal, {
+  CreateTokenForm,
+} from '../../components/modals/ModalMemeToken'
+import { memeCoinHandler } from '../../utils/command-handler/memeCoinHandler'
+import { modalStore } from '../../modules/modals/ModalContext'
+import { ModalIds, ModalRegister } from '../../modules/modals'
+import ModalMemeToken from '../../components/modals/ModalMemeToken'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -64,6 +71,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const [subPage, setSubPage] = useState('')
   const [memeCoinList, setMemeCoinList] = useState<TokenInfoWithPrice[]>()
   const navigate = useNavigate()
+  const [isMemeModalOpen, setIsMemeModalOpen] = useState(false)
 
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
@@ -144,6 +152,48 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     }
   }, [widgetListStore.widgetList])
 
+  const handleMemeCommand = () => {
+    if (!walletStore.isConnected) {
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render: 'Please connect your wallet first',
+      })
+      return
+    }
+    modalStore.showModal(ModalIds.MEME_COIN_CREATE)
+    setIsMemeModalOpen(true)
+  }
+
+  // Handle token creation through the modal
+  const handleCreateToken = async (formData: CreateTokenForm) => {
+    try {
+      const tokenAddress = await memeCoinHandler({
+        formData,
+        rootStore,
+        walletStore,
+        setProcessStatus,
+      })
+
+      // Close modal on success
+      setIsMemeModalOpen(false)
+
+      setProcessStatus({
+        type: ProcessStatusTypes.SUCCESS,
+        render: 'Token created successfully!',
+      })
+
+      // return tokenAddress
+    } catch (error) {
+      console.error('Failed to create token:', error)
+      setProcessStatus({
+        type: ProcessStatusTypes.ERROR,
+        render:
+          error instanceof Error ? error.message : 'Failed to create token',
+      })
+      throw error
+    }
+  }
+
   const [isLoading, setLoading] = useState(false)
   const [formFields, setFormFields] = useState(defaultFormFields)
 
@@ -190,15 +240,16 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         break
       case CommandValidatorEnum.MEME:
         console.log(CommandValidatorEnum.MEME)
-        result = await bondingCurveHandler({
-          domainName,
-          name: command.memeName,
-          symbol: command.memeSymbol,
-          rootStore,
-          widgetListStore,
-          setProcessStatus,
-          fromUrl,
-        })
+        handleMemeCommand()
+        // result = await bondingCurveHandler({
+        //   domainName,
+        //   name: command.memeName,
+        //   symbol: command.memeSymbol,
+        //   rootStore,
+        //   widgetListStore,
+        //   setProcessStatus,
+        //   fromUrl,
+        // })
         break
       case CommandValidatorEnum.URL:
       case CommandValidatorEnum.STAKING:
@@ -330,6 +381,14 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
 
   return (
     <PageWidgetContainer>
+      <ModalRegister
+        layerProps={{ position: 'center', full: 'vertical' }}
+        modalId={ModalIds.MEME_COIN_CREATE}
+      >
+        {(modalProps) => (
+          <ModalMemeToken {...modalProps} onSubmit={handleCreateToken} />
+        )}
+      </ModalRegister>
       {showInput && (
         <WidgetInputContainer>
           <SearchInput
