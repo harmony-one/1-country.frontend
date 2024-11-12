@@ -1,10 +1,24 @@
 import React, { useState } from 'react'
-import { Box } from 'grommet'
-import { BaseText, Desc } from '../../components/Text'
-import { ModalContent } from './ModalContent'
+// import { X } from 'lucide-react'
+import { Box, Layer } from 'grommet'
+import {
+  StyledBox,
+  ModalWrapper,
+  FormField,
+  Label,
+  Input,
+  TextArea,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  FileUploadContainer,
+  FileUploadLabel,
+  SubmitButton,
+  CloseButtonContainer,
+  CloseButton,
+  SuccessMessage,
+} from './Modals.styles'
 import config from '../../../config'
-import styled from 'styled-components'
-import { ModalRenderProps } from '../../modules/modals'
 
 export interface CreateTokenForm {
   name: string
@@ -13,74 +27,23 @@ export interface CreateTokenForm {
   image: string
 }
 
-interface Props extends ModalRenderProps {
+interface Props {
   onSubmit: (data: CreateTokenForm) => Promise<void>
   userAddress?: string
+  onClose: () => void
 }
 
-const StyledInput = styled.input`
-  width: 100%;
-  padding: 8px;
-  margin: 8px 0;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  &:focus {
-    outline: none;
-    border-color: #40a9ff;
-    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-  }
-`
-
-const StyledTextArea = styled.textarea`
-  width: 100%;
-  padding: 8px;
-  margin: 8px 0;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  resize: vertical;
-  min-height: 100px;
-  &:focus {
-    outline: none;
-    border-color: #40a9ff;
-    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-  }
-`
-
-const FileUploadArea = styled.div`
-  border: 2px dashed #d9d9d9;
-  border-radius: 4px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  margin: 8px 0;
-  &:hover {
-    border-color: #40a9ff;
-  }
-`
-
-const StyledButton = styled.button`
-  width: 100%;
-  padding: 8px;
-  background: #1890ff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  &:disabled {
-    background: #d9d9d9;
-    cursor: not-allowed;
-  }
-`
-
-const defaultFormState: CreateTokenForm = {
-  name: '',
-  symbol: '',
-  description: '',
-  image: '',
-}
-
-const ModalMemeToken: React.FC<Props> = ({ onSubmit, userAddress }) => {
-  const [form, setForm] = useState<CreateTokenForm>(defaultFormState)
+const ModalMemeToken: React.FC<Props> = ({
+  onSubmit,
+  userAddress,
+  onClose,
+}) => {
+  const [form, setForm] = useState<CreateTokenForm>({
+    name: '',
+    symbol: '',
+    description: '',
+    image: '',
+  })
   const [isLoading, setIsLoading] = useState(false)
 
   const handleInputChange =
@@ -118,7 +81,6 @@ const ModalMemeToken: React.FC<Props> = ({ onSubmit, userAddress }) => {
     try {
       setIsLoading(true)
       await onSubmit(form)
-      setForm(defaultFormState)
     } catch (error) {
       console.error('Failed to create token:', error)
     } finally {
@@ -127,65 +89,73 @@ const ModalMemeToken: React.FC<Props> = ({ onSubmit, userAddress }) => {
   }
 
   return (
-    <ModalContent>
-      <Box gap="16px">
-        <Box>
-          <BaseText>Create Meme Token</BaseText>
-          <Desc>
-            Create your own meme token with custom image and description
-          </Desc>
-        </Box>
+    <ModalWrapper>
+      <StyledBox>
+        <CloseButtonContainer>
+          <CloseButton onClick={onClose}>X</CloseButton>
+        </CloseButtonContainer>
 
-        <Box>
-          <BaseText>Name</BaseText>
-          <StyledInput
+        <ModalHeader>
+          <ModalTitle>Create Meme Token</ModalTitle>
+          <ModalDescription>
+            Create your own meme token with custom image and description
+          </ModalDescription>
+        </ModalHeader>
+
+        <FormField>
+          <Label>Name</Label>
+          <Input
             value={form.name}
             onChange={handleInputChange('name')}
             placeholder="Token name"
           />
-        </Box>
+        </FormField>
 
-        <Box>
-          <BaseText>Symbol</BaseText>
-          <StyledInput
+        <FormField>
+          <Label>Symbol</Label>
+          <Input
             value={form.symbol}
             onChange={handleInputChange('symbol')}
             placeholder="Token symbol"
           />
-        </Box>
+        </FormField>
 
-        <Box>
-          <BaseText>Description</BaseText>
-          <StyledTextArea
+        <FormField>
+          <Label>Description</Label>
+          <TextArea
             value={form.description}
             onChange={handleInputChange('description')}
             placeholder="Token description"
           />
-        </Box>
+        </FormField>
 
-        <Box>
-          <BaseText>Image</BaseText>
-          <FileUploadArea>
+        <FormField>
+          <Label>Image</Label>
+          <FileUploadContainer>
             <input
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              style={{ display: 'none' }}
               id="file-upload"
+              style={{ display: 'none' }}
             />
-            <label htmlFor="file-upload">Click or drag file to upload</label>
-          </FileUploadArea>
-          {form.image && <BaseText>Image uploaded successfully</BaseText>}
-        </Box>
+            <FileUploadLabel htmlFor="file-upload">
+              Click or drag file to upload
+            </FileUploadLabel>
+          </FileUploadContainer>
+          {form.image && (
+            <SuccessMessage>Image uploaded successfully</SuccessMessage>
+          )}
+        </FormField>
 
-        <StyledButton
+        <SubmitButton
           disabled={!form.name || !form.symbol || isLoading}
           onClick={handleSubmit}
         >
           {isLoading ? 'Creating...' : 'Create Token'}
-        </StyledButton>
-      </Box>
-    </ModalContent>
+        </SubmitButton>
+      </StyledBox>
+    </ModalWrapper>
   )
 }
 

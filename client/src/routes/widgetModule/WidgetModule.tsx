@@ -40,7 +40,6 @@ import {
   WidgetInputContainer,
 } from '../../components/page-widgets/PageWidgets.styles'
 import { addSubstackPageHandler } from '../../utils/command-handler/SubstackCommandHandler'
-import { TokenInfoWithPrice } from '../../api/bonding-curve/bondingCurveContractClient'
 import { BondingCurveWidget } from '../../components/widgets/BondingCurveWidget'
 import MemeTokenModal, {
   CreateTokenForm,
@@ -69,9 +68,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const [isTelegramMode, setIsTelegramMode] = useState(false)
   const [loadedWidgetList, setLoadedWidgetList] = useState(false)
   const [subPage, setSubPage] = useState('')
-  const [memeCoinList, setMemeCoinList] = useState<TokenInfoWithPrice[]>()
+  // const [memeCoinList, setMemeCoinList] = useState<TokenInfoWithPrice[]>()
   const navigate = useNavigate()
-  const [isMemeModalOpen, setIsMemeModalOpen] = useState(false)
 
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
     type: ProcessStatusTypes.IDLE,
@@ -79,17 +77,17 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   })
   const { open } = useWeb3Modal()
 
-  useEffect(() => {
-    const getMemeTokens = async () => {
-      const memeTokens = await rootStore.bondingCurveClient.getTokensForWallet(
-        walletStore.walletAddress
-      )
-      setMemeCoinList(memeTokens)
-    }
-    if (!memeCoinList) {
-      getMemeTokens()
-    }
-  }, [walletStore.walletAddress, memeCoinList])
+  // useEffect(() => {
+  //   const getMemeTokens = async () => {
+  //     const memeTokens = await rootStore.bondingCurveClient.getTokensForWallet(
+  //       walletStore.walletAddress
+  //     )
+  //     setMemeCoinList(memeTokens)
+  //   }
+  //   if (!memeCoinList) {
+  //     getMemeTokens()
+  //   }
+  // }, [walletStore.walletAddress, memeCoinList])
 
   useEffect(() => {
     const handlingCommand = async () => {
@@ -160,29 +158,27 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       })
       return
     }
+    setLoading(true)
     modalStore.showModal(ModalIds.MEME_COIN_CREATE)
-    setIsMemeModalOpen(true)
   }
 
   // Handle token creation through the modal
-  const handleCreateToken = async (formData: CreateTokenForm) => {
+  const handleCreateToken = async (
+    formData: CreateTokenForm
+  ): Promise<void> => {
     try {
-      const tokenAddress = await memeCoinHandler({
+      modalStore.hideModal()
+      await memeCoinHandler({
         formData,
         rootStore,
         walletStore,
         setProcessStatus,
       })
-
-      // Close modal on success
-      setIsMemeModalOpen(false)
-
       setProcessStatus({
         type: ProcessStatusTypes.SUCCESS,
         render: 'Token created successfully!',
       })
-
-      // return tokenAddress
+      resetInput()
     } catch (error) {
       console.error('Failed to create token:', error)
       setProcessStatus({
@@ -190,7 +186,8 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         render:
           error instanceof Error ? error.message : 'Failed to create token',
       })
-      throw error
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -340,7 +337,9 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       resetInput()
     }
     resetProcessStatus(10000)
-    setLoading(false)
+    if (command.type !== CommandValidatorEnum.MEME) {
+      setLoading(false)
+    }
     if (fromUrl) {
       sleep(3000)
       history.pushState(null, '', `\\`)
@@ -418,11 +417,11 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           )}
         </WidgetInputContainer>
       )}
-      {memeCoinList &&
+      {/* {memeCoinList &&
         memeCoinList.length > 0 &&
         memeCoinList.map((meme, index) => (
           <BondingCurveWidget token={meme} key={index} />
-        ))}
+        ))} */}
       {!isTelegramMode &&
         widgetListStore.widgetList.map((widget, index) => (
           <WidgetStatusWrapper

@@ -29,16 +29,12 @@ import vanityApis, {
 } from '../api/vanity-url/vanityContractClient'
 import postApi, { PostClient } from '../api/postApi'
 import { buildEasClient, EasClient } from '../api/eas/easContractClient'
-import {
-  BondingCurveClient,
-  buildBondingCurveClient,
-} from '../api/bonding-curve/bondingCurveContractClient'
 import { NameWrapperClient, nameWrapperApi } from '../api/nameWrapperApi'
 import { BaseRegistrarClient, baseRegistrarApi } from '../api/baseRegistrarApi'
 import {
   buildTokenApiClient,
   TokenApiClient,
-} from '../api/bonding-curve/tokenApiClient'
+} from '../api/meme-token/tokenApiClient'
 
 export class RootStore {
   modalStore: ModalStore
@@ -55,7 +51,6 @@ export class RootStore {
   domainStore: DomainStore
   walletStore: WalletStore
   tokenApiClient: TokenApiClient
-  bondingCurveClient: BondingCurveClient
   uiTransactionStore: UITransactionStore
   telegramWebAppStore: TelegramWebAppStore
 
@@ -124,7 +119,6 @@ export class RootStore {
     console.log('### dc client updated', address)
 
     this.easClient = buildEasClient({ provider })
-    this.bondingCurveClient = buildBondingCurveClient({ provider })
     this.tokenApiClient = buildTokenApiClient({ provider })
     this.d1dcClient = apis({ provider, address })
     this.postClient = postApi({ provider, address })

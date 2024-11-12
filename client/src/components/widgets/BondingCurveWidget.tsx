@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { Box } from 'grommet/components/Box'
 import { Text } from 'grommet/components/Text'
-import { TokenInfoWithPrice } from '../../api/bonding-curve/bondingCurveContractClient'
 import { useStores } from '../../stores'
 import { formatEther } from 'viem'
 import { MemeTokenContainer, WidgetsContainer } from './Widgets.styles'
@@ -15,9 +14,7 @@ interface Props {
   onDelete: () => void
 }
 
-export const BondingCurveWidget: React.FC<{ token: TokenInfoWithPrice }> = ({
-  token,
-}) => {
+export const BondingCurveWidget: React.FC<{ token: any }> = ({ token }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [balance, setBalance] = useState<bigint>()
   const { walletStore, rootStore } = useStores()
@@ -31,29 +28,28 @@ export const BondingCurveWidget: React.FC<{ token: TokenInfoWithPrice }> = ({
     threshold: 0.1,
   })
 
-  useEffect(() => {
-    const getBalance = async () => {
-      try {
-        const data = await rootStore.bondingCurveClient.tokens.getBalance(
-          token.tokenAddress,
-          walletStore.walletAddress
-        )
-        setBalance(data)
-      } catch (error) {
-        console.error('Error fetching balance:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  // useEffect(() => {
+  //   const getBalance = async () => {
+  //     try {
+  //       const data = await rootStore.bondingCurveClient.tokens.getBalance(
+  //         token.tokenAddress,
+  //         walletStore.walletAddress
+  //       )
+  //       setBalance(data)
+  //     } catch (error) {
+  //       console.error('Error fetching balance:', error)
+  //     } finally {
+  //       setIsLoading(false)
+  //     }
+  //   }
 
-    if (walletStore.walletAddress) {
-      getBalance()
-    }
-  }, [
-    token.tokenAddress,
-    walletStore.walletAddress,
-    rootStore.bondingCurveClient,
-  ])
+  //   if (walletStore.walletAddress) {
+  //     getBalance()
+  //   }
+  // }, [
+  //   token.tokenAddress,
+  //   walletStore.walletAddress
+  // ])
 
   if (balance && token.currentPrice) {
     const balanceBigInt = BigInt(balance.toString())

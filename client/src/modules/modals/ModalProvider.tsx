@@ -30,10 +30,11 @@ export const ModalProvider: React.FC<Props> = observer(() => {
 
   return (
     <Layer
+      modal
+      onEsc={handleCloseModal}
       onClickOutside={handleCloseModal}
-      full={full}
-      position={position}
       responsive={false}
+      position={position}
     >
       {modal.render({
         onClose: handleCloseModal,

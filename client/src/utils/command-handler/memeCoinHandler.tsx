@@ -6,7 +6,7 @@ import { RootStore } from '../../stores/RootStore'
 import { WalletStore } from '../../stores/WalletStore'
 import { BaseText } from '../../components/Text'
 import React from 'react'
-import { CreateTokenForm } from '../../api/bonding-curve/types'
+import { CreateTokenForm } from '../../api/meme-token/types'
 
 interface MemeCoinHandlerProps {
   formData: CreateTokenForm

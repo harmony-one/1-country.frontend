@@ -7,11 +7,12 @@ export const WidgetControls = styled(Box)`
   right: 0;
   font-size: 2em;
   color: #758796;
-  z-index: 99;
+  z-index: 2;
   background-color: transparent;
   border: 0;
   padding: 0;
 `
+
 export const WidgetsContainer = styled.div<{ isWidgetLoading?: boolean }>`
   display: flex;
   flex-direction: column;
