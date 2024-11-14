@@ -1,4 +1,3 @@
-// types.ts
 export interface TokenMetadata {
   userAddress: string
   name: string
@@ -31,20 +30,48 @@ export interface TokenMetadata {
   image: string
 }
 
+export interface TokenUriData {
+  userAddress: string
+  name: string
+  ticker: string
+  description: string
+  image: string
+}
+
 export interface Token {
+  id: string
+  txnHash: string
+  blockNumber: number
   address: string
   name: string
   symbol: string
-  metadata?: TokenMetadata
+  uri: string
+  uriData: TokenUriData | null
+  totalSupply: string
+  price: string
+  marketCap: string
+  timestamp: string
   createdAt: string
-  creatorAddress: string
+  updatedAt: string
+  user: UserAccount | null
+}
+
+export interface UserAccount {
+  id: string
+  address: string
+  username: string
+  createdAt: string
+  updatedAt: string
+  tokens: Token[]
 }
 
 export interface TokenBalance {
+  id: string
   tokenAddress: string
   userAddress: string
   balance: string
   updatedAt: string
+  token: Token
 }
 
 export interface TokenTrade {
@@ -55,4 +82,13 @@ export interface TokenTrade {
   price: string
   type: 'buy' | 'sell'
   timestamp: string
+}
+
+export interface TokenWinner {
+  id: string
+  timestamp: string
+  txnHash: string
+  blockNumber: number
+  createdAt: Date
+  token: Token
 }

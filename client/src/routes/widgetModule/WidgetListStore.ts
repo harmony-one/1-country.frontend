@@ -12,21 +12,39 @@ import {
 import { PostInfo } from '../../api/postApi'
 import { ethers } from 'ethers'
 
+export enum WidgetTypes {
+  URL = 'url',
+  STAKING = 'staking',
+  IFRAME = 'iframe',
+  MEME_TOKEN = 'memeToken',
+  TWITTER = 'twitter',
+}
+
 export interface Widget {
   id?: number
-  type: string
+  type: WidgetTypes
   value: string
   uuid?: string
   isPinned?: boolean
 }
 
+function isValidWidgetType(type: string): type is WidgetTypes {
+  return Object.values(WidgetTypes).includes(type as WidgetTypes)
+}
+
 const parseRawUrl = (url: string): Widget => {
-  const [type, ...rest] = url.split(':')
+  const [rawType, ...rest] = url.split(':')
 
   let value = rest.join(':')
 
+  if (!isValidWidgetType(rawType)) {
+    throw new Error(`Invalid widget type: ${rawType}`)
+  }
+
+  const type = rawType as WidgetTypes
+
   // backward compatibility for twitter identity
-  if (!isUrl(value) && type === 'twitter') {
+  if (!isUrl(value) && type === WidgetTypes.TWITTER) {
     value = `https://twitter.com/${value}`
     console.log('### value', value)
   }

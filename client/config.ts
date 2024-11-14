@@ -100,7 +100,7 @@ const config = {
   },
   pumpfun: {
     apiUrl: 'https://pump-fun-backend.fly.dev',
-    tokenFactoryAddress: '0x7E994aAEDe5c578DBebf9A345e76803d813317a8',
+    tokenFactoryAddress: '0xB62780157f4f6da6419a4bFf8ec72663867042B5',
   },
   emojiType: {
     ONE_ABOVE: 0,

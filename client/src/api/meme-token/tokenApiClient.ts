@@ -8,6 +8,7 @@ import {
   Token,
   TokenBalance,
   TokenTrade,
+  TokenWinner,
 } from './types'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { CallbackProps, SendProps, SendResult } from '../index'
@@ -103,14 +104,22 @@ export const buildTokenApiClient = ({
     },
 
     getTokenBalances: async (params: {
-      tokenAddress: string
+      tokenAddress?: string
+      userAddress?: string // returns token hold by userAddress
       limit?: number
       offset?: number
     }): Promise<TokenBalance[]> => {
       try {
+        const { limit = 100, offset = 0 } = params
         const { data } = await httpClient.get<TokenBalance[]>(
           '/token/balances',
-          { params }
+          {
+            params: {
+              ...params,
+              offset,
+              limit,
+            },
+          }
         )
         return data
       } catch (error) {
@@ -119,35 +128,44 @@ export const buildTokenApiClient = ({
       }
     },
 
-    getTokenTrades: async (params: {
-      tokenAddress?: string
-      limit?: number
-      offset?: number
-    }): Promise<TokenTrade[]> => {
+    getUserCreatedTokens: async (userAddress: string): Promise<Token[]> => {
       try {
-        const { data } = await httpClient.get<TokenTrade[]>('/trades', {
-          params,
-        })
+        const { data } = await httpClient.get<Token[]>(
+          `/user/${userAddress}/tokens/created`
+        )
         return data
       } catch (error) {
-        console.error('Failed to get token trades', { error, params })
+        console.error('Failed to get user created tokens', {
+          error,
+          userAddress,
+        })
         return []
       }
     },
 
-    getDailyWinner: async (date?: string): Promise<Token | null> => {
+    getTokenWinners: async (
+      params: {
+        limit?: number
+        offset?: number
+      } = {}
+    ): Promise<TokenWinner[]> => {
       try {
-        const params = date ? { date } : {}
-        const { data } = await httpClient.get<Token>('/tokens/daily-winner', {
-          params,
-        })
+        const { data } = await httpClient.get('/token/winners', { params })
         return data
       } catch (error) {
-        console.error('Failed to get daily winner', { error, date })
-        return null
+        console.error('Failed to get token winners', { error, params })
+        return []
       }
     },
-
+    getTokenByAddress: async (tokenAddress: string): Promise<Token> => {
+      try {
+        const { data } = await httpClient.get<Token>(`/token/${tokenAddress}`)
+        return data
+      } catch (error) {
+        console.error('Failed to get token', { error, tokenAddress })
+        throw error
+      }
+    },
     // Web3 Methods
     createToken: async ({
       name,
@@ -199,15 +217,6 @@ export const buildTokenApiClient = ({
         })
       } catch (error) {
         onFailed && onFailed(error, true)
-        throw error
-      }
-    },
-
-    isTokenNameTaken: async (name: string): Promise<boolean> => {
-      try {
-        return await contractReadOnly.isNameTaken(name)
-      } catch (error) {
-        console.error('Error checking name availability:', error)
         throw error
       }
     },

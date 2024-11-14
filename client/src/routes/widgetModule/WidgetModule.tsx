@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite'
 
 import config from '../../../config'
 import { useStores } from '../../stores'
-import { Widget, widgetListStore } from './WidgetListStore'
+import { Widget, widgetListStore, WidgetTypes } from './WidgetListStore'
 import { TransactionWidget } from '../../components/widgets/TransactionWidget'
 import { MetamaskWidget } from '../../components/widgets/MetamaskWidget'
 import { WalletConnectWidget } from '../../components/widgets/WalletConnectWidget'
@@ -34,7 +34,7 @@ import {
   transferDomainHandler,
 } from '../../utils/command-handler/transferCommandHandler'
 import { vanityUrlHandler } from '../../utils/command-handler/vanityUrlHandler'
-import { bondingCurveHandler } from '../../utils/command-handler/bondingCurveHandler'
+// import { bondingCurveHandler } from '../../utils/command-handler/bondingCurveHandler'
 import {
   PageWidgetContainer,
   WidgetInputContainer,
@@ -48,6 +48,8 @@ import { memeCoinHandler } from '../../utils/command-handler/memeCoinHandler'
 import { modalStore } from '../../modules/modals/ModalContext'
 import { ModalIds, ModalRegister } from '../../modules/modals'
 import ModalMemeToken from '../../components/modals/ModalMemeToken'
+import { BaseText } from '../../components/Text'
+import { MemeTokenWidget } from '../../components/widgets/MemeTokenWidget'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -68,7 +70,7 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
   const [isTelegramMode, setIsTelegramMode] = useState(false)
   const [loadedWidgetList, setLoadedWidgetList] = useState(false)
   const [subPage, setSubPage] = useState('')
-  // const [memeCoinList, setMemeCoinList] = useState<TokenInfoWithPrice[]>()
+  const [memeWidget, setMemeWidget] = useState<Widget>()
   const navigate = useNavigate()
 
   const [processStatus, setProcessStatus] = useState<ProcessStatusItem>({
@@ -76,18 +78,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     render: '',
   })
   const { open } = useWeb3Modal()
-
-  // useEffect(() => {
-  //   const getMemeTokens = async () => {
-  //     const memeTokens = await rootStore.bondingCurveClient.getTokensForWallet(
-  //       walletStore.walletAddress
-  //     )
-  //     setMemeCoinList(memeTokens)
-  //   }
-  //   if (!memeCoinList) {
-  //     getMemeTokens()
-  //   }
-  // }, [walletStore.walletAddress, memeCoinList])
 
   useEffect(() => {
     const handlingCommand = async () => {
@@ -136,7 +126,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     widgetListStore.loadWidgetList(domainName, sub)
     setLoadedWidgetList(true)
     widgetListStore.loadDomainTx(domainName)
-    // checkActivated()
   }, [domainName])
 
   useEffect(() => {
@@ -147,6 +136,19 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       widgetListStore.widgetList.length === 0
     ) {
       window.location.href = `https://${domainName}${config.tld}`
+    }
+    if (widgetListStore.widgetList.length > 0) {
+      console.log('HERE MATE')
+      const widget = widgetListStore.widgetList.find(
+        (widget) => widget.type === WidgetTypes.MEME_TOKEN
+      )
+      console.log('HERE MATE widget', widget)
+      setMemeWidget(widget)
+      // if (widget) {
+
+      // } else {
+      //   setM
+      // }
     }
   }, [widgetListStore.widgetList])
 
@@ -162,7 +164,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
     modalStore.showModal(ModalIds.MEME_COIN_CREATE)
   }
 
-  // Handle token creation through the modal
   const handleCreateToken = async (
     formData: CreateTokenForm
   ): Promise<void> => {
@@ -178,6 +179,45 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
         type: ProcessStatusTypes.SUCCESS,
         render: 'Token created successfully!',
       })
+
+      if (
+        !widgetListStore.widgetList.find(
+          (widget) => widget.type === WidgetTypes.MEME_TOKEN
+        )
+      ) {
+        const widget = {
+          type: WidgetTypes.MEME_TOKEN,
+          value: formData.name,
+        }
+        const widgetResult = await widgetListStore.createWidget({
+          widgets: [widget],
+          domainName,
+          nameSpace: '',
+          onTransactionHash: () => {
+            setProcessStatus({
+              type: ProcessStatusTypes.PROGRESS,
+              render: <BaseText>Creating Meme Widget</BaseText>,
+            })
+          },
+        })
+        if (widgetResult.error) {
+          setProcessStatus({
+            type: ProcessStatusTypes.ERROR,
+            render: (
+              <BaseText>
+                {widgetResult.error.message.length > 50
+                  ? widgetResult.error.message.substring(0, 50) + '...'
+                  : widgetResult.error.message}
+              </BaseText>
+            ),
+          })
+        } else {
+          setProcessStatus({
+            type: ProcessStatusTypes.SUCCESS,
+            render: <BaseText>Meme Token Widget successfully added</BaseText>,
+          })
+        }
+      }
       resetInput()
     } catch (error) {
       console.error('Failed to create token:', error)
@@ -238,15 +278,6 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
       case CommandValidatorEnum.MEME:
         console.log(CommandValidatorEnum.MEME)
         handleMemeCommand()
-        // result = await bondingCurveHandler({
-        //   domainName,
-        //   name: command.memeName,
-        //   symbol: command.memeSymbol,
-        //   rootStore,
-        //   widgetListStore,
-        //   setProcessStatus,
-        //   fromUrl,
-        // })
         break
       case CommandValidatorEnum.URL:
       case CommandValidatorEnum.STAKING:
@@ -417,29 +448,36 @@ export const WidgetModule: React.FC<Props> = observer(({ domainName }) => {
           )}
         </WidgetInputContainer>
       )}
-      {/* {memeCoinList &&
-        memeCoinList.length > 0 &&
-        memeCoinList.map((meme, index) => (
-          <BondingCurveWidget token={meme} key={index} />
-        ))} */}
+      {memeWidget && (
+        <WidgetStatusWrapper
+          loaderId={widgetListStore.buildWidgetLoaderId(memeWidget.id)}
+        >
+          <MemeTokenWidget
+            isOwner={domainStore.isOwner}
+            onDelete={() => deleteWidget(memeWidget)}
+          />
+        </WidgetStatusWrapper>
+      )}
       {!isTelegramMode &&
-        widgetListStore.widgetList.map((widget, index) => (
-          <WidgetStatusWrapper
-            key={widget.id + widget.value + +widget.isPinned}
-            loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
-          >
-            <MediaWidget
-              domainName={domainName}
-              value={widget.value}
-              type={widget.type}
-              uuid={widget.uuid}
-              isPinned={widget.isPinned}
-              isOwner={domainStore.isOwner}
-              onDelete={() => deleteWidget(widget)}
-              onPin={(isPinned: boolean) => pinWidget(widget, isPinned)}
-            />
-          </WidgetStatusWrapper>
-        ))}
+        widgetListStore.widgetList
+          .filter((widget) => widget.type !== WidgetTypes.MEME_TOKEN)
+          .map((widget, index) => (
+            <WidgetStatusWrapper
+              key={widget.id + widget.value + +widget.isPinned}
+              loaderId={widgetListStore.buildWidgetLoaderId(widget.id)}
+            >
+              <MediaWidget
+                domainName={domainName}
+                value={widget.value}
+                type={widget.type}
+                uuid={widget.uuid}
+                isPinned={widget.isPinned}
+                isOwner={domainStore.isOwner}
+                onDelete={() => deleteWidget(widget)}
+                onPin={(isPinned: boolean) => pinWidget(widget, isPinned)}
+              />
+            </WidgetStatusWrapper>
+          ))}
 
       {!isTelegramMode && domainStore.domainRecord && (
         <TransactionWidget name={domainName} />

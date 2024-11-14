@@ -8,6 +8,7 @@ import { sleep } from '../sleep'
 import {
   Widget,
   WidgetListStore,
+  WidgetTypes,
 } from '../../routes/widgetModule/WidgetListStore'
 import { isIframeWidget, isRedditUrl, isStakingWidgetUrl } from '../validation'
 import { mainApi } from '../../api/mainApi'
@@ -51,7 +52,7 @@ export const addPostHandler = async ({
 
   if (isStakingWidgetUrl(url)) {
     widget = {
-      type: 'staking',
+      type: WidgetTypes.STAKING,
       value: url,
     }
   } else if (isIframeWidget(url)) {
@@ -61,7 +62,7 @@ export const addPostHandler = async ({
     )
 
     widget = {
-      type: 'iframe',
+      type: WidgetTypes.IFRAME,
       value: createWidgetRes.data.id,
     }
   } else {
@@ -101,7 +102,7 @@ export const addPostHandler = async ({
     }
 
     widget = {
-      type: 'url',
+      type: WidgetTypes.URL,
       value: url,
     }
   }

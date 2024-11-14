@@ -39,9 +39,6 @@ export class BaseStore {
     return this.rootStore.baseRegistrar
   }
 
-  getbondingCurveClient() {
-    return this.rootStore.bondingCurveClient
-  }
   get stores() {
     return this.rootStore.stores
   }

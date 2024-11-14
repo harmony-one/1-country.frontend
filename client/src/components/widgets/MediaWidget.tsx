@@ -14,6 +14,7 @@ import { useLocation } from 'react-router'
 import { toast } from 'react-toastify'
 import { getLevenshteinDistance } from '../../utils/string'
 import IframeWidget from './IframeWidget'
+import { WidgetTypes } from '../../routes/widgetModule/WidgetListStore'
 
 const StakingWidget = lazy(
   () => import(/* webpackChunkName: "StakingWidget" */ './StakingWidget')
@@ -181,12 +182,12 @@ export const MediaWidget: React.FC<Props> = ({
       )}
       <WidgetsContainer isWidgetLoading={isLoading} ref={ref}>
         <Box pad={{ bottom: '2em' }}>
-          {type === 'staking' && (
+          {type === WidgetTypes.STAKING && (
             <Suspense fallback={<div />}>
               <StakingWidget validator={stakingValidator} />
             </Suspense>
           )}
-          {type === 'iframe' && <IframeWidget id={value} />}
+          {type === WidgetTypes.IFRAME && <IframeWidget id={value} />}
           {!stakingValidator && widget && (!isLoading || inView) && (
             <blockquote className="embedly-card" style={{ zIndex: '10' }}>
               <h4>

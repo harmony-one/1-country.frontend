@@ -15,6 +15,7 @@ import { sleep } from '../../utils/sleep'
 import isUrl from 'is-url'
 import { loadEmbedJson } from '../../modules/embedly/embedly'
 import { isValidInstagramUri, isValidTwitUri } from '../../utils/validation'
+import { WidgetTypes } from '../widgetModule/WidgetListStore'
 
 const defaultFormFields = {
   widgetValue: '',
@@ -91,7 +92,7 @@ const OpenWidgetsPage = observer(() => {
     }
 
     const widget = {
-      type: 'url',
+      type: WidgetTypes.URL,
       value: formFields.widgetValue,
     }
 

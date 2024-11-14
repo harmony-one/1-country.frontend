@@ -7,7 +7,7 @@ export const WidgetControls = styled(Box)`
   right: 0;
   font-size: 2em;
   color: #758796;
-  z-index: 2;
+  z-index: 99;
   background-color: transparent;
   border: 0;
   padding: 0;

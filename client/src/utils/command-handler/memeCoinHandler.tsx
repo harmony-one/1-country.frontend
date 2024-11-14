@@ -71,7 +71,7 @@ export const memeCoinHandler = async ({
         })
       },
     })
-    console.log('FCO::::::::::::: ', txHash)
+
     return result
     //  writeContract(config, {
     //   address: appConfig.tokenFactoryAddress,
